@@ -1,6 +1,6 @@
 {
   "name": "@seansmithworks/vista-sheet",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Draggable trigger that morphs into a modal sheet. Generic React primitive, compound-component API.",
   "license": "MIT",
@@ -64,6 +64,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "dialkit": "^2.0.2",
+    "jsdom": "^30.1.1",
     "motion": "^12.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

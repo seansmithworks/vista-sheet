@@ -317,7 +317,10 @@ export function Trigger({ children, className, ...aria }: TriggerProps) {
       unsubY();
       window.removeEventListener("resize", update);
       resizeObserver?.disconnect();
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
   }, [x, y, setTriggerRect]);
 
