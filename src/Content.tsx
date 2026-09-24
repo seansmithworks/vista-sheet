@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { useVistaSheetInternal } from "./context";
+import { DirectChildContext, useVistaSheetInternal } from "./context";
 import {
   CONTENT_FADE_OUT_DELAY_MS,
   CONTENT_FADE_OUT_MS,
@@ -97,7 +97,9 @@ export function Content({ children, className }: ContentProps) {
       animate="visible"
       exit="exit"
     >
-      {children}
+      <DirectChildContext.Provider value={false}>
+        {children}
+      </DirectChildContext.Provider>
     </motion.div>
   );
 }

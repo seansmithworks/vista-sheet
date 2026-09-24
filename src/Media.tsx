@@ -9,10 +9,17 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
+  DirectChildContext,
   TriggerSurfaceContext,
   useVistaSheetInternal,
   useVistaSheetSlot,
 } from "./context";
+
+// `process` is not declared in a Vite consumer's tsconfig — see Sheet.tsx's
+// matching declaration/note.
+declare const process: { env: { NODE_ENV?: string } };
+
+let warnedMediaNotDirectChild = false;
 import { mediaCoverBox, mediaCounterScale } from "./mediaFit";
 import type { MediaProps } from "./types";
 import styles from "./styles.module.css";
@@ -44,6 +51,20 @@ export function Media({
   const ctx = useVistaSheetInternal("Media");
   const slot = useVistaSheetSlot();
   const store = useContext(TriggerSurfaceContext);
+  const isDirectChild = useContext(DirectChildContext);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    if (isDirectChild || warnedMediaNotDirectChild) return;
+    warnedMediaNotDirectChild = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[vista-sheet] <VistaSheet.Media> is not a direct child of " +
+        "<VistaSheet.Trigger>/<VistaSheet.Sheet> — it is nested inside " +
+        "<VistaSheet.Item>/<VistaSheet.Content> or another wrapper. Move it " +
+        "to be a direct child of Trigger/Sheet.",
+    );
+  }, [isDirectChild]);
 
   // WHY THIS DESIGN (DESIGN.md §4.1, "one surface, one clock"): during the
   // FLIP, Motion scales the surface non-uniformly (a square disc becoming a

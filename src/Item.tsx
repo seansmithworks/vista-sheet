@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useVistaSheetInternal } from "./context";
+import { DirectChildContext, useVistaSheetInternal } from "./context";
 import type { ItemProps } from "./types";
 import styles from "./styles.module.css";
 
@@ -28,7 +28,9 @@ export function Item({ children, className }: ItemProps) {
       data-vista-sheet-part="item"
       variants={variants}
     >
-      {children}
+      <DirectChildContext.Provider value={false}>
+        {children}
+      </DirectChildContext.Provider>
     </motion.div>
   );
 }

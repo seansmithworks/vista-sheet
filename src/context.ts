@@ -137,6 +137,17 @@ export const TriggerSurfaceContext = createContext<TriggerSurfaceStore | null>(
 );
 
 /**
+ * DirectChildContext — dev-only structural check. Defaults to `true` (a bare
+ * <Shared>/<Media> under <Trigger>/<Sheet> with no wrapper is the documented
+ * shape). <Item> and <Content> re-provide `false` around their own children,
+ * since a <Shared>/<Media> nested inside either would inherit the wrong
+ * FLIP/projection (see Shared.tsx's structural-rule comment) — cheaper than
+ * DOM-walking, since it only requires each wrapper to flip a flag rather than
+ * every consumer walking parentElement chains.
+ */
+export const DirectChildContext = createContext(true);
+
+/**
  * useVistaSheet — the public escape hatch. Throws outside <VistaSheet.Root>.
  *
  * usePKG().collapseProgress is the raw MotionValue the package's own radius,
