@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { createRoot } from "react-dom/client";
 import { DialRoot, useDialKit, useDialKitController } from "dialkit";
@@ -974,9 +974,12 @@ function App() {
   );
 }
 
+// Not wrapped in <StrictMode>: React's dev double-invocation of effects
+// makes the Playwright geometry/media/shadow-perframe specs' "runs once per
+// frame" and drag/skew timing assertions flaky-to-failing (double reads,
+// doubled RAF scheduling). The Trigger StrictMode-remount regression this
+// fix addresses is covered by src/Trigger.strictmode.test.tsx (vitest),
+// which exercises unmount/remount directly and doesn't need the app root
+// wrapped here.
 const root = createRoot(document.getElementById("root")!);
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+root.render(<App />);
