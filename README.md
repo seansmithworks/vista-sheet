@@ -180,6 +180,22 @@ Ten exports total: nine components (`Root`, `Trigger`, `Sheet`, `Shared`,
 `Media`, `Content`, `Item`, `Close`, `Shadow`) plus the `useVistaSheet()`
 hook. That is the whole surface area.
 
+### `<Shared>` and `<Media>` must be direct children
+
+`<VistaSheet.Shared>` and `<VistaSheet.Media>` must render as **direct**
+children of `<VistaSheet.Trigger>` and `<VistaSheet.Sheet>`, never nested
+inside `<VistaSheet.Item>` or any other motion-animated wrapper. Per
+`Shared.tsx`'s own header comment, `<Shared>` "renders as a SIBLING of the
+trigger seed surface in Trigger.tsx, never nested inside it": nesting it
+makes its projection inherit the parent's close-morph FLIP and freezes it
+at the surface's transient mid-collapse box. The break is silent, no error,
+no warning, just a frozen shared element mid-morph.
+
+Size `<Shared>`'s own children with `width: 100%; height: 100%`, not a fixed
+pixel value. The slot's box tracks `--vista-sheet-shared-size`, which
+changes across breakpoints and shapes; a fixed-px child desyncs from it and
+leaves a blank oval visible mid-morph.
+
 **In a Next.js App Router app, `"use client"` has to be the first line of
 the file where you mount `VistaSheet`**, as it is in the snippet above.
 Server Components can't resolve a property access like `VistaSheet.Root` on
@@ -201,6 +217,22 @@ might have mixed up default and named imports.
 Nothing is missing an export. If you see this message after adding
 `<VistaSheet.Root>` to a file, the fix is to add `"use client"` as the very
 first line of that file.
+
+### Anchor persistence
+
+The dragged-to anchor persists across reloads via `localStorage`, on by
+default under the key `"vista-sheet-anchor"`:
+
+```tsx
+<VistaSheet.Root persistKey="my-app-sheet-anchor">
+```
+
+Pass a different string to namespace multiple `<VistaSheet.Root>` instances
+on the same page (each would otherwise read and write the same default key).
+Pass `persistKey={false}` to disable persistence entirely and always start
+from `defaultAnchor`. Reads and writes are wrapped in `try`/`catch`, so a
+disabled or full `localStorage` falls back to the in-memory default rather
+than throwing.
 
 ### Trigger shape
 
@@ -306,6 +338,12 @@ const ratio = 9 / 16;
 - The two instances don't share playback time; make `poster` the clip's first
   frame.
 - `alt` makes it non-decorative.
+- Like `<Shared>`, both `<Media>` and the element it wraps remount on every
+  open and every close (they're two separate `<video>`/`<img>` elements,
+  trigger-side and sheet-side, not one element that travels). Playback
+  position isn't carried between them: a consumer that needs continuity has
+  to read the outgoing element's `currentTime` and seed the incoming one
+  itself, outside the package.
 
 ### The escape hatch
 
@@ -425,6 +463,31 @@ carry `data-vista-sheet-shape` (the Root's `shape`).
 only once the open has finished and removed as soon as a close starts. This
 gates `<VistaSheet.Close>`'s reveal, not any shadow — the sheet element paints
 no box-shadow of its own; see "Two shadows, one painter" above.
+
+### Theming with your own tokens
+
+Every `--vista-sheet-*` custom property falls back to a hardcoded light-mode
+value (see the table above), so nothing in the package itself responds to a
+host app's dark mode. To support both, map each token to your own CSS
+variables and flip those variables per theme:
+
+```css
+.myVistaSheetScope {
+  --vista-sheet-surface: var(--surface);
+  --vista-sheet-surface-elevated: var(--surface-elevated);
+  --vista-sheet-surface-border: var(--border);
+  --vista-sheet-text: var(--ink);
+  --vista-sheet-accent: var(--accent);
+  --vista-sheet-shadow: var(--shadow-thin);
+  --vista-sheet-sheet-shadow: var(--shadow-heavy);
+}
+```
+
+Set that class (or the equivalent inline styles) on an ancestor of
+`<VistaSheet.Root>`, and let your own `--surface`/`--ink`/etc. tokens flip
+with `[data-theme="dark"]` or `prefers-color-scheme` the way the rest of
+your app already does. Without this mapping the sheet renders in its
+light-only defaults regardless of the host's theme.
 
 ## Motion
 
@@ -579,6 +642,14 @@ the type checker, as the guard.
 **Known gap:** no `inert` on background content. `aria-modal="true"` covers
 modern assistive tech; screen readers that ignore it can still navigate out
 of the dialog.
+
+## React StrictMode
+
+Supported as of 0.1.1. Earlier versions could leave the trigger stuck
+mid-close after a StrictMode double-mount in development, because a
+cleanup-time `requestAnimationFrame` ref wasn't reset across the remount.
+0.1.1 fixes it by resetting that ref on cleanup; no consumer-side workaround
+needed.
 
 ## Known issues / status
 
