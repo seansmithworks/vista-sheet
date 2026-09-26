@@ -1,6 +1,6 @@
 # vista-sheet — Brand layer
 
-`PROMO.md` is the brand layer this product owns (schema: `~/Code/annotie/docs/promo-schema.md`).
+`ANNOTIE.md` is the brand layer this product owns (schema: `~/Code/annotie/docs/annotie-schema.md`).
 It locks **identity** and leaves **angle and camera** free — it is not a shot list.
 
 ## Rule: reference, never duplicate
