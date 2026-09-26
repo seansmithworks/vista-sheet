@@ -14,6 +14,13 @@ hex/px value. See `DESIGN.md` for the actual numbers.
 ---
 product: vista-sheet
 design_tokens: ../DESIGN.md
+sell: >
+  vista-sheet is a flexible component that expands simplified content into a larger
+  view — avatar to menu, app icon to App Store card, mini video to full player — and it
+  morphs smoothly from state to state while ADOPTING YOUR STYLES: different radii,
+  elevations, colors. The video has to show the component wearing several strong,
+  different product skins, because that adaptability is the product. (Sean, 2026-09-26,
+  after rejecting the first hype boards as "not real style.")
 mood_board:
   - design/reference/apple-dynamic-island.png
   - design/reference/family-wallet.png
@@ -68,6 +75,15 @@ banned:
 
 ## Notes
 
+- **`look` locks the package's own default identity for an ordinary cut** — the neutral
+  palette a consumer gets before they theme anything. It does not lock the *set* (the
+  background/camera/type staging around the component), which is free per cut, and it
+  does not apply to a cut whose whole point is showing the component wearing other
+  consumers' skins (the `sell` above). A style-exploration or adaptability cut may swap
+  `--vista-sheet-*` custom properties (radius, elevation, palette — README's public
+  theming table) per shot on purpose; that's the product's own documented API, not a
+  departure from identity. What still can't change across any cut: the wordmark
+  treatment and the end card (below).
 - `look` and `sound_motif` lock identity so every cut reads as the same product; they do not
   lock story, pacing, or shot choice — that's the Director's job per run (P1).
 - `standard_intro` / `standard_outro` point at the kit's slot templates, filled with this
