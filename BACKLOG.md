@@ -1,5 +1,13 @@
 # disc-sheet BACKLOG
 
+## 2026-09-25 — review files rescued from the old (compromised, since wiped) Mac
+
+Scanned clean before copying. Old versions sit in `.rescued-2026-09-24/`, mirroring their real paths; nothing live was overwritten. Keep what you want, then delete the folder (do not commit it).
+
+- [ ] **`example/media.spec.ts`** — old copy has an uncommitted test fix (starts the frame sampler before the click so the 640ms open spring is captured). Likely worth porting.
+- [ ] **`.gitignore`** — old copy also ignores `recordings/`. Likely worth adding.
+- [ ] **`package.json`** — old copy is v0.1.0 (live is 0.1.1) with a different `prepublishOnly` chain. Probably stale; skim and discard.
+
 ## Overnight release-prep run — dispatched 2026-08-31 (Sean asleep; stage only, NO publish)
 
 Plan gate CLOSED: /adversarial-plan ran (Opus refuter, 14 findings, verdict revise); revised plan + unedited refutation in the session scratchpad, ledger to be copied into MORNING.md. Plan B secured: unscoped `disc-sheet` available on npm (404, checked tonight).
