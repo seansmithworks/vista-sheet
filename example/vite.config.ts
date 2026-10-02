@@ -27,6 +27,7 @@ export default defineConfig({
         play: resolve(__dirname, "play.html"),
         video: resolve(__dirname, "video.html"),
         buttons: resolve(__dirname, "buttons.html"),
+        linkPreview: resolve(__dirname, "link-preview.html"),
         focus: resolve(__dirname, "fixtures/focus.html"),
       },
     },
