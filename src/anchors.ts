@@ -369,8 +369,8 @@ export const PREVIEW_PREFERRED_SIDE: "above" | "below" = "above";
  * instead. Strawman: Sean's to dial. */
 export const PREVIEW_MIN_HEIGHT_PX = 240;
 
-/** Card aspect ratio when <Sheet> gives none in preview mode (360x520). */
-const PREVIEW_DEFAULT_ASPECT_RATIO = 360 / 520;
+/** Preview card size when Root and <Sheet> give none. */
+export const PREVIEW_DEFAULT_SIZE = { width: 360, height: 520 };
 
 /**
  * previewPlacement — where a link-preview card goes. Pure; computed once at
@@ -425,7 +425,7 @@ export function previewSheetPlacement(
   vpW: number,
   vpH: number,
   sheetMaxWidth: number,
-  aspectRatio = PREVIEW_DEFAULT_ASPECT_RATIO,
+  aspectRatio = PREVIEW_DEFAULT_SIZE.width / PREVIEW_DEFAULT_SIZE.height,
 ): SheetPlacement {
   const width = Math.min(
     sheetMaxWidth,

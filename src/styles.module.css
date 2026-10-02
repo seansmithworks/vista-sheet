@@ -473,6 +473,6 @@
  * shadow: there is no disc under a text link. */
 :where(.previewLayer) {
   --vista-sheet-sheet-radius: 16px;
-  --vista-sheet-trigger-radius: 4px;
+  --vista-sheet-trigger-radius: var(--vista-sheet-preview-radius);
   --vista-sheet-shadow: none;
 }

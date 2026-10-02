@@ -8,9 +8,13 @@ import {
   useMotionValue,
   useReducedMotion,
 } from "motion/react";
-import { DEFAULT_ANCHOR, type AnchorId } from "./anchors";
+import { DEFAULT_ANCHOR, PREVIEW_DEFAULT_SIZE, type AnchorId } from "./anchors";
 import { VistaSheetContext, type VistaSheetContextValue } from "./context";
-import { resolveMotion, SURFACE_CLOSE_LEAD_DELAY_MS } from "./motion";
+import {
+  PREVIEW_TRIGGER_RADIUS_PX,
+  resolveMotion,
+  SURFACE_CLOSE_LEAD_DELAY_MS,
+} from "./motion";
 import {
   DEFAULT_BUTTON_SIZE,
   DEFAULT_TRIGGER_SHAPE,
@@ -47,7 +51,7 @@ export function Root({
   persistKey,
   triggerSize: triggerSizeProp,
   preview = false,
-  sheetMaxWidth = preview ? 360 : 480,
+  sheetMaxWidth = preview ? PREVIEW_DEFAULT_SIZE.width : 480,
   // Strawman (v0.2): shape lives on Root because Trigger, Sheet, Shared and
   // Shadow all need it through context, like triggerSize.
   shape: shapeProp = DEFAULT_TRIGGER_SHAPE,
@@ -476,6 +480,7 @@ export function Root({
                   style={{
                     ["--vista-sheet-z" as string]: String(zIndex),
                     ["--vista-sheet-sheet-max-width" as string]: `${sheetMaxWidth}px`,
+                    ["--vista-sheet-preview-radius" as string]: `${PREVIEW_TRIGGER_RADIUS_PX}px`,
                   }}
                 />,
                 document.body,
