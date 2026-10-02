@@ -3,6 +3,7 @@
 import { cloneElement, isValidElement, useEffect, useRef } from "react";
 import type { CSSProperties, ReactElement, Ref } from "react";
 import { useVistaSheetInternal } from "./context";
+import { Layer } from "./Layer";
 import { readVarPx } from "./readVarPx";
 import {
   collapseRadiusAt,
@@ -94,6 +95,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
     zIndex,
     isDragging,
     shape,
+    layerEl,
   } = ctx;
   const elRef = useRef<HTMLElement | null>(null);
   // Strawman (v0.2): how long, after the last collapseProgress/sheetDragY
@@ -397,7 +399,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       if (armRafId !== null) cancelAnimationFrame(armRafId);
       disarmObserver();
     };
-  }, [collapseProgress, triggerRect, sheetRect, sheetDragY, shape]);
+  }, [collapseProgress, triggerRect, sheetRect, sheetDragY, shape, layerEl]);
 
   const dataState = isDragging ? "dragging" : ctx.open ? "open" : "closed";
 
@@ -412,28 +414,34 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
     const childEl = children as ReactElement<Record<string, unknown>>;
     const childStyle = (childEl.props.style as CSSProperties | undefined) ?? {};
     const childRef = (childEl.props as { ref?: Ref<HTMLElement> }).ref;
-    return cloneElement(childEl, {
-      ...sharedProps,
-      ref: mergeShadowRef(childRef, (node) => {
-        elRef.current = node;
-      }),
-      style: {
-        position: "fixed",
-        zIndex: zIndex - 1,
-        pointerEvents: "none",
-        ...childStyle,
-      },
-    });
+    return (
+      <Layer>
+        {cloneElement(childEl, {
+          ...sharedProps,
+          ref: mergeShadowRef(childRef, (node) => {
+            elRef.current = node;
+          }),
+          style: {
+            position: "fixed",
+            zIndex: zIndex - 1,
+            pointerEvents: "none",
+            ...childStyle,
+          },
+        })}
+      </Layer>
+    );
   }
 
   return (
-    <div
-      ref={(node) => {
-        elRef.current = node;
-      }}
-      className={`${styles.shadow} ${className ?? ""}`}
-      style={{ position: "fixed", zIndex: zIndex - 1, pointerEvents: "none" }}
-      {...sharedProps}
-    />
+    <Layer>
+      <div
+        ref={(node) => {
+          elRef.current = node;
+        }}
+        className={`${styles.shadow} ${className ?? ""}`}
+        style={{ position: "fixed", zIndex: zIndex - 1, pointerEvents: "none" }}
+        {...sharedProps}
+      />
+    </Layer>
   );
 }

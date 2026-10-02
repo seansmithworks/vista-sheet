@@ -71,10 +71,19 @@ export interface VistaSheetContextValue extends VistaSheetState {
   registerClose: () => () => void;
   hasRegisteredClose: () => boolean;
   /** The trigger button element — Sheet focuses it back on exit-complete. */
-  triggerElRef: MutableRefObject<HTMLButtonElement | null>;
+  triggerElRef: MutableRefObject<HTMLElement | null>;
+  /** Link-preview mode (Root `preview`). Fixed for the Root's lifetime. */
+  preview: boolean;
   /** Element Sheet and Shadow portal into. Null in modal mode: no portal,
-   * no extra DOM. */
+   * no extra DOM. In preview mode Root owns one body-level layer while a
+   * card is armed, open or morphing, and this is null the rest of the time. */
   layerEl: HTMLElement | null;
+  /** Preview only: LinkTrigger asks for the layer a hover-intent beat ahead
+   * of the open, so it exists in the same commit the card mounts in. */
+  setLayerArmed: (armed: boolean) => void;
+  /** Preview only: the pointer position the card is placed from, written by
+   * LinkTrigger just before it opens. */
+  previewPointerRef: MutableRefObject<{ x: number; y: number }>;
   /** The Content scroll region element — Sheet's swipe-to-close must not fire
    * while this is mid-scroll (docs/PACKAGE-DESIGN.md §1, Content). */
   contentScrollElRef: MutableRefObject<HTMLDivElement | null>;

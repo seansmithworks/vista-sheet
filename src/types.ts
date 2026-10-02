@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from "react";
+import type { ReactElement, ReactNode, RefObject } from "react";
 import type { MotionValue, Transition } from "motion/react";
 import type { AnchorId } from "./anchors";
 import type { TriggerShape, ButtonSize } from "./shape";
@@ -72,8 +72,12 @@ export interface MotionPreset {
   surfaceCloseLeadDelayMs?: number;
 }
 
-export interface RootProps {
+export interface ModalRootProps {
   children: ReactNode;
+
+  /** Default false: a draggable trigger button that opens a modal sheet.
+   * `true` makes Root a link-preview hover card, see {@link PreviewRootProps}. */
+  preview?: false;
 
   // Open state
   /** Uncontrolled initial state. Default false. */
@@ -158,12 +162,58 @@ export interface RootProps {
   className?: string;
 }
 
-export interface TriggerProps {
-  children?: ReactNode;
-  className?: string;
-  /** Required. This is the button's accessible name. */
-  "aria-label": string;
+/**
+ * Link-preview mode: `<VistaSheet.Root preview>`. The Trigger is `asChild`
+ * over the consumer's own `<a>`, the Sheet floats beside it, nothing is
+ * modal. Props that only make sense for the draggable button trigger or a
+ * modal sheet are typed `never`.
+ */
+export interface PreviewRootProps
+  extends Pick<
+    ModalRootProps,
+    | "children"
+    | "onOpenChange"
+    | "sheetMaxWidth"
+    | "preset"
+    | "transition"
+    | "surfaceCloseLeadDelayMs"
+    | "reduceMotion"
+    | "id"
+    | "zIndex"
+    | "className"
+  > {
+  /** Fixed for the Root's lifetime. Sheet max width defaults to 360. */
+  preview: true;
+  defaultOpen?: never;
+  open?: never;
+  defaultAnchor?: never;
+  onAnchorChange?: never;
+  draggable?: never;
+  persistKey?: never;
+  triggerSize?: never;
+  shape?: never;
+  buttonSize?: never;
+  buttonWidth?: never;
 }
+
+export type RootProps = ModalRootProps | PreviewRootProps;
+
+export type TriggerProps =
+  | {
+      asChild?: false;
+      children?: ReactNode;
+      className?: string;
+      /** Required. This is the button's accessible name. */
+      "aria-label": string;
+    }
+  | {
+      /** Preview mode: the single child (an `<a>`) is the trigger, named by
+       * its own text. */
+      asChild: true;
+      children: ReactElement;
+      className?: never;
+      "aria-label"?: never;
+    };
 
 export type Labelled =
   | { "aria-label": string; "aria-labelledby"?: never }

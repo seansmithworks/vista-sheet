@@ -28,10 +28,14 @@ import {
   resolveTriggerCornerRadius,
   supportsCornerShape,
 } from "./shape";
+import { LinkTrigger } from "./LinkTrigger";
 import { Shared } from "./Shared";
 import { Media } from "./Media";
 import type { TriggerProps } from "./types";
 import styles from "./styles.module.css";
+
+// `process` is not declared in a Vite consumer's tsconfig; see Sheet.tsx.
+declare const process: { env: { NODE_ENV?: string } };
 
 /**
  * <VistaSheet.Trigger> — the fixed drag wrapper + trigger button + morph
@@ -58,10 +62,28 @@ function seatAt(
 }
 
 export function Trigger(props: TriggerProps) {
-  return <ButtonTrigger {...props} />;
+  const { preview } = useVistaSheetInternal("Trigger");
+  if (process.env.NODE_ENV !== "production" && Boolean(props.asChild) !== preview) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      preview
+        ? "[vista-sheet] <VistaSheet.Root preview> needs <VistaSheet.Trigger asChild> around your link."
+        : "[vista-sheet] <VistaSheet.Trigger asChild> is for <VistaSheet.Root preview>; a modal Root needs the button Trigger with an aria-label.",
+    );
+  }
+  return props.asChild ? (
+    <LinkTrigger>{props.children}</LinkTrigger>
+  ) : (
+    <ButtonTrigger {...props} />
+  );
 }
 
-function ButtonTrigger({ children, className, ...aria }: TriggerProps) {
+function ButtonTrigger({
+  children,
+  className,
+  asChild: _asChild,
+  ...aria
+}: Extract<TriggerProps, { asChild?: false }>) {
   const ctx = useVistaSheetInternal("Trigger");
   const {
     open,

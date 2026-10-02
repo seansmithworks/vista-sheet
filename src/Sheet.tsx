@@ -4,11 +4,17 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { sheetPlacement } from "./anchors";
+import {
+  PREVIEW_DEFAULT_ASPECT_RATIO,
+  previewSheetPlacement,
+  sheetPlacement,
+} from "./anchors";
+import type { SheetPlacement } from "./anchors";
 import { SlotContext, useVistaSheetInternal } from "./context";
 import {
   CLOSE_REVEAL_PROGRESS,
@@ -63,7 +69,12 @@ export function Sheet({
     hasRegisteredClose,
     collapseRadius,
     startMorphClock,
+    preview,
+    triggerRect,
+    previewPointerRef,
   } = ctx;
+  // A preview card is non-modal: no backdrop, swipe, focus move or Close.
+  const modal = !preview;
 
   const sheetRef = useRef<HTMLDivElement | null>(null);
 
@@ -86,6 +97,7 @@ export function Sheet({
     collapseProgress,
     onClose: () => setOpen(false),
     initialFocus,
+    modal,
     triggerRef: triggerElRef,
   });
 
@@ -123,6 +135,7 @@ export function Sheet({
   useEffect(() => {
     if (
       open &&
+      modal &&
       process.env.NODE_ENV !== "production" &&
       !hasRegisteredClose()
     ) {
@@ -132,7 +145,7 @@ export function Sheet({
           "Escape and backdrop dismissal are not a substitute for a visible close control.",
       );
     }
-  }, [open, hasRegisteredClose]);
+  }, [open, modal, hasRegisteredClose]);
 
   // Measure the sheet's settled CSS geometry (offsetLeft/Top, not
   // getBoundingClientRect — the latter includes the in-flight FLIP transform
@@ -249,14 +262,43 @@ export function Sheet({
   }, [sheetBorderRadius, collapseRadius]);
 
   const hasWindow = typeof window !== "undefined";
-  const placement = sheetPlacement(
+  const vpW = hasWindow ? window.innerWidth : 1440;
+  const vpH = hasWindow ? window.innerHeight : 900;
+  const modalPlacement = sheetPlacement(
     anchor,
-    hasWindow ? window.innerWidth : 1440,
-    hasWindow ? window.innerHeight : 900,
+    vpW,
+    vpH,
     triggerBox.width,
     sheetMaxWidth,
     aspectRatio,
   );
+  // A preview card is placed ONCE, when it opens, from the link line and the
+  // pointer, and holds that spot through the close: the memo keys on `open`
+  // alone, and the ref keeps the last placement alive for the exit frames.
+  // (Re-placing against a link that scrolled would slide the card mid-close.)
+  const openPlacement = useMemo<SheetPlacement | null>(
+    () =>
+      preview && open && triggerRect
+        ? previewSheetPlacement(
+            previewPointerRef.current,
+            {
+              top: triggerRect.cy - triggerRect.halfHeight,
+              bottom: triggerRect.cy + triggerRect.halfHeight,
+            },
+            vpW,
+            vpH,
+            sheetMaxWidth,
+            aspectRatio ?? PREVIEW_DEFAULT_ASPECT_RATIO,
+          )
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [preview, open],
+  );
+  const heldPlacementRef = useRef<SheetPlacement | null>(null);
+  if (openPlacement) heldPlacementRef.current = openPlacement;
+  const placement = preview
+    ? (heldPlacementRef.current ?? modalPlacement)
+    : modalPlacement;
 
   // Always written (never conditionally), all five properties, as direct
   // inline properties rather than a var — that's what lets a top-pinned,
@@ -319,7 +361,7 @@ export function Sheet({
           spring/hold takes to settle. Gating on `open` alone means the
           backdrop unmounts the instant the close STARTS, so the trigger is
           tappable — and the close interruptible — from frame one. */}
-      {open && dismissOnBackdrop && (
+      {open && modal && dismissOnBackdrop && (
         <div
           aria-hidden="true"
           data-vista-sheet-part="backdrop"
@@ -391,7 +433,7 @@ export function Sheet({
                     ...placementStyle,
                   },
                 })}
-            drag={reduceMotion || !dismissOnSwipe ? false : "y"}
+            drag={reduceMotion || !modal || !dismissOnSwipe ? false : "y"}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.3 }}
             onDragEnd={handleDragEnd}

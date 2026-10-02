@@ -236,6 +236,20 @@ export const ITEM_STAGGER_INTERVAL_SEC = 0.09;
 /** Drag-vs-tap threshold, px. */
 export const DRAG_THRESHOLD_PX = 5;
 
+// Link-preview (Root `preview`) interaction timings. Strawman: Sean's to dial.
+/** Hover (or keyboard focus) must rest this long before a card opens, always,
+ * including when moving between adjacent links. */
+export const PREVIEW_HOVER_INTENT_MS = 150;
+/** Grace after the pointer leaves link and card, to cross the gap between. */
+export const PREVIEW_CLOSE_GRACE_MS = 250;
+/** Touch press-and-hold that opens a card. */
+export const PREVIEW_LONG_PRESS_MS = 400;
+/** Finger travel that turns a long-press into a scroll. */
+export const PREVIEW_LONG_PRESS_SLOP_PX = 10;
+/** The link-end corner radius of the morph. A text link has no box of its own,
+ * so this is a constant, not read from the link. */
+export const PREVIEW_TRIGGER_RADIUS_PX = 4;
+
 /** Swipe-to-close thresholds. */
 export const SWIPE_OFFSET_PX = 96;
 export const SWIPE_VELOCITY_PX_S = 400;

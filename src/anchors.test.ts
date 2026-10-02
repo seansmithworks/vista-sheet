@@ -3,9 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   ALL_ANCHORS,
   EDGE_MARGIN,
+  PREVIEW_GAP_PX,
+  PREVIEW_PREFERRED_SIDE,
   type AnchorId,
   anchorCenter,
   nearestAnchor,
+  previewPlacement,
+  previewSheetPlacement,
   restingLeft,
   restingTop,
   sheetPlacement,
@@ -541,5 +545,75 @@ describe("restingLeft / restingTop / anchorCenter - non-square trigger (P3)", ()
     expect(sheetPlacement("bottom-right", 1440, 900, 320, 360).anchorX).toBe(
       1064,
     );
+  });
+});
+
+describe("previewPlacement", () => {
+  const sheet = { width: 360, height: 520 };
+  const vp = { width: 1280, height: 800 };
+  const at = (x: number, top: number, bottom = top + 20) =>
+    previewPlacement({ x, y: top + 10 }, { top, bottom }, sheet, vp);
+
+  it("prefers the configured side with an 8px gap, above", () => {
+    // Needs top - 8 - 520 >= 16, i.e. a link at y >= 544.
+    const p = at(600, 640);
+    expect(PREVIEW_PREFERRED_SIDE).toBe("above");
+    expect(p.side).toBe("above");
+    expect(p.top).toBe(640 - PREVIEW_GAP_PX - 520);
+  });
+
+  it("flips below when there is no room above", () => {
+    const p = at(600, 120);
+    expect(p.side).toBe("below");
+    expect(p.top).toBe(140 + PREVIEW_GAP_PX);
+  });
+
+  it("centres on the pointer x", () => {
+    expect(at(600, 640).left).toBe(600 - 180);
+  });
+
+  it("clamps to a 16px gutter at both viewport edges", () => {
+    expect(at(1270, 640).left).toBe(1280 - 16 - 360);
+    expect(at(4, 640).left).toBe(16);
+  });
+
+  it("when neither side fits, takes the roomier side and clamps into the viewport", () => {
+    const short = { width: 1280, height: 600 };
+    const p = previewPlacement(
+      { x: 600, y: 310 },
+      { top: 300, bottom: 320 },
+      sheet,
+      short,
+    );
+    // 600 - 16 - 520 = 64 of vertical slack: clamp, never leave the gutter.
+    expect(p.top).toBeGreaterThanOrEqual(16);
+    expect(p.top + 520).toBeLessThanOrEqual(600 - 16);
+  });
+
+  it("keeps the card inside a viewport narrower than the card", () => {
+    const narrow = { width: 300, height: 800 };
+    const p = previewPlacement(
+      { x: 150, y: 400 },
+      { top: 390, bottom: 410 },
+      { width: 268, height: 520 },
+      narrow,
+    );
+    expect(p.left).toBe(16);
+  });
+});
+
+describe("previewSheetPlacement", () => {
+  it("contain-fits the card inside the viewport minus the gutter", () => {
+    const p = previewSheetPlacement(
+      { x: 195, y: 400 },
+      { top: 390, bottom: 410 },
+      390,
+      844,
+      360,
+      360 / 520,
+    );
+    expect(p.width).toBe(`${390 - 32}px`);
+    expect(p.bottomPx).toBeUndefined();
+    expect(p.anchorX).toBe(16);
   });
 });

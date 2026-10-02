@@ -356,3 +356,103 @@ export function sheetPlacement(
     height,
   };
 }
+
+/** Gap between a link line and its preview card. */
+export const PREVIEW_GAP_PX = 8;
+
+/** Which side of the link line the preview card prefers. The card flips to
+ * the other side when the preferred one has no room. Sean's dial: "above"
+ * covers text the reader has already read; "below" is the Wikipedia/GitHub
+ * convention. */
+export const PREVIEW_PREFERRED_SIDE: "above" | "below" = "above";
+
+/** Card size when <Sheet> is given no aspectRatio in preview mode (360x520). */
+export const PREVIEW_DEFAULT_ASPECT_RATIO = 360 / 520;
+
+export interface PreviewPlacementResult {
+  /** Card left edge, viewport px. */
+  left: number;
+  /** Card top edge, viewport px. */
+  top: number;
+  side: "above" | "below";
+}
+
+/**
+ * previewPlacement — where a link-preview card goes. Pure and computed once
+ * at open: it prefers PREVIEW_PREFERRED_SIDE of the link line with a
+ * PREVIEW_GAP_PX gap, flips to the other side when that has no room, and is
+ * horizontally centred on the pointer x, clamped to a 16px viewport gutter.
+ * When neither side fits it takes the side with more room and clamps the
+ * card into the viewport.
+ */
+export function previewPlacement(
+  pointer: { x: number; y: number },
+  line: { top: number; bottom: number },
+  sheet: { width: number; height: number },
+  viewport: { width: number; height: number },
+): PreviewPlacementResult {
+  const minLeft = EDGE_MARGIN;
+  const maxLeft = Math.max(minLeft, viewport.width - EDGE_MARGIN - sheet.width);
+  const left = Math.min(Math.max(pointer.x - sheet.width / 2, minLeft), maxLeft);
+
+  const minTop = EDGE_MARGIN;
+  const maxTop = viewport.height - EDGE_MARGIN - sheet.height;
+  const aboveTop = line.top - PREVIEW_GAP_PX - sheet.height;
+  const belowTop = line.bottom + PREVIEW_GAP_PX;
+  const fits = {
+    above: aboveTop >= minTop,
+    below: belowTop <= maxTop,
+  };
+
+  const preferred = PREVIEW_PREFERRED_SIDE;
+  const other = preferred === "above" ? "below" : "above";
+  let side: "above" | "below";
+  if (fits[preferred]) side = preferred;
+  else if (fits[other]) side = other;
+  else {
+    const roomAbove = line.top - PREVIEW_GAP_PX - EDGE_MARGIN;
+    const roomBelow =
+      viewport.height - EDGE_MARGIN - line.bottom - PREVIEW_GAP_PX;
+    side = roomAbove >= roomBelow ? "above" : "below";
+  }
+
+  const rawTop = side === "above" ? aboveTop : belowTop;
+  const top = Math.min(Math.max(rawTop, minTop), Math.max(minTop, maxTop));
+  return { left, top, side };
+}
+
+/**
+ * previewSheetPlacement — previewPlacement expressed as the SheetPlacement
+ * <Sheet> writes inline. The card contain-fits sheetMaxWidth, the viewport
+ * (minus the gutter) and the aspect ratio, so its size is known before it
+ * mounts.
+ */
+export function previewSheetPlacement(
+  pointer: { x: number; y: number },
+  line: { top: number; bottom: number },
+  vpW: number,
+  vpH: number,
+  sheetMaxWidth: number,
+  aspectRatio: number,
+): SheetPlacement {
+  const width = Math.min(
+    sheetMaxWidth,
+    vpW - EDGE_MARGIN * 2,
+    (vpH - EDGE_MARGIN * 2) * aspectRatio,
+  );
+  const height = width / aspectRatio;
+  const { left, top } = previewPlacement(
+    pointer,
+    line,
+    { width, height },
+    { width: vpW, height: vpH },
+  );
+  return {
+    anchorX: left,
+    topPx: top,
+    bottomPx: undefined,
+    maxHeight: `calc(100dvh - ${EDGE_MARGIN * 2}px)`,
+    width: `${width}px`,
+    height: `${height}px`,
+  };
+}

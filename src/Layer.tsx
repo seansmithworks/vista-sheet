@@ -3,11 +3,12 @@ import { createPortal } from "react-dom";
 import { useVistaSheetInternal } from "./context";
 
 /**
- * Where Sheet and Shadow render. In modal mode the layer slot is null and
- * this is a bare fragment, so no DOM is added and nothing portals. A mode
- * that supplies a layer element renders into it instead.
+ * Where Sheet and Shadow render. In modal mode this is a bare fragment: no
+ * DOM is added and nothing portals. In preview mode they render into Root's
+ * body-level layer, and nothing at all until that layer exists.
  */
 export function Layer({ children }: { children: ReactNode }) {
-  const { layerEl } = useVistaSheetInternal("Layer");
-  return layerEl ? createPortal(children, layerEl) : <>{children}</>;
+  const { preview, layerEl } = useVistaSheetInternal("Layer");
+  if (!preview) return <>{children}</>;
+  return layerEl ? createPortal(children, layerEl) : null;
 }

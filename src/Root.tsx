@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   LayoutGroup,
   animate,
@@ -25,6 +26,7 @@ import {
   XL_BREAKPOINT,
 } from "./useTriggerSize";
 import { usePersistedAnchor } from "./usePersistedAnchor";
+import styles from "./styles.module.css";
 
 /**
  * <VistaSheet.Root> — owns open state, anchor state, the LayoutGroup, the
@@ -44,10 +46,11 @@ export function Root({
   draggable = true,
   persistKey,
   triggerSize: triggerSizeProp,
-  sheetMaxWidth = 480,
+  preview = false,
+  sheetMaxWidth = preview ? 360 : 480,
   // Strawman (v0.2): shape lives on Root because Trigger, Sheet, Shared and
   // Shadow all need it through context, like triggerSize.
-  shape = DEFAULT_TRIGGER_SHAPE,
+  shape: shapeProp = DEFAULT_TRIGGER_SHAPE,
   buttonSize = DEFAULT_BUTTON_SIZE,
   buttonWidth,
   preset,
@@ -69,6 +72,10 @@ export function Root({
   // guard with here; the README documents the actual (misleading, generic)
   // error a consumer will see instead.
   const idBase = id ?? useId();
+
+  // A preview card morphs out of a text link, a box the consumer owns, so
+  // its trigger end is always the plain rectangle case.
+  const shape = preview ? "rectangle" : shapeProp;
 
   const isControlled = controlledOpen !== undefined;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
@@ -363,7 +370,7 @@ export function Root({
   const [triggerRect, setTriggerRect] = useState<Rect | null>(null);
   const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
 
-  const triggerElRef = useRef<HTMLButtonElement | null>(null);
+  const triggerElRef = useRef<HTMLElement | null>(null);
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
 
   // The single numeric-px border-radius MotionValue both crossfade
@@ -387,6 +394,17 @@ export function Root({
     () => closeRegisteredRef.current > 0,
     [],
   );
+
+  // Preview only. Sheet and Shadow portal into ONE body-level layer (so
+  // Shadow's sheet lookup still finds the sheet), which exists while a card
+  // is armed (hover intent running), open, or morphing closed, and is gone
+  // otherwise — no empty node per link, no shadow at rest under the text.
+  // `layerEl` is the layer's own ref callback, so it is null until that
+  // node is in the DOM; arming it ahead of the open is what lets it exist
+  // in the very commit the card mounts in.
+  const [layerArmed, setLayerArmed] = useState(false);
+  const [layerEl, setLayerEl] = useState<HTMLElement | null>(null);
+  const previewPointerRef = useRef({ x: 0, y: 0 });
 
   const triggerId = `${idBase}-trigger`;
   const sheetId = `${idBase}-sheet`;
@@ -427,7 +445,10 @@ export function Root({
     registerClose,
     hasRegisteredClose,
     triggerElRef,
-    layerEl: null,
+    preview,
+    layerEl,
+    setLayerArmed,
+    previewPointerRef,
     contentScrollElRef,
   };
 
@@ -441,37 +462,61 @@ export function Root({
   const triggerSizeStyleMd = `@media (min-width:${MD_BREAKPOINT}px){[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${triggerSizeCss.md}px}}`;
   const triggerSizeStyleXl = `@media (min-width:${XL_BREAKPOINT}px){[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${triggerSizeCss.xl}px}}`;
 
+  const rootStyle = {
+    // Root's wrapper is an ANCESTOR of both <Trigger> and <Sheet>, unlike
+    // the trigger root div (a sibling of <Sheet>), so custom properties
+    // written here are the only ones both slots can inherit. B1:
+    // --vista-sheet-trigger-size was previously written only on the trigger
+    // root, making it invisible to .shared in the sheet above the
+    // ramp's base breakpoint. M1/M2: --vista-sheet-z and
+    // --vista-sheet-sheet-max-width were never written at all, leaving
+    // the zIndex and sheetMaxWidth props orphaned from the CSS that
+    // reads them.
+    //
+    // --vista-sheet-trigger-size is NOT written here anymore (D3 fix,
+    // above) — an inline style write on this element would always
+    // beat the scoped <style> block's @media rules, for any
+    // viewport, defeating the whole point of resolving it in CSS.
+    ["--vista-sheet-z" as string]: String(zIndex),
+    ["--vista-sheet-sheet-max-width" as string]: `${sheetMaxWidth}px`,
+    ...(buttonWidth !== undefined
+      ? { ["--vista-sheet-button-width" as string]: `${buttonWidth}px` }
+      : {}),
+  };
+
   return (
     <VistaSheetContext.Provider value={contextValue}>
       <LayoutGroup id={idBase}>
-        <style>{`${triggerSizeStyleRule}${triggerSizeStyleMd}${triggerSizeStyleXl}`}</style>
-        <div
-          className={className}
-          data-vista-sheet-root={idBase}
-          style={{
-            // Root's wrapper is an ANCESTOR of both <Trigger> and <Sheet>, unlike
-            // the trigger root div (a sibling of <Sheet>), so custom properties
-            // written here are the only ones both slots can inherit. B1:
-            // --vista-sheet-trigger-size was previously written only on the trigger
-            // root, making it invisible to .shared in the sheet above the
-            // ramp's base breakpoint. M1/M2: --vista-sheet-z and
-            // --vista-sheet-sheet-max-width were never written at all, leaving
-            // the zIndex and sheetMaxWidth props orphaned from the CSS that
-            // reads them.
-            //
-            // --vista-sheet-trigger-size is NOT written here anymore (D3 fix,
-            // above) — an inline style write on this element would always
-            // beat the scoped <style> block's @media rules, for any
-            // viewport, defeating the whole point of resolving it in CSS.
-            ["--vista-sheet-z" as string]: String(zIndex),
-            ["--vista-sheet-sheet-max-width" as string]: `${sheetMaxWidth}px`,
-            ...(buttonWidth !== undefined
-              ? { ["--vista-sheet-button-width" as string]: `${buttonWidth}px` }
-              : {}),
-          }}
-        >
-          {children}
-        </div>
+        {preview ? (
+          // A <span>, so a link inside a <p> is valid HTML. The consumer's
+          // className and the theme vars live on the layer, which is where
+          // the card renders.
+          <span>
+            {children}
+            {(layerArmed || open || sheetRect !== null) &&
+              typeof document !== "undefined" &&
+              createPortal(
+                <div
+                  ref={setLayerEl}
+                  className={`${styles.previewLayer} ${className ?? ""}`}
+                  data-vista-sheet-root={idBase}
+                  style={rootStyle}
+                />,
+                document.body,
+              )}
+          </span>
+        ) : (
+          <>
+            <style>{`${triggerSizeStyleRule}${triggerSizeStyleMd}${triggerSizeStyleXl}`}</style>
+            <div
+              className={className}
+              data-vista-sheet-root={idBase}
+              style={rootStyle}
+            >
+              {children}
+            </div>
+          </>
+        )}
       </LayoutGroup>
     </VistaSheetContext.Provider>
   );

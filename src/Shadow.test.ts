@@ -90,10 +90,12 @@ function renderShadowAsChild(
   const captured: { el: CapturedShadowChild | null } = { el: null };
 
   function Probe() {
-    captured.el = Shadow({
+    // asChild's clone is wrapped in <Layer>; unwrap to the clone itself.
+    const layer = Shadow({
       asChild: true,
       children: createElement("div", { ref: consumerRef }),
-    }) as typeof captured.el;
+    }) as ReactElement<{ children: CapturedShadowChild }>;
+    captured.el = layer.props.children;
     return null;
   }
 

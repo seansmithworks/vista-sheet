@@ -134,8 +134,15 @@ export function useDialogBehavior({
   /** The element focus returns to on exit-complete (via `restoreFocus`). */
   triggerRef: RefObject<HTMLElement | null>;
 }): {
-  /** Dialog semantics for the panel element; empty when not modal. */
-  panelProps: { role?: "dialog"; "aria-modal"?: "true"; tabIndex?: number };
+  /** Dialog semantics for the panel element. Not modal: the panel is a
+   * visual-only card, hidden from assistive tech (the trigger link already
+   * names the destination). */
+  panelProps: {
+    role?: "dialog";
+    "aria-modal"?: "true";
+    tabIndex?: number;
+    "aria-hidden"?: "true";
+  };
   /** Call at exit-complete to hand focus back to the trigger. */
   restoreFocus: () => void;
 } {
@@ -216,6 +223,34 @@ export function useDialogBehavior({
     });
   }, [modal, isOpen, panelRef, collapseProgress, initialFocus]);
 
+  // Non-modal light dismiss: a press outside the card and its trigger, any
+  // scroll outside the card, or a resize closes it. It keys on pointerdown,
+  // not the release, so the finger that long-pressed to open a card can lift
+  // without closing it. Escape is handled below, for both modes.
+  useEffect(() => {
+    if (modal || !isOpen) return;
+    const inside = (target: EventTarget | null) =>
+      target instanceof Node &&
+      (panelRef.current?.contains(target) === true ||
+        triggerRef.current?.contains(target) === true);
+    const onPointerDown = (e: PointerEvent) => {
+      if (!inside(e.target)) onClose();
+    };
+    const onScroll = (e: Event) => {
+      if (!(e.target instanceof Node && panelRef.current?.contains(e.target))) {
+        onClose();
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onClose);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onClose);
+    };
+  }, [modal, isOpen, onClose, panelRef, triggerRef]);
+
   useEffect(() => {
     if (!isPresent) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -260,7 +295,10 @@ export function useDialogBehavior({
   return {
     panelProps: modal
       ? { role: "dialog", "aria-modal": "true", tabIndex: -1 }
-      : {},
-    restoreFocus: () => triggerRef.current?.focus(),
+      : { "aria-hidden": "true" },
+    // Non-modal never moves focus on open, so there is nothing to restore.
+    restoreFocus: () => {
+      if (modal) triggerRef.current?.focus();
+    },
   };
 }
