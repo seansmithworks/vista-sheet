@@ -4,6 +4,7 @@ import {
   ALL_ANCHORS,
   EDGE_MARGIN,
   PREVIEW_GAP_PX,
+  PREVIEW_MIN_HEIGHT_PX,
   PREVIEW_PREFERRED_SIDE,
   type AnchorId,
   anchorCenter,
@@ -577,17 +578,42 @@ describe("previewPlacement", () => {
     expect(at(4, 640).left).toBe(16);
   });
 
-  it("when neither side fits, takes the roomier side and clamps into the viewport", () => {
-    const short = { width: 1280, height: 600 };
+  it("keeps the full height when the preferred side has room", () => {
+    expect(at(600, 640).height).toBe(520);
+  });
+
+  it("dead band: takes the roomier side and shrinks to its room, never covering the link", () => {
+    // 1280x800: neither side holds 520 for a link at y 256..544.
+    for (let top = 260; top <= 540; top += 20) {
+      const p = at(600, top);
+      expect(p.height).toBeGreaterThanOrEqual(PREVIEW_MIN_HEIGHT_PX);
+      expect(p.height).toBeLessThan(520);
+      if (p.side === "above") {
+        expect(p.top + p.height).toBe(top - PREVIEW_GAP_PX);
+      } else {
+        expect(p.top).toBe(top + 20 + PREVIEW_GAP_PX);
+        expect(p.top + p.height).toBeLessThanOrEqual(800 - 16);
+      }
+      expect(p.top).toBeGreaterThanOrEqual(16);
+    }
+    // y 300: above has 276, below has 456.
+    const mid = at(600, 300);
+    expect(mid.side).toBe("below");
+    expect(mid.height).toBe(800 - 16 - 320 - PREVIEW_GAP_PX);
+  });
+
+  it("only below the minimum height may the card overlap its link", () => {
+    const short = { width: 1280, height: 400 };
     const p = previewPlacement(
-      { x: 600, y: 310 },
-      { top: 300, bottom: 320 },
+      { x: 600, y: 210 },
+      { top: 200, bottom: 220 },
       sheet,
       short,
     );
-    // 600 - 16 - 520 = 64 of vertical slack: clamp, never leave the gutter.
+    // Neither side has 240: the card is exactly the minimum, inside the gutter.
+    expect(p.height).toBe(PREVIEW_MIN_HEIGHT_PX);
     expect(p.top).toBeGreaterThanOrEqual(16);
-    expect(p.top + 520).toBeLessThanOrEqual(600 - 16);
+    expect(p.top + p.height).toBeLessThanOrEqual(400 - 16);
   });
 
   it("keeps the card inside a viewport narrower than the card", () => {

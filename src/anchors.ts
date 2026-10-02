@@ -365,6 +365,10 @@ export const PREVIEW_GAP_PX = 8;
  * dial. */
 export const PREVIEW_PREFERRED_SIDE: "above" | "below" = "above";
 
+/** Shortest a preview card may shrink to before it overlaps its link line
+ * instead. Strawman: Sean's to dial. */
+export const PREVIEW_MIN_HEIGHT_PX = 240;
+
 /** Card aspect ratio when <Sheet> gives none in preview mode (360x520). */
 const PREVIEW_DEFAULT_ASPECT_RATIO = 360 / 520;
 
@@ -372,14 +376,16 @@ const PREVIEW_DEFAULT_ASPECT_RATIO = 360 / 520;
  * previewPlacement — where a link-preview card goes. Pure; computed once at
  * open. Horizontally centred on the pointer, clamped to the viewport gutter.
  * Vertically on PREVIEW_PREFERRED_SIDE of the link line (PREVIEW_GAP_PX
- * away), else the side with more room, clamped into the viewport.
+ * away) when the whole card fits there, else on the side with more room.
+ * The card shrinks to the room on its side, down to PREVIEW_MIN_HEIGHT_PX;
+ * only below that does it overlap the link, clamped into the viewport.
  */
 export function previewPlacement(
   pointer: { x: number; y: number },
   line: { top: number; bottom: number },
   sheet: { width: number; height: number },
   viewport: { width: number; height: number },
-): { left: number; top: number; side: "above" | "below" } {
+): { left: number; top: number; height: number; side: "above" | "below" } {
   const room = {
     above: line.top - PREVIEW_GAP_PX - EDGE_MARGIN,
     below: viewport.height - EDGE_MARGIN - line.bottom - PREVIEW_GAP_PX,
@@ -390,15 +396,20 @@ export function previewPlacement(
       : room.above >= room.below
         ? "above"
         : "below";
-  const maxTop = Math.max(EDGE_MARGIN, viewport.height - EDGE_MARGIN - sheet.height);
+  const height = Math.min(
+    sheet.height,
+    Math.max(room[side], PREVIEW_MIN_HEIGHT_PX),
+  );
   const rawTop =
     side === "above"
-      ? line.top - PREVIEW_GAP_PX - sheet.height
+      ? line.top - PREVIEW_GAP_PX - height
       : line.bottom + PREVIEW_GAP_PX;
+  const maxTop = Math.max(EDGE_MARGIN, viewport.height - EDGE_MARGIN - height);
   const maxLeft = Math.max(EDGE_MARGIN, viewport.width - EDGE_MARGIN - sheet.width);
   return {
     left: Math.min(Math.max(pointer.x - sheet.width / 2, EDGE_MARGIN), maxLeft),
     top: Math.min(Math.max(rawTop, EDGE_MARGIN), maxTop),
+    height,
     side,
   };
 }
@@ -421,11 +432,10 @@ export function previewSheetPlacement(
     vpW - EDGE_MARGIN * 2,
     (vpH - EDGE_MARGIN * 2) * aspectRatio,
   );
-  const height = width / aspectRatio;
-  const { left, top } = previewPlacement(
+  const { left, top, height } = previewPlacement(
     pointer,
     { top: line.cy - line.halfHeight, bottom: line.cy + line.halfHeight },
-    { width, height },
+    { width, height: width / aspectRatio },
     { width: vpW, height: vpH },
   );
   return {

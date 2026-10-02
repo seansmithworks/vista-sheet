@@ -239,6 +239,28 @@ test.describe("link preview (desktop)", () => {
     );
   });
 
+  test("(b) placement: a mid-viewport link never has its line covered, and the card shrinks to fit", async ({
+    page,
+  }) => {
+    await gotoPreview(page);
+    // Prose at y = pad + ~144; park the link line near y 400, in the band
+    // where a 520px card fits neither above nor below.
+    await scrollPageTo(page, 1800 + 144 - 400, 1800);
+    const { line } = await openCard(page, link(page, "list menu"));
+    expect(line.top).toBeGreaterThan(256);
+    expect(line.top).toBeLessThan(544);
+    await page.waitForTimeout(900); // let the spring's overshoot rest
+    const s = (await page.locator(SHEET).boundingBox())!;
+    const clear = s.y + s.height <= line.top || s.y >= line.top + line.height;
+    expect(clear, `card ${s.y}..${s.y + s.height} covers line ${line.top}`).toBe(
+      true,
+    );
+    expect(s.height).toBeGreaterThanOrEqual(240);
+    expect(s.height).toBeLessThan(520);
+    expect(s.y).toBeGreaterThanOrEqual(16 - 1);
+    expect(s.y + s.height).toBeLessThanOrEqual(800 - 16 + 1);
+  });
+
   test("(c) at most one iframe at any time while sweeping across links; none after close", async ({
     page,
   }) => {
