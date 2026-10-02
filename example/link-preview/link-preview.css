@@ -1,5 +1,5 @@
 /*
- * Link-preview exploration. Values come from DESIGN.md: neutral example
+ * Link-preview example. Values come from DESIGN.md: neutral example
  * palette (#f5f5f7 ground, #1d1d1f text, #6e6e73 secondary, #e5e5e5 border);
  * the sheet keeps the package radius and every spring. Nothing here
  * re-tunes the morph.
@@ -19,8 +19,7 @@ body {
   color: #1d1d1f;
 }
 
-/* Prose sits in the left column so the card (anchored right on desktop,
- * bottom on mobile) never covers the links that opened it. */
+/* Prose sits in a narrow left column, so a link can wrap across two lines. */
 .lp-page {
   max-width: 440px;
   padding: 72px 24px;
@@ -55,17 +54,13 @@ body {
   color: #6e6e73;
 }
 
-/* A normal inline text link at rest. -webkit-touch-callout suppresses the
- * native iOS link callout so a long-press opens the sheet instead; it is
- * applied to these links and nothing else. */
+/* A normal inline text link at rest. */
 .lp-link {
   color: inherit;
   text-decoration: underline;
   text-decoration-color: #6e6e73;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  white-space: nowrap;
-  -webkit-touch-callout: none;
 }
 
 .lp-link:focus-visible {
@@ -74,72 +69,29 @@ body {
   border-radius: 2px;
 }
 
-/*
- * The trigger is a ghost pinned over the link. Root writes the wrapper's
- * transform inline from its own x/y (anchor math), so the pin has to win
- * with !important; --lp-* are the link's live viewport rect, written by
- * main.tsx right before each open so the morph's FLIP starts at the link.
- */
-.lp-root {
-  --vista-sheet-trigger-radius: 4px;
-  --vista-sheet-shadow: none; /* no resting silhouette under a text link */
+/* Theme vars for the card live on Root's className (the layer). The frame
+ * fills the card edge to edge. */
+.lp {
+  --vista-sheet-sheet-padding: 0px;
 }
 
-.lp-root [data-vista-sheet-part="trigger-root"] {
-  transform: translate(var(--lp-x, 0px), var(--lp-y, 0px)) !important;
-  width: var(--lp-w, 0px) !important;
-  height: var(--lp-h, 0px) !important;
-  pointer-events: none;
-}
-
-.lp-root [data-vista-sheet-part="trigger"],
-.lp-root [data-vista-sheet-part="trigger-surface"] {
-  pointer-events: none;
-}
-
-/* The sheet restores focus to the ghost button on close (src/Sheet.tsx
- * onExitComplete); without this its ring paints around the link. */
-.lp-root [data-vista-sheet-part="trigger"]:focus-visible {
-  outline: none;
-}
-
-.lp-root [data-vista-sheet-part="trigger-surface"] {
-  background: transparent;
-  border-color: transparent;
-}
-
-/* Floating placement. Sheet.tsx pins the sheet to one of seven anchors via
- * inline top/bottom and --vista-sheet-sheet-left; main.tsx writes the
- * pointer-relative position into --lp-sheet-left/-top and these win. The
- * morph still grows out of the link: Motion FLIPs from the trigger rect to
- * wherever the box really lays out. */
-.lp-root [data-vista-sheet-part="sheet"] {
-  left: var(--lp-sheet-left, 16px) !important;
-  top: var(--lp-sheet-top, 16px) !important;
-  bottom: auto !important;
-  margin-block: 0 !important;
-}
-
-/* Sheet content: the frame fills the card edge to edge. */
-.lp-root [data-vista-sheet-part="content"] {
-  padding: 0;
+[data-vista-sheet-part="content"] {
+  position: relative;
   overflow: hidden;
 }
 
-.lp-frame {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-}
-
-.lp-placeholder {
+/* Quiet placeholder until the iframe's load fires. */
+.lp-skeleton {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  background: var(--vista-sheet-surface, #fafafa);
-  color: #6e6e73;
-  font-size: 14px;
+  background:
+    linear-gradient(var(--vista-sheet-surface-border, #e5e5e5), var(--vista-sheet-surface-border, #e5e5e5))
+      24px 40px / 45% 14px no-repeat,
+    linear-gradient(var(--vista-sheet-surface, #fafafa), var(--vista-sheet-surface, #fafafa));
+}
+
+.lp-skeleton[data-loaded] {
+  display: none;
 }
 
 .lp-iframe {
@@ -178,14 +130,4 @@ body {
 .lp-open:focus-visible {
   outline: 2px solid var(--vista-sheet-accent, #1d1d1f);
   outline-offset: 2px;
-}
-
-/* Close floats over arbitrary page content, so give it a surface. */
-[data-vista-sheet-part="close"] {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  background: var(--vista-sheet-surface-elevated, #ffffff);
-  border: 1px solid var(--vista-sheet-surface-border, #e5e5e5);
 }

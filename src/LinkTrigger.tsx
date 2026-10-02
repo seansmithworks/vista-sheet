@@ -227,7 +227,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     if (modeRef.current !== "pointer") return;
     const startGrace = () => {
       if (graceRef.current === undefined) {
-        graceRef.current = window.setTimeout(hide, PREVIEW_CLOSE_GRACE_MS);
+        graceRef.current = window.setTimeout(closeSelf, PREVIEW_CLOSE_GRACE_MS);
       }
     };
     const onMove = (e: PointerEvent) => {
@@ -250,7 +250,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
       window.clearTimeout(graceRef.current);
       graceRef.current = undefined;
     };
-  }, [open, sheetId, hide, closeSelf]);
+  }, [open, sheetId, closeSelf]);
 
   useEffect(
     () => () => {
