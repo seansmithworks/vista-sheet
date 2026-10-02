@@ -246,24 +246,15 @@ export function Sheet({
     return sheetBorderRadius.on("change", (v) => collapseRadius.set(v));
   }, [sheetBorderRadius, collapseRadius]);
 
-  const placement =
-    typeof window !== "undefined"
-      ? sheetPlacement(
-          anchor,
-          window.innerWidth,
-          window.innerHeight,
-          triggerBox.width,
-          sheetMaxWidth,
-          aspectRatio,
-        )
-      : sheetPlacement(
-          anchor,
-          1440,
-          900,
-          triggerBox.width,
-          sheetMaxWidth,
-          aspectRatio,
-        );
+  const hasWindow = typeof window !== "undefined";
+  const placement = sheetPlacement(
+    anchor,
+    hasWindow ? window.innerWidth : 1440,
+    hasWindow ? window.innerHeight : 900,
+    triggerBox.width,
+    sheetMaxWidth,
+    aspectRatio,
+  );
 
   // Always written (never conditionally), all five properties, as direct
   // inline properties rather than a var — that's what lets a top-pinned,
