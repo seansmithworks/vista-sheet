@@ -192,20 +192,14 @@ export type SheetProps = Labelled & {
   initialFocus?: RefObject<HTMLElement | null>;
 };
 
-export interface SharedProps {
+interface SlotProps {
   children: ReactNode;
   className?: string;
 }
 
-export interface ContentProps {
-  children: ReactNode;
-  className?: string;
-}
-
-export interface ItemProps {
-  children: ReactNode;
-  className?: string;
-}
+export type SharedProps = SlotProps;
+export type ContentProps = SlotProps;
+export type ItemProps = SlotProps;
 
 export interface CloseProps {
   children?: ReactNode;
@@ -250,12 +244,7 @@ export interface Rect {
   halfHeight: number;
 }
 
-export interface SheetRect {
-  cx: number;
-  cy: number;
-  halfWidth: number;
-  halfHeight: number;
-}
+export type SheetRect = Rect;
 
 /** Public state + escape hatch returned by useVistaSheet(). */
 export interface VistaSheetState {
