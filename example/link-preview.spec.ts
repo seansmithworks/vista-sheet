@@ -204,7 +204,7 @@ test.describe("link preview (desktop)", () => {
     const loc = link(page, "list menu");
     await loc.evaluate((el, sel) => {
       const w = window as unknown as { __intent: { enter?: number; open?: number } };
-      const t = (w.__intent = {});
+      const t: { enter?: number; open?: number } = (w.__intent = {});
       el.addEventListener("pointerenter", () => (t.enter = performance.now()));
       new MutationObserver(() => {
         if (t.open === undefined && document.querySelector(sel)) t.open = performance.now();
