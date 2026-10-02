@@ -42,7 +42,8 @@ function watchConsole(page: Page): string[] {
     out.push(`${m.type()}: ${m.text()}`);
   });
   page.on("pageerror", (e) => {
-    if (!(e.stack ?? "").includes("seansmithdesign.com")) out.push(`pageerror: ${e.message}`);
+    if (!(e.stack ?? "").includes("seansmithdesign.com"))
+      out.push(`pageerror: ${e.message}`);
   });
   return out;
 }
@@ -74,7 +75,10 @@ async function startRecording(page: Page) {
       return { left: r.left, top: r.top, width: r.width, height: r.height };
     };
     new MutationObserver(() => {
-      rec.maxIframes = Math.max(rec.maxIframes, document.querySelectorAll("iframe").length);
+      rec.maxIframes = Math.max(
+        rec.maxIframes,
+        document.querySelectorAll("iframe").length,
+      );
     }).observe(document.body, { childList: true, subtree: true });
     const tick = () => {
       const sheet = document.querySelector(sel);
@@ -82,7 +86,9 @@ async function startRecording(page: Page) {
         t: performance.now(),
         sheet: rect(sheet),
         opacity: sheet ? Number(getComputedStyle(sheet).opacity) : null,
-        shadow: rect(document.querySelector('[data-vista-sheet-part="shadow"]')),
+        shadow: rect(
+          document.querySelector('[data-vista-sheet-part="shadow"]'),
+        ),
       });
       if (!rec.stop) requestAnimationFrame(tick);
     };
@@ -90,7 +96,12 @@ async function startRecording(page: Page) {
   }, SHEET);
 }
 
-type Frame = { t: number; sheet: Box | null; opacity: number | null; shadow: Box | null };
+type Frame = {
+  t: number;
+  sheet: Box | null;
+  opacity: number | null;
+  shadow: Box | null;
+};
 const frames = (page: Page) =>
   page.evaluate(() => (window as any).__rec.frames as Frame[]);
 const maxIframes = (page: Page) =>
@@ -128,9 +139,16 @@ test.describe("link preview (desktop)", () => {
     ["wrapped link, first line", 0, "flagship contact card", 0],
     ["wrapped link, second line", 0, "flagship contact card", 1],
     ["wrapped link on a page scrolled 800px", 800, "flagship contact card", 0],
-    ["wrapped link, second line, scrolled 800px", 800, "flagship contact card", 1],
+    [
+      "wrapped link, second line, scrolled 800px",
+      800,
+      "flagship contact card",
+      1,
+    ],
   ] as const) {
-    test(`(a) opens after hover intent and grows from the hovered line: ${name}`, async ({ page }) => {
+    test(`(a) opens after hover intent and grows from the hovered line: ${name}`, async ({
+      page,
+    }) => {
       await gotoPreview(page);
       if (scrollY) await scrollPageTo(page, scrollY);
       const loc = link(page, text);
@@ -149,14 +167,27 @@ test.describe("link preview (desktop)", () => {
       // First painted frame: the card is the hovered LINE box, not the
       // link's union rect and not a sliver.
       const s = f!.sheet!;
-      expect(near(s.left, target.left, 6), `left ${s.left} vs ${target.left}`).toBe(true);
-      expect(near(s.top, target.top, 6), `top ${s.top} vs ${target.top}`).toBe(true);
-      expect(near(s.width, target.width, 6), `width ${s.width} vs ${target.width}`).toBe(true);
-      expect(near(s.height, target.height, 6), `height ${s.height} vs ${target.height}`).toBe(true);
+      expect(
+        near(s.left, target.left, 6),
+        `left ${s.left} vs ${target.left}`,
+      ).toBe(true);
+      expect(near(s.top, target.top, 6), `top ${s.top} vs ${target.top}`).toBe(
+        true,
+      );
+      expect(
+        near(s.width, target.width, 6),
+        `width ${s.width} vs ${target.width}`,
+      ).toBe(true);
+      expect(
+        near(s.height, target.height, 6),
+        `height ${s.height} vs ${target.height}`,
+      ).toBe(true);
     });
   }
 
-  test("(a) hover that leaves before the intent delay opens nothing", async ({ page }) => {
+  test("(a) hover that leaves before the intent delay opens nothing", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await hoverLine(page, link(page, "list menu"));
     await page.waitForTimeout(60);
@@ -166,13 +197,17 @@ test.describe("link preview (desktop)", () => {
     await expect(page.locator("[data-vista-sheet-root]")).toHaveCount(0);
   });
 
-  test("(b) placement: below when there is no room above, above when there is, centred on the pointer", async ({ page }) => {
+  test("(b) placement: below when there is no room above, above when there is, centred on the pointer", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     const loc = link(page, "list menu");
     // Link near the top: no room above, so the card flips below.
     const { x, line } = await openCard(page, loc);
     let s = (await page.locator(SHEET).boundingBox())!;
-    expect(near(s.y, line.top + line.height + 8, 1), `below top ${s.y}`).toBe(true);
+    expect(near(s.y, line.top + line.height + 8, 1), `below top ${s.y}`).toBe(
+      true,
+    );
     expect(near(s.x + s.width / 2, x, 1)).toBe(true);
     await page.keyboard.press("Escape");
     await expect(page.locator(SHEET)).toHaveCount(0);
@@ -186,18 +221,27 @@ test.describe("link preview (desktop)", () => {
     await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
     s = (await page.locator(SHEET).boundingBox())!;
     expect(up.line.top).toBeGreaterThan(544);
-    expect(near(s.y + s.height, up.line.top - 8, 1), `above bottom ${s.y + s.height}`).toBe(true);
+    expect(
+      near(s.y + s.height, up.line.top - 8, 1),
+      `above bottom ${s.y + s.height}`,
+    ).toBe(true);
     expect(near(s.x + s.width / 2, up.x, 1)).toBe(true);
   });
 
-  test("(b) placement: clamps to a 16px gutter at the right edge", async ({ page }) => {
+  test("(b) placement: clamps to a 16px gutter at the right edge", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await openCard(page, link(page, "my portfolio"));
     const s = (await page.locator(SHEET).boundingBox())!;
-    expect(near(s.x + s.width, 1280 - 16, 1), `right ${s.x + s.width}`).toBe(true);
+    expect(near(s.x + s.width, 1280 - 16, 1), `right ${s.x + s.width}`).toBe(
+      true,
+    );
   });
 
-  test("(c) at most one iframe at any time while sweeping across links; none after close", async ({ page }) => {
+  test("(c) at most one iframe at any time while sweeping across links; none after close", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await startRecording(page);
     for (const [text, i] of [
@@ -218,13 +262,17 @@ test.describe("link preview (desktop)", () => {
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
   });
 
-  test("(d) non-modal: focus does not move, nothing aria-hidden, no scroll lock", async ({ page }) => {
+  test("(d) non-modal: focus does not move, nothing aria-hidden, no scroll lock", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await page.locator("h1").evaluate((h) => h.setAttribute("tabindex", "-1"));
     await page.locator("h1").focus();
     const before = await page.evaluate(() => document.activeElement?.tagName);
     await openCard(page, link(page, "list menu"));
-    expect(await page.evaluate(() => document.activeElement?.tagName)).toBe(before);
+    expect(await page.evaluate(() => document.activeElement?.tagName)).toBe(
+      before,
+    );
     const state = await page.evaluate(() => ({
       hidden: [...document.querySelectorAll("[aria-hidden]")].filter(
         (e) =>
@@ -234,8 +282,10 @@ test.describe("link preview (desktop)", () => {
       ).length,
       overflow: document.body.style.overflow,
       paddingRight: document.body.style.paddingRight,
-      backdrops: document.querySelectorAll('[data-vista-sheet-part="backdrop"]').length,
-      dialogs: document.querySelectorAll('[role="dialog"], [aria-modal]').length,
+      backdrops: document.querySelectorAll('[data-vista-sheet-part="backdrop"]')
+        .length,
+      dialogs: document.querySelectorAll('[role="dialog"], [aria-modal]')
+        .length,
       triggerButtons: document.querySelectorAll("button").length,
     }));
     expect(state).toEqual({
@@ -256,7 +306,9 @@ test.describe("link preview (desktop)", () => {
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
   });
 
-  test("(e) a press outside closes, without waiting for the hover grace", async ({ page }) => {
+  test("(e) a press outside closes, without waiting for the hover grace", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await openCard(page, link(page, "list menu"));
     await page.mouse.move(1000, 600);
@@ -266,7 +318,9 @@ test.describe("link preview (desktop)", () => {
     await page.mouse.up();
   });
 
-  test("(e) scrolling closes, and the close lands on the link's current rect", async ({ page }) => {
+  test("(e) scrolling closes, and the close lands on the link's current rect", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await scrollPageTo(page, 800);
     const loc = link(page, "list menu");
@@ -278,15 +332,24 @@ test.describe("link preview (desktop)", () => {
     const after = (await lines(loc))[0];
     const fs = (await frames(page)).filter((f) => f.sheet);
     const last = fs[fs.length - 1].sheet!;
-    expect(near(last.left, after.left, 8), `left ${last.left} vs ${after.left}`).toBe(true);
-    expect(near(last.top, after.top, 8), `top ${last.top} vs ${after.top}`).toBe(true);
+    expect(
+      near(last.left, after.left, 8),
+      `left ${last.left} vs ${after.left}`,
+    ).toBe(true);
+    expect(
+      near(last.top, after.top, 8),
+      `top ${last.top} vs ${after.top}`,
+    ).toBe(true);
     // One clock: the shadow and the surface head for the same place.
     for (const f of fs) {
-      if (f.shadow) expect(Math.abs(f.shadow.top - f.sheet!.top)).toBeLessThanOrEqual(6);
+      if (f.shadow)
+        expect(Math.abs(f.shadow.top - f.sheet!.top)).toBeLessThanOrEqual(6);
     }
   });
 
-  test("(e) a 120px scroll in the middle of a close keeps the shadow on the sheet", async ({ page }) => {
+  test("(e) a 120px scroll in the middle of a close keeps the shadow on the sheet", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await scrollPageTo(page, 800);
     await openCard(page, link(page, "list menu"));
@@ -296,7 +359,10 @@ test.describe("link preview (desktop)", () => {
       () =>
         new Promise<void>((done) => {
           let n = 3;
-          const wait = () => (--n > 0 ? requestAnimationFrame(wait) : (window.scrollBy(0, 120), done()));
+          const wait = () =>
+            --n > 0
+              ? requestAnimationFrame(wait)
+              : (window.scrollBy(0, 120), done());
           requestAnimationFrame(wait);
         }),
     );
@@ -308,7 +374,9 @@ test.describe("link preview (desktop)", () => {
     }
   });
 
-  test("(h) the card is hoverable: it stays open while the pointer is on it", async ({ page }) => {
+  test("(h) the card is hoverable: it stays open while the pointer is on it", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     const { x, line } = await openCard(page, link(page, "list menu"));
     // Cross the gap to the card in steps, then rest on it well past the grace.
@@ -321,7 +389,9 @@ test.describe("link preview (desktop)", () => {
     await expect(page.locator("iframe")).toHaveCount(0, { timeout: 1000 });
   });
 
-  test("(h) keyboard focus opens after the intent delay, blur closes, focus stays on the link", async ({ page }) => {
+  test("(h) keyboard focus opens after the intent delay, blur closes, focus stays on the link", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await page.keyboard.press("Tab");
     await expect(link(page, "flagship contact card")).toBeFocused();
@@ -333,14 +403,21 @@ test.describe("link preview (desktop)", () => {
     await page.mouse.move(1000, 700);
   });
 
-  test("(h) the card is a visual duplicate: aria-hidden, Open is not tabbable", async ({ page }) => {
+  test("(h) the card is a visual duplicate: aria-hidden, Open is not tabbable", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     await openCard(page, link(page, "list menu"));
     await expect(page.locator(SHEET)).toHaveAttribute("aria-hidden", "true");
-    await expect(page.locator(`${SHEET} a.lp-open`)).toHaveAttribute("tabindex", "-1");
+    await expect(page.locator(`${SHEET} a.lp-open`)).toHaveAttribute(
+      "tabindex",
+      "-1",
+    );
   });
 
-  test("(h) the skeleton shows until the iframe loads, then gives way", async ({ page }) => {
+  test("(h) the skeleton shows until the iframe loads, then gives way", async ({
+    page,
+  }) => {
     // A slow page, so the skeleton has a window to be seen in.
     await page.route("**/list.html?preview=1", async (route) => {
       await new Promise((r) => setTimeout(r, 1200));
@@ -349,7 +426,9 @@ test.describe("link preview (desktop)", () => {
     await gotoPreview(page);
     await hoverLine(page, link(page, "list menu"));
     await expect(page.locator(".lp-skeleton")).toBeVisible();
-    await expect(page.locator(".lp-iframe[data-loaded]")).toHaveCount(1, { timeout: 10_000 });
+    await expect(page.locator(".lp-iframe[data-loaded]")).toHaveCount(1, {
+      timeout: 10_000,
+    });
     await expect(page.locator(".lp-skeleton")).toBeHidden();
   });
 });
@@ -361,7 +440,11 @@ test.describe("link preview (touch)", () => {
    * only tap. */
   async function touch(page: Page) {
     const cdp = await page.context().newCDPSession(page);
-    const send = (type: string, x?: number, y?: number) =>
+    const send = (
+      type: "touchStart" | "touchMove" | "touchEnd",
+      x?: number,
+      y?: number,
+    ) =>
       cdp.send("Input.dispatchTouchEvent", {
         type,
         touchPoints: type === "touchEnd" ? [] : [{ x: x!, y: y! }],
@@ -373,7 +456,9 @@ test.describe("link preview (touch)", () => {
     };
   }
 
-  test("(f) long-press opens a card, and lifting the finger does not close it", async ({ page }) => {
+  test("(f) long-press opens a card, and lifting the finger does not close it", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     const url = page.url();
     const finger = await touch(page);
@@ -395,7 +480,9 @@ test.describe("link preview (touch)", () => {
     await expect(page.locator("iframe")).toHaveCount(0, { timeout: 120 });
   });
 
-  test("(f) a short tap still follows the link, and a moving finger opens nothing", async ({ page }) => {
+  test("(f) a short tap still follows the link, and a moving finger opens nothing", async ({
+    page,
+  }) => {
     await gotoPreview(page);
     const finger = await touch(page);
     const l = (await lines(link(page, "list menu")))[0];
@@ -409,7 +496,9 @@ test.describe("link preview (touch)", () => {
     await expect(page.locator("[data-vista-sheet-root]")).toHaveCount(0);
   });
 
-  test("(g) zero console errors or warnings from our page across hover, switch, long-press, Escape", async ({ page }) => {
+  test("(g) zero console errors or warnings from our page across hover, switch, long-press, Escape", async ({
+    page,
+  }) => {
     const errors = watchConsole(page);
     await gotoPreview(page);
     await hoverLine(page, link(page, "flagship contact card"), 1);
@@ -428,19 +517,28 @@ test.describe("link preview (touch)", () => {
     await finger.start(1000, 600);
     await finger.end();
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
-    expect(errors).toEqual([]);
+    // Motion's own dev notice that the OS has Reduced Motion on is not ours.
+    expect(errors.filter((e) => !e.includes("Reduced Motion enabled"))).toEqual(
+      [],
+    );
   });
 });
 
 test.describe("link preview (reduced motion)", () => {
-  test.use({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
+  test.use({ viewport: { width: 1280, height: 800 } });
 
-  test("opens and closes as a crossfade with no console errors", async ({ page }) => {
+  test("opens and closes as a crossfade with no console errors", async ({
+    page,
+  }) => {
     const errors = watchConsole(page);
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await gotoPreview(page);
     await openCard(page, link(page, "flagship contact card"), 1);
     await page.keyboard.press("Escape");
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
-    expect(errors).toEqual([]);
+    // Motion's own dev notice that the OS has Reduced Motion on is not ours.
+    expect(errors.filter((e) => !e.includes("Reduced Motion enabled"))).toEqual(
+      [],
+    );
   });
 });
