@@ -80,14 +80,35 @@ body {
   overflow: hidden;
 }
 
-/* Quiet placeholder until the iframe's load fires. */
+/* Quiet placeholder until the iframe's load fires: a title bar and two text
+ * lines. The lines are one bar plus its own offset copies (box-shadow). */
 .lp-skeleton {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(var(--vista-sheet-surface-border, #e5e5e5), var(--vista-sheet-surface-border, #e5e5e5))
-      24px 40px / 45% 14px no-repeat,
-    linear-gradient(var(--vista-sheet-surface, #fafafa), var(--vista-sheet-surface, #fafafa));
+  background: var(--vista-sheet-surface, #fafafa);
+  --lp-bone: var(--vista-sheet-surface-border, #e5e5e5);
+}
+
+.lp-skeleton::before,
+.lp-skeleton::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  border-radius: 7px;
+  background: var(--lp-bone);
+}
+
+.lp-skeleton::before {
+  top: 40px;
+  width: 45%;
+  height: 14px;
+}
+
+.lp-skeleton::after {
+  top: 72px;
+  width: calc(100% - 48px);
+  height: 10px;
+  box-shadow: 0 22px 0 0 var(--lp-bone);
 }
 
 .lp-skeleton[data-loaded] {
