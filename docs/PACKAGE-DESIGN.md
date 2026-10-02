@@ -273,7 +273,7 @@ Throws outside `<VistaSheet.Root>`. This hook is the escape hatch for §3 and th
 | --- | --- |
 | `dragElastic`, `dragMomentum`, `dragConstraints`, drag threshold (5px) | Drag feel is one dialed system. Exposing pieces of it lets a consumer produce an off-screen excursion or a tap that registers as a drag. |
 | Snap spring (`stiffness 700, damping 52, mass 1`) | Deliberately overdamped so the trigger never overshoots past a viewport edge. A softer value is a bug, not a preference. |
-| `radiusHoldFraction`, `openContentRevealDelaySec`, `contentFadeOutMs`, `contentFadeOutDelayMs` | The close choreography. Every one of these exists to suppress a specific artifact. See §3. (`surfaceCloseLeadDelayMs` was promoted OUT of this row and into §3's props table — it is a duration, not a suppressed artifact.) |
+| `radiusHoldFraction`, `openContentRevealDelaySec`, `contentFadeOutMs` | The close choreography. Every one of these exists to suppress a specific artifact. See §3. (`surfaceCloseLeadDelayMs` was promoted OUT of this row and into §3's props table — it is a duration, not a suppressed artifact.) |
 | The trailing-paper mask envelope constants (`FADE_START/PEAK/END`, `MAX_FADE`, `BAND`) | Internal to one artifact fix. See §8, where this is a cut. |
 | The anchor region map thresholds (thirds each axis) | Changing them makes "nearest anchor" not mean nearest. |
 | Swipe-to-close thresholds (96px offset, 400px/s velocity) | Platform convention values. |

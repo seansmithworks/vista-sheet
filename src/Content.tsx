@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useVistaSheetInternal } from "./context";
 import {
-  CONTENT_FADE_OUT_DELAY_MS,
   CONTENT_FADE_OUT_MS,
   ITEM_STAGGER_INTERVAL_SEC,
   OPEN_CONTENT_REVEAL_DELAY_SEC,
@@ -81,7 +80,6 @@ export function Content({ children, className }: ContentProps) {
           y: 6,
           transition: {
             duration: CONTENT_FADE_OUT_MS / 1000,
-            delay: CONTENT_FADE_OUT_DELAY_MS / 1000,
           },
         },
       };

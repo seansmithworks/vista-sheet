@@ -175,10 +175,9 @@ export const SURFACE_CLOSE_LEAD_DELAY_MS = 35;
 /** Delay (s) before sheet content starts revealing after the open bloom. */
 export const OPEN_CONTENT_REVEAL_DELAY_SEC = 0.2;
 
-/** Content fade-out duration + delay (ms) on close, so content clears before
+/** Content fade-out duration (ms) on close, so content clears before
  * the box visibly collapses under it. */
 export const CONTENT_FADE_OUT_MS = 80;
-export const CONTENT_FADE_OUT_DELAY_MS = 0;
 
 /** collapseProgress at or below which the open counts as finished, and
  * <VistaSheet.Close> starts fading in, so the X never paints while the
