@@ -116,6 +116,8 @@ export function useDialogBehavior({
   collapseProgress,
   onClose,
   initialFocus,
+  modal = true,
+  triggerRef,
 }: {
   isOpen: boolean;
   /** True from the open commit until AnimatePresence's onExitComplete —
@@ -126,9 +128,19 @@ export function useDialogBehavior({
   onClose: () => void;
   /** Opt-in target focused at settle; see types.ts SheetProps.initialFocus. */
   initialFocus?: RefObject<HTMLElement | null>;
-}): void {
+  /** Default true. When false the hook skips scroll lock, background
+   * aria-hiding, initial focus and the Tab trap; Escape still closes. */
+  modal?: boolean;
+  /** The element focus returns to on exit-complete (via `restoreFocus`). */
+  triggerRef: RefObject<HTMLElement | null>;
+}): {
+  /** Dialog semantics for the panel element; empty when not modal. */
+  panelProps: { role?: "dialog"; "aria-modal"?: "true"; tabIndex?: number };
+  /** Call at exit-complete to hand focus back to the trigger. */
+  restoreFocus: () => void;
+} {
   useEffect(() => {
-    if (!isPresent || typeof document === "undefined") return;
+    if (!modal || !isPresent || typeof document === "undefined") return;
     const { body } = document;
     const prevOverflow = body.style.overflow;
     const prevPaddingRight = body.style.paddingRight;
@@ -149,13 +161,13 @@ export function useDialogBehavior({
       body.style.overflow = prevOverflow;
       body.style.paddingRight = prevPaddingRight;
     };
-  }, [isPresent]);
+  }, [modal, isPresent]);
 
   // Hide everything outside the dialog from assistive tech. aria-modal is a
   // hint browsers don't act on — a screen reader will otherwise read the
   // whole page behind the open sheet.
   useEffect(() => {
-    if (!isPresent || typeof document === "undefined") return;
+    if (!modal || !isPresent || typeof document === "undefined") return;
     const panel = panelRef.current;
     if (!panel) return;
     // Hide from the WIDGET's root, not the dialog panel node itself. The
@@ -171,10 +183,10 @@ export function useDialogBehavior({
     // portal root.
     const root = panel.closest("[data-vista-sheet-root]") ?? panel;
     return hideOutsideSiblings(root);
-  }, [isPresent, panelRef]);
+  }, [modal, isPresent, panelRef]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!modal || !isOpen) return;
     const panel = panelRef.current;
     if (!panel) return;
 
@@ -202,7 +214,7 @@ export function useDialogBehavior({
     return collapseProgress.on("change", (v) => {
       if (v <= CLOSE_REVEAL_PROGRESS) focusInitialTarget();
     });
-  }, [isOpen, panelRef, collapseProgress, initialFocus]);
+  }, [modal, isOpen, panelRef, collapseProgress, initialFocus]);
 
   useEffect(() => {
     if (!isPresent) return;
@@ -213,7 +225,7 @@ export function useDialogBehavior({
         onClose();
         return;
       }
-      if (e.key !== "Tab" || !panelRef.current) return;
+      if (e.key !== "Tab" || !modal || !panelRef.current) return;
       const panel = panelRef.current;
       const items = getTabbables(panel);
       // No focusable descendant: the panel itself (tabIndex=-1, focused
@@ -243,5 +255,12 @@ export function useDialogBehavior({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isPresent, isOpen, onClose, panelRef]);
+  }, [modal, isPresent, isOpen, onClose, panelRef]);
+
+  return {
+    panelProps: modal
+      ? { role: "dialog", "aria-modal": "true", tabIndex: -1 }
+      : {},
+    restoreFocus: () => triggerRef.current?.focus(),
+  };
 }

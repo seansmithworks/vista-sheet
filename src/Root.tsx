@@ -427,6 +427,7 @@ export function Root({
     registerClose,
     hasRegisteredClose,
     triggerElRef,
+    layerEl: null,
     contentScrollElRef,
   };
 

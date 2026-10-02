@@ -16,6 +16,7 @@ import {
   SWIPE_VELOCITY_PX_S,
 } from "./motion";
 import { useCollapseRadius } from "./useCollapseRadius";
+import { Layer } from "./Layer";
 import { useDialogBehavior } from "./useDialogBehavior";
 import type { SheetProps, SheetRect } from "./types";
 import styles from "./styles.module.css";
@@ -78,13 +79,14 @@ export function Sheet({
     if (open) setIsPresent(true);
   }, [open]);
 
-  useDialogBehavior({
+  const { panelProps, restoreFocus } = useDialogBehavior({
     isOpen: open,
     isPresent,
     panelRef: sheetRef,
     collapseProgress,
     onClose: () => setOpen(false),
     initialFocus,
+    triggerRef: triggerElRef,
   });
 
   // Reset the drag offset on every open — a value left over from the
@@ -304,7 +306,7 @@ export function Sheet({
   }
 
   return (
-    <>
+    <Layer>
       {/* Invisible click-catcher for outside-click dismissal — not a
           visible scrim. <VistaSheet.Backdrop> (a visual dim layer) is cut
           from v0.1 (docs/PACKAGE-DESIGN.md §8); dismiss-on-outside-click is
@@ -327,7 +329,7 @@ export function Sheet({
       )}
       <AnimatePresence
         onExitComplete={() => {
-          triggerElRef.current?.focus();
+          restoreFocus();
           // Exit-complete is when the close morph is actually done — the
           // correct moment to drop sheetRect (see the measure effect above)
           // and to release the scroll lock / aria-hiding / Tab trap that
@@ -343,9 +345,7 @@ export function Sheet({
             className={`${styles.sheet} ${className ?? ""}`}
             data-vista-sheet-part="sheet"
             data-vista-sheet-shape={shape}
-            role="dialog"
-            aria-modal="true"
-            tabIndex={-1}
+            {...panelProps}
             {...labelled}
             {...(reduceMotion
               ? {
@@ -402,6 +402,6 @@ export function Sheet({
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </Layer>
   );
 }

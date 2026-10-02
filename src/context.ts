@@ -72,6 +72,9 @@ export interface VistaSheetContextValue extends VistaSheetState {
   hasRegisteredClose: () => boolean;
   /** The trigger button element — Sheet focuses it back on exit-complete. */
   triggerElRef: MutableRefObject<HTMLButtonElement | null>;
+  /** Element Sheet and Shadow portal into. Null in modal mode: no portal,
+   * no extra DOM. */
+  layerEl: HTMLElement | null;
   /** The Content scroll region element — Sheet's swipe-to-close must not fire
    * while this is mid-scroll (docs/PACKAGE-DESIGN.md §1, Content). */
   contentScrollElRef: MutableRefObject<HTMLDivElement | null>;

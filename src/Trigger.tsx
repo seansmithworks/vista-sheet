@@ -57,7 +57,11 @@ function seatAt(
   y.jump(restingTop(anchor, vpH, box.height));
 }
 
-export function Trigger({ children, className, ...aria }: TriggerProps) {
+export function Trigger(props: TriggerProps) {
+  return <ButtonTrigger {...props} />;
+}
+
+function ButtonTrigger({ children, className, ...aria }: TriggerProps) {
   const ctx = useVistaSheetInternal("Trigger");
   const {
     open,
