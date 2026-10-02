@@ -197,6 +197,40 @@ test.describe("link preview (desktop)", () => {
     await expect(page.locator("[data-vista-sheet-root]")).toHaveCount(0);
   });
 
+  test("(a) hover intent opens between 130ms and 400ms after the pointer enters", async ({
+    page,
+  }) => {
+    await gotoPreview(page);
+    const loc = link(page, "list menu");
+    await loc.evaluate((el, sel) => {
+      const w = window as unknown as { __intent: { enter?: number; open?: number } };
+      const t = (w.__intent = {});
+      el.addEventListener("pointerenter", () => (t.enter = performance.now()));
+      new MutationObserver(() => {
+        if (t.open === undefined && document.querySelector(sel)) t.open = performance.now();
+      }).observe(document.body, { childList: true, subtree: true });
+    }, SHEET);
+    await hoverLine(page, loc);
+    await expect(page.locator(SHEET)).toBeVisible();
+    const { enter, open } = await page.evaluate(
+      () => (window as any).__intent as { enter: number; open: number },
+    );
+    expect(open - enter).toBeGreaterThanOrEqual(130);
+    expect(open - enter).toBeLessThanOrEqual(400);
+  });
+
+  test("(b) placement: the card never shrinks below the 240px floor", async ({
+    page,
+  }) => {
+    // Too short for 520 above or below the link, so it shrinks to the floor.
+    await page.setViewportSize({ width: 1280, height: 380 });
+    await gotoPreview(page);
+    await openCard(page, link(page, "list menu"));
+    await page.waitForTimeout(900);
+    const s = (await page.locator(SHEET).boundingBox())!;
+    expect(near(s.height, 240, 1), `height ${s.height}`).toBe(true);
+  });
+
   test("(b) placement: below when there is no room above, above when there is, centred on the pointer", async ({
     page,
   }) => {
@@ -326,6 +360,22 @@ test.describe("link preview (desktop)", () => {
     await page.keyboard.press("Escape");
     await expect(page.locator("iframe")).toHaveCount(0, { timeout: 100 });
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
+  });
+
+  test("(e) a window resize closes the card and it stays closed", async ({
+    page,
+  }) => {
+    await gotoPreview(page);
+    await openCard(page, link(page, "list menu"));
+    // Pointer off the link first, so nothing can reopen it, then a resize
+    // event well inside the 250ms grace so the grace is not what closes it.
+    await page.mouse.move(1000, 600);
+    await page.evaluate(() => window.dispatchEvent(new Event("resize")));
+    await expect(page.locator("iframe")).toHaveCount(0, { timeout: 150 });
+    await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
+    await page.waitForTimeout(700);
+    await expect(page.locator(SHEET)).toHaveCount(0);
+    await expect(page.locator("[data-vista-sheet-root]")).toHaveCount(0);
   });
 
   test("(e) a press outside closes, without waiting for the hover grace", async ({
