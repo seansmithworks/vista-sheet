@@ -31,7 +31,7 @@ import {
 import { LinkTrigger } from "./LinkTrigger";
 import { Shared } from "./Shared";
 import { Media } from "./Media";
-import type { TriggerProps } from "./types";
+import type { TriggerComponentProps, TriggerProps } from "./types";
 import styles from "./styles.module.css";
 
 /** Jump the trigger's x/y motion values to the anchor's resting position. */
@@ -47,7 +47,7 @@ function seatAt(
   y.jump(restingTop(anchor, vpH, box.height));
 }
 
-export function Trigger(props: TriggerProps) {
+export function Trigger(props: TriggerComponentProps) {
   return props.asChild ? (
     <LinkTrigger>{props.children}</LinkTrigger>
   ) : (
@@ -71,7 +71,7 @@ function ButtonTrigger({
   className,
   asChild: _asChild,
   ...aria
-}: Extract<TriggerProps, { asChild?: false }>) {
+}: TriggerProps) {
   const ctx = useVistaSheetInternal("Trigger");
   const {
     open,

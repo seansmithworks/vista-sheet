@@ -18,7 +18,7 @@ import {
 } from "./shape";
 import type { TriggerBox } from "./shape";
 import type { Transition } from "motion/react";
-import type { Rect, RootProps, SheetRect } from "./types";
+import type { Rect, RootComponentProps, SheetRect } from "./types";
 import {
   MD_BREAKPOINT,
   resolveTriggerSize,
@@ -60,7 +60,7 @@ export function Root({
   id,
   zIndex = 100,
   className,
-}: RootProps) {
+}: RootComponentProps) {
   // A missing "use client" on the file that mounts <VistaSheet.Root> can't
   // be caught here or anywhere else in this package: index.ts exports only
   // the `VistaSheet` namespace object, so the only public path is the

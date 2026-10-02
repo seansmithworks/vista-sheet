@@ -72,7 +72,7 @@ export interface MotionPreset {
   surfaceCloseLeadDelayMs?: number;
 }
 
-export interface ModalRootProps {
+export interface RootProps {
   children: ReactNode;
 
   /** Default false: a draggable button opening a modal sheet. */
@@ -178,28 +178,32 @@ type PreviewKept =
   | "zIndex"
   | "className";
 
-export type PreviewRootProps = Pick<ModalRootProps, PreviewKept> & {
+export type PreviewRootProps = Pick<RootProps, PreviewKept> & {
   /** Fixed for the Root's lifetime. Sheet max width defaults to 360. */
   preview: true;
-} & Partial<Record<Exclude<keyof ModalRootProps, PreviewKept | "preview">, never>>;
+} & Partial<Record<Exclude<keyof RootProps, PreviewKept | "preview">, never>>;
 
-export type RootProps = ModalRootProps | PreviewRootProps;
+/** What <VistaSheet.Root> accepts: the modal shape or the preview shape. */
+export type RootComponentProps = RootProps | PreviewRootProps;
 
-export type TriggerProps =
-  | {
-      asChild?: false;
-      children?: ReactNode;
-      className?: string;
-      /** Required. This is the button's accessible name. */
-      "aria-label": string;
-    }
-  | {
-      /** Preview mode: the single child (an `<a>`) is the trigger. */
-      asChild: true;
-      children: ReactElement;
-      className?: never;
-      "aria-label"?: never;
-    };
+export interface TriggerProps {
+  asChild?: false;
+  children?: ReactNode;
+  className?: string;
+  /** Required. This is the button's accessible name. */
+  "aria-label": string;
+}
+
+export interface PreviewTriggerProps {
+  /** Preview mode: the single child (an `<a>`) is the trigger. */
+  asChild: true;
+  children: ReactElement;
+  className?: never;
+  "aria-label"?: never;
+}
+
+/** What <VistaSheet.Trigger> accepts. */
+export type TriggerComponentProps = TriggerProps | PreviewTriggerProps;
 
 export type Labelled =
   | { "aria-label": string; "aria-labelledby"?: never }
