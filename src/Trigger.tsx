@@ -11,8 +11,9 @@ import {
 import type { TriggerBox } from "./shape";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { animate, motion, useMotionValue } from "motion/react";
-import type { PanInfo } from "motion/react";
+import type { MotionValue, PanInfo } from "motion/react";
 import { nearestAnchor, restingLeft, restingTop } from "./anchors";
+import type { AnchorId } from "./anchors";
 import {
   SlotContext,
   TriggerSurfaceContext,
@@ -43,6 +44,19 @@ import styles from "./styles.module.css";
  * Nothing ever changes CSS left/top after mount, so a snap is a plain x/y
  * animation with no FLIP and no one-frame transform desync.
  */
+/** Jump the trigger's x/y motion values to the anchor's resting position. */
+function seatAt(
+  x: MotionValue<number>,
+  y: MotionValue<number>,
+  anchor: AnchorId,
+  vpW: number,
+  vpH: number,
+  box: { width: number; height: number },
+) {
+  x.jump(restingLeft(anchor, vpW, box.width));
+  y.jump(restingTop(anchor, vpH, box.height));
+}
+
 export function Trigger({ children, className, ...aria }: TriggerProps) {
   const ctx = useVistaSheetInternal("Trigger");
   const {
@@ -94,7 +108,6 @@ export function Trigger({ children, className, ...aria }: TriggerProps) {
     surfaceRef.current = el;
     surfaceStoreRef.current!.set(el);
   }, []);
-  const mountedRef = useRef(false);
   const lastRectRef = useRef<{
     cx: number;
     cy: number;
@@ -145,16 +158,7 @@ export function Trigger({ children, className, ...aria }: TriggerProps) {
             height: wrapperRef.current.offsetHeight,
           }
         : triggerBox;
-    const targetX = restingLeft(anchor, vpW, box.width);
-    const targetY = restingTop(anchor, vpH, box.height);
-    if (!mountedRef.current) {
-      x.jump(targetX);
-      y.jump(targetY);
-      mountedRef.current = true;
-    } else {
-      x.jump(targetX);
-      y.jump(targetY);
-    }
+    seatAt(x, y, anchor, vpW, vpH, box);
   }, [anchor, shape, triggerBox.width, triggerBox.height, x, y]);
 
   // Resize: re-seat the trigger at its anchor's new resting position. While
@@ -170,8 +174,7 @@ export function Trigger({ children, className, ...aria }: TriggerProps) {
         pendingResizeRef.current = true;
         return;
       }
-      x.jump(restingLeft(anchor, window.innerWidth, triggerBox.width));
-      y.jump(restingTop(anchor, window.innerHeight, triggerBox.height));
+      seatAt(x, y, anchor, window.innerWidth, window.innerHeight, triggerBox);
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -185,8 +188,7 @@ export function Trigger({ children, className, ...aria }: TriggerProps) {
     if (!pendingResizeRef.current) return;
     pendingResizeRef.current = false;
     if (typeof window === "undefined") return;
-    x.jump(restingLeft(anchor, window.innerWidth, triggerBox.width));
-    y.jump(restingTop(anchor, window.innerHeight, triggerBox.height));
+    seatAt(x, y, anchor, window.innerWidth, window.innerHeight, triggerBox);
   }, [anchor, triggerBox.width, triggerBox.height, sheetRect, x, y]);
 
   // The trigger's RESTING shape, as a number Motion can mix from.
