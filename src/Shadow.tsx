@@ -410,30 +410,25 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
     "data-vista-sheet-shape": shape,
   };
 
+  let shadow: ReactElement;
   if (asChild && isValidElement(children)) {
     const childEl = children as ReactElement<Record<string, unknown>>;
     const childStyle = (childEl.props.style as CSSProperties | undefined) ?? {};
     const childRef = (childEl.props as { ref?: Ref<HTMLElement> }).ref;
-    return (
-      <Layer>
-        {cloneElement(childEl, {
-          ...sharedProps,
-          ref: mergeShadowRef(childRef, (node) => {
-            elRef.current = node;
-          }),
-          style: {
-            position: "fixed",
-            zIndex: zIndex - 1,
-            pointerEvents: "none",
-            ...childStyle,
-          },
-        })}
-      </Layer>
-    );
-  }
-
-  return (
-    <Layer>
+    shadow = cloneElement(childEl, {
+      ...sharedProps,
+      ref: mergeShadowRef(childRef, (node) => {
+        elRef.current = node;
+      }),
+      style: {
+        position: "fixed",
+        zIndex: zIndex - 1,
+        pointerEvents: "none",
+        ...childStyle,
+      },
+    });
+  } else {
+    shadow = (
       <div
         ref={(node) => {
           elRef.current = node;
@@ -442,6 +437,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
         style={{ position: "fixed", zIndex: zIndex - 1, pointerEvents: "none" }}
         {...sharedProps}
       />
-    </Layer>
-  );
+    );
+  }
+  return <Layer>{shadow}</Layer>;
 }

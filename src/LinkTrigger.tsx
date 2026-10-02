@@ -20,13 +20,10 @@ import {
   PREVIEW_TRIGGER_RADIUS_PX,
 } from "./motion";
 import { mergeShadowRef } from "./Shadow";
+import type { Rect } from "./types";
 import styles from "./styles.module.css";
 
-/**
- * One card open at a time, across every preview Root on the page: opening a
- * card closes the one before it. Only touched from event handlers and timers,
- * so it is SSR-safe.
- */
+/** One card open at a time across every preview Root: opening closes the last. */
 let closeCurrent: (() => void) | null = null;
 
 type ChildProps = Record<string, unknown> & {
@@ -35,38 +32,22 @@ type ChildProps = Record<string, unknown> & {
   ref?: React.Ref<HTMLElement>;
 };
 
-/** Run the consumer's own handler first, then ours. */
-function compose<E extends SyntheticEvent>(
-  theirs: unknown,
-  ours: (e: E) => void,
-) {
-  return (e: E) => {
-    if (typeof theirs === "function") theirs(e);
-    ours(e);
-  };
-}
+type Mode = "pointer" | "touch" | "keyboard";
 
 /**
- * LinkTrigger — preview mode's trigger. The consumer's single `<a>` child IS
- * the trigger: it keeps being an ordinary link (focus, navigation, its own
- * name), and gains hover intent, keyboard-focus intent, and touch long-press.
+ * LinkTrigger — preview mode's trigger. The consumer's single `<a>` stays an
+ * ordinary link and gains hover intent, keyboard-focus intent and touch
+ * long-press.
  *
- * The morph surface (the shared-layoutId element the card grows out of and
- * shrinks back into) is a transparent span injected into the link. A link
- * that wraps across lines is several boxes, and an absolutely-positioned
- * child of an inline sizes against first-box-start to last-box-end, which is
- * not any box the reader sees. So the surface is pinned, with inline
- * left/top/width/height, to the ONE line box under the pointer, from
- * intent-start on — at least one hover-intent beat before the open. The
- * card's `triggerRect` is that same line box, never the link's union rect.
- *
- * Every close lands the surface on the link's CURRENT line box: the surface
- * remounts on close (re-pinned as it attaches) and a layout effect
- * re-measures `triggerRect` in the same commit, so a card dismissed by
- * scrolling returns to where the link now is.
+ * The morph surface (the shared-layoutId span the card grows out of and
+ * shrinks back into) is pinned, with inline left/top/width/height, to the ONE
+ * line box under the pointer. A link that wraps is several boxes; an
+ * absolutely-positioned child of an inline would size against first-box-start
+ * to last-box-end, which is no box the reader sees. The card's `triggerRect`
+ * is that same line box, re-measured in the commit the surface remounts on
+ * every close, so a card dismissed by scrolling returns to where the link is.
  */
 export function LinkTrigger({ children }: { children: ReactElement }) {
-  const ctx = useVistaSheetInternal("Trigger");
   const {
     open,
     setOpen,
@@ -81,7 +62,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     setLayerArmed,
     triggerElRef,
     previewPointerRef,
-  } = ctx;
+  } = useVistaSheetInternal("Trigger");
 
   const child = Children.only(children);
   if (!isValidElement(child)) {
@@ -95,11 +76,9 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
   const pointerRef = useRef({ x: 0, y: 0 });
   const openRef = useRef(open);
   openRef.current = open;
-  // How the open was started: "pointer" cards close on leave, "touch" and
-  // "keyboard" ones do not.
-  const modeRef = useRef<"pointer" | "touch" | "keyboard">("pointer");
-  const intentRef = useRef<number | undefined>(undefined);
-  const graceRef = useRef<number | undefined>(undefined);
+  // How the open started: pointer cards close on leave, the others do not.
+  const modeRef = useRef<Mode>("pointer");
+  const timer = useRef<{ intent?: number; grace?: number }>({});
   const pressRef = useRef<{ x: number; y: number } | null>(null);
   const longPressedRef = useRef(false);
   const restRadius = useMotionValue(PREVIEW_TRIGGER_RADIUS_PX);
@@ -115,69 +94,63 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     [triggerElRef],
   );
 
-  // The client rect of line `lineRef` (clamped), and the first line's, which
-  // is the origin an absolutely-positioned child of an inline measures from.
-  const lineRects = () => {
-    const rects = linkRef.current?.getClientRects();
-    if (!rects || rects.length === 0) return null;
-    return { line: rects[Math.min(lineRef.current, rects.length - 1)], first: rects[0] };
+  const stop = (k: "intent" | "grace") => {
+    window.clearTimeout(timer.current[k]);
+    timer.current[k] = undefined;
   };
+
+  const lines = () => Array.from(linkRef.current?.getClientRects() ?? []);
+  const currentLine = (all: DOMRect[]): DOMRect | undefined =>
+    all[Math.min(lineRef.current, all.length - 1)];
 
   // Choose the line under clientY (the first, when none is) and pin the
   // surface to it.
   const pin = (clientY?: number) => {
-    const rects = linkRef.current?.getClientRects();
-    if (rects && clientY !== undefined) {
-      const hit = Array.from(rects).findIndex(
-        (r) => clientY >= r.top && clientY <= r.bottom,
-      );
+    const all = lines();
+    if (clientY !== undefined) {
+      const hit = all.findIndex((r) => clientY >= r.top && clientY <= r.bottom);
       lineRef.current = Math.max(hit, 0);
     }
-    const found = lineRects();
-    const surface = surfaceRef.current;
-    if (!found || !surface) return;
-    surface.style.left = `${found.line.left - found.first.left}px`;
-    surface.style.top = `${found.line.top - found.first.top}px`;
-    surface.style.width = `${found.line.width}px`;
-    surface.style.height = `${found.line.height}px`;
+    const r = currentLine(all);
+    if (!r || !surfaceRef.current) return;
+    Object.assign(surfaceRef.current.style, {
+      left: `${r.left - all[0].left}px`,
+      top: `${r.top - all[0].top}px`,
+      width: `${r.width}px`,
+      height: `${r.height}px`,
+    });
   };
-
   const attachSurface = useCallback((node: HTMLSpanElement | null) => {
     surfaceRef.current = node;
     if (node) pin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const measureLine = () => {
-    const found = lineRects();
-    if (!found) return null;
-    const { left, top, width, height } = found.line;
-    return {
-      cx: left + width / 2,
-      cy: top + height / 2,
-      halfWidth: width / 2,
-      halfHeight: height / 2,
-    };
+  const measure = (): Rect | null => {
+    const r = currentLine(lines());
+    return r
+      ? {
+          cx: r.left + r.width / 2,
+          cy: r.top + r.height / 2,
+          halfWidth: r.width / 2,
+          halfHeight: r.height / 2,
+        }
+      : null;
   };
 
-  const clearTimers = () => {
-    window.clearTimeout(intentRef.current);
-    window.clearTimeout(graceRef.current);
-    intentRef.current = graceRef.current = undefined;
-  };
-
-  const hide = useCallback(() => {
-    clearTimers();
+  const hideRef = useRef(() => {});
+  hideRef.current = () => {
+    stop("intent");
+    stop("grace");
     setLayerArmed(false);
     setOpen(false);
-  }, [setLayerArmed, setOpen]);
-  const hideRef = useRef(hide);
-  hideRef.current = hide;
+  };
   const closeSelf = useCallback(() => hideRef.current(), []);
 
   const show = () => {
-    clearTimers();
-    const rect = measureLine();
+    stop("intent");
+    stop("grace");
+    const rect = measure();
     if (!rect) return;
     pin();
     previewPointerRef.current = pointerRef.current;
@@ -186,32 +159,38 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     closeCurrent = closeSelf;
     setLayerArmed(false);
     setOpen(true);
+    if (modeRef.current === "touch") longPressedRef.current = true;
   };
 
-  // Arm the layer now so it is in the DOM by the time the card mounts.
-  const startIntent = (delayMs: number, onFire: () => void) => {
-    window.clearTimeout(intentRef.current);
+  // Start the hover / long-press / focus beat. The layer is armed now so it
+  // is in the DOM by the time the card mounts.
+  const begin = (mode: Mode, at: { x: number; y: number }, delayMs: number) => {
+    modeRef.current = mode;
+    pointerRef.current = at;
+    pin(mode === "keyboard" ? undefined : at.y);
+    stop("intent");
     setLayerArmed(true);
-    intentRef.current = window.setTimeout(onFire, delayMs);
+    timer.current.intent = window.setTimeout(show, delayMs);
   };
   const cancelIntent = () => {
-    if (intentRef.current === undefined) return;
-    window.clearTimeout(intentRef.current);
-    intentRef.current = undefined;
+    if (timer.current.intent === undefined) return;
+    stop("intent");
     setLayerArmed(false);
   };
+  const cancelPress = () => {
+    pressRef.current = null;
+    if (!longPressedRef.current) cancelIntent();
+  };
 
-  // Every close, however it started (Escape, an outside press, a scroll, the
-  // grace timer, blur), re-measures the link's current line box in the same
-  // commit the surface remounts in, so Shadow and the surface head for the
-  // same place even after the page has scrolled.
+  // Every close (Escape, outside press, scroll, grace timer, blur) lands the
+  // surface and `triggerRect` on the link's CURRENT line box.
   const wasOpenRef = useRef(open);
   useLayoutEffect(() => {
     const wasOpen = wasOpenRef.current;
     wasOpenRef.current = open;
     if (!wasOpen || open) return;
     pin();
-    const rect = measureLine();
+    const rect = measure();
     if (rect) setTriggerRect(rect);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -221,14 +200,12 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
       if (closeCurrent === closeSelf) closeCurrent = null;
       return;
     }
-    // Hoverable card (WCAG 1.4.13): a card opened by the pointer stays while
-    // the pointer is on the link or the card, and closes a grace period
-    // after it leaves both, so crossing the gap between them is allowed.
+    // Hoverable card (WCAG 1.4.13): a pointer-opened card stays while the
+    // pointer is on the link or the card, and closes a grace period after it
+    // leaves both, so the gap between them can be crossed.
     if (modeRef.current !== "pointer") return;
     const startGrace = () => {
-      if (graceRef.current === undefined) {
-        graceRef.current = window.setTimeout(closeSelf, PREVIEW_CLOSE_GRACE_MS);
-      }
+      timer.current.grace ??= window.setTimeout(closeSelf, PREVIEW_CLOSE_GRACE_MS);
     };
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === "touch") return;
@@ -237,116 +214,88 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
         t instanceof Node &&
         (linkRef.current?.contains(t) === true ||
           document.getElementById(sheetId)?.contains(t) === true);
-      if (inside) {
-        window.clearTimeout(graceRef.current);
-        graceRef.current = undefined;
-      } else startGrace();
+      if (inside) stop("grace");
+      else startGrace();
     };
     document.addEventListener("pointermove", onMove);
     document.documentElement.addEventListener("pointerleave", startGrace);
     return () => {
       document.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("pointerleave", startGrace);
-      window.clearTimeout(graceRef.current);
-      graceRef.current = undefined;
+      stop("grace");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, sheetId, closeSelf]);
 
   useEffect(
     () => () => {
-      clearTimers();
+      stop("intent");
+      stop("grace");
       if (closeCurrent === closeSelf) closeCurrent = null;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [closeSelf],
   );
 
-  const cancelPress = () => {
-    pressRef.current = null;
-    if (!longPressedRef.current) cancelIntent();
+  // Run the consumer's own handler first, then ours.
+  const on = <E extends SyntheticEvent>(name: string, ours: (e: E) => void) => {
+    const theirs = childProps[name];
+    return (e: E) => {
+      if (typeof theirs === "function") theirs(e);
+      ours(e);
+    };
   };
+  const at = (e: React.PointerEvent) => ({ x: e.clientX, y: e.clientY });
 
   const handlers = {
-    onPointerEnter: compose<React.PointerEvent>(
-      childProps.onPointerEnter,
-      (e) => {
-        if (e.pointerType === "touch") return;
-        pointerRef.current = { x: e.clientX, y: e.clientY };
-        window.clearTimeout(graceRef.current);
-        graceRef.current = undefined;
-        if (openRef.current) return;
-        modeRef.current = "pointer";
-        pin(e.clientY);
-        startIntent(PREVIEW_HOVER_INTENT_MS, show);
-      },
-    ),
-    onPointerLeave: compose<React.PointerEvent>(
-      childProps.onPointerLeave,
-      (e) => {
-        if (e.pointerType !== "touch") cancelIntent();
-      },
-    ),
-    onPointerDown: compose<React.PointerEvent>(
-      childProps.onPointerDown,
-      (e) => {
-        longPressedRef.current = false;
-        if (e.pointerType !== "touch") return;
-        modeRef.current = "touch";
-        pressRef.current = pointerRef.current = { x: e.clientX, y: e.clientY };
-        pin(e.clientY);
-        startIntent(PREVIEW_LONG_PRESS_MS, () => {
-          longPressedRef.current = true;
-          show();
-        });
-      },
-    ),
-    onPointerMove: compose<React.PointerEvent>(
-      childProps.onPointerMove,
-      (e) => {
-        if (e.pointerType === "touch") {
-          const start = pressRef.current;
-          if (
-            start &&
-            Math.hypot(e.clientX - start.x, e.clientY - start.y) >
-              PREVIEW_LONG_PRESS_SLOP_PX
-          ) {
-            cancelPress();
-          }
-          return;
+    onPointerEnter: on<React.PointerEvent>("onPointerEnter", (e) => {
+      if (e.pointerType === "touch") return;
+      stop("grace");
+      if (!openRef.current) begin("pointer", at(e), PREVIEW_HOVER_INTENT_MS);
+    }),
+    onPointerLeave: on<React.PointerEvent>("onPointerLeave", (e) => {
+      if (e.pointerType !== "touch") cancelIntent();
+    }),
+    onPointerDown: on<React.PointerEvent>("onPointerDown", (e) => {
+      longPressedRef.current = false;
+      if (e.pointerType !== "touch") return;
+      pressRef.current = at(e);
+      begin("touch", pressRef.current, PREVIEW_LONG_PRESS_MS);
+    }),
+    onPointerMove: on<React.PointerEvent>("onPointerMove", (e) => {
+      if (e.pointerType === "touch") {
+        const s = pressRef.current;
+        if (s && Math.hypot(e.clientX - s.x, e.clientY - s.y) > PREVIEW_LONG_PRESS_SLOP_PX) {
+          cancelPress();
         }
-        pointerRef.current = { x: e.clientX, y: e.clientY };
-        // Still deciding: follow the pointer onto another line of a wrapped
-        // link, so the card grows from the line it is actually on.
-        if (intentRef.current !== undefined) pin(e.clientY);
-      },
-    ),
-    onPointerUp: compose<React.PointerEvent>(childProps.onPointerUp, cancelPress),
-    onPointerCancel: compose<React.PointerEvent>(
-      childProps.onPointerCancel,
-      cancelPress,
-    ),
+        return;
+      }
+      pointerRef.current = at(e);
+      // Still deciding: follow the pointer onto another line of a wrapped link.
+      if (timer.current.intent !== undefined) pin(e.clientY);
+    }),
+    onPointerUp: on<React.PointerEvent>("onPointerUp", cancelPress),
+    onPointerCancel: on<React.PointerEvent>("onPointerCancel", cancelPress),
     // The release after a long-press would otherwise follow the link.
-    onClick: compose<React.MouseEvent>(childProps.onClick, (e) => {
+    onClick: on<React.MouseEvent>("onClick", (e) => {
       if (longPressedRef.current) {
         e.preventDefault();
         longPressedRef.current = false;
       }
     }),
-    // Android fires contextmenu on a long-press; the press already did its job.
-    onContextMenu: compose<React.MouseEvent>(childProps.onContextMenu, (e) => {
+    // Android fires contextmenu on a long-press.
+    onContextMenu: on<React.MouseEvent>("onContextMenu", (e) => {
       if (pressRef.current || longPressedRef.current) e.preventDefault();
     }),
-    onFocus: compose<React.FocusEvent<HTMLElement>>(childProps.onFocus, (e) => {
+    onFocus: on<React.FocusEvent<HTMLElement>>("onFocus", (e) => {
       if (openRef.current || !e.currentTarget.matches(":focus-visible")) return;
       const r = e.currentTarget.getBoundingClientRect();
-      pointerRef.current = { x: r.left + r.width / 2, y: r.top };
-      modeRef.current = "keyboard";
       lineRef.current = 0;
-      pin();
-      startIntent(PREVIEW_HOVER_INTENT_MS, show);
+      begin("keyboard", { x: r.left + r.width / 2, y: r.top }, PREVIEW_HOVER_INTENT_MS);
     }),
-    onBlur: compose<React.FocusEvent>(childProps.onBlur, () => {
+    onBlur: on<React.FocusEvent>("onBlur", () => {
       cancelIntent();
-      if (openRef.current && modeRef.current === "keyboard") hide();
+      if (openRef.current && modeRef.current === "keyboard") closeSelf();
     }),
   };
 

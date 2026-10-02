@@ -9,11 +9,7 @@ import {
   useState,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import {
-  PREVIEW_DEFAULT_ASPECT_RATIO,
-  previewSheetPlacement,
-  sheetPlacement,
-} from "./anchors";
+import { previewSheetPlacement, sheetPlacement } from "./anchors";
 import type { SheetPlacement } from "./anchors";
 import { SlotContext, useVistaSheetInternal } from "./context";
 import {
@@ -73,7 +69,7 @@ export function Sheet({
     triggerRect,
     previewPointerRef,
   } = ctx;
-  // A preview card is non-modal: no backdrop, swipe, focus move or Close.
+  // A preview card is non-modal: no backdrop, swipe or focus move.
   const modal = !preview;
 
   const sheetRef = useRef<HTMLDivElement | null>(null);
@@ -90,7 +86,7 @@ export function Sheet({
     if (open) setIsPresent(true);
   }, [open]);
 
-  const { panelProps, restoreFocus } = useDialogBehavior({
+  useDialogBehavior({
     isOpen: open,
     isPresent,
     panelRef: sheetRef,
@@ -261,9 +257,8 @@ export function Sheet({
     return sheetBorderRadius.on("change", (v) => collapseRadius.set(v));
   }, [sheetBorderRadius, collapseRadius]);
 
-  const hasWindow = typeof window !== "undefined";
-  const vpW = hasWindow ? window.innerWidth : 1440;
-  const vpH = hasWindow ? window.innerHeight : 900;
+  const vpW = typeof window !== "undefined" ? window.innerWidth : 1440;
+  const vpH = typeof window !== "undefined" ? window.innerHeight : 900;
   const modalPlacement = sheetPlacement(
     anchor,
     vpW,
@@ -272,33 +267,26 @@ export function Sheet({
     sheetMaxWidth,
     aspectRatio,
   );
-  // A preview card is placed ONCE, when it opens, from the link line and the
-  // pointer, and holds that spot through the close: the memo keys on `open`
-  // alone, and the ref keeps the last placement alive for the exit frames.
-  // (Re-placing against a link that scrolled would slide the card mid-close.)
-  const openPlacement = useMemo<SheetPlacement | null>(
+  // A preview card is placed once, at open, and holds that spot through the
+  // close: re-placing against a link that scrolled would slide it mid-exit.
+  const heldRef = useRef<SheetPlacement | null>(null);
+  const placed = useMemo(
     () =>
       preview && open && triggerRect
         ? previewSheetPlacement(
             previewPointerRef.current,
-            {
-              top: triggerRect.cy - triggerRect.halfHeight,
-              bottom: triggerRect.cy + triggerRect.halfHeight,
-            },
+            triggerRect,
             vpW,
             vpH,
             sheetMaxWidth,
-            aspectRatio ?? PREVIEW_DEFAULT_ASPECT_RATIO,
+            aspectRatio,
           )
         : null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [preview, open],
   );
-  const heldPlacementRef = useRef<SheetPlacement | null>(null);
-  if (openPlacement) heldPlacementRef.current = openPlacement;
-  const placement = preview
-    ? (heldPlacementRef.current ?? modalPlacement)
-    : modalPlacement;
+  if (placed) heldRef.current = placed;
+  const placement = (preview && heldRef.current) || modalPlacement;
 
   // Always written (never conditionally), all five properties, as direct
   // inline properties rather than a var — that's what lets a top-pinned,
@@ -371,7 +359,7 @@ export function Sheet({
       )}
       <AnimatePresence
         onExitComplete={() => {
-          restoreFocus();
+          if (modal) triggerElRef.current?.focus();
           // Exit-complete is when the close morph is actually done — the
           // correct moment to drop sheetRect (see the measure effect above)
           // and to release the scroll lock / aria-hiding / Tab trap that
@@ -387,7 +375,9 @@ export function Sheet({
             className={`${styles.sheet} ${className ?? ""}`}
             data-vista-sheet-part="sheet"
             data-vista-sheet-shape={shape}
-            {...panelProps}
+            {...(modal
+              ? { role: "dialog", "aria-modal": "true", tabIndex: -1 }
+              : { "aria-hidden": true })}
             {...labelled}
             {...(reduceMotion
               ? {

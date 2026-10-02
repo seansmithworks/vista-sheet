@@ -34,20 +34,6 @@ import { Media } from "./Media";
 import type { TriggerProps } from "./types";
 import styles from "./styles.module.css";
 
-// `process` is not declared in a Vite consumer's tsconfig; see Sheet.tsx.
-declare const process: { env: { NODE_ENV?: string } };
-
-/**
- * <VistaSheet.Trigger> — the fixed drag wrapper + trigger button + morph
- * seed surface.
- *
- * Single-origin position model (docs/PACKAGE-DESIGN.md §1, and the
- * `reference_floating-disc-single-origin-transform` landmine): the wrapper is
- * `position: fixed` at the viewport origin and positioned ENTIRELY by
- * Motion's x/y transform, holding the trigger's top-left in viewport px.
- * Nothing ever changes CSS left/top after mount, so a snap is a plain x/y
- * animation with no FLIP and no one-frame transform desync.
- */
 /** Jump the trigger's x/y motion values to the anchor's resting position. */
 function seatAt(
   x: MotionValue<number>,
@@ -62,15 +48,6 @@ function seatAt(
 }
 
 export function Trigger(props: TriggerProps) {
-  const { preview } = useVistaSheetInternal("Trigger");
-  if (process.env.NODE_ENV !== "production" && Boolean(props.asChild) !== preview) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      preview
-        ? "[vista-sheet] <VistaSheet.Root preview> needs <VistaSheet.Trigger asChild> around your link."
-        : "[vista-sheet] <VistaSheet.Trigger asChild> is for <VistaSheet.Root preview>; a modal Root needs the button Trigger with an aria-label.",
-    );
-  }
   return props.asChild ? (
     <LinkTrigger>{props.children}</LinkTrigger>
   ) : (
@@ -78,6 +55,17 @@ export function Trigger(props: TriggerProps) {
   );
 }
 
+/**
+ * <VistaSheet.Trigger> — the fixed drag wrapper + trigger button + morph
+ * seed surface.
+ *
+ * Single-origin position model (docs/PACKAGE-DESIGN.md §1, and the
+ * `reference_floating-disc-single-origin-transform` landmine): the wrapper is
+ * `position: fixed` at the viewport origin and positioned ENTIRELY by
+ * Motion's x/y transform, holding the trigger's top-left in viewport px.
+ * Nothing ever changes CSS left/top after mount, so a snap is a plain x/y
+ * animation with no FLIP and no one-frame transform desync.
+ */
 function ButtonTrigger({
   children,
   className,

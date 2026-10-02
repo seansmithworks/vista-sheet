@@ -606,7 +606,7 @@ describe("previewSheetPlacement", () => {
   it("contain-fits the card inside the viewport minus the gutter", () => {
     const p = previewSheetPlacement(
       { x: 195, y: 400 },
-      { top: 390, bottom: 410 },
+      { cy: 400, halfHeight: 10 },
       390,
       844,
       360,

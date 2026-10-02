@@ -74,15 +74,12 @@ export interface VistaSheetContextValue extends VistaSheetState {
   triggerElRef: MutableRefObject<HTMLElement | null>;
   /** Link-preview mode (Root `preview`). Fixed for the Root's lifetime. */
   preview: boolean;
-  /** Element Sheet and Shadow portal into. Null in modal mode: no portal,
-   * no extra DOM. In preview mode Root owns one body-level layer while a
-   * card is armed, open or morphing, and this is null the rest of the time. */
+  /** Preview only: the element Sheet and Shadow portal into; null when no
+   * card is armed, open or morphing. */
   layerEl: HTMLElement | null;
-  /** Preview only: LinkTrigger asks for the layer a hover-intent beat ahead
-   * of the open, so it exists in the same commit the card mounts in. */
+  /** Preview only: ask for the layer ahead of the open. */
   setLayerArmed: (armed: boolean) => void;
-  /** Preview only: the pointer position the card is placed from, written by
-   * LinkTrigger just before it opens. */
+  /** Preview only: where the card is placed from, set just before open. */
   previewPointerRef: MutableRefObject<{ x: number; y: number }>;
   /** The Content scroll region element — Sheet's swipe-to-close must not fire
    * while this is mid-scroll (docs/PACKAGE-DESIGN.md §1, Content). */

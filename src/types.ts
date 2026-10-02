@@ -75,8 +75,7 @@ export interface MotionPreset {
 export interface ModalRootProps {
   children: ReactNode;
 
-  /** Default false: a draggable trigger button that opens a modal sheet.
-   * `true` makes Root a link-preview hover card, see {@link PreviewRootProps}. */
+  /** Default false: a draggable button opening a modal sheet. */
   preview?: false;
 
   // Open state
@@ -165,36 +164,24 @@ export interface ModalRootProps {
 /**
  * Link-preview mode: `<VistaSheet.Root preview>`. The Trigger is `asChild`
  * over the consumer's own `<a>`, the Sheet floats beside it, nothing is
- * modal. Props that only make sense for the draggable button trigger or a
- * modal sheet are typed `never`.
+ * modal. Only the props that still apply are accepted.
  */
-export interface PreviewRootProps
-  extends Pick<
-    ModalRootProps,
-    | "children"
-    | "onOpenChange"
-    | "sheetMaxWidth"
-    | "preset"
-    | "transition"
-    | "surfaceCloseLeadDelayMs"
-    | "reduceMotion"
-    | "id"
-    | "zIndex"
-    | "className"
-  > {
+type PreviewKept =
+  | "children"
+  | "onOpenChange"
+  | "sheetMaxWidth"
+  | "preset"
+  | "transition"
+  | "surfaceCloseLeadDelayMs"
+  | "reduceMotion"
+  | "id"
+  | "zIndex"
+  | "className";
+
+export type PreviewRootProps = Pick<ModalRootProps, PreviewKept> & {
   /** Fixed for the Root's lifetime. Sheet max width defaults to 360. */
   preview: true;
-  defaultOpen?: never;
-  open?: never;
-  defaultAnchor?: never;
-  onAnchorChange?: never;
-  draggable?: never;
-  persistKey?: never;
-  triggerSize?: never;
-  shape?: never;
-  buttonSize?: never;
-  buttonWidth?: never;
-}
+} & Partial<Record<Exclude<keyof ModalRootProps, PreviewKept | "preview">, never>>;
 
 export type RootProps = ModalRootProps | PreviewRootProps;
 
@@ -207,8 +194,7 @@ export type TriggerProps =
       "aria-label": string;
     }
   | {
-      /** Preview mode: the single child (an `<a>`) is the trigger, named by
-       * its own text. */
+      /** Preview mode: the single child (an `<a>`) is the trigger. */
       asChild: true;
       children: ReactElement;
       className?: never;
