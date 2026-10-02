@@ -19,7 +19,6 @@ import {
   PREVIEW_LONG_PRESS_SLOP_PX,
   PREVIEW_TRIGGER_RADIUS_PX,
 } from "./motion";
-import { mergeShadowRef } from "./Shadow";
 import type { Rect } from "./types";
 import styles from "./styles.module.css";
 
@@ -89,7 +88,9 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     (node: HTMLElement | null) => {
       linkRef.current = node;
       triggerElRef.current = node;
-      mergeShadowRef(childRefRef.current, () => {})(node);
+      const r = childRefRef.current;
+      if (typeof r === "function") r(node);
+      else if (r) (r as { current: HTMLElement | null }).current = node;
     },
     [triggerElRef],
   );
@@ -151,7 +152,10 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     stop("intent");
     stop("grace");
     const rect = measure();
-    if (!rect) return;
+    if (!rect) {
+      setLayerArmed(false);
+      return;
+    }
     pin();
     previewPointerRef.current = pointerRef.current;
     setTriggerRect(rect);
