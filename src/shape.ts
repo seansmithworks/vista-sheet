@@ -141,9 +141,7 @@ export function initialTriggerRestRadius(
 /**
  * The surface's hold-then-round curve: holds at `sheetRadius` until
  * RADIUS_HOLD_FRACTION, then interpolates linearly to `triggerCornerRadius`
- * by p=1. Pulled out of useCollapseRadius.ts verbatim so Shadow.tsx can share
- * the exact same curve (task 3) instead of its own linear interpolation. Not
- * wired anywhere yet — this task only introduces the function.
+ * by p=1. Shared by useCollapseRadius.ts and Shadow.tsx.
  */
 export function collapseRadiusAt(
   p: number,

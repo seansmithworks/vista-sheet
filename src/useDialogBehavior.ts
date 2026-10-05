@@ -165,10 +165,10 @@ export function useDialogBehavior({
     if (!modal || !isPresent || typeof document === "undefined") return;
     const panel = panelRef.current;
     if (!panel) return;
-    // Hide from the WIDGET's root, not the dialog panel node itself. The
-    // panel, the trigger and the shadow are all siblings inside the
-    // same <VistaSheet.Root> wrapper (this package never portals — see
-    // docs/PACKAGE-DESIGN.md), and the trigger is contractually required to
+    // Hide from the WIDGET's root, not the dialog panel node itself. In modal
+    // mode the panel, the trigger and the shadow all render inside the same
+    // <VistaSheet.Root> wrapper (only preview mode portals, and it never
+    // reaches this effect), and the trigger is contractually required to
     // keep reflecting aria-expanded/aria-controls to assistive tech while
     // the dialog is open (§6). Hiding from the panel's own siblings would
     // aria-hide the trigger along with everything else. Hiding from the

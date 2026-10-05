@@ -55,22 +55,10 @@ export function Content({ children, className }: ContentProps) {
           transition: {
             delay: OPEN_CONTENT_REVEAL_DELAY_SEC,
             duration: 0.26,
-            // delayChildren, NOT `when: "beforeChildren"`. beforeChildren
-            // held every <Item> until the container's own 260ms fade had
-            // finished, and an Item sits at opacity 0 until its turn — so
-            // that fade was a dead beat. Measured, both example pages, two
-            // opens each: box 99% settled 304-321ms, first Item 478-484ms,
-            // last Item 712-795ms. With delayChildren the stagger runs under
-            // the container's fade: first Item ~227ms, last 492-530ms.
-            //
-            // (Measured at the old 40ms ITEM_STAGGER_INTERVAL_SEC; numbers
-            // above are not re-measured for the current 90ms interval.)
-            //
-            // Deliberate tradeoff, not a free win: the first Item now paints
-            // at ~227ms with the box at ~92% of final width and ~94% of
-            // final height, still moving. This does NOT preserve "no text
-            // painted while the box is visibly scaling" — it buys 262-266ms
-            // off the reveal in exchange for a little paint-during-scale.
+            // delayChildren, not `when: "beforeChildren"`, so the stagger runs
+            // under the container's fade instead of after it. Deliberate
+            // tradeoff: the first Item paints while the box is still scaling
+            // its last few percent, in exchange for a much earlier reveal.
             delayChildren: OPEN_CONTENT_REVEAL_DELAY_SEC,
             staggerChildren: ITEM_STAGGER_INTERVAL_SEC,
           },

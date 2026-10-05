@@ -182,18 +182,10 @@ export function Sheet({
     measureSheetRect(true);
   }, [open, measureSheetRect]);
 
-  // The sheet's own box can change AFTER the open commit that measured it —
-  // a web font landing, an image finishing, a scrollbar appearing. Motion's
-  // layout projection re-targets the surface on that relayout; without this,
-  // Shadow.tsx keeps interpolating toward the box measured above and holds
-  // the resulting error for the rest of the morph and beyond (measured on
-  // the flagship example at 390x844: the sheet's first open grew 592 -> 618px
-  // when its text fonts landed ~40ms in, and the shadow sat 26px off the
-  // surface from that frame onward — the second open, fonts cached, tracked
-  // to 0.2px). A callback ref rather than an effect so the observer's
-  // lifetime is exactly the sheet element's own: attached while it is in the
-  // DOM, still attached through the whole exit animation (same principle as
-  // the resize listener below), detached when React removes the node.
+  // The sheet's box can change after the open commit measured it (a font
+  // landing, an image loading). Motion re-targets the surface on that
+  // relayout, so Shadow needs the new rect too. A callback ref, so the
+  // observer lives exactly as long as the node, exit animation included.
   const sheetResizeObserverRef = useRef<ResizeObserver | null>(null);
   const attachSheetRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -211,19 +203,10 @@ export function Sheet({
     [measureSheetRect],
   );
 
-  // Resize listener, deliberately NOT gated on `open`: the sheet DOM node
-  // stays mounted for the entire close animation (AnimatePresence only
-  // removes it once the exit finishes), and its CSS geometry (`bottom: 16px`
-  // etc.) keeps re-laying-out live if the viewport resizes mid-close —
-  // Trigger.tsx's resting position re-seats on the very same resize. Gating this
-  // listener's registration on `open` (the previous shape: one effect doing
-  // both the initial measure AND the listener, keyed on [open]) tore the
-  // listener down the INSTANT `open` flipped false, i.e. exactly when the
-  // close starts, freezing the sheet's cached rect for the whole ~1s close
-  // while the trigger re-seated live — reproduced a 481.7px Δtop. Same
-  // principle as sheetRect's own release below: state a leaving element's
-  // siblings still need is released on completion, never on the state
-  // change that begins the exit.
+  // Not gated on `open`: the node stays mounted and re-lays-out through the
+  // whole close, so a resize mid-close must still re-measure it. State a
+  // leaving element's siblings need is released on exit-complete, never
+  // when the exit begins.
   useEffect(() => {
     const measure = () => measureSheetRect(true);
     window.addEventListener("resize", measure);
@@ -232,18 +215,9 @@ export function Sheet({
     };
   }, [measureSheetRect]);
 
-  // Extracted (audit M1) so the exact same hold/interpolation curve is
-  // available to Trigger.tsx's triggerSurface too — see useCollapseRadius.ts.
-  // Called from HERE (not hoisted to Root) deliberately: same component,
-  // same hook position, same effect-commit ordering relative to Sheet's
-  // other effects (sheetRect measurement, the resize listener) as before
-  // this fix existed. Moving the CALL SITE to Root while keeping the hook's
-  // logic identical measurably cost geometry.spec.ts's close-tracking gate
-  // ~3-4px — apparently from the ordering shift itself, not from anything
-  // about the computation. The effect below relays every tick into
-  // ctx.collapseRadius (a stable container Root owns) so Trigger.tsx can bind
-  // to the exact same painted values on close without needing this hook
-  // called from its own position in the tree.
+  // Called here, not hoisted to Root: moving the call site shifts effect
+  // order and cost the close-tracking gate ~3-4px. The effect below relays
+  // every tick into ctx.collapseRadius so Trigger can bind the same values.
   const sheetBorderRadius = useCollapseRadius({
     collapseProgress,
     open,
@@ -319,17 +293,9 @@ export function Sheet({
       info.offset.y > SWIPE_OFFSET_PX ||
       info.velocity.y > SWIPE_VELOCITY_PX_S
     ) {
-      // Once AnimatePresence starts the exit, the box's PAINTED position is
-      // governed by the layoutId FLIP target, not by the drag gesture's own
-      // y value — but the drag's elastic release/snap-back animation on
-      // sheetDragY keeps running in the background regardless, still
-      // updating a value nothing renders anymore. Shadow.tsx reads that
-      // value live, so it kept tracking a phantom in-flight release while
-      // the actual surface sat frozen at its lead-delay hold position — a
-      // flat ~30px error across the whole swipe-dismiss close. stop()
-      // freezes sheetDragY at exactly the value it holds at the moment of
-      // dismiss (matching where the surface is actually still painted, mid
-      // elastic-drag, right up until the FLIP takes over).
+      // Once the exit starts the FLIP owns the painted box, but the drag's
+      // release animation keeps moving sheetDragY, which Shadow reads.
+      // Freeze it where the surface is actually painted.
       sheetDragY.stop();
       setOpen(false);
     }
@@ -337,18 +303,10 @@ export function Sheet({
 
   return (
     <Layer>
-      {/* Invisible click-catcher for outside-click dismissal — not a
-          visible scrim. <VistaSheet.Backdrop> (a visual dim layer) is cut
-          from v0.1 (docs/PACKAGE-DESIGN.md §8); dismiss-on-outside-click is
-          Root/Sheet behavior and costs nothing visually by default.
-          Deliberately a SIBLING of <AnimatePresence>, gated on `open` alone
-          (audit M11) — the previous shape rendered this inside
-          AnimatePresence's `{open && ...}` child, so it survived the whole
-          exit animation at zIndex + 101 (above the trigger's zIndex 100),
-          eating every click/tap over the trigger for the ~400-1000ms the close
-          spring/hold takes to settle. Gating on `open` alone means the
-          backdrop unmounts the instant the close STARTS, so the trigger is
-          tappable — and the close interruptible — from frame one. */}
+      {/* Invisible click-catcher for outside-click dismissal, not a scrim.
+          Outside AnimatePresence and gated on `open` alone, so it unmounts
+          the instant a close starts and the trigger stays tappable (and the
+          close interruptible) from the first frame. */}
       {open && modal && dismissOnBackdrop && (
         <div
           aria-hidden="true"
@@ -389,36 +347,16 @@ export function Sheet({
                 }
               : {
                   layoutId: `${idBase}-surface`,
-                  // The SHEET is the entering element on open (Trigger's surface
-                  // is the entering element on close, gated behind
-                  // `{!open && ...}`), and with a shared layoutId the
-                  // ENTERING side's transition governs the FLIP. This must be
-                  // transition.open, not transition.close — passing .close
-                  // here made the open morph run the close spring (plus its
-                  // baked-in SURFACE_CLOSE_LEAD_DELAY_MS) while
-                  // collapseProgress ran the open spring with no delay,
-                  // which is why the shadow silhouette and this box visibly
-                  // separated on open.
+                  // The entering element on open governs the FLIP, so this is
+                  // transition.open, matching collapseProgress's spring.
                   transition: transition.open,
-                  // audit M2: this element is the entering side of the shared
-                  // layoutId on OPEN, so its layout animation is the one that
-                  // moves the box — starting Root's collapseProgress clock
-                  // from here puts both animations in the same frameloop pass
-                  // with the same start time. Root ignores this unless it has
-                  // a morph armed, so the layout animations Motion runs for
-                  // anything else (a resize-driven relayout, say) can't
-                  // re-trigger the bloom. See Root.tsx's clock-coupling note.
+                  // Starts Root's collapseProgress clock in the same frameloop
+                  // pass as this layout animation (Root's clock-coupling note).
                   onLayoutAnimationStart: () => startMorphClock("sheet"),
                   style: {
-                    // Bound directly to the locally-computed value (not the
-                    // relayed ctx.collapseRadius container Trigger.tsx reads) —
-                    // zero extra hop for this element's own paint.
                     borderRadius: sheetBorderRadius,
                     zIndex: zIndex + 102,
-                    // Bound as our own MotionValue (not left for Motion's
-                    // drag gesture to create internally) so Shadow.tsx can
-                    // subscribe to the live drag offset — see the D1 fix
-                    // note on sheetDragY in context.ts.
+                    // Our own MotionValue, so Shadow can read the drag offset.
                     y: sheetDragY,
                     ...placementStyle,
                   },

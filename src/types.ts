@@ -13,19 +13,11 @@ export interface StiffnessSpring {
   mass?: number;
 }
 
-/** Motion's designer-legible spring shorthand — two numbers instead of
- * stiffness/damping. `visualDuration` is spring-only in Motion (a tween
- * never carries it), which is what lets mergeTransition tell this apart
- * from a full Transition without a `type` key on either shape.
- *
- * No `mass` here, deliberately: Motion's spring resolver checks for
- * `stiffness`/`damping`/`mass` FIRST, before it ever looks at
- * `visualDuration`/`bounce`, so a `mass` key silently discards both and
- * falls back to Motion's own defaults (stiffness 100 / damping 10).
- * Measured on a 0->100 keyframe: `{visualDuration:0.4, bounce:0.2}` settles
- * in 660ms; the same object plus `mass:1.75` settles in 2080ms, with no
- * error and no warning. `bounce` is required, not optional, for the
- * opposite reason — see mergeTransition's isSpringShorthand comment. */
+/** Motion's spring shorthand — two numbers instead of stiffness/damping.
+ * `visualDuration` is spring-only, which lets mergeTransition tell this
+ * apart from a full Transition. No `mass`: Motion resolves
+ * stiffness/damping/mass first, so `mass` silently discards both fields.
+ * `bounce` is required — see the note under isSpringShorthand (motion.ts). */
 export interface DurationSpring {
   visualDuration: number;
   bounce: number;
@@ -139,15 +131,9 @@ export interface RootProps {
   /**
    * Delay (ms) before the surface box begins its close FLIP, so the shared
    * element visibly leads the shrink instead of scaling in lockstep. Default
-   * 35. Ignored under reduced motion.
-   *
-   * `transition.shared.close` was formerly derived from this value; as of
-   * Sean's "Version 4" dial pass it is an independently dialled value, not a
-   * formula output — the two are coupled by feel, not by computation. This
-   * prop has no automatic compensation: if you change it, `transition.shared.close`
-   * must be re-dialled to match (on the /tune panel, not recomputed), or the
-   * shared element starts trailing the box and spills past the round
-   * trigger's 2px border.
+   * 35. Ignored under reduced motion. Coupled by feel to
+   * `transition.shared.close`: change this and re-dial that on /tune, or the
+   * shared element trails the box and spills past the trigger's border.
    */
   surfaceCloseLeadDelayMs?: number;
   /** Force reduced-motion behavior. Default: the media query. */

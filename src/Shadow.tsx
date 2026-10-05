@@ -16,50 +16,21 @@ import styles from "./styles.module.css";
 /**
  * <VistaSheet.Shadow> — the shadow seam (docs/PACKAGE-DESIGN.md §4).
  *
- * Default: renders one fixed, aria-hidden, pointer-events:none div at
- * z-1, sized/positioned to the interpolated silhouette between the trigger
- * circle and the sheet box. It paints BOTH looks on that one silhouette —
- * the thin disc shadow (--vista-sheet-shadow) and the sheet's heavier
- * resting shadow (--vista-sheet-sheet-shadow), as two layers (.shadow::before
- * / ::after in styles.module.css) crossfaded by opacity as a function of
- * collapseProgress. This is the only place either shadow is painted (DESIGN.md
- * §4.1 "one surface, one clock") — the sheet used to paint its own resting
- * shadow via `.sheet[data-vista-sheet-settled]`, which was a second clock and
- * produced a one-frame pop when a demo mask clipped it at the phase boundary.
- * Zero dependencies beyond React.
+ * One fixed, aria-hidden div at z-1, sized to the silhouette interpolated
+ * between the trigger and the sheet. It is the only painter of both shadows
+ * (DESIGN.md §4.1): the disc shadow and the sheet's resting shadow, two
+ * layers crossfaded on collapseProgress. The crossfade window is the
+ * --vista-sheet-sheet-shadow-fade-start / -fade-end CSS vars.
  *
- * The crossfade window (where in collapseProgress the handoff happens) is a
- * taste value, exposed as two consumer-overridable CSS custom properties —
- * --vista-sheet-sheet-shadow-fade-start / -fade-end — read the same way
- * --vista-sheet-sheet-radius already is, via readVarPx.
- *
- * asChild: clones the single child and merges the fixed positioning,
- * z-index, aria-hidden, pointer-events, data-* attributes, and all
- * --vista-sheet-shadow-* custom properties (including the two crossfade
- * opacities) onto it — the shape a consumer swaps in a
- * `@seansmithworks/surface-fx` dither layer through. This package never
- * imports surface-fx (docs/PACKAGE-DESIGN.md §4).
- *
- * A ref already on the child (object or callback — read from `child.props.ref`,
- * the React 19 shape; the peer range is `react >=19`, so the React 18 side
- * channel on the element itself is never consulted) is composed with Shadow's
- * own internal ref rather than overwritten, via mergeShadowRef below.
+ * asChild clones the single child (e.g. a surface-fx dither layer), merges
+ * the positioning, attributes and --vista-sheet-shadow-* vars onto it, and
+ * composes the child's own ref (React 19 `props.ref`) with Shadow's.
  */
 
 /**
- * Composes a consumer-supplied ref (object or callback, or none) with
- * Shadow's own internal ref callback so an asChild clone forwards the DOM
- * node to both instead of only the last one assigned.
- */
-/**
- * Reads an element's ACTUALLY-RENDERED top-left corner radius in px,
- * correcting for any transform-scale Motion's shared-layout projection has
- * applied — the same technique example/geometry.spec.ts's (rt) gate uses to
- * measure it, so Shadow's radius matches what that gate checks BY
- * CONSTRUCTION. `borderTopLeftRadius` can report an elliptical value
- * ("Xpx Ypx" or "X% Y%") when Motion corrects a non-uniform scale — the
- * horizontal component is enough for a corner-radius comparison, matching
- * the gate's own choice.
+ * An element's rendered top-left corner radius in px, corrected for
+ * Motion's projection scale — the same measurement geometry.spec.ts's (rt)
+ * gate makes. An elliptical value ("Xpx Ypx") uses the horizontal part.
  */
 function readRenderedCornerRadius(el: HTMLElement): number {
   const rect = el.getBoundingClientRect();
@@ -141,56 +112,14 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const halfW = sheet.halfWidth + (trigger.halfWidth - sheet.halfWidth) * p;
       const halfH =
         sheet.halfHeight + (trigger.halfHeight - sheet.halfHeight) * p;
-      // The silhouette's corner radius is meant to share the surface's own
-      // hold-then-round curve (collapseRadiusAt, src/shape.ts) — DESIGN.md
-      // §4.1, "one surface, one clock". Measured directly (see Strawman
-      // below), an ANALYTIC re-computation of that curve here does not equal
-      // what Motion actually PAINTS on the shared-layoutId surface: for a
-      // shared-layoutId crossfade, Motion's own border-radius mix
-      // (motion-dom's mixValues, projection/animation/mix-values.mjs) blends
-      // the ENTERING element's radius from the EXITING element's SNAPSHOT
-      // value using Motion's OWN internal layout progress, not
-      // collapseProgress — regardless of what curve we feed the bound
-      // MotionValue. That snapshot happens to equal the target's hold value
-      // on CLOSE (the sheet's own resting radius is already `sheetRadius`),
-      // so collapseRadiusAt recomputed here tracked the rendered CLOSE
-      // within measured worst 3.4px — but on OPEN the snapshot is the
-      // trigger's own resting (shape) radius, which differs from
-      // `sheetRadius` from the first frame, so Motion's mix produces a
-      // smooth blend across the WHOLE open that no analytic p-based formula
-      // (this hold curve, or the previous linear one) reproduces — measured
-      // worst 24.4px, matching the "pre-fix defect" this gate guards
-      // against. Strawman (v0.2): rather than re-deriving Motion's internal
-      // mix, read the surface's ACTUALLY-RENDERED corner radius directly off
-      // the DOM (same technique geometry.spec.ts's own (rt) gate uses) —
-      // this is "one clock" by construction: whatever the surface paints,
-      // the shadow paints, with no independent formula to drift out of sync
-      // with Motion's own crossfade math. Falls back to the analytic
-      // collapseRadiusAt/resolveTriggerCornerRadius pair (still shared with
-      // Trigger.tsx's rest radius and useCollapseRadius.ts's morph curve)
-      // only when no surface element is mounted to measure, or while
-      // collapseProgress itself is meaningfully in flight: at the moment a
-      // layout animation finishes, Motion briefly writes a literal "0px"
-      // inline (measured: ~85ms, a multi-frame window, not a single-frame
-      // measurement race) before the next commit re-applies the bound
-      // MotionValue — reading through that window would paint a 0-radius
-      // shadow on a still-resting sheet. `collapseProgress.isAnimating()`
-      // alone doesn't exclude it: the spring's own rest-detection threshold
-      // can keep reporting `true` for a few extra ms after p is visually 0
-      // or 1 (measured p as low as -0.0004 while still "animating"), which
-      // is exactly the window the glitch falls in — so gate on p itself
-      // being away from either rest endpoint. Near either endpoint the
-      // analytic curve already IS the resting value, so there's nothing to
-      // gain from the DOM read there anyway.
-      // Strawman (v0.2): this window also has to cover a few frames AFTER
-      // p itself reaches an endpoint — measured directly, Motion's own
-      // shared-layoutId settle can still be rewriting the SURFACE's inline
-      // border-radius (including the literal "0px" glitch above) for a few
-      // frames past the point collapseProgress calls the morph done. The
-      // grace-period loop below (GRACE_MS) keeps this DOM read live through
-      // that tail instead of switching back to the analytic curve the
-      // instant p lands on 0/1, which is what let Motion's post-settle
-      // rewrite paint a value this shadow had already stopped tracking.
+      // Mid-morph, read the surface's RENDERED radius instead of computing
+      // it. Motion's shared-layout crossfade mixes the radius from the
+      // exiting element's snapshot on its own layout progress, not
+      // collapseProgress, so no p-based formula matches it on open. Reading
+      // the DOM makes shadow and surface one clock by construction. The read
+      // stays live for SURFACE_READ_GRACE_MS after the last tick because
+      // Motion keeps rewriting the surface radius (including a literal "0px")
+      // for a few frames past settle. At rest, use the analytic curve.
       const inFlight = isInFlight(p);
       const withinSettleGrace =
         performance.now() - lastActiveAtRef.current < SURFACE_READ_GRACE_MS;
@@ -266,18 +195,9 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
 
     apply();
 
-    // collapseProgress's "change" fires synchronously the instant its spring
-    // value updates — BEFORE Motion's own layout-projection system (a
-    // SEPARATE clock, see Root.tsx's clock-coupling note) writes the
-    // surface's actual border-radius for that same frame. Reading
-    // synchronously from that handler therefore reads last frame's surface
-    // radius, one step stale; deferring the read to a microtask lets
-    // Motion's write for the CURRENT task land first while still running
-    // well before the browser's next paint — the same "read after the
-    // write, still pre-paint" guarantee the settle-tail MutationObserver
-    // below relies on, applied to the in-flight path too. `scheduleApply`
-    // coalesces repeat triggers within one task into a single deferred
-    // apply() call.
+    // collapseProgress's "change" fires before Motion writes the surface's
+    // radius for the frame, so apply() is deferred to a microtask: after
+    // that write, still before paint. Coalesced to one call per task.
     let applyScheduled = false;
     const scheduleApply = () => {
       if (applyScheduled) return;
@@ -288,30 +208,12 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       });
     };
 
-    // The MutationObserver below exists only to cover the POST-settle tail
-    // (see its comment) — while collapseProgress is actually ticking,
-    // scheduleApply() above already covers every frame, timed to read AFTER
-    // Motion's write lands. Connecting the observer for that same window as
-    // well used to double both the write below AND the forced layout read
-    // inside apply() (readRenderedCornerRadius), every frame of the morph.
-    //
-    // Gating the observer on `p` being away from the rest endpoints (the
-    // same NEAR_REST_EPS apply() itself reads) does NOT work here: a
-    // spring's final decay frames sit inside that epsilon band — p keeps
-    // producing real per-frame "change" events for a stretch after it reads
-    // as "near rest" — so an epsilon-based arm/disarm re-connects the
-    // observer while collapseProgress is still actively ticking, right back
-    // into the double-apply bug. What actually distinguishes "the tail this
-    // observer exists for" is collapseProgress having stopped EMITTING
-    // changes at all, regardless of how close to rest its value sits — so
-    // arming is debounced on quiet, not gated on value: every progress tick
-    // disarms and reschedules a one-frame quiet-check via requestAnimationFrame
-    // (registered AFTER Motion's own next-frame request, so a still-ticking
-    // spring's next tick always cancels ours before it can fire). Only once
-    // a tick fails to arrive for one whole frame (the spring's own ticker
-    // has genuinely stopped) does the observer connect, for the
-    // SURFACE_READ_GRACE_MS tail. One scheduling path covers any one frame,
-    // never both.
+    // The MutationObserver covers only the post-settle tail; while
+    // collapseProgress ticks, scheduleApply covers every frame. Arming is
+    // debounced on quiet, not gated on p: a spring's last decay frames sit
+    // inside any epsilon band. Each tick disarms and schedules a one-frame
+    // quiet check; only a frame with no tick connects the observer, so one
+    // path covers any frame, never both.
     const rootEl = elRef.current?.closest("[data-vista-sheet-root]") ?? null;
     let mutationObserver: MutationObserver | null = null;
     let observing = false;
@@ -329,20 +231,11 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       }
     };
 
-    // Strawman (v0.2): re-arms (and extends) the settle-grace window every
-    // time either a progress tick lands at rest or the observer itself
-    // catches Motion still rewriting the surface — the post-settle
-    // border-radius rewrite (the "0px" glitch) keeps happening for ~85ms
-    // after collapseProgress's own "change" events have already stopped
-    // firing (confirmed by direct measurement, task 3's investigation).
-    // Reacting to the surface's ACTUAL mutation, rather than polling it on
-    // an independent requestAnimationFrame, is what makes this "one clock"
-    // by construction (DESIGN.md §4.1): a separate rAF loop races Motion's
-    // own writes frame-to-frame (measured: still landing a full
-    // glitch-width late); a MutationObserver's microtask callback runs in
-    // the SAME task Motion's write lands in, before the browser's next
-    // paint, so whatever the surface shows at paint time is always what
-    // this last observed and copied.
+    // Re-arms (and extends) the grace window whenever the observer catches
+    // Motion still rewriting the surface after the ticks stop. A
+    // MutationObserver, not a rAF poll: its callback runs in the same task
+    // as Motion's write, before paint, so the shadow copies exactly what the
+    // surface paints; a rAF loop races those writes.
     const armObserverForGrace = () => {
       if (graceTimeout !== null) clearTimeout(graceTimeout);
       if (rootEl && mutationObserver && !observing) {

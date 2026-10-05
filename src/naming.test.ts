@@ -29,7 +29,7 @@ const ALLOWLIST: Record<string, number[]> = {
   // live reference to its filename.
   "docs/tuning/dialkit-morph-sheet-close.json": [1],
   "docs/PACKAGE-DESIGN.md": [401],
-  "src/motion.ts": [28, 113],
+  "src/motion.ts": [28],
   // History: files that record what was true then, not rewritten.
   "BACKLOG.md": null,
   "docs/plans/morph-sheet-delivery.html": null,

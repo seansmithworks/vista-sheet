@@ -129,14 +129,10 @@ function ButtonTrigger({
     halfHeight: number;
   } | null>(null);
   const rafRef = useRef<number | null>(null);
-  // Set while <Sheet> is mounted (open, or closing but not yet exit-complete
-  // — Sheet.tsx nulls this at onExitComplete). While it's non-null, trigger-
-  // surface may be mid-FLIP (it's the entering element on close), and this
-  // wrapper's own x/y transform is an ANCESTOR of that FLIPping element —
-  // jumping it instantly compounds with Motion's still-interpolating
-  // projection transform on the child, producing a large multi-frame
-  // desync. Defer the resize re-seat until the morph is provably over
-  // rather than fighting it live.
+  // A resize while <Sheet> is mounted is deferred: this wrapper's x/y is an
+  // ancestor of the FLIPping trigger surface, and jumping it mid-morph
+  // compounds with Motion's in-flight projection transform. Flushed once
+  // sheetRect returns to null.
   const pendingResizeRef = useRef(false);
 
   // Rectangle box measurement, held while the sheet is mounted — see
@@ -205,33 +201,11 @@ function ButtonTrigger({
     seatAt(x, y, anchor, window.innerWidth, window.innerHeight, triggerBox);
   }, [anchor, triggerBox.width, triggerBox.height, sheetRect, x, y]);
 
-  // The trigger's RESTING shape, as a number Motion can mix from.
-  //
-  // Motion's shared-layout border-radius handling only sees a radius it
-  // manages as an inline value — a CSS rule is invisible to it (the note on
-  // the trigger surface's style binding below). The morph binding used to
-  // be scoped to `sheetRect !== null`, i.e. only while a sheet exists, which
-  // left the trigger carrying NO parseable radius at rest. So on every
-  // open, Motion mixed the shape from 0 instead of from the circle:
-  // measured on both example pages, the first painted frame of an open was
-  // the trigger's box (128x128, unmoved) painted with `border-radius: 0%` —
-  // a perfect circle becoming a perfect square in one frame, before any
-  // growth was visible, then rounding back up over the next ~300ms
-  // (roundness 1.00 -> 0.00 -> 0.14 at +130ms). That pop was the single
-  // largest discontinuity in the morph.
-  //
-  // Publishing the resting shape as a live numeric MotionValue fixes it at
-  // the source and keeps every other resting guarantee: it equals
-  // min(--vista-sheet-trigger-radius, triggerSize / 2), which is a perfect
-  // circle for the default 9999px token, honours a consumer's smaller
-  // override, and re-derives on the trigger-size ramp's own breakpoints
-  // (triggerSize is kept live across resizes by useTriggerSize). It is also
-  // exactly the value useCollapseRadius's curve now ends a close on, so the
-  // handoff between the two bound values is continuous — no frame where
-  // they disagree.
-  // Shape-aware: every shape resolves through resolveTriggerCornerRadius
-  // (src/shape.ts), the circle branch of which reproduces the min(token,
-  // triggerSize/2) math above exactly.
+  // The trigger's resting corner radius as a live numeric MotionValue.
+  // Motion's shared-layout radius mix only sees an inline value it manages,
+  // never a CSS rule, so without this an open mixes the shape from 0 and its
+  // first frame is a square. It equals where useCollapseRadius ends a close,
+  // so the handoff between the two bound values is continuous.
   const triggerRestRadius = useMotionValue(
     initialTriggerRestRadius(
       shape,
@@ -259,7 +233,7 @@ function ButtonTrigger({
     shape,
   ]);
 
-  // Report the trigger's live rect for the escape hatch (usePKG().triggerRect)
+  // Report the trigger's live rect for the escape hatch (useVistaSheet().triggerRect)
   // and for Sheet's shadow-mask morph. Also writes --vista-sheet-trigger-x/-y
   // — documented as package-written/consumer-readable — directly on the
   // wrapper without a React re-render, mirroring the source site's bloom-
@@ -361,21 +335,11 @@ function ButtonTrigger({
     [setMeasuredTriggerBox],
   );
 
-  // Strawman (v0.2): the FIRST measurement is deferred one rAF rather than
-  // published synchronously in this layout effect (as the ResizeObserver's
-  // own callback below does for every later one) — measured directly:
-  // publishing it in the same commit as mount forces a SECOND React commit
-  // before paint (Root's triggerBox state flows back through context), and
-  // Motion's layoutId projection treats that second commit as a genuine
-  // layout update rather than the settled result of a mount it hasn't
-  // finished registering yet, FLIPping the surface in from (0,0) — a
-  // one-time ~300ms drift across the viewport on cold load, visible in nothing
-  // this package's existing (pre-rectangle) shapes ever triggered, since none
-  // of them cause a second commit between a layoutId child's mount and its
-  // first paint. One rAF is enough for Motion's own mount bookkeeping to
-  // settle; a later resize (real box change) still applies through the
-  // ResizeObserver callback with no delay, since by then there is a real,
-  // intentional layout change to FLIP.
+  // The FIRST measurement is deferred one rAF. Publishing it in the mount
+  // commit forces a second commit before paint, which Motion's layoutId
+  // projection treats as a real layout change and FLIPs the surface in from
+  // (0,0) across the viewport. Later resizes publish immediately through the
+  // ResizeObserver; by then a FLIP is intended.
   useLayoutEffect(() => {
     if (shape !== "rectangle") return;
     const el = wrapperRef.current;
@@ -534,41 +498,12 @@ function ButtonTrigger({
       // not a position one.
       style={{ x, y }}
       data-vista-sheet-part="trigger-root"
-      // Lift the trigger's stacking context above the sheet's for the
-      // duration of a CLOSE. `.dragWrapper` is `position: fixed` with a
-      // z-index, so it is a stacking context: everything inside it —
-      // including the trigger-side <Shared> instance — is capped at
-      // `--vista-sheet-z` (100) and painted under the sheet at z + 102.
-      //
-      // That cap put a hole in the middle of every close. The two layoutId
-      // pairs crossfade on DIFFERENT springs: `-shared` runs on
-      // transition.shared (500/45 on open, DEFAULT_SHARED_CLOSE_SPRING on
-      // close), `-surface` on transition.close plus
-      // SURFACE_CLOSE_LEAD_DELAY_MS. Measured per frame on both example
-      // pages, the sheet-side <Shared> had faded to opacity 0 by 229ms while
-      // the sheet element it sits on was STILL at opacity 1 until 246ms —
-      // and the trigger-side copy, already at opacity 1 since 87ms and
-      // exactly co-located, was underneath that opaque sheet background.
-      // Composited visibility of the shared element at its worst frame
-      // (screencast pixels sampled at its live centre, 1.0 = its own
-      // colour, 0.0 = fully washed to the surface behind it): 0.021 on
-      // index at 238ms, 0.000 on flagship at 238ms. The crossfade was
-      // correct; the compositing was not — a circle that vanished and came
-      // back.
-      //
-      // Lifting the wrapper to z + 103 lets the trigger-side copy paint
-      // through, so it covers the gap the sheet-side copy leaves: worst
-      // frame 0.987 (index) / 0.981 (flagship). Both surfaces are the same
-      // --vista-sheet-surface, co-located and same-radius by construction
-      // mid-FLIP, so the reordered pair reads identically; the sheet's
-      // content is already at opacity 0 by 80ms (CONTENT_FADE_OUT_MS), long
-      // before trigger-surface has any opacity at all (0 until 121ms).
-      //
-      // Gated to the close, NOT to `sheetRect !== null`: while the sheet is
-      // OPEN this button still renders (only its Shared/Media riders are
-      // behind `{!open && ...}`; the label stays mounted at opacity 0), so
-      // lifting it then would float an invisible trigger-size hit target
-      // over the open sheet and swallow its clicks.
+      // Lift the trigger above the sheet (z + 103) during a CLOSE. The
+      // `-shared` and `-surface` layoutId pairs crossfade on different
+      // springs, so the sheet-side <Shared> fades out while the opaque sheet
+      // still covers the trigger-side copy; lifting lets that copy paint
+      // through the gap. Close only: while open, the invisible button would
+      // sit over the sheet and swallow its clicks.
       data-vista-sheet-closing={sheetRect !== null && !open ? "" : undefined}
       drag={draggable && !open ? true : false}
       dragMomentum={false}
@@ -618,77 +553,21 @@ function ButtonTrigger({
             ref={attachSurfaceRef}
             layoutId={reduceMotion ? undefined : `${ctx.idBase}-surface`}
             className={styles.triggerSurface}
-            // This trigger surface is the ENTERING element on close (it is
-            // gated behind `{!open && ...}`, so it mounts only once open
-            // flips false), and with a shared layoutId the entering side's
-            // transition governs the FLIP. This must be transition.close,
-            // not transition.open — see the matching note on Sheet.tsx's
-            // layoutId transition for why the transposition mattered.
+            // The entering element on close governs the FLIP, so this is
+            // transition.close (Sheet, entering on open, takes .open).
             transition={transition.close}
-            // audit M2: this element is the entering side of the shared
-            // layoutId on CLOSE, so it is the close's equivalent of Sheet's
-            // own onLayoutAnimationStart — it starts Root's collapseProgress
-            // clock inside the same frameloop pass that creates Motion's
-            // layout animation, so both share a start time. No-op unless Root
-            // has a morph armed. See Root.tsx's clock-coupling note.
+            // The entering side of the shared layoutId on close: start Root's
+            // collapseProgress clock in the same frameloop pass as Motion's
+            // layout animation, so both share a start time.
             onLayoutAnimationStart={() => startMorphClock("trigger")}
             data-vista-sheet-part="trigger-surface"
             data-vista-sheet-shape={shape}
-            // Framer Motion's shared-layout border-radius correction only
-            // tracks a border-radius it manages as an inline style value —
-            // it can't see the CSS module's border-radius rule. Without this,
-            // the crossfade handoff from <Sheet>'s animated borderRadius
-            // writes an inline `border-radius: 0` here once the FLIP settles,
-            // leaving the trigger square.
-            //
-            // audit M1: this used to be a `var()` STRING, which Motion can't
-            // parse or scale-correct, so it painted the literal 9999px
-            // fallback on a sheet-sized box for the whole close regardless of
-            // what RADIUS_HOLD_FRACTION/RADIUS_CLOSE_DELAY_SEC intended. The
-            // fix is `ctx.collapseRadius`, a numeric MotionValue Sheet.tsx
-            // relays its own hold/interpolation curve into (context.ts,
-            // useCollapseRadius.ts) — bound here through Motion's `style`
-            // prop specifically, not written imperatively via a ref+effect.
-            // Trigger re-renders on every context change (Root's context
-            // value isn't memoized), and React's own reconciler re-applies a
-            // plain `style` prop's string value on each such render,
-            // clobbering any manual `el.style.borderRadius` write between
-            // "change" events — an earlier version of this fix did exactly
-            // that and silently regressed the close back to painting
-            // ~9999px most frames (caught by geometry.spec.ts's own test
-            // (k), added for this fix). Binding it as a MotionValue keeps
-            // Motion itself responsible for every write, bypassing React's
-            // render diff.
-            //
-            // This line was once believed to cost geometry.spec.ts's
-            // shadow-vs-surface CLOSE gate 6.1-7.4px against its 6px bound
-            // (the theory being that a SECOND layoutId node carrying a live
-            // numeric radius doubled Motion's per-frame correction work). It
-            // does not. That overage was M2 — the shadow's collapseProgress
-            // clock and Motion's layout-projection clock starting from two
-            // different timestamps, an error whose magnitude scaled with how
-            // much work the close commit did, which is why adding work here
-            // looked causal. With the two clocks coupled (Root.tsx's
-            // startMorphClock) the close measures 0.1-0.4px worst |Δtop| on
-            // both example pages at every tested viewport with this binding
-            // live and unchanged.
-            //
-            // Scoped to `sheetRect !== null` (mirrors the same signal
-            // Trigger.tsx's own pendingResizeRef logic above already uses
-            // for "Sheet is mounted — open, or closing but not yet exit-
-            // complete") rather than bound unconditionally: collapseRadius's
-            // hold/gate mechanism (RADIUS_CLOSE_DELAY_SEC, motion.ts) is
-            // TIME-based, not tied to when a close visually finishes, so for
-            // up to ~1.4s after a normal-speed close settles (and on first
-            // page load, before any open has ever happened) it still reads
-            // the SHEET's rounded-rect radius, not the trigger's circular
-            // one — caught visually (a squared-off trigger at rest) before
-            // this guard existed. Once Sheet's onExitComplete nulls
-            // sheetRect (the morph is provably over), this falls back to
-            // `undefined` and the CSS module's own resting default
-            // (`var(--vista-sheet-trigger-radius, 9999px)`,
-            // styles.module.css) takes over — correct immediately, no 1.4s
-            // lag.
+            // Bound as a MotionValue: Motion's radius correction ignores CSS
+            // rules and var() strings, and React would clobber an imperative
+            // write on re-render. While the sheet is mounted, the radius Sheet
+            // relays; at rest, the trigger's own. collapseRadius starts at 48
+            // before the first open and reads its token off the sheet, so it
+            // is never the resting trigger's radius.
             style={{
               borderRadius:
                 sheetRect !== null ? collapseRadius : triggerRestRadius,
