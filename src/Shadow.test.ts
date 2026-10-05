@@ -2,7 +2,8 @@ import { createElement, createRef } from "react";
 import type { Ref, ReactElement } from "react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { mergeShadowRef, Shadow } from "./Shadow";
+import { mergeRefs } from "./mergeRefs";
+import { Shadow } from "./Shadow";
 import { VistaSheetContext } from "./context";
 import type { VistaSheetContextValue } from "./context";
 
@@ -10,18 +11,18 @@ import type { VistaSheetContextValue } from "./context";
  * F1 regression: <VistaSheet.Shadow asChild> used to hard-code its clone's
  * `ref`, silently dropping whatever ref the consumer already put on the
  * child (docs/PACKAGE-DESIGN.md §4, "asChild ... merges ... onto it" — a
- * ref is part of that merge). mergeShadowRef is the composition Shadow.tsx's
+ * ref is part of that merge). mergeRefs is the composition Shadow.tsx's
  * asChild branch delegates to; these tests exercise it directly rather than
  * through a full render, since the repo has no DOM test environment
  * (jsdom/happy-dom) wired up and adding one is out of this task's scope.
  */
-describe("mergeShadowRef", () => {
+describe("mergeRefs", () => {
   it("forwards the node to a consumer object ref", () => {
     const internal = vi.fn();
     const objectRef = { current: null as HTMLElement | null };
     const node = {} as HTMLElement;
 
-    mergeShadowRef(objectRef, internal)(node);
+    mergeRefs(objectRef, internal)(node);
 
     expect(objectRef.current).toBe(node);
     expect(internal).toHaveBeenCalledWith(node);
@@ -32,7 +33,7 @@ describe("mergeShadowRef", () => {
     const callbackRef = vi.fn();
     const node = {} as HTMLElement;
 
-    mergeShadowRef(callbackRef, internal)(node);
+    mergeRefs(callbackRef, internal)(node);
 
     expect(callbackRef).toHaveBeenCalledWith(node);
     expect(internal).toHaveBeenCalledWith(node);
@@ -42,7 +43,7 @@ describe("mergeShadowRef", () => {
     const internal = vi.fn();
     const node = {} as HTMLElement;
 
-    mergeShadowRef(undefined, internal)(node);
+    mergeRefs(undefined, internal)(node);
 
     expect(internal).toHaveBeenCalledWith(node);
   });
@@ -51,7 +52,7 @@ describe("mergeShadowRef", () => {
     const internal = vi.fn();
     const objectRef = { current: {} as HTMLElement | null };
 
-    mergeShadowRef(objectRef, internal)(null);
+    mergeRefs(objectRef, internal)(null);
 
     expect(objectRef.current).toBeNull();
     expect(internal).toHaveBeenCalledWith(null);
@@ -59,10 +60,10 @@ describe("mergeShadowRef", () => {
 });
 
 /**
- * <Shadow asChild> regression: mergeShadowRef above is exercised in
+ * <Shadow asChild> regression: mergeRefs above is exercised in
  * isolation, which proves the composition function is correct but not that
  * Shadow.tsx's asChild branch actually calls it (rather than, say,
- * overwriting the child's ref outright — the exact bug mergeShadowRef was
+ * overwriting the child's ref outright — the exact bug mergeRefs was
  * extracted to fix). These render Shadow's asChild branch directly (via
  * react-dom/server, since the repo has no DOM test environment — see the
  * describe block above) and assert the clone's ref composes with a

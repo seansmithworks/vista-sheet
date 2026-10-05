@@ -19,7 +19,6 @@ import type { TriggerBox } from "./shape";
  */
 export interface VistaSheetContextValue extends VistaSheetState {
   setAnchor: (anchor: AnchorId) => void;
-  onAnchorChange?: (anchor: AnchorId) => void;
   setIsDragging: (dragging: boolean) => void;
   draggable: boolean;
   sheetMaxWidth: number;

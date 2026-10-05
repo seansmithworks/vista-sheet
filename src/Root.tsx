@@ -334,7 +334,6 @@ export function Root({
     setOpen,
     anchor,
     setAnchor,
-    onAnchorChange,
     isDragging,
     setIsDragging,
     draggable,

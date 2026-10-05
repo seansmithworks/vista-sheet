@@ -4,6 +4,7 @@ import { cloneElement, isValidElement, useEffect, useRef } from "react";
 import type { CSSProperties, ReactElement, Ref } from "react";
 import { useVistaSheetInternal } from "./context";
 import { Layer } from "./Layer";
+import { mergeRefs } from "./mergeRefs";
 import { readVarPx } from "./readVarPx";
 import {
   collapseRadiusAt,
@@ -43,19 +44,6 @@ function readRenderedCornerRadius(el: HTMLElement): number {
   return parseFloat(token) * (rect.width / (el.offsetWidth || rect.width || 1));
 }
 
-export function mergeShadowRef<T>(
-  childRef: Ref<T> | null | undefined,
-  internalRef: (node: T | null) => void,
-): (node: T | null) => void {
-  return (node) => {
-    internalRef(node);
-    if (typeof childRef === "function") {
-      childRef(node);
-    } else if (childRef) {
-      (childRef as { current: T | null }).current = node;
-    }
-  };
-}
 export function Shadow({ className, asChild, children }: ShadowProps) {
   const ctx = useVistaSheetInternal("Shadow");
   const {
@@ -310,7 +298,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
     const childRef = (childEl.props as { ref?: Ref<HTMLElement> }).ref;
     shadow = cloneElement(childEl, {
       ...sharedProps,
-      ref: mergeShadowRef(childRef, (node) => {
+      ref: mergeRefs(childRef, (node) => {
         elRef.current = node;
       }),
       style: {

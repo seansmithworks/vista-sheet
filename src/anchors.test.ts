@@ -7,14 +7,58 @@ import {
   PREVIEW_MIN_HEIGHT_PX,
   PREVIEW_PREFERRED_SIDE,
   type AnchorId,
-  anchorCenter,
   nearestAnchor,
   previewPlacement,
   previewSheetPlacement,
+  rectFromBox,
+  rectsNear,
   restingLeft,
   restingTop,
   sheetPlacement,
 } from "./anchors";
+
+/** Trigger center position (viewport px) for a given anchor. */
+function anchorCenter(
+  anchor: AnchorId,
+  vpW: number,
+  vpH: number,
+  triggerWidth: number,
+  triggerHeight: number,
+): { x: number; y: number } {
+  return {
+    x: restingLeft(anchor, vpW, triggerWidth) + triggerWidth / 2,
+    y: restingTop(anchor, vpH, triggerHeight) + triggerHeight / 2,
+  };
+}
+
+describe("rectFromBox / rectsNear", () => {
+  it("builds a center/half-extent rect from a box", () => {
+    expect(rectFromBox(10, 20, 100, 50)).toEqual({
+      cx: 60,
+      cy: 45,
+      halfWidth: 50,
+      halfHeight: 25,
+    });
+  });
+
+  it("treats a difference under eps on every field as near", () => {
+    const a = rectFromBox(0, 0, 100, 100);
+    expect(rectsNear(a, rectFromBox(0.1, 0.1, 100.1, 100.1), 0.25)).toBe(true);
+    expect(rectsNear(a, a, 0.25)).toBe(true);
+  });
+
+  it("is not near when any one field reaches eps", () => {
+    const a = rectFromBox(0, 0, 100, 100);
+    expect(rectsNear(a, { ...a, cx: a.cx + 0.5 }, 0.5)).toBe(false);
+    expect(rectsNear(a, { ...a, cy: a.cy - 0.5 }, 0.5)).toBe(false);
+    expect(rectsNear(a, { ...a, halfWidth: a.halfWidth + 1 }, 0.5)).toBe(false);
+    expect(rectsNear(a, { ...a, halfHeight: a.halfHeight + 1 }, 0.5)).toBe(
+      false,
+    );
+    expect(rectsNear(a, { ...a, cx: a.cx + 0.3 }, 0.25)).toBe(false);
+    expect(rectsNear(a, { ...a, cx: a.cx + 0.3 }, 0.5)).toBe(true);
+  });
+});
 
 describe("nearestAnchor", () => {
   // Changed from the pre-center suite: (720, 450) in a 1440x900 viewport is

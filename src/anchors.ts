@@ -1,6 +1,6 @@
 /**
- * anchors — the seven-anchor model: nearestAnchor, restingLeft/Top, anchorCenter,
- * sheetPlacement.
+ * anchors — the seven-anchor model: nearestAnchor, restingLeft/Top,
+ * sheetPlacement, plus the Rect helpers rectFromBox/rectsNear.
  *
  * Two axes per anchor — vertical (top | middle | bottom) and horizontal
  * (left | center | right) — each mapped to an alignment number (0 / 0.5 / 1).
@@ -22,6 +22,8 @@
  * generic replacement for bloomFromAnchor scoped to what Sheet.tsx needs:
  * left-edge px + which edge(s) the sheet pins to.
  */
+
+import type { Rect } from "./types";
 
 export type AnchorId =
   | "top-left"
@@ -194,20 +196,29 @@ export function restingTop(
   return EDGE_MARGIN + (vpH - triggerHeight - 2 * EDGE_MARGIN) * alignment;
 }
 
-/**
- * Trigger center position (viewport px) for a given anchor.
- */
-export function anchorCenter(
-  anchor: AnchorId,
-  vpW: number,
-  vpH: number,
-  triggerWidth: number,
-  triggerHeight: number,
-): { x: number; y: number } {
+/** A center/half-extent Rect from a left/top/width/height box. */
+export function rectFromBox(
+  left: number,
+  top: number,
+  width: number,
+  height: number,
+): Rect {
   return {
-    x: restingLeft(anchor, vpW, triggerWidth) + triggerWidth / 2,
-    y: restingTop(anchor, vpH, triggerHeight) + triggerHeight / 2,
+    cx: left + width / 2,
+    cy: top + height / 2,
+    halfWidth: width / 2,
+    halfHeight: height / 2,
   };
+}
+
+/** True when every field of `a` and `b` differs by less than `eps` px. */
+export function rectsNear(a: Rect, b: Rect, eps: number): boolean {
+  return (
+    Math.abs(a.cx - b.cx) < eps &&
+    Math.abs(a.cy - b.cy) < eps &&
+    Math.abs(a.halfWidth - b.halfWidth) < eps &&
+    Math.abs(a.halfHeight - b.halfHeight) < eps
+  );
 }
 
 /** Resolved sheet placement derived from an AnchorId. */
@@ -306,7 +317,6 @@ export function sheetPlacement(
   sheetMaxWidth: number,
   aspectRatio?: number,
 ): SheetPlacement {
-  const SHEET_MARGIN = 16;
   const centerX = restingLeft(anchor, vpW, triggerWidth) + triggerWidth / 2;
 
   const hasValidRatio =
@@ -319,7 +329,7 @@ export function sheetPlacement(
   let height: string;
   if (hasValidRatio) {
     const resolvedWidth = Math.min(
-      Math.min(sheetMaxWidth, vpW - 32),
+      Math.min(sheetMaxWidth, vpW - EDGE_MARGIN * 2),
       sheetMaxHeightPx(anchor, vpH) * aspectRatio,
     );
     const resolvedHeight = resolvedWidth / aspectRatio;
@@ -328,24 +338,23 @@ export function sheetPlacement(
     width = `${resolvedWidth}px`;
     height = `${resolvedHeight}px`;
   } else {
-    sheetHalfWidth = Math.min(sheetMaxWidth, vpW - 32) / 2;
+    sheetHalfWidth = Math.min(sheetMaxWidth, vpW - EDGE_MARGIN * 2) / 2;
     width = SHEET_DEFAULT_WIDTH;
     height = SHEET_DEFAULT_HEIGHT;
   }
 
   const clampedSheetCenterX = Math.min(
-    Math.max(centerX, sheetHalfWidth + SHEET_MARGIN),
-    vpW - sheetHalfWidth - SHEET_MARGIN,
+    Math.max(centerX, sheetHalfWidth + EDGE_MARGIN),
+    vpW - sheetHalfWidth - EDGE_MARGIN,
   );
   const clampedAnchorX = Math.max(
-    SHEET_MARGIN,
+    EDGE_MARGIN,
     clampedSheetCenterX - sheetHalfWidth,
   );
 
   const verticalAlignment = VERTICAL_ALIGNMENT[ANCHOR_AXES[anchor].vertical];
-  const topPx =
-    verticalAlignment < 1 ? Math.max(SHEET_MARGIN, EDGE_MARGIN) : undefined;
-  const bottomPx = verticalAlignment > 0 ? SHEET_MARGIN : undefined;
+  const topPx = verticalAlignment < 1 ? EDGE_MARGIN : undefined;
+  const bottomPx = verticalAlignment > 0 ? EDGE_MARGIN : undefined;
 
   return {
     anchorX: clampedAnchorX,

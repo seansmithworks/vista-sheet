@@ -12,6 +12,7 @@ import {
 import type { ReactElement, SyntheticEvent } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { useVistaSheetInternal } from "./context";
+import { mergeRefs } from "./mergeRefs";
 import {
   PREVIEW_CLOSE_GRACE_MS,
   PREVIEW_HOVER_INTENT_MS,
@@ -85,13 +86,11 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
   const childRefRef = useRef(childProps.ref);
   childRefRef.current = childProps.ref;
   const attachLink = useCallback(
-    (node: HTMLElement | null) => {
-      linkRef.current = node;
-      triggerElRef.current = node;
-      const r = childRefRef.current;
-      if (typeof r === "function") r(node);
-      else if (r) (r as { current: HTMLElement | null }).current = node;
-    },
+    (node: HTMLElement | null) =>
+      mergeRefs(childRefRef.current, (n) => {
+        linkRef.current = n;
+        triggerElRef.current = n;
+      })(node),
     [triggerElRef],
   );
 

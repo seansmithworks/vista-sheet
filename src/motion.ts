@@ -262,29 +262,16 @@ function resolveSharedForDirection(
   presetShared: Spring | Transition | SharedTransitionByDirection | undefined,
   open: boolean,
 ): Spring | Transition | undefined {
-  if (explicitShared !== undefined) {
-    if (isSharedByDirection(explicitShared)) {
-      const explicitForDirection = open
-        ? explicitShared.open
-        : explicitShared.close;
-      if (explicitForDirection !== undefined) return explicitForDirection;
-      return presetShared === undefined
-        ? undefined
-        : isSharedByDirection(presetShared)
-          ? open
-            ? presetShared.open
-            : presetShared.close
-          : presetShared;
-    }
-    // A single Spring/Transition explicit override applies to both directions.
-    return explicitShared;
-  }
-  if (presetShared === undefined) return undefined;
-  return isSharedByDirection(presetShared)
-    ? open
-      ? presetShared.open
-      : presetShared.close
-    : presetShared;
+  // A single Spring/Transition applies to both directions.
+  const pick = (
+    shared: Spring | Transition | SharedTransitionByDirection | undefined,
+  ) =>
+    shared === undefined || !isSharedByDirection(shared)
+      ? shared
+      : open
+        ? shared.open
+        : shared.close;
+  return pick(explicitShared) ?? pick(presetShared);
 }
 
 /**
