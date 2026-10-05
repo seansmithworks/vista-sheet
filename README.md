@@ -326,6 +326,78 @@ function usePKG() {
 }
 ```
 
+### Link preview
+
+`<VistaSheet.Root preview>` turns a text link into a hover card: the link
+morphs into a floating card holding a live iframe of the page it points at.
+It is for previewing pages on sites you own. Only one iframe is ever alive:
+mount it while the card is open and drop it the instant a close starts.
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { VistaSheet, useVistaSheet } from "@seansmithworks/vista-sheet";
+
+function LinkPreview({ href, children }: { href: string; children: string }) {
+  return (
+    <VistaSheet.Root preview>
+      <VistaSheet.Shadow />
+      <VistaSheet.Trigger asChild>
+        <a href={href}>{children}</a>
+      </VistaSheet.Trigger>
+      <VistaSheet.Sheet aria-label={`Preview of ${children}`} aspectRatio={360 / 520}>
+        <VistaSheet.Content>
+          <PreviewFrame href={href} />
+        </VistaSheet.Content>
+      </VistaSheet.Sheet>
+    </VistaSheet.Root>
+  );
+}
+
+function PreviewFrame({ href }: { href: string }) {
+  const { open } = useVistaSheet();
+  if (!open) return null;
+  return <iframe src={href} title={`Preview of ${href}`} tabIndex={-1} />;
+}
+```
+
+The `<a>` stays an ordinary link. `<VistaSheet.Trigger asChild>` takes it as
+the trigger and adds the preview behavior; your `onPointerEnter`, `onClick`
+and the rest still run first. `example/link-preview/main.tsx` is the working
+version, with a loading skeleton and an "Open" link inside the card.
+
+- **Hover intent and a hoverable card.** The pointer must rest on the link
+  for 150ms before a card opens, so sweeping across a paragraph opens
+  nothing. Keyboard focus (`:focus-visible` only) uses the same delay. Once
+  open, the card stays while the pointer is on the link or on the card, and
+  closes 250ms after it leaves both, so you can cross the gap to the card.
+  Escape, a press outside, scrolling and a window resize also close it.
+- **Placement.** The card opens above the hovered line and flips below when
+  there is no room above, so the unread lines below stay hoverable. It sits
+  8px from the line, is centred on the pointer, and is clamped 16px inside
+  the viewport. A link that wraps is several line boxes: the card pins to the
+  one under the pointer, and a close lands on that line.
+- **240px minimum.** The card shrinks to the room on its side of the link,
+  down to 240px tall. Below that it overlaps the link rather than shrinking
+  further.
+- **Touch.** Press and hold for 400ms opens the card; lifting the finger
+  keeps it open and does not follow the link. A short tap follows the link as
+  normal, and moving more than 10px cancels the press.
+- **Defaults.** The card is 360px wide at `aspectRatio={360 / 520}` unless
+  you pass `sheetMaxWidth` or an `aspectRatio` of your own.
+- **One card at a time**, across every preview Root on the page.
+- **Props.** A preview Root accepts only `children`, `onOpenChange`,
+  `sheetMaxWidth`, `preset`, `transition`, `surfaceCloseLeadDelayMs`,
+  `reduceMotion`, `id`, `zIndex` and `className`. Modal-only props (`open`,
+  `defaultOpen`, `shape`, `triggerSize`, `defaultAnchor`, `draggable` and the
+  rest) are type errors. `preview` is fixed for the Root's lifetime.
+- **Theming.** The card renders in a layer on `<body>`, outside your link's
+  DOM. Theme it through the Root's `className`, not an ancestor of the link.
+  Motion values and timings live in `DESIGN.md`.
+- **`useVistaSheet().triggerRect`** is the hovered line box, measured at
+  open; it is not live.
+
 ## Theming
 
 Two public styling surfaces: CSS custom properties and a DOM data-attribute
@@ -576,6 +648,12 @@ the type checker, as the guard.
 - `<VistaSheet.Close>` is required in practice; Root logs a dev-only warning
   if the sheet opens with none registered.
 
+- Link preview cards are non-modal and `aria-hidden`: nothing moves focus,
+  locks scroll or traps Tab. The card is a visual duplicate for pointer and
+  touch users, so never put focusable content inside it; the link remains the
+  accessible element. Keyboard focus on the link opens it after the intent
+  delay, and blur closes it.
+
 **Known gap:** no `inert` on background content. `aria-modal="true"` covers
 modern assistive tech; screen readers that ignore it can still navigate out
 of the dialog.
@@ -594,6 +672,9 @@ of the dialog.
   fixed teardown bug.
 - **The dither shadow is deliberately not included.** `<Shadow asChild>` is
   the layering point; the visual treatment is the consumer's.
+- **Link preview long-press is untested on a real iPhone.** Only a synthetic
+  CDP touch is covered; iOS's own long-press callout and text selection have
+  not been verified.
 
 ## What v0.1 cuts
 

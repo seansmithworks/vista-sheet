@@ -144,6 +144,42 @@ interface RootProps {
 
 Anchor is deliberately **uncontrolled only** in v0.1. See §8.
 
+#### Preview mode: `<VistaSheet.Root preview>`
+
+```ts
+interface RootProps {
+  /** Default false: a draggable button opening a modal sheet. */
+  preview?: false;
+  // ...everything above
+}
+
+type PreviewKept =
+  | "children" | "onOpenChange" | "sheetMaxWidth" | "preset" | "transition"
+  | "surfaceCloseLeadDelayMs" | "reduceMotion" | "id" | "zIndex" | "className";
+
+type PreviewRootProps = Pick<RootProps, PreviewKept> & {
+  /** Fixed for the Root's lifetime. Sheet max width defaults to 360. */
+  preview: true;
+} & Partial<Record<Exclude<keyof RootProps, PreviewKept | "preview">, never>>;
+
+/** What <VistaSheet.Root> accepts. */
+type RootComponentProps = RootProps | PreviewRootProps;
+```
+
+`preview` turns a consumer's `<a>` into the trigger of a non-modal hover card. The Trigger is `<VistaSheet.Trigger asChild>` over the link (`PreviewTriggerProps`: `asChild: true`, one element child, no `aria-label`, no `className`; the modal `TriggerProps` keeps `aria-label` required, so the modal compile-time check survives). `<VistaSheet.Sheet>` still needs `aria-label` or `aria-labelledby`, but a preview card is `aria-hidden`, so nothing inside it may be focusable; the link is the accessible element.
+
+Every modal-only prop (`open`, `defaultOpen`, `defaultAnchor`, `draggable`, `persistKey`, `triggerSize`, `shape`, `buttonSize`, `buttonWidth`, ...) is `never` on `PreviewRootProps`, so passing one is a type error, not a silent no-op. `RootComponentProps` is additive for existing modal consumers.
+
+**Why a Root mode and not a new component.** The morph's clock coupling (`startMorphClock` plus its fallback rAF), shared context, `LayoutGroup` and reduced-motion decision all live in Root, and that is the most fragile code in the package. A separate `<VistaSheet.Preview>` would have to duplicate it. So there is one Root, and `preview` branches in exactly three places:
+
+1. **The Trigger switch.** `asChild` selects `LinkTrigger` (hover intent, focus intent, touch long-press, one pinned line box) over the button trigger.
+2. **The placement function.** `previewSheetPlacement` (built on the pure `previewPlacement` in `anchors.ts`) replaces `sheetPlacement`: above the hovered line first, flipping below, 8px gap, 16px viewport clamp, a 240px minimum height (`PREVIEW_MIN_HEIGHT_PX`). Computed once at open.
+3. **`useDialogBehavior({ modal })`.** `modal: false` skips scroll lock, background `aria-hidden`, focus move and the Tab trap, and adds light dismiss (outside press, scroll, resize). Escape closes in both modes.
+
+Root also owns one `display: contents` layer on `<body>` that Sheet and Shadow both portal into, so `Shadow` still finds its sheet through `[data-vista-sheet-root]`. The layer exists only while a card is armed, open or closing, and carries the theme vars and the consumer's `className`. Content and Shadow carry no preview branches.
+
+**Settled (Sean, 2026-10-04).** Placement is above first, flipping below when there is no room, because the lines below stay hoverable. The 240px minimum height stays. The card is hoverable (WCAG 1.4.13), with a 150ms hover intent and a 250ms grace to cross the gap. Timings and the 4px link-end radius are strawmen in `src/motion.ts`; values and motion rules stay in `DESIGN.md`.
+
 ### `<VistaSheet.Trigger>`
 
 The fixed drag wrapper plus the trigger button plus the morph seed surface.

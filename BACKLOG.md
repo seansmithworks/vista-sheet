@@ -541,9 +541,9 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 
 ## 2026-10-04 — link-preview (`explore/link-preview` @ 25e7b02)
 - [x] `<VistaSheet.Root preview>` hover card built; two independent reviews APPROVE. Gates: vitest 311 · link-preview spec 26 · geometry 292 · tsc 6 baseline · build:lib + banner · perf PASS. Non-test src net +636 vs b38a84c (cut from +901).
-- [ ] 24. carried — Decide: preview placement (strawman ABOVE-first, `anchors.ts` constant; Sean's original spec was below-first) and 240px min height (`PREVIEW_MIN_HEIGHT_PX`).
-- [ ] 25. carried — Decide: merge `explore/link-preview` to main / open PR / keep exploring. Strawman: PR after 26–27.
-- [ ] 26. carried — Write README + docs/PACKAGE-DESIGN.md sections for preview mode (types: RootComponentProps/PreviewRootProps; card is aria-hidden — no focusables inside).
+- [x] 24. carried — Decide: preview placement (strawman ABOVE-first, `anchors.ts` constant; Sean's original spec was below-first) and 240px min height (`PREVIEW_MIN_HEIGHT_PX`). Decided: above-first and 240px confirmed by Sean 2026-10-04.
+- [x] 25. carried — Decide: merge `explore/link-preview` to main / open PR / keep exploring. Strawman: PR after 26–27. Decided: open a PR after items 26 and 27, no merge yet (Sean, 2026-10-04).
+- [x] 26. carried — Write README + docs/PACKAGE-DESIGN.md sections for preview mode (types: RootComponentProps/PreviewRootProps; card is aria-hidden — no focusables inside).
 - [ ] 27. carried — Real-iPhone long-press check (only synthetic CDP touch tested).
 - [ ] 28. carried — Demo fixtures preview as near-blank pages; swap in content-rich owned pages.
 - [ ] 29. parked — "Simplify later" list in the link-preview plan (Shadow radius machinery, audit-history comment blocks, modal reveal/backdrop).
