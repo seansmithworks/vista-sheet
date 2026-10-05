@@ -336,7 +336,6 @@ mount it while the card is open and drop it the instant a close starts.
 ```tsx
 "use client";
 
-import { useState } from "react";
 import { VistaSheet, useVistaSheet } from "@seansmithworks/vista-sheet";
 
 function LinkPreview({ href, children }: { href: string; children: string }) {
@@ -368,22 +367,23 @@ and the rest still run first. `example/link-preview/main.tsx` is the working
 version, with a loading skeleton and an "Open" link inside the card.
 
 - **Hover intent and a hoverable card.** The pointer must rest on the link
-  for 150ms before a card opens, so sweeping across a paragraph opens
+  for 150ms (currently; `PREVIEW_HOVER_INTENT_MS`) before a card opens, so sweeping across a paragraph opens
   nothing. Keyboard focus (`:focus-visible` only) uses the same delay. Once
   open, the card stays while the pointer is on the link or on the card, and
-  closes 250ms after it leaves both, so you can cross the gap to the card.
+  closes 250ms (currently; `PREVIEW_CLOSE_GRACE_MS`) after it leaves both, so you can cross the gap to the card.
   Escape, a press outside, scrolling and a window resize also close it.
-- **Placement.** The card opens above the hovered line and flips below when
-  there is no room above, so the unread lines below stay hoverable. It sits
+- **Placement.** The card opens above the hovered line if the whole card
+  fits there. If not, it opens on whichever side has more room (above wins a
+  tie) and shrinks to fit. The unread lines below stay hoverable. It sits
   8px from the line, is centred on the pointer, and is clamped 16px inside
   the viewport. A link that wraps is several line boxes: the card pins to the
   one under the pointer, and a close lands on that line.
 - **240px minimum.** The card shrinks to the room on its side of the link,
-  down to 240px tall. Below that it overlaps the link rather than shrinking
+  down to 240px tall (currently; `PREVIEW_MIN_HEIGHT_PX`). Below that it overlaps the link rather than shrinking
   further.
-- **Touch.** Press and hold for 400ms opens the card; lifting the finger
+- **Touch.** Press and hold for 400ms (currently; `PREVIEW_LONG_PRESS_MS`) opens the card; lifting the finger
   keeps it open and does not follow the link. A short tap follows the link as
-  normal, and moving more than 10px cancels the press.
+  normal, and moving more than 10px (currently; `PREVIEW_LONG_PRESS_SLOP_PX`) cancels the press.
 - **Defaults.** The card is 360px wide at `aspectRatio={360 / 520}` unless
   you pass `sheetMaxWidth` or an `aspectRatio` of your own.
 - **One card at a time**, across every preview Root on the page.
@@ -394,7 +394,7 @@ version, with a loading skeleton and an "Open" link inside the card.
   rest) are type errors. `preview` is fixed for the Root's lifetime.
 - **Theming.** The card renders in a layer on `<body>`, outside your link's
   DOM. Theme it through the Root's `className`, not an ancestor of the link.
-  Motion values and timings live in `DESIGN.md`.
+  The preview timings live in `src/motion.ts` (`PREVIEW_*`).
 - **`useVistaSheet().triggerRect`** is the hovered line box, measured at
   open; it is not live.
 
@@ -647,7 +647,6 @@ the type checker, as the guard.
   `<VistaSheet.Content>` gets its own tab stop while it overflows.
 - `<VistaSheet.Close>` is required in practice; Root logs a dev-only warning
   if the sheet opens with none registered.
-
 - Link preview cards are non-modal and `aria-hidden`: nothing moves focus,
   locks scroll or traps Tab. The card is a visual duplicate for pointer and
   touch users, so never put focusable content inside it; the link remains the

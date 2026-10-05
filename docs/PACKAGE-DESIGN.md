@@ -173,12 +173,12 @@ Every modal-only prop (`open`, `defaultOpen`, `defaultAnchor`, `draggable`, `per
 **Why a Root mode and not a new component.** The morph's clock coupling (`startMorphClock` plus its fallback rAF), shared context, `LayoutGroup` and reduced-motion decision all live in Root, and that is the most fragile code in the package. A separate `<VistaSheet.Preview>` would have to duplicate it. So there is one Root, and `preview` branches in exactly three places:
 
 1. **The Trigger switch.** `asChild` selects `LinkTrigger` (hover intent, focus intent, touch long-press, one pinned line box) over the button trigger.
-2. **The placement function.** `previewSheetPlacement` (built on the pure `previewPlacement` in `anchors.ts`) replaces `sheetPlacement`: above the hovered line first, flipping below, 8px gap, 16px viewport clamp, a 240px minimum height (`PREVIEW_MIN_HEIGHT_PX`). Computed once at open.
+2. **The placement function.** `previewSheetPlacement` (built on the pure `previewPlacement` in `anchors.ts`) replaces `sheetPlacement`: above the hovered line if the whole card fits there, otherwise the side with more room (above wins a tie), shrunk to fit; 8px gap, 16px viewport clamp, a 240px minimum height (currently; `PREVIEW_MIN_HEIGHT_PX`). Computed once at open.
 3. **`useDialogBehavior({ modal })`.** `modal: false` skips scroll lock, background `aria-hidden`, focus move and the Tab trap, and adds light dismiss (outside press, scroll, resize). Escape closes in both modes.
 
 Root also owns one `display: contents` layer on `<body>` that Sheet and Shadow both portal into, so `Shadow` still finds its sheet through `[data-vista-sheet-root]`. The layer exists only while a card is armed, open or closing, and carries the theme vars and the consumer's `className`. Content and Shadow carry no preview branches.
 
-**Settled (Sean, 2026-10-04).** Placement is above first, flipping below when there is no room, because the lines below stay hoverable. The 240px minimum height stays. The card is hoverable (WCAG 1.4.13), with a 150ms hover intent and a 250ms grace to cross the gap. Timings and the 4px link-end radius are strawmen in `src/motion.ts`; values and motion rules stay in `DESIGN.md`.
+**Settled (Sean, 2026-10-04).** Placement is above when the whole card fits there, otherwise the side with more room, because the lines below stay hoverable. The 240px minimum height stays. The card is hoverable (WCAG 1.4.13), with a hover intent (currently 150ms, `PREVIEW_HOVER_INTENT_MS`) and a grace to cross the gap (currently 250ms, `PREVIEW_CLOSE_GRACE_MS`). Timings and the link-end radius (currently 4px, `PREVIEW_TRIGGER_RADIUS_PX`) are strawmen that live only in `src/motion.ts`.
 
 ### `<VistaSheet.Trigger>`
 
