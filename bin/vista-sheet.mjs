@@ -11,7 +11,7 @@ const SRC_DIR = new URL("../src/", import.meta.url);
 // file added to src/ is excluded automatically instead of shipping to
 // consumers unless someone remembers to also edit this file.
 const SPECIAL_CASED = new Set(["css-modules.d.ts"]);
-const TEST_FILE_RE = /\.test\.tsx?$/;
+const TEST_FILE_RE = /\.test(-d)?\.tsx?$/;
 
 // The tuner lives at the repo's top level (see tuner/, not src/ or example/)
 // specifically so it is never swept into readSrcFiles() below and shipped to

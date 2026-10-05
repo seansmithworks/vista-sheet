@@ -21,7 +21,11 @@ reaching for an existing term.
 
 ```bash
 npm install @seansmithworks/vista-sheet
+npm install react react-dom motion
 ```
+
+The second line installs the [peer dependencies](#peer-dependencies); skip
+any your app already has.
 
 `dist/` ships compiled ESM + `.d.ts` declarations, so the default import
 needs no build-step config on the consumer's side — no `transpilePackages`,
@@ -34,27 +38,22 @@ non-JS build step) — most consumers never need it.
 
 ### Installing from source
 
-For a git-dependency install (e.g. testing an unreleased branch), the
-package still ships raw TypeScript source in `src/`, but a source install
-needs a build step on your side. Point Next.js at it via
-`transpilePackages` in `next.config.ts`:
-
-```ts
-const nextConfig = {
-  transpilePackages: ["@seansmithworks/vista-sheet"],
-};
-```
+To test an unreleased branch, install straight from GitHub. Add `#<branch>`
+(or a tag or commit) to pick the ref; without it you get the default branch:
 
 ```bash
-npm install @seansmithworks/vista-sheet@github:seansmithworks/vista-sheet
+npm install github:seansmithworks/vista-sheet
+npm install github:seansmithworks/vista-sheet#explore/link-preview
+npm install react react-dom motion
 ```
 
-This mirrors how `@seansmithworks/device-frame` is consumed. Vite consumers
-work with no config, but because a source install's `src/` isn't
-precompiled, your own `tsc -b` typechecks it directly as part of `npm run
-build` — so an unusually strict or `types`-restricted consumer
-`tsconfig.json` typechecks our source too, not just yours. None of this
-applies to the default npm install above, which ships compiled output.
+It builds itself on install: npm installs the package's dev dependencies
+and runs its `prepare` script, which compiles the same `dist/` the npm
+release ships. After that it behaves exactly like the default install
+above, with no `transpilePackages` or other config on your side. The
+install takes longer than a registry install because of that build. npm 11
+may warn that the package's `prepare` script isn't covered by
+`allowScripts`; the build has already run by then, and the install works.
 
 ### npx copy-in
 
@@ -334,11 +333,12 @@ It is for previewing pages on sites you own. Only one iframe is ever alive:
 mount it while the card is open and drop it the instant a close starts.
 
 ```tsx
+// LinkPreview.tsx
 "use client";
 
 import { VistaSheet, useVistaSheet } from "@seansmithworks/vista-sheet";
 
-function LinkPreview({ href, children }: { href: string; children: string }) {
+export function LinkPreview({ href, children }: { href: string; children: string }) {
   return (
     <VistaSheet.Root preview>
       <VistaSheet.Shadow />
@@ -360,6 +360,16 @@ function PreviewFrame({ href }: { href: string }) {
   return <iframe src={href} title={`Preview of ${href}`} tabIndex={-1} />;
 }
 ```
+
+Use it anywhere a link goes:
+
+```tsx
+<p>Read the <LinkPreview href="/about">about page</LinkPreview> first.</p>
+```
+
+Keep the `"use client"` line at the top of the file that defines
+`LinkPreview`. A Next.js Server Component can then import and render
+`<LinkPreview>` directly; without the directive, that import fails.
 
 The `<a>` stays an ordinary link. `<VistaSheet.Trigger asChild>` takes it as
 the trigger and adds the preview behavior; your `onPointerEnter`, `onClick`

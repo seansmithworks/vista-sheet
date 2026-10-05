@@ -27,7 +27,7 @@ function expectedSrcFileCount(skipCssShim: boolean) {
   const entries = fs.readdirSync(SRC_DIR);
   const count = entries.filter((name) => {
     if (name === "css-modules.d.ts") return false;
-    if (/\.test\.tsx?$/.test(name)) return false;
+    if (/\.test(-d)?\.tsx?$/.test(name)) return false;
     return (
       name.endsWith(".ts") ||
       name.endsWith(".tsx") ||
@@ -56,7 +56,7 @@ describe("bin/vista-sheet.mjs add", () => {
     const copied = fs.readdirSync(targetDir);
 
     expect(copied).not.toContain("anchors.test.ts");
-    expect(copied.some((f) => /\.test\.tsx?$/.test(f))).toBe(false);
+    expect(copied.some((f) => /\.test(-d)?\.tsx?$/.test(f))).toBe(false);
     // No next-env.d.ts in a fresh tmp dir, so the css shim IS copied.
     expect(copied).toContain("css-modules.d.ts");
     expect(copied.length).toBe(expectedSrcFileCount(false));
