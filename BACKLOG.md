@@ -538,3 +538,14 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 - [ ] 21. **Decide or kill — one demo or two.** Render is current (`ebff8dc`); Vercel is stale (`2dfe523`, orange) and needs Sean's CLI paste every time. Nothing in the repo or the GitHub page links to either (checked 2026-09-15). Strawman: retire Vercel — pause the project (reversible) and set https://vista-sheet.onrender.com as the GitHub repo homepage; Render is also the platform Sean is interviewing with. Alternative: keep both, Vercel redeployed by paste at each Render deploy. Sean asked "or maybe both" 10:17 — unanswered.
 - [ ] 22. Confirm the note-9 reversal read Sean's intent: "corner setting" was taken to mean dialkit's floating panel, so the `/` Design panel stays a VistaSheet (`3cdbafc`) and glow length (10) is re-cut into that sheet. If he meant a different control, T6 needs re-planning again.
 - [ ] 23. Local branch `wip/t3-red-test` (`2b5701e`) is superseded by `af272b6` — delete on Sean's nod.
+
+## 2026-10-04 — link-preview (`explore/link-preview` @ 25e7b02)
+- [x] `<VistaSheet.Root preview>` hover card built; two independent reviews APPROVE. Gates: vitest 311 · link-preview spec 26 · geometry 292 · tsc 6 baseline · build:lib + banner · perf PASS. Non-test src net +636 vs b38a84c (cut from +901).
+- [ ] 24. carried — Decide: preview placement (strawman ABOVE-first, `anchors.ts` constant; Sean's original spec was below-first) and 240px min height (`PREVIEW_MIN_HEIGHT_PX`).
+- [ ] 25. carried — Decide: merge `explore/link-preview` to main / open PR / keep exploring. Strawman: PR after 26–27.
+- [ ] 26. carried — Write README + docs/PACKAGE-DESIGN.md sections for preview mode (types: RootComponentProps/PreviewRootProps; card is aria-hidden — no focusables inside).
+- [ ] 27. carried — Real-iPhone long-press check (only synthetic CDP touch tested).
+- [ ] 28. carried — Demo fixtures preview as near-blank pages; swap in content-rich owned pages.
+- [ ] 29. parked — "Simplify later" list in the link-preview plan (Shadow radius machinery, audit-history comment blocks, modal reveal/backdrop).
+- [ ] 30. parked — Dia corner mismatch (shadow tighter than sheet); not reproducible in Chrome 154. Needs Sean's console check in Dia.
+- [ ] 31. parked — New flake candidate `media.spec.ts:606` (1.72px vs 1px, passes on rerun).
