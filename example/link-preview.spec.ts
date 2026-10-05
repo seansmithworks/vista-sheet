@@ -644,3 +644,43 @@ test.describe("link preview (reduced motion)", () => {
     );
   });
 });
+
+test.describe("link preview (dark mode)", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  const DARK_SURFACE = "rgb(44, 44, 46)"; // body[data-dark-mode] elevated
+  const LIGHT_SURFACE = "rgb(255, 255, 255)";
+
+  async function sheetBg(page: Page) {
+    await openCard(page, link(page, "Ghostties"));
+    return page
+      .locator(SHEET)
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+  }
+
+  test("?dark=1 sets data-dark-mode and the card takes the dark surface", async ({
+    page,
+  }) => {
+    await page.goto(`${PAGE}?dark=1`);
+    await page.waitForSelector("a.lp-link");
+    await expect(page.locator("body")).toHaveAttribute("data-dark-mode", "true");
+    expect(await sheetBg(page)).toBe(DARK_SURFACE);
+  });
+
+  test("the OS dark scheme gives the same result with no param; ?dark=0 overrides it", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await gotoPreview(page);
+    await expect(page.locator("body")).toHaveAttribute("data-dark-mode", "true");
+    expect(await sheetBg(page)).toBe(DARK_SURFACE);
+
+    await page.goto(`${PAGE}?dark=0`);
+    await page.waitForSelector("a.lp-link");
+    await expect(page.locator("body")).toHaveAttribute(
+      "data-dark-mode",
+      "false",
+    );
+    expect(await sheetBg(page)).toBe(LIGHT_SURFACE);
+  });
+});

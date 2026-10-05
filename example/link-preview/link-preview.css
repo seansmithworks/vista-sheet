@@ -56,6 +56,18 @@ body {
   color: #6e6e73;
 }
 
+/* Dark mode: example.css's body[data-dark-mode="true"] already sets the page
+ * ground, text and every --vista-sheet-* token (surface, border, shadows), so
+ * the card, skeleton and Open pill follow with no values of their own. Only
+ * the page's literal greys need a dark counterpart. */
+body[data-dark-mode="true"] .lp-page .lp-note {
+  color: var(--demo-text-muted);
+}
+
+body[data-dark-mode="true"] .lp-link {
+  text-decoration-color: var(--demo-text-muted);
+}
+
 /* A normal inline text link at rest. */
 .lp-link {
   color: inherit;

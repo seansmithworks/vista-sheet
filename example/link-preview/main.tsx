@@ -1,7 +1,20 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { VistaSheet, useVistaSheet } from "../../src/index";
+import "../example.css";
 import "./link-preview.css";
+
+// Dark mode reuses example.css's body[data-dark-mode="true"] cells, the same
+// switch the Design sheet flips on the other pages. Here it follows the OS
+// scheme; ?dark=1 or ?dark=0 overrides it (for testing, and for the specs).
+const darkParam = new URLSearchParams(location.search).get("dark");
+const prefersDark = matchMedia("(prefers-color-scheme: dark)");
+const applyDark = () => {
+  const dark = darkParam === null ? prefersDark.matches : darkParam === "1";
+  document.body.dataset.darkMode = dark ? "true" : "false";
+};
+applyDark();
+if (darkParam === null) prefersDark.addEventListener("change", applyDark);
 
 // A hover card on a text link: <Root preview>, the <a> is the trigger.
 // Hover or focus a link, or press and hold on touch.
