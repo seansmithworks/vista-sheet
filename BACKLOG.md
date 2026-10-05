@@ -549,3 +549,4 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 - [ ] 29. parked — "Simplify later" list in the link-preview plan (Shadow radius machinery, audit-history comment blocks, modal reveal/backdrop).
 - [ ] 30. parked — Dia corner mismatch (shadow tighter than sheet); not reproducible in Chrome 154. Needs Sean's console check in Dia.
 - [ ] 31. parked — New flake candidate `media.spec.ts:606` (1.72px vs 1px, passes on rerun).
+- [ ] 31. Test against motion 14 (peer range is >=12 <14; README pins motion@13). Run test:geometry + perf with motion@14 as devDep; widen peerDependencies only if green.

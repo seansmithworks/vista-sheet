@@ -21,7 +21,7 @@ reaching for an existing term.
 
 ```bash
 npm install @seansmithworks/vista-sheet
-npm install react react-dom motion
+npm install react react-dom motion@13
 ```
 
 The second line installs the [peer dependencies](#peer-dependencies); skip
@@ -44,7 +44,7 @@ To test an unreleased branch, install straight from GitHub. Add `#<branch>`
 ```bash
 npm install github:seansmithworks/vista-sheet
 npm install github:seansmithworks/vista-sheet#explore/link-preview
-npm install react react-dom motion
+npm install react react-dom motion@13
 ```
 
 It builds itself on install: npm installs the package's dev dependencies
@@ -72,13 +72,17 @@ the target). It skips the test file and, if your project already has a
 already declares it — a duplicate `declare module` block is a TS error). It
 refuses to overwrite existing files unless you pass `--force`.
 
+After copy-in, the Usage and Link preview snippets below import from the
+copied folder, not the package: use `from "./vista-sheet"` (the path the CLI
+prints) instead of `from "@seansmithworks/vista-sheet"`.
+
 The tradeoff: you own the copy from that point on. There's no update
 channel — to pick up changes, re-run with `--force` (which overwrites
 everything) or diff your copy against a fresh `add` in a scratch directory.
 Peer dependencies aren't copied and still need installing:
 
 ```bash
-npm install react react-dom motion
+npm install react react-dom motion@13
 ```
 
 ### Live-tuning panel
@@ -120,7 +124,8 @@ them.
 ## Usage
 
 Paste this into `app/page.tsx` (or wherever you mount it) in a Next.js App
-Router app:
+Router app, or into `App.tsx` in Vite (the `"use client"` line is harmless
+there):
 
 ```tsx
 "use client";
@@ -361,10 +366,12 @@ function PreviewFrame({ href }: { href: string }) {
 }
 ```
 
-Use it anywhere a link goes:
+Use it anywhere a link goes. In Next.js, render it from any page; the
+component file carries `"use client"`. The preview iframes the target, so
+`href` should be a page on a site you own that allows framing.
 
 ```tsx
-<p>Read the <LinkPreview href="/about">about page</LinkPreview> first.</p>
+<p>Read the <LinkPreview href="/">home page</LinkPreview> first.</p>
 ```
 
 Keep the `"use client"` line at the top of the file that defines
