@@ -4,11 +4,12 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
  * link-preview.spec.ts — `<VistaSheet.Root preview>` on /link-preview.html.
  *
  * Real rendered geometry in Chromium, like the other specs here. The page
- * has four preview links: "my write-up of the Brukas project" WRAPS across two lines at
+ * has six preview links: "my write-up of the Brukas project" WRAPS across two lines at
  * 1280px (line 1 is a short fragment far right of line 2, the shape that
  * zeroes an absolutely-positioned child of an inline), "Ghostties" and
- * "Dab" sit on following lines, and "my portfolio" is parked at the
- * right viewport edge.
+ * "Dab" share the next line, "orchestrator" and "how I work now" (which also
+ * wraps) follow, and "my portfolio" is parked at the right viewport edge.
+ * The prose starts low (see .lp-page), so at 1280x800 every card opens above.
  */
 
 const PAGE = "/link-preview.html";
@@ -127,6 +128,10 @@ async function hoverLine(page: Page, loc: Locator, i = 0, xFrac = 0.5) {
   return { x, y, line: l };
 }
 
+// Where "Ghostties" sits at 1280px with no scroll or body padding (viewport y).
+// The prose block is pushed down to leave room for a card above it.
+const PROSE_Y = 584;
+
 const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
 
 async function gotoPreview(page: Page) {
@@ -161,7 +166,7 @@ test.describe("link preview (desktop)", () => {
       page,
     }) => {
       await gotoPreview(page);
-      if (scrollY) await scrollPageTo(page, scrollY);
+      if (scrollY) await scrollPageTo(page, scrollY + PROSE_Y - 144);
       const loc = link(page, text);
       const target = (await lines(loc))[lineIdx];
       if (lineIdx === 0 && text.startsWith("my write-up")) {
@@ -236,6 +241,8 @@ test.describe("link preview (desktop)", () => {
     // Too short for 520 above or below the link, so it shrinks to the floor.
     await page.setViewportSize({ width: 1280, height: 380 });
     await gotoPreview(page);
+    // Bring the link to the top of the short viewport, as the page once had it.
+    await scrollPageTo(page, 1800 + PROSE_Y - 144, 1800);
     await openCard(page, link(page, "Ghostties"));
     await page.waitForTimeout(900);
     const s = (await page.locator(SHEET).boundingBox())!;
@@ -247,9 +254,20 @@ test.describe("link preview (desktop)", () => {
   }) => {
     await gotoPreview(page);
     const loc = link(page, "Ghostties");
-    // Link near the top: no room above, so the card flips below.
-    const { x, line } = await openCard(page, loc);
+    // The demo's default layout leaves room: the card opens above.
+    let { x, line } = await openCard(page, loc);
     let s = (await page.locator(SHEET).boundingBox())!;
+    expect(near(s.y + s.height, line.top - 8, 1), `default above ${s.y}`).toBe(
+      true,
+    );
+    await page.keyboard.press("Escape");
+    await expect(page.locator(SHEET)).toHaveCount(0);
+    await page.mouse.move(900, 700);
+
+    // Link near the top: no room above, so the card flips below.
+    await scrollPageTo(page, 1800 + PROSE_Y - 144, 1800);
+    ({ x, line } = await openCard(page, loc));
+    s = (await page.locator(SHEET).boundingBox())!;
     expect(near(s.y, line.top + line.height + 8, 1), `below top ${s.y}`).toBe(
       true,
     );
@@ -259,8 +277,8 @@ test.describe("link preview (desktop)", () => {
 
     // Link low in the viewport: room above, the preferred side.
     await page.mouse.move(900, 700);
-    // The prose sits at y = pad + ~144; scroll it to ~650px down the viewport.
-    await scrollPageTo(page, 1800 + 144 - 650, 1800);
+    // The prose sits at y = pad + 584; scroll it to ~650px down the viewport.
+    await scrollPageTo(page, 1800 + PROSE_Y - 650, 1800);
     const up = await hoverLine(page, loc);
     await expect(page.locator(SHEET)).toBeVisible();
     await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
@@ -288,9 +306,9 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    // Prose at y = pad + ~144; park the link line near y 400, in the band
+    // Prose at y = pad + 584; park the link line near y 400, in the band
     // where a 520px card fits neither above nor below.
-    await scrollPageTo(page, 1800 + 144 - 400, 1800);
+    await scrollPageTo(page, 1800 + PROSE_Y - 400, 1800);
     const { line } = await openCard(page, link(page, "Ghostties"));
     expect(line.top).toBeGreaterThan(256);
     expect(line.top).toBeLessThan(544);
@@ -405,7 +423,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    await scrollPageTo(page, 800);
+    await scrollPageTo(page, 800 + PROSE_Y - 144);
     const loc = link(page, "Ghostties");
     await openCard(page, loc);
     await startRecording(page);
@@ -434,7 +452,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    await scrollPageTo(page, 800);
+    await scrollPageTo(page, 800 + PROSE_Y - 144);
     await openCard(page, link(page, "Ghostties"));
     await startRecording(page);
     await page.keyboard.press("Escape");
@@ -462,8 +480,9 @@ test.describe("link preview (desktop)", () => {
   }) => {
     await gotoPreview(page);
     const { x, line } = await openCard(page, link(page, "Ghostties"));
-    // Cross the gap to the card in steps, then rest on it well past the grace.
-    await page.mouse.move(x, line.top + line.height + 40, { steps: 6 });
+    // The card opens above. Cross the gap to it in steps, then rest on it
+    // well past the grace.
+    await page.mouse.move(x, line.top - 40, { steps: 6 });
     await page.waitForTimeout(600);
     await expect(page.locator(SHEET)).toBeVisible();
     await expect(page.locator("iframe")).toHaveCount(1);

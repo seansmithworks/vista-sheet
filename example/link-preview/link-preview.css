@@ -19,10 +19,12 @@ body {
   color: #1d1d1f;
 }
 
-/* Prose sits in a narrow left column, so a link can wrap across two lines. */
+/* Prose sits in a narrow left column, so a link can wrap across two lines.
+ * The top padding leaves room for a full card above the first line:
+ * 520 card + 8 gap + 16 viewport gutter = 544, less the heading above it. */
 .lp-page {
   max-width: 440px;
-  padding: 72px 24px;
+  padding: 512px 24px 72px;
   margin-left: clamp(0px, 8vw, 120px);
 }
 
