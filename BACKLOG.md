@@ -544,7 +544,7 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 - [x] 24. carried — Decide: preview placement (strawman ABOVE-first, `anchors.ts` constant; Sean's original spec was below-first) and 240px min height (`PREVIEW_MIN_HEIGHT_PX`). Decided: above-first and 240px confirmed by Sean 2026-10-04.
 - [x] 25. carried — Decide: merge `explore/link-preview` to main / open PR / keep exploring. Strawman: PR after 26–27. Decided: open a PR after items 26 and 27, no merge yet (Sean, 2026-10-04).
 - [x] 26. carried — Write README + docs/PACKAGE-DESIGN.md sections for preview mode (types: RootComponentProps/PreviewRootProps; card is aria-hidden — no focusables inside).
-- [ ] 27. carried — Real-iPhone long-press check (only synthetic CDP touch tested).
+- [x] 27. carried — Real-iPhone long-press check (only synthetic CDP touch tested). Done: Sean tested on a real iPhone via Vercel preview 2026-10-05, "works well enough for right now".
 - [x] 28. carried — Demo fixtures preview as near-blank pages; swap in content-rich owned pages.
 - [ ] 29. parked — "Simplify later" list in the link-preview plan (Shadow radius machinery, audit-history comment blocks, modal reveal/backdrop).
 - [ ] 30. parked — Dia corner mismatch (shadow tighter than sheet); not reproducible in Chrome 154. Needs Sean's console check in Dia.
