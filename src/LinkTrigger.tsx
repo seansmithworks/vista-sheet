@@ -9,10 +9,11 @@ import {
   useRef,
 } from "react";
 import type { ReactElement, SyntheticEvent } from "react";
-import { motion, useMotionValue } from "motion/react";
+import { useMotionValue } from "motion/react";
 import { rectFromBox } from "./anchors";
 import { useVistaSheetInternal } from "./context";
 import { mergeRefs } from "./mergeRefs";
+import { TriggerSurface } from "./TriggerSurface";
 import {
   PREVIEW_CLOSE_GRACE_MS,
   PREVIEW_HOVER_INTENT_MS,
@@ -51,13 +52,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
   const {
     open,
     setOpen,
-    idBase,
     sheetId,
-    sheetRect,
-    collapseRadius,
-    reduceMotion,
-    transition,
-    startMorphClock,
     setTriggerRect,
     setLayerArmed,
     triggerElRef,
@@ -302,18 +297,13 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     },
     childProps.children as never,
     !open && (
-      <motion.span
+      <TriggerSurface
         key="surface"
+        as="span"
         ref={attachSurface}
-        layoutId={reduceMotion ? undefined : `${idBase}-surface`}
         className={styles.previewSurface}
-        transition={transition.close}
-        onLayoutAnimationStart={() => startMorphClock("trigger")}
-        data-vista-sheet-part="trigger-surface"
         aria-hidden="true"
-        style={{
-          borderRadius: sheetRect !== null ? collapseRadius : restRadius,
-        }}
+        restRadius={restRadius}
       />
     ),
   );

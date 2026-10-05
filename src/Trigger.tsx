@@ -37,6 +37,7 @@ import {
 import { LinkTrigger } from "./LinkTrigger";
 import { Shared } from "./Shared";
 import { Media } from "./Media";
+import { TriggerSurface } from "./TriggerSurface";
 import type { Rect, TriggerComponentProps, TriggerProps } from "./types";
 import styles from "./styles.module.css";
 
@@ -94,11 +95,8 @@ function ButtonTrigger({
     triggerId,
     sheetId,
     setTriggerRect,
-    transition,
     triggerElRef,
     sheetRect,
-    collapseRadius,
-    startMorphClock,
     collapseProgress,
   } = ctx;
 
@@ -527,29 +525,12 @@ function ButtonTrigger({
         {...aria}
       >
         {!open && (
-          <motion.div
+          <TriggerSurface
+            as="div"
             ref={attachSurfaceRef}
-            layoutId={reduceMotion ? undefined : `${ctx.idBase}-surface`}
             className={styles.triggerSurface}
-            // The entering element on close governs the FLIP, so this is
-            // transition.close (Sheet, entering on open, takes .open).
-            transition={transition.close}
-            // The entering side of the shared layoutId on close: start Root's
-            // collapseProgress clock in the same frameloop pass as Motion's
-            // layout animation, so both share a start time.
-            onLayoutAnimationStart={() => startMorphClock("trigger")}
-            data-vista-sheet-part="trigger-surface"
             data-vista-sheet-shape={shape}
-            // Bound as a MotionValue: Motion's radius correction ignores CSS
-            // rules and var() strings, and React would clobber an imperative
-            // write on re-render. While the sheet is mounted, the radius Sheet
-            // relays; at rest, the trigger's own. collapseRadius starts at 48
-            // before the first open and reads its token off the sheet, so it
-            // is never the resting trigger's radius.
-            style={{
-              borderRadius:
-                sheetRect !== null ? collapseRadius : triggerRestRadius,
-            }}
+            restRadius={triggerRestRadius}
           />
         )}
         <TriggerSurfaceContext.Provider value={surfaceStoreRef.current}>
