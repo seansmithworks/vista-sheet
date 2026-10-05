@@ -73,8 +73,9 @@ already declares it — a duplicate `declare module` block is a TS error). It
 refuses to overwrite existing files unless you pass `--force`.
 
 After copy-in, the Usage and Link preview snippets below import from the
-copied folder, not the package: use `from "./vista-sheet"` (the path the CLI
-prints) instead of `from "@seansmithworks/vista-sheet"`.
+copied folder, not the package: use the import path the CLI prints after
+copying (by default `"./src/vista-sheet"`, relative to where you ran it)
+instead of `"@seansmithworks/vista-sheet"`.
 
 The tradeoff: you own the copy from that point on. There's no update
 channel — to pick up changes, re-run with `--force` (which overwrites
