@@ -4,14 +4,25 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
  * link-preview.spec.ts — `<VistaSheet.Root preview>` on /link-preview.html.
  *
  * Real rendered geometry in Chromium, like the other specs here. The page
- * has four preview links: "flagship contact card" WRAPS across two lines at
+ * has four preview links: "my write-up of the Brukas project" WRAPS across two lines at
  * 1280px (line 1 is a short fragment far right of line 2, the shape that
- * zeroes an absolutely-positioned child of an inline), "list menu" and
- * "playground" sit on following lines, and "my portfolio" is parked at the
+ * zeroes an absolutely-positioned child of an inline), "Ghostties" and
+ * "Dab" sit on following lines, and "my portfolio" is parked at the
  * right viewport edge.
  */
 
 const PAGE = "/link-preview.html";
+
+// The demo previews real www.seansmithdesign.com pages. Specs never touch the
+// network: every request to that host is answered with a small local page.
+test.beforeEach(async ({ page }) => {
+  await page.route("https://www.seansmithdesign.com/**", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: "<!doctype html><title>stub</title><h1>Stub page</h1><p>Local fixture.</p>",
+    }),
+  );
+});
 const SHEET = '[data-vista-sheet-part="sheet"]';
 const HOVER_INTENT_MS = 150;
 
@@ -135,14 +146,14 @@ test.describe("link preview (desktop)", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
   for (const [name, scrollY, text, lineIdx] of [
-    ["single-line link", 0, "list menu", 0],
-    ["wrapped link, first line", 0, "flagship contact card", 0],
-    ["wrapped link, second line", 0, "flagship contact card", 1],
-    ["wrapped link on a page scrolled 800px", 800, "flagship contact card", 0],
+    ["single-line link", 0, "Ghostties", 0],
+    ["wrapped link, first line", 0, "my write-up of the Brukas project", 0],
+    ["wrapped link, second line", 0, "my write-up of the Brukas project", 1],
+    ["wrapped link on a page scrolled 800px", 800, "my write-up of the Brukas project", 0],
     [
       "wrapped link, second line, scrolled 800px",
       800,
-      "flagship contact card",
+      "my write-up of the Brukas project",
       1,
     ],
   ] as const) {
@@ -153,7 +164,7 @@ test.describe("link preview (desktop)", () => {
       if (scrollY) await scrollPageTo(page, scrollY);
       const loc = link(page, text);
       const target = (await lines(loc))[lineIdx];
-      if (lineIdx === 0 && text.startsWith("flagship")) {
+      if (lineIdx === 0 && text.startsWith("my write-up")) {
         expect((await lines(loc)).length, "fixture link must wrap").toBe(2);
       }
       await startRecording(page);
@@ -189,7 +200,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    await hoverLine(page, link(page, "list menu"));
+    await hoverLine(page, link(page, "Ghostties"));
     await page.waitForTimeout(60);
     await page.mouse.move(900, 600);
     await page.waitForTimeout(400);
@@ -201,7 +212,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    const loc = link(page, "list menu");
+    const loc = link(page, "Ghostties");
     await loc.evaluate((el, sel) => {
       const w = window as unknown as { __intent: { enter?: number; open?: number } };
       const t: { enter?: number; open?: number } = (w.__intent = {});
@@ -225,7 +236,7 @@ test.describe("link preview (desktop)", () => {
     // Too short for 520 above or below the link, so it shrinks to the floor.
     await page.setViewportSize({ width: 1280, height: 380 });
     await gotoPreview(page);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     await page.waitForTimeout(900);
     const s = (await page.locator(SHEET).boundingBox())!;
     expect(near(s.height, 240, 1), `height ${s.height}`).toBe(true);
@@ -235,7 +246,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    const loc = link(page, "list menu");
+    const loc = link(page, "Ghostties");
     // Link near the top: no room above, so the card flips below.
     const { x, line } = await openCard(page, loc);
     let s = (await page.locator(SHEET).boundingBox())!;
@@ -280,7 +291,7 @@ test.describe("link preview (desktop)", () => {
     // Prose at y = pad + ~144; park the link line near y 400, in the band
     // where a 520px card fits neither above nor below.
     await scrollPageTo(page, 1800 + 144 - 400, 1800);
-    const { line } = await openCard(page, link(page, "list menu"));
+    const { line } = await openCard(page, link(page, "Ghostties"));
     expect(line.top).toBeGreaterThan(256);
     expect(line.top).toBeLessThan(544);
     await page.waitForTimeout(900); // let the spring's overshoot rest
@@ -301,11 +312,11 @@ test.describe("link preview (desktop)", () => {
     await gotoPreview(page);
     await startRecording(page);
     for (const [text, i] of [
-      ["flagship contact card", 1],
-      ["list menu", 0],
-      ["playground", 0],
-      ["flagship contact card", 0],
-      ["list menu", 0],
+      ["my write-up of the Brukas project", 1],
+      ["Ghostties", 0],
+      ["Dab", 0],
+      ["my write-up of the Brukas project", 0],
+      ["Ghostties", 0],
     ] as const) {
       await hoverLine(page, link(page, text), i);
       await page.waitForTimeout(HOVER_INTENT_MS + 200);
@@ -325,7 +336,7 @@ test.describe("link preview (desktop)", () => {
     await page.locator("h1").evaluate((h) => h.setAttribute("tabindex", "-1"));
     await page.locator("h1").focus();
     const before = await page.evaluate(() => document.activeElement?.tagName);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe(
       before,
     );
@@ -356,7 +367,7 @@ test.describe("link preview (desktop)", () => {
 
   test("(e) Escape closes", async ({ page }) => {
     await gotoPreview(page);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     await page.keyboard.press("Escape");
     await expect(page.locator("iframe")).toHaveCount(0, { timeout: 100 });
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
@@ -366,7 +377,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     // Pointer off the link first, so nothing can reopen it, then a resize
     // event well inside the 250ms grace so the grace is not what closes it.
     await page.mouse.move(1000, 600);
@@ -382,7 +393,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     await page.mouse.move(1000, 600);
     await page.mouse.down();
     // The grace period is 250ms: gone sooner than that is the pointerdown.
@@ -395,7 +406,7 @@ test.describe("link preview (desktop)", () => {
   }) => {
     await gotoPreview(page);
     await scrollPageTo(page, 800);
-    const loc = link(page, "list menu");
+    const loc = link(page, "Ghostties");
     await openCard(page, loc);
     await startRecording(page);
     await page.mouse.wheel(0, 120);
@@ -424,7 +435,7 @@ test.describe("link preview (desktop)", () => {
   }) => {
     await gotoPreview(page);
     await scrollPageTo(page, 800);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     await startRecording(page);
     await page.keyboard.press("Escape");
     await page.evaluate(
@@ -450,7 +461,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    const { x, line } = await openCard(page, link(page, "list menu"));
+    const { x, line } = await openCard(page, link(page, "Ghostties"));
     // Cross the gap to the card in steps, then rest on it well past the grace.
     await page.mouse.move(x, line.top + line.height + 40, { steps: 6 });
     await page.waitForTimeout(600);
@@ -466,11 +477,11 @@ test.describe("link preview (desktop)", () => {
   }) => {
     await gotoPreview(page);
     await page.keyboard.press("Tab");
-    await expect(link(page, "flagship contact card")).toBeFocused();
+    await expect(link(page, "my write-up of the Brukas project")).toBeFocused();
     await expect(page.locator(SHEET)).toBeVisible();
-    await expect(link(page, "flagship contact card")).toBeFocused();
+    await expect(link(page, "my write-up of the Brukas project")).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(link(page, "list menu")).toBeFocused();
+    await expect(link(page, "Ghostties")).toBeFocused();
     await expect(page.locator("iframe")).toHaveCount(1, { timeout: 1500 });
     await page.mouse.move(1000, 700);
   });
@@ -479,7 +490,7 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     await gotoPreview(page);
-    await openCard(page, link(page, "list menu"));
+    await openCard(page, link(page, "Ghostties"));
     await expect(page.locator(SHEET)).toHaveAttribute("aria-hidden", "true");
     await expect(page.locator(`${SHEET} a.lp-open`)).toHaveAttribute(
       "tabindex",
@@ -491,12 +502,12 @@ test.describe("link preview (desktop)", () => {
     page,
   }) => {
     // A slow page, so the skeleton has a window to be seen in.
-    await page.route("**/list.html?preview=1", async (route) => {
+    await page.route("**/projects/ghostties?preview=1", async (route) => {
       await new Promise((r) => setTimeout(r, 1200));
-      await route.continue();
+      await route.fallback();
     });
     await gotoPreview(page);
-    await hoverLine(page, link(page, "list menu"));
+    await hoverLine(page, link(page, "Ghostties"));
     await expect(page.locator(".lp-skeleton")).toBeVisible();
     await expect(page.locator(".lp-iframe[data-loaded]")).toHaveCount(1, {
       timeout: 10_000,
@@ -534,7 +545,7 @@ test.describe("link preview (touch)", () => {
     await gotoPreview(page);
     const url = page.url();
     const finger = await touch(page);
-    const l = (await lines(link(page, "list menu")))[0];
+    const l = (await lines(link(page, "Ghostties")))[0];
     const x = l.left + l.width / 2;
     const y = l.top + l.height / 2;
     await finger.start(x, y);
@@ -557,7 +568,7 @@ test.describe("link preview (touch)", () => {
   }) => {
     await gotoPreview(page);
     const finger = await touch(page);
-    const l = (await lines(link(page, "list menu")))[0];
+    const l = (await lines(link(page, "Ghostties")))[0];
     const x = l.left + l.width / 2;
     const y = l.top + l.height / 2;
     await finger.start(x, y);
@@ -573,15 +584,15 @@ test.describe("link preview (touch)", () => {
   }) => {
     const errors = watchConsole(page);
     await gotoPreview(page);
-    await hoverLine(page, link(page, "flagship contact card"), 1);
+    await hoverLine(page, link(page, "my write-up of the Brukas project"), 1);
     await expect(page.locator(SHEET)).toBeVisible();
-    await hoverLine(page, link(page, "playground"));
+    await hoverLine(page, link(page, "Dab"));
     await page.waitForTimeout(HOVER_INTENT_MS + 500);
     await page.keyboard.press("Escape");
     await page.mouse.move(1000, 700);
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
     const finger = await touch(page);
-    const l = (await lines(link(page, "list menu")))[0];
+    const l = (await lines(link(page, "Ghostties")))[0];
     await finger.start(l.left + 5, l.top + 5);
     await expect(page.locator(SHEET)).toBeVisible({ timeout: 1500 });
     await finger.end();
@@ -605,7 +616,7 @@ test.describe("link preview (reduced motion)", () => {
     const errors = watchConsole(page);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await gotoPreview(page);
-    await openCard(page, link(page, "flagship contact card"), 1);
+    await openCard(page, link(page, "my write-up of the Brukas project"), 1);
     await page.keyboard.press("Escape");
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
     // Motion's own dev notice that the OS has Reduced Motion on is not ours.
