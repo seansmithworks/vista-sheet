@@ -9,7 +9,12 @@ import {
   useState,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { previewSheetPlacement, sheetPlacement } from "./anchors";
+import {
+  previewSheetPlacement,
+  rectFromBox,
+  rectsNear,
+  sheetPlacement,
+} from "./anchors";
 import type { SheetPlacement } from "./anchors";
 import { SlotContext, useVistaSheetInternal } from "./context";
 import {
@@ -154,23 +159,14 @@ export function Sheet({
     (force: boolean) => {
       const el = sheetRef.current;
       if (!el) return;
-      const next: SheetRect = {
-        cx: el.offsetLeft + el.offsetWidth / 2,
-        cy: el.offsetTop + el.offsetHeight / 2,
-        halfWidth: el.offsetWidth / 2,
-        halfHeight: el.offsetHeight / 2,
-      };
+      const next = rectFromBox(
+        el.offsetLeft,
+        el.offsetTop,
+        el.offsetWidth,
+        el.offsetHeight,
+      );
       const last = lastSheetRectRef.current;
-      if (
-        !force &&
-        last &&
-        Math.abs(last.cx - next.cx) < 0.25 &&
-        Math.abs(last.cy - next.cy) < 0.25 &&
-        Math.abs(last.halfWidth - next.halfWidth) < 0.25 &&
-        Math.abs(last.halfHeight - next.halfHeight) < 0.25
-      ) {
-        return;
-      }
+      if (!force && last && rectsNear(last, next, 0.25)) return;
       lastSheetRectRef.current = next;
       setSheetRect(next);
     },
@@ -286,7 +282,6 @@ export function Sheet({
     _e: unknown,
     info: { offset: { y: number }; velocity: { y: number } },
   ) {
-    if (!dismissOnSwipe) return;
     const scrollTop = contentScrollElRef.current?.scrollTop ?? 0;
     if (scrollTop > 0) return;
     if (

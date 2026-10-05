@@ -12,7 +12,13 @@ import type { TriggerBox } from "./shape";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { animate, motion, useMotionValue } from "motion/react";
 import type { MotionValue, PanInfo } from "motion/react";
-import { nearestAnchor, restingLeft, restingTop } from "./anchors";
+import {
+  nearestAnchor,
+  rectFromBox,
+  rectsNear,
+  restingLeft,
+  restingTop,
+} from "./anchors";
 import type { AnchorId } from "./anchors";
 import {
   SlotContext,
@@ -31,7 +37,7 @@ import {
 import { LinkTrigger } from "./LinkTrigger";
 import { Shared } from "./Shared";
 import { Media } from "./Media";
-import type { TriggerComponentProps, TriggerProps } from "./types";
+import type { Rect, TriggerComponentProps, TriggerProps } from "./types";
 import styles from "./styles.module.css";
 
 /** Jump the trigger's x/y motion values to the anchor's resting position. */
@@ -122,12 +128,7 @@ function ButtonTrigger({
     surfaceRef.current = el;
     surfaceStoreRef.current!.set(el);
   }, []);
-  const lastRectRef = useRef<{
-    cx: number;
-    cy: number;
-    halfWidth: number;
-    halfHeight: number;
-  } | null>(null);
+  const lastRectRef = useRef<Rect | null>(null);
   const rafRef = useRef<number | null>(null);
   // A resize while <Sheet> is mounted is deferred: this wrapper's x/y is an
   // ancestor of the FLIPping trigger surface, and jumping it mid-morph
@@ -158,7 +159,6 @@ function ButtonTrigger({
   // instead means both commits compute the identical target, so x/y never
   // actually moves and there is nothing for the layoutId to FLIP.
   useLayoutEffect(() => {
-    if (typeof window === "undefined") return;
     const vpW = window.innerWidth;
     const vpH = window.innerHeight;
     const box =
@@ -178,7 +178,6 @@ function ButtonTrigger({
   // triggerLabelOpacity, so nothing is visibly lost by waiting; the flush
   // effect re-seats at the CURRENT viewport size once the morph settles.
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const onResize = () => {
       if (sheetRect !== null) {
         pendingResizeRef.current = true;
@@ -197,7 +196,6 @@ function ButtonTrigger({
     if (sheetRect !== null) return;
     if (!pendingResizeRef.current) return;
     pendingResizeRef.current = false;
-    if (typeof window === "undefined") return;
     seatAt(x, y, anchor, window.innerWidth, window.innerHeight, triggerBox);
   }, [anchor, triggerBox.width, triggerBox.height, sheetRect, x, y]);
 
@@ -250,22 +248,9 @@ function ButtonTrigger({
       const el = triggerRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const next = {
-        cx: rect.left + rect.width / 2,
-        cy: rect.top + rect.height / 2,
-        halfWidth: rect.width / 2,
-        halfHeight: rect.height / 2,
-      };
+      const next = rectFromBox(rect.left, rect.top, rect.width, rect.height);
       const last = lastRectRef.current;
-      if (
-        last &&
-        Math.abs(last.cx - next.cx) < 0.5 &&
-        Math.abs(last.cy - next.cy) < 0.5 &&
-        Math.abs(last.halfWidth - next.halfWidth) < 0.5 &&
-        Math.abs(last.halfHeight - next.halfHeight) < 0.5
-      ) {
-        return;
-      }
+      if (last && rectsNear(last, next, 0.5)) return;
       lastRectRef.current = next;
       setTriggerRect(next);
     };
@@ -380,8 +365,8 @@ function ButtonTrigger({
   const handleDragEnd = useCallback(
     (_e: unknown, info: PanInfo) => {
       setIsDragging(false);
-      const vpW = typeof window !== "undefined" ? window.innerWidth : 1440;
-      const vpH = typeof window !== "undefined" ? window.innerHeight : 900;
+      const vpW = window.innerWidth;
+      const vpH = window.innerHeight;
 
       const travel = Math.hypot(info.offset.x, info.offset.y);
       if (travel < DRAG_THRESHOLD_PX) {
@@ -404,22 +389,15 @@ function ButtonTrigger({
         );
       }
 
-      const snapSpring = reduceMotion
-        ? { type: "tween" as const, duration: 0 }
-        : { type: "spring" as const, ...SNAP_SPRING };
-
-      const targetX = restingLeft(pickedAnchor, vpW, triggerBox.width);
-      const targetY = restingTop(pickedAnchor, vpH, triggerBox.height);
-
       if (pickedAnchor !== anchor) setAnchor(pickedAnchor);
 
       if (reduceMotion) {
-        x.jump(targetX);
-        y.jump(targetY);
-      } else {
-        animate(x, targetX, snapSpring);
-        animate(y, targetY, snapSpring);
+        seatAt(x, y, pickedAnchor, vpW, vpH, triggerBox);
+        return;
       }
+      const snapSpring = { type: "spring" as const, ...SNAP_SPRING };
+      animate(x, restingLeft(pickedAnchor, vpW, triggerBox.width), snapSpring);
+      animate(y, restingTop(pickedAnchor, vpH, triggerBox.height), snapSpring);
     },
     [
       anchor,

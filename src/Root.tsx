@@ -122,11 +122,11 @@ export function Root({
   // but Motion snapshots the shared-layoutId box at first paint, before the
   // promotion. A scoped @media <style> built from the same ramp sizes it
   // correctly on the first frame. JS `triggerSize` only feeds position math.
-  const triggerSizeCss = {
-    base: resolveTriggerSize(triggerSizeProp, 0),
-    md: resolveTriggerSize(triggerSizeProp, MD_BREAKPOINT),
-    xl: resolveTriggerSize(triggerSizeProp, XL_BREAKPOINT),
-  };
+  // Scoped by idBase so several Roots can't collide; deterministic from
+  // props, so server and client render byte-identical CSS.
+  const sizeRule = (vpW: number) =>
+    `[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${resolveTriggerSize(triggerSizeProp, vpW)}px}`;
+  const triggerSizeCss = `${sizeRule(0)}@media (min-width:${MD_BREAKPOINT}px){${sizeRule(MD_BREAKPOINT)}}@media (min-width:${XL_BREAKPOINT}px){${sizeRule(XL_BREAKPOINT)}}`;
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -371,16 +371,6 @@ export function Root({
     contentScrollElRef,
   };
 
-  // Scoped by idBase (unique per <Root> instance via useId or a
-  // consumer-supplied `id`) so multiple mounted Roots' rules can't collide.
-  // A plain <style> child (React text content, not dangerouslySetInnerHTML)
-  // — server-rendered and deterministic from props alone, so the server and
-  // the client's first render emit byte-identical CSS and there is no
-  // hydration mismatch risk (E5).
-  const triggerSizeStyleRule = `[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${triggerSizeCss.base}px}`;
-  const triggerSizeStyleMd = `@media (min-width:${MD_BREAKPOINT}px){[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${triggerSizeCss.md}px}}`;
-  const triggerSizeStyleXl = `@media (min-width:${XL_BREAKPOINT}px){[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${triggerSizeCss.xl}px}}`;
-
   if (preview) {
     // A <span>, so a link inside a <p> is valid HTML. Theme vars and the
     // consumer's className live on the layer, which is where the card renders.
@@ -413,7 +403,7 @@ export function Root({
   return (
     <VistaSheetContext.Provider value={contextValue}>
       <LayoutGroup id={idBase}>
-        <style>{`${triggerSizeStyleRule}${triggerSizeStyleMd}${triggerSizeStyleXl}`}</style>
+        <style>{triggerSizeCss}</style>
         <div
           className={className}
           data-vista-sheet-root={idBase}

@@ -3,7 +3,6 @@
 import {
   Children,
   cloneElement,
-  isValidElement,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -11,6 +10,7 @@ import {
 } from "react";
 import type { ReactElement, SyntheticEvent } from "react";
 import { motion, useMotionValue } from "motion/react";
+import { rectFromBox } from "./anchors";
 import { useVistaSheetInternal } from "./context";
 import { mergeRefs } from "./mergeRefs";
 import {
@@ -65,9 +65,6 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
   } = useVistaSheetInternal("Trigger");
 
   const child = Children.only(children);
-  if (!isValidElement(child)) {
-    throw new Error("<VistaSheet.Trigger asChild> needs a single element child.");
-  }
   const childProps = child.props as ChildProps;
 
   const linkRef = useRef<HTMLElement | null>(null);
@@ -128,14 +125,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
 
   const measure = (): Rect | null => {
     const r = currentLine(lines());
-    return r
-      ? {
-          cx: r.left + r.width / 2,
-          cy: r.top + r.height / 2,
-          halfWidth: r.width / 2,
-          halfHeight: r.height / 2,
-        }
-      : null;
+    return r ? rectFromBox(r.left, r.top, r.width, r.height) : null;
   };
 
   const hideRef = useRef(() => {});

@@ -135,7 +135,7 @@ export function useDialogBehavior({
   triggerRef: RefObject<HTMLElement | null>;
 }): void {
   useEffect(() => {
-    if (!modal || !isPresent || typeof document === "undefined") return;
+    if (!modal || !isPresent) return;
     const { body } = document;
     const prevOverflow = body.style.overflow;
     const prevPaddingRight = body.style.paddingRight;
@@ -162,7 +162,7 @@ export function useDialogBehavior({
   // hint browsers don't act on — a screen reader will otherwise read the
   // whole page behind the open sheet.
   useEffect(() => {
-    if (!modal || !isPresent || typeof document === "undefined") return;
+    if (!modal || !isPresent) return;
     const panel = panelRef.current;
     if (!panel) return;
     // Hide from the WIDGET's root, not the dialog panel node itself. In modal

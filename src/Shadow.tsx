@@ -88,12 +88,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const dragY = sheetDragY.get();
       const sheet = sheetRect
         ? { ...sheetRect, cy: sheetRect.cy + dragY }
-        : {
-            cx: trigger.cx,
-            cy: trigger.cy,
-            halfWidth: trigger.halfWidth,
-            halfHeight: trigger.halfHeight,
-          };
+        : trigger;
 
       const cx = sheet.cx + (trigger.cx - sheet.cx) * p;
       const cy = sheet.cy + (trigger.cy - sheet.cy) * p;
