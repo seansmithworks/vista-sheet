@@ -22,6 +22,10 @@ import {
   DEFAULT_SHARED_SPRING,
   ITEM_STAGGER_INTERVAL_SEC,
   OPEN_CONTENT_REVEAL_DELAY_SEC,
+  PREVIEW_CLOSE_GRACE_MS,
+  PREVIEW_HOVER_INTENT_MS,
+  PREVIEW_LONG_PRESS_MS,
+  PREVIEW_LONG_PRESS_SLOP_PX,
   RADIUS_HOLD_FRACTION,
   SNAP_SPRING,
   SURFACE_CLOSE_LEAD_DELAY_MS,
@@ -35,6 +39,7 @@ import {
   RUNTIME_VARS,
 } from "./readme";
 import { crossing, dampingRatio, simulate } from "./springs";
+import { STATE_ROWS, type Status } from "./states";
 import { CANVAS_TILES, VIEWPORTS, type PlayTile } from "./tiles";
 import "./dissection.css";
 
@@ -839,6 +844,27 @@ function Choreography() {
     },
   ];
 
+  const previewBars: Bar[] = [
+    {
+      label: "Hover intent",
+      start: 0,
+      end: PREVIEW_HOVER_INTENT_MS,
+      note: `hover or focus rests ${PREVIEW_HOVER_INTENT_MS}ms, then opens`,
+    },
+    {
+      label: "Close grace",
+      start: 0,
+      end: PREVIEW_CLOSE_GRACE_MS,
+      note: `pointer out: ${PREVIEW_CLOSE_GRACE_MS}ms to reach the card`,
+    },
+    {
+      label: "Long-press",
+      start: 0,
+      end: PREVIEW_LONG_PRESS_MS,
+      note: `touch hold ${PREVIEW_LONG_PRESS_MS}ms · ${PREVIEW_LONG_PRESS_SLOP_PX}px slop cancels`,
+    },
+  ];
+
   const total =
     Math.ceil(
       Math.max(
@@ -866,6 +892,11 @@ function Choreography() {
       <Timeline
         title="Close · ms from the click"
         bars={closeBars}
+        total={total}
+      />
+      <Timeline
+        title="Link preview · ms from the pointer or finger"
+        bars={previewBars}
         total={total}
       />
     </section>
@@ -1138,160 +1169,6 @@ function Tokens() {
 
 // ---------- States & API ----------
 
-type Status =
-  | { kind: "captured"; seq: string; frame: number }
-  | { kind: "live"; tileId: string }
-  | { kind: "anatomy" }
-  | { kind: "api" };
-
-interface StateRow {
-  name: string;
-  surface: string;
-  status: Status;
-}
-
-const STATE_ROWS: StateRow[] = [
-  {
-    name: "Closed, at rest",
-    surface: "default",
-    status: { kind: "captured", seq: "morph-circle", frame: 0 },
-  },
-  {
-    name: "Opening, mid-morph",
-    surface: "collapseProgress 1 → 0",
-    status: { kind: "captured", seq: "morph-circle", frame: 2 },
-  },
-  {
-    name: "Open, settled",
-    surface: "data-vista-sheet-settled",
-    status: { kind: "captured", seq: "morph-circle", frame: 5 },
-  },
-  {
-    name: "Closing",
-    surface: "data-vista-sheet-closing",
-    status: { kind: "captured", seq: "morph-circle", frame: 6 },
-  },
-  {
-    name: "Close button reveal",
-    surface: "<VistaSheet.Close>",
-    status: { kind: "captured", seq: "close-reveal", frame: 2 },
-  },
-  {
-    name: "Shadow crossfade",
-    surface: "<VistaSheet.Shadow>",
-    status: { kind: "captured", seq: "shadow-crossfade", frame: 4 },
-  },
-  {
-    name: "Hover",
-    surface: ":hover",
-    status: { kind: "captured", seq: "trigger-states-disc", frame: 1 },
-  },
-  {
-    name: "Focus visible",
-    surface: ":focus-visible",
-    status: { kind: "captured", seq: "trigger-states-disc", frame: 2 },
-  },
-  {
-    name: "Pressed",
-    surface: ":active",
-    status: { kind: "captured", seq: "trigger-states-button", frame: 3 },
-  },
-  {
-    name: "Reduced motion",
-    surface: "reduceMotion",
-    status: { kind: "captured", seq: "reduced-motion", frame: 2 },
-  },
-  {
-    name: "Link preview, hover intent",
-    surface: "<Root preview>",
-    status: { kind: "captured", seq: "morph-link-preview", frame: 5 },
-  },
-  {
-    name: "Phone, touch",
-    surface: "390×844",
-    status: { kind: "captured", seq: "morph-phone", frame: 5 },
-  },
-  {
-    name: "Shape",
-    surface: "data-vista-sheet-shape",
-    status: { kind: "live", tileId: "shape-squircle" },
-  },
-  {
-    name: "Button size",
-    surface: "data-vista-sheet-button-size",
-    status: { kind: "live", tileId: "button-m-icon-text" },
-  },
-  {
-    name: "Default open",
-    surface: "defaultOpen",
-    status: { kind: "live", tileId: "open-basic" },
-  },
-  {
-    name: "Drag and snap",
-    surface: "draggable",
-    status: { kind: "live", tileId: "behaviour-draggable" },
-  },
-  {
-    name: "Swipe to dismiss",
-    surface: "dismissOnSwipe",
-    status: { kind: "live", tileId: "behaviour-swipe-dismiss" },
-  },
-  {
-    name: "Backdrop click ignored",
-    surface: "dismissOnBackdrop={false}",
-    status: { kind: "live", tileId: "behaviour-no-backdrop-dismiss" },
-  },
-  {
-    name: "Motion presets",
-    surface: "preset",
-    status: { kind: "live", tileId: "motion-snappy" },
-  },
-  {
-    name: "Media, reduced motion",
-    surface: "<VistaSheet.Media>",
-    status: { kind: "live", tileId: "reduced-motion-media" },
-  },
-  {
-    name: "Link preview, dark",
-    surface: "<Root preview>",
-    status: { kind: "live", tileId: "link-preview-dark" },
-  },
-  {
-    name: "Link preview, long-press",
-    surface: "touch hold",
-    status: { kind: "live", tileId: "link-preview-light" },
-  },
-  {
-    name: "Parts",
-    surface: "data-vista-sheet-part",
-    status: { kind: "anatomy" },
-  },
-  {
-    name: "Slots",
-    surface: "data-vista-sheet-slot",
-    status: { kind: "anatomy" },
-  },
-  {
-    name: "Controlled open",
-    surface: "open / onOpenChange",
-    status: { kind: "api" },
-  },
-  { name: "Stacking base", surface: "zIndex", status: { kind: "api" } },
-  {
-    name: "Anchor persistence",
-    surface: "persistKey",
-    status: { kind: "api" },
-  },
-  { name: "Custom springs", surface: "transition", status: { kind: "api" } },
-  {
-    name: "Close lead delay",
-    surface: "surfaceCloseLeadDelayMs",
-    status: { kind: "api" },
-  },
-  { name: "Element swap", surface: "asChild", status: { kind: "api" } },
-  { name: "Initial focus", surface: "initialFocus", status: { kind: "api" } },
-];
-
 function StatusCell({
   status,
   frames,
@@ -1340,12 +1217,23 @@ function StatusCell({
           <a href="#anatomy">Anatomy</a>
         </>
       );
-    case "api":
+    case "api": {
+      const tile = status.tileId
+        ? CANVAS_TILES.find((t) => t.id === status.tileId)
+        : undefined;
       return (
-        <span className="dx-status" data-status="api">
-          API-only
-        </span>
+        <>
+          <span className="dx-status" data-status="api">
+            API-only
+          </span>
+          {status.tileId && (
+            <a href={`./canvas.html#tile-${status.tileId}`}>
+              fires on {tile?.label ?? status.tileId}
+            </a>
+          )}
+        </>
       );
+    }
   }
 }
 
