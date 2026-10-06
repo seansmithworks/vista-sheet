@@ -25,6 +25,7 @@ export default defineConfig({
         list: resolve(__dirname, "list.html"),
         contact: resolve(__dirname, "contact.html"),
         play: resolve(__dirname, "play.html"),
+        canvas: resolve(__dirname, "canvas.html"),
         video: resolve(__dirname, "video.html"),
         buttons: resolve(__dirname, "buttons.html"),
         linkPreview: resolve(__dirname, "link-preview.html"),

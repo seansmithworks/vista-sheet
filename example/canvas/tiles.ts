@@ -17,6 +17,7 @@ import {
   applyPalette,
   applyRecipe,
   DEFAULT_STATE,
+  PALETTES,
   type PaletteId,
   type PlayState,
 } from "../play/state";
@@ -287,7 +288,7 @@ const ANCHOR_TILES: CanvasTile[] = ANCHOR_LIST.map((anchor) =>
   play({
     id: `anchor-${anchor}`,
     section: "anchors",
-    label: anchor.replace("-", " "),
+    label: anchor[0].toUpperCase() + anchor.slice(1).replace("-", " "),
     caption: `defaultAnchor="${anchor}"`,
     viewport: "desktop",
     state: spec("nav", "neutral", { anchor, triggerSize: 72 }),
@@ -329,7 +330,7 @@ const CONTENT_TILES: CanvasTile[] = RECIPES.map((recipe, i) => {
   return play({
     id: `content-${recipe}`,
     section: "content",
-    label: `${RECIPE_LABEL[recipe]} · ${palette}`,
+    label: `${RECIPE_LABEL[recipe]} · ${PALETTES[palette].label}`,
     caption: `recipe="${recipe}" · palette="${palette}"`,
     state: spec(recipe, palette),
   });
@@ -340,7 +341,7 @@ const OPEN_TILES: CanvasTile[] = RECIPES.map((recipe, i) => {
   return play({
     id: `open-${recipe}`,
     section: "open",
-    label: `${RECIPE_LABEL[recipe]} open · ${palette}`,
+    label: `${RECIPE_LABEL[recipe]} · ${PALETTES[palette].label}`,
     caption: `defaultOpen · recipe="${recipe}"`,
     state: spec(recipe, palette),
     overrides: { defaultOpen: true },

@@ -1,0 +1,445 @@
+/*
+ * Canvas chrome: a quiet specimen sheet. Neutral example palette
+ * (DESIGN.md "Example pages" column); the specimens are the only event.
+ * This file never styles [data-vista-sheet-*]: specimens live in iframes
+ * and carry their own CSS.
+ */
+:root {
+  --cv-ground: #f5f5f7;
+  --cv-surface: #ffffff;
+  --cv-border: #e5e5e5;
+  --cv-text: #1d1d1f;
+  --cv-text-2: #6e6e73;
+  --cv-accent: #1d1d1f;
+  --cv-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --cv-topbar-h: 56px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: calc(var(--cv-topbar-h) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--cv-ground);
+  color: var(--cv-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cv-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Top bar ---- */
+.cv-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--cv-topbar-h);
+  padding: 0 24px;
+  background: rgba(245, 245, 247, 0.86);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--cv-border);
+}
+
+.cv-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cv-title h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cv-title span {
+  font-size: 13px;
+  color: var(--cv-text-2);
+}
+
+.cv-switch {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 9px;
+  background: rgba(118, 118, 128, 0.12);
+}
+
+.cv-switch button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.cv-switch button[aria-selected="true"] {
+  background: var(--cv-surface);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  font-weight: 500;
+}
+
+.cv-meta {
+  margin-left: auto;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+/* ---- Layout ---- */
+.cv-layout {
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px 32px 120px;
+}
+
+.cv-index {
+  position: sticky;
+  top: calc(var(--cv-topbar-h) + 40px);
+  align-self: start;
+}
+
+.cv-index ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.cv-index a {
+  display: block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--cv-text-2);
+  text-decoration: none;
+}
+
+.cv-index a:hover {
+  color: var(--cv-text);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.cv-sections {
+  display: grid;
+  gap: 72px;
+  min-width: 0;
+}
+
+.cv-section > header {
+  margin-bottom: 20px;
+}
+
+.cv-section h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.cv-section > header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--cv-text-2);
+}
+
+.cv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 32px 20px;
+  align-items: start;
+}
+
+@media (min-width: 720px) {
+  .cv-tile[data-viewport="desktop"] {
+    grid-column: span 2;
+  }
+}
+
+/* ---- Tile ---- */
+.cv-tile {
+  margin: 0;
+  min-width: 0;
+}
+
+.cv-tile figcaption {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.cv-tile-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cv-tile-caption {
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  /* Two lines reserved so frames in a row share a top edge. */
+  min-height: calc(2 * 1.35em);
+}
+
+.cv-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--cv-border);
+  isolation: isolate;
+}
+
+.cv-tile[data-active] .cv-frame {
+  box-shadow:
+    0 0 0 1px var(--cv-border),
+    0 0 0 3px var(--cv-accent);
+}
+
+.cv-poster,
+.cv-poster-empty {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cv-poster {
+  object-fit: cover;
+}
+
+.cv-poster-empty {
+  display: grid;
+  place-items: center;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+  text-transform: lowercase;
+  opacity: 0.6;
+}
+
+.cv-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  display: block;
+  transform-origin: 0 0;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.cv-iframe[data-shown] {
+  opacity: 1;
+}
+
+.cv-activate {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.cv-activate > span:first-child {
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(29, 29, 31, 0.72);
+  padding: 4px 10px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+.cv-activate:hover > span:first-child,
+.cv-activate:focus-visible > span:first-child {
+  opacity: 1;
+  transform: none;
+}
+
+.cv-activate:focus-visible {
+  outline-offset: -2px;
+  border-radius: 12px;
+}
+
+@media (hover: none) {
+  .cv-activate > span:first-child {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cv-tile-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+.cv-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Interaction notes ---- */
+.cv-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--cv-border);
+}
+
+.cv-notes li {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--cv-border);
+  font-size: 14px;
+}
+
+.cv-note-label {
+  font-weight: 500;
+}
+
+.cv-note-how {
+  color: var(--cv-text-2);
+}
+
+.cv-notes a {
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text);
+}
+
+/* ---- Dissection placeholder ---- */
+.cv-placeholder {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.cv-placeholder h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.cv-placeholder p {
+  margin: 4px 0 0;
+  color: var(--cv-text-2);
+}
+
+/* ---- Phone ---- */
+@media (max-width: 719px) {
+  html {
+    /* Top bar plus the sticky section index. */
+    scroll-padding-top: calc(var(--cv-topbar-h) + 60px);
+  }
+
+  .cv-topbar {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .cv-meta {
+    display: none;
+  }
+
+  .cv-switch {
+    margin-left: auto;
+  }
+
+  .cv-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0 16px 80px;
+  }
+
+  .cv-index {
+    top: var(--cv-topbar-h);
+    z-index: 5;
+    margin: 0 -16px 24px;
+    padding: 8px 16px;
+    background: rgba(245, 245, 247, 0.86);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--cv-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .cv-index ol {
+    grid-auto-flow: column;
+    width: max-content;
+  }
+
+  .cv-sections {
+    gap: 56px;
+  }
+
+  .cv-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* A full-width phone frame is taller than the screen; this keeps one
+   * whole specimen visible at a time. */
+  .cv-tile[data-viewport="phone"] .cv-frame {
+    max-width: 260px;
+  }
+
+  .cv-notes li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .cv-note-how {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .cv-placeholder {
+    padding: 24px 16px;
+  }
+}
