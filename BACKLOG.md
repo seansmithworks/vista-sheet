@@ -550,3 +550,11 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 - [ ] 30. parked — Dia corner mismatch (shadow tighter than sheet); not reproducible in Chrome 154. Needs Sean's console check in Dia.
 - [ ] 31. parked — New flake candidate `media.spec.ts:606` (1.72px vs 1px, passes on rerun).
 - [ ] 32. Test against motion 14 (peer range is >=12 <14; README pins motion@13). Run test:geometry + perf with motion@14 as devDep; widen peerDependencies only if green.
+
+## 2026-10-06 — tester-release prep (PR #2 open, branch @ 36bb711)
+- [ ] 33. carried — Demo/download site: map visualization-STRUCTURE options from real captures (state matrix · configurator · in-context use cases · morph walkthrough) → Sean picks → only then redo visual treatment. Shotfun A–D (2026-10-05) REJECTED: drew a generic sheet, not the real component. Real captures partial in `.shotfun/states/` (01-morph, 02-shapes, 03-buttons; `capture.mjs` re-runs groups).
+- [ ] 34. carried — DECIDE OR KILL: breaking API cleanup (unused `--vista-sheet-trigger-x/-y`, `--vista-sheet-shadow-x/-y/-w/-h`, `SheetRect` alias; `surfaceCloseLeadDelayMs` → preset-only). Strawman: remove all four. Options page: https://claude.ai/artifact/NZevgDusw6AyA5d7dunsDA
+- [ ] 35. carried — npm publish 0.1.1 (Sean: "tbd, maybe 0.1.1"). Gate: PR #2 merged + item 34 decided (removals ship in same release). Tester can use git install meanwhile (verified working).
+- [ ] 36. carried — Merge PR #2 (https://github.com/seansmithworks/vista-sheet/pull/2) on Sean's nod; Macroscope check was pending.
+- [ ] 37. parked — Demo gaps found by capture: no shape control in settings sheet (only `?shape=`/playground); dark/warm only on index + playground; no presets switcher; tuner Close renders mid-sheet; mobile link-preview card covers heading.
+- [ ] 38. parked — Launch video (/brag-slim) demo made for someone else; parked at `~/Code/_experiments/vista-sheet/brag-2026-10-06/`. Revisit brag options after npm release (outro install line needs a release with link preview).
