@@ -41,7 +41,7 @@ Plan gate CLOSED: /adversarial-plan ran (Opus refuter, 14 findings, verdict revi
 
 ## Parked (off-objective, noticed tonight)
 
-- example/ `evidence/` dir + untracked test-results/ hygiene beyond gitignore
+- example/ `evidence/` dir + untracked test-results/ hygiene beyond gitignore — evidence/ deleted 2026-10-06
 - Site-side cutover (seansmithdesign.com consuming the package) — wave 5's other half, separate run
 
 ## v0.2 candidates (Sean, 2026-08-31 morning review)
