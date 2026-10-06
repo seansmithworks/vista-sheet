@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import type { AnchorId } from "../../src/index";
+import { presets, type AnchorId } from "../../src/index";
 import { useVistaSheetInternal } from "../../src/context";
-import { isPlayMessage } from "./messages";
+import { isPlayMessage, type PlayStageOverrides } from "./messages";
 import { renderPlayTree } from "./render";
 import { buildCss, buildSpecimenTree } from "./codegen";
 import { groundFor, type PlayState } from "./state";
@@ -51,6 +51,7 @@ function AnchorCommand({
 
 function Stage() {
   const [state, setState] = useState<PlayState | null>(null);
+  const [overrides, setOverrides] = useState<PlayStageOverrides>({});
   const [pendingAnchor, setPendingAnchor] = useState<AnchorId | null>(null);
   const applyingCommandRef = useRef(false);
   // Stable across every re-render (state messages arrive per drag frame) —
@@ -67,6 +68,7 @@ function Stage() {
       if (!isPlayMessage(e.data)) return;
       if (e.data.type === "vista-sheet-play:state") {
         setState(e.data.state);
+        setOverrides(e.data.overrides ?? {});
       } else if (e.data.type === "vista-sheet-play:set-anchor") {
         setPendingAnchor(e.data.anchor);
       }
@@ -110,6 +112,16 @@ function Stage() {
           // 'vista-sheet-anchor' localStorage key.
           persistKey: false,
           onAnchorChange,
+          // Embedder-only (the canvas page); play's shell never sends these.
+          ...(overrides.defaultOpen !== undefined && {
+            defaultOpen: overrides.defaultOpen,
+          }),
+          ...(overrides.reduceMotion !== undefined && {
+            reduceMotion: overrides.reduceMotion,
+          }),
+          ...(overrides.preset !== undefined && {
+            preset: presets[overrides.preset],
+          }),
         },
         [
           <AnchorCommand
