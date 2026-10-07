@@ -275,8 +275,10 @@ test("dissection renders every captured sequence with no broken image", async ({
     manifest.sequences.reduce((n, s) => n + s.frames.length, 0),
   );
 
-  // The anatomy specimens settle and are measured from their live DOM.
-  await expect(page.locator(".dx-legend")).toHaveCount(4, { timeout: 20_000 });
+  // The foundation specimens settle and are measured from their live DOM.
+  await expect(page.locator("[data-anatomy] .dx-legend")).toHaveCount(2, {
+    timeout: 20_000,
+  });
 });
 
 test("every tile has a poster, and a dark twin unless it's a Theme tile", () => {

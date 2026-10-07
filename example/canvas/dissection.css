@@ -88,6 +88,29 @@
   box-shadow: 0 0 0 1.5px var(--cv-ground);
 }
 
+/* Variant cards: only the parts a recipe adds are outlined; the
+ * foundation's boxes stay faint for reference. */
+.dx-variant .dx-box {
+  outline-color: rgba(29, 29, 31, 0.12);
+}
+
+.dx-variant .dx-box[data-added] {
+  outline: 1.5px solid var(--cv-text);
+  outline-offset: 0;
+}
+
+.dx-variant-legend li {
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+}
+
+.dx-h3-first {
+  margin-top: 0;
+}
+
+.dx-anatomy-note {
+  margin: 4px 0 14px;
+}
+
 .dx-loading {
   position: absolute;
   inset: 0;

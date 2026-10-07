@@ -6,6 +6,7 @@
  *   npm run capture:canvas                  # everything
  *   npm run capture:canvas -- --only=posters
  *   npm run capture:canvas -- --only=frames --seq=morph-circle,close-reveal
+ *   npm run capture:canvas -- --only=anatomy  # per-recipe part sets
  *   npm run capture:canvas -- --headless    # faster, but drops morph frames
  *
  * Needs the example dev server (`npm run dev -- --port 5180`) or set
@@ -19,7 +20,7 @@
  * --vista-sheet-collapse) crosses each target.
  *
  * Writes example/public/canvas/{posters/<tileId>.png, frames/<seq>/NN-*.png,
- * frames.json}. PNGs are palette-quantised through ffmpeg when it's on PATH.
+ * anatomy/<recipe>.png, frames.json}. PNGs are palette-quantised through ffmpeg when it's on PATH.
  */
 import {
   chromium,
@@ -907,6 +908,92 @@ const SEQUENCES: Array<
   },
 ];
 
+// ---------- anatomy ----------
+
+interface AnatomyBox {
+  part: string;
+  slot: string | null;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+/** One recipe's measured part set: every [data-vista-sheet-part] at rest
+ * and opened, plus the opened frame and its boxes for the variant card. */
+interface AnatomyRecipe {
+  recipe: string;
+  tileId: string;
+  /** Part keys (`part` or `part:slot`), rest ∪ open, sorted. */
+  parts: string[];
+  file: string;
+  width: number;
+  height: number;
+  boxes: AnatomyBox[];
+}
+
+const measureParts = (page: Page): Promise<AnatomyBox[]> =>
+  page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("[data-vista-sheet-part]")].map(
+      (el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          part: el.dataset.vistaSheetPart!,
+          slot: el.dataset.vistaSheetSlot ?? null,
+          x: r.left,
+          y: r.top,
+          w: r.width,
+          h: r.height,
+        };
+      },
+    ),
+  );
+
+const boxKey = (b: AnatomyBox) => (b.slot ? `${b.part}:${b.slot}` : b.part);
+
+/** Every Content tile (one per recipe), at rest then opened by a click. */
+async function anatomy(browser: Browser): Promise<AnatomyRecipe[]> {
+  const dir = join(OUT, "anatomy");
+  rmSync(dir, { recursive: true, force: true });
+  mkdirSync(dir, { recursive: true });
+  const ctx = await newCtx(browser, "phone", { dsf: 1 });
+  const out: AnatomyRecipe[] = [];
+  try {
+    for (const tile of CANVAS_TILES.filter(
+      (t): t is Extract<CanvasTile, { kind: "play" }> =>
+        t.kind === "play" && t.section === "content",
+    )) {
+      const page = await ctx.newPage();
+      await loadTile(page, tile);
+      await page.mouse.move(0, 0);
+      await page.waitForTimeout(700);
+      const rest = await measureParts(page);
+      await modal(false).open(page);
+      await waitSettled(page, 1400);
+      await page.mouse.move(0, 0);
+      const open = await measureParts(page);
+      const recipe = tile.state.recipe;
+      const rel = `canvas/anatomy/${recipe}.png`;
+      await page.screenshot({ path: join(OUT, "..", rel) });
+      compress(join(OUT, "..", rel));
+      await page.close();
+      const parts = [...new Set([...rest, ...open].map(boxKey))].sort();
+      out.push({
+        recipe,
+        tileId: tile.id,
+        parts,
+        file: rel,
+        width: VIEWPORTS.phone.width,
+        height: VIEWPORTS.phone.height,
+        boxes: open,
+      });
+      console.log("   anatomy", recipe, parts.join(" "));
+    }
+  } finally {
+    await ctx.close();
+  }
+  return out;
+}
+
 // ---------- posters ----------
 
 async function posters(browser: Browser) {
@@ -962,14 +1049,16 @@ try {
     console.log("posters");
     await posters(browser);
   }
+  const manifestPath = join(OUT, "frames.json");
+  const prev: { sequences?: SequenceMeta[]; anatomy?: AnatomyRecipe[] } =
+    existsSync(manifestPath)
+      ? JSON.parse(readFileSync(manifestPath, "utf8"))
+      : {};
+  const done = new Map((prev.sequences ?? []).map((s) => [s.id, s]));
+  let anatomyOut = prev.anatomy;
   if (want("frames")) {
     console.log("frames");
     mkdirSync(OUT, { recursive: true });
-    const manifestPath = join(OUT, "frames.json");
-    const prev: { sequences?: SequenceMeta[] } = existsSync(manifestPath)
-      ? JSON.parse(readFileSync(manifestPath, "utf8"))
-      : {};
-    const done = new Map((prev.sequences ?? []).map((s) => [s.id, s]));
     for (const def of SEQUENCES) {
       if (seqFilter.length && !seqFilter.includes(def.id)) continue;
       console.log(" ", def.id);
@@ -982,6 +1071,17 @@ try {
         console.error("FAIL", def.id, (e as Error).message.split("\n")[0]);
       }
     }
+  }
+  if (want("anatomy")) {
+    console.log("anatomy");
+    try {
+      anatomyOut = await anatomy(browser);
+    } catch (e) {
+      failures.push(`anatomy: ${(e as Error).message.split("\n")[0]}`);
+      console.error("FAIL anatomy", (e as Error).message.split("\n")[0]);
+    }
+  }
+  if (want("frames") || want("anatomy")) {
     const git = (args: string[]) =>
       execFileSync("git", args, { cwd: ROOT, encoding: "utf8" }).trim();
     const dirty =
@@ -1001,6 +1101,7 @@ try {
           gitHead:
             git(["rev-parse", "--short", "HEAD"]) + (dirty ? "-dirty" : ""),
           sequences: SEQUENCES.map((s) => done.get(s.id)).filter(Boolean),
+          ...(anatomyOut ? { anatomy: anatomyOut } : {}),
         },
         null,
         2,

@@ -5,7 +5,7 @@
  * src/motion.ts and the README contract. Nothing is drawn to look like the
  * component.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { groundFor, PALETTES, type PaletteId } from "../play/state";
 import type { Spring } from "../../src/types";
 import {
@@ -37,6 +37,12 @@ import {
   PUBLIC_TOKENS,
   RUNTIME_VARS,
 } from "./readme";
+import {
+  boxKey,
+  foundationOf,
+  type AnatomyRecipe,
+  type VariantGroup,
+} from "./anatomy";
 import { Exploded } from "./Exploded";
 import { freezeSpecimen, measure, partKey, type PartBox } from "./parts";
 import { crossing, dampingRatio, simulate } from "./springs";
@@ -75,6 +81,8 @@ export interface FramesManifest {
   capturedAt: string;
   gitHead: string;
   sequences: SequenceMeta[];
+  /** Per-recipe part sets (capture-canvas --only=anatomy). */
+  anatomy?: AnatomyRecipe[];
 }
 
 const frameAnchor = (seqId: string, i: number) =>
@@ -126,7 +134,7 @@ export function Dissection() {
         </ol>
       </nav>
       <main className="cv-sections">
-        <Anatomy />
+        <Anatomy frames={frames} />
         <section id="morph" data-anchor-id="dx-morph" className="cv-section">
           <header>
             <h2>Morph sequences</h2>
@@ -184,10 +192,13 @@ function AnatomySpecimen({
   tile,
   open,
   title,
+  numbering,
 }: {
   tile: PlayTile;
   open: boolean;
   title: string;
+  /** The parts to call out (the foundation), each with its number. */
+  numbering: Map<string, number>;
 }) {
   const vp = VIEWPORTS[tile.viewport];
   const frameRef = useRef<HTMLDivElement>(null);
@@ -211,14 +222,19 @@ function AnatomySpecimen({
     freezeSpecimen(() => iframeRef.current, tile, open, signal).then(
       (doc) => {
         if (signal.cancelled) return;
-        setBoxes(measure(doc));
+        setBoxes(
+          measure(doc)
+            .filter((b) => numbering.has(partKey(b)))
+            .map((b) => ({ ...b, n: numbering.get(partKey(b))! }))
+            .sort((a, b) => a.n - b.n),
+        );
       },
       () => !signal.cancelled && setFailed(true),
     );
     return () => {
       signal.cancelled = true;
     };
-  }, [tile, open]);
+  }, [tile, open, numbering]);
 
   // Badges sit on each box's top-left corner, nudged right past any badge
   // already placed there (nested parts share a corner).
@@ -321,61 +337,158 @@ function AnatomySpecimen({
   );
 }
 
-const ANATOMY: Array<{
-  key: string;
-  tileId: string;
-  open: boolean;
-  title: string;
-}> = [
-  {
-    key: "basic-rest",
-    tileId: "content-basic",
-    open: false,
-    title: "Trigger, Shared",
-  },
-  {
-    key: "basic-open",
-    tileId: "content-basic",
-    open: true,
-    title: "Sheet, Content, Item, Close",
-  },
-  {
-    key: "video-rest",
-    tileId: "content-video",
-    open: false,
-    title: "Media at rest",
-  },
-  {
-    key: "video-open",
-    tileId: "content-video",
-    open: true,
-    title: "Media in the sheet",
-  },
-];
+const RECIPE_NAME = (r: AnatomyRecipe) =>
+  CANVAS_TILES.find((t) => t.id === r.tileId)?.label ?? r.recipe;
 
-function Anatomy() {
+/** A recipe group's opened capture, with only the parts it adds outlined
+ * and the foundation's boxes dimmed. */
+function VariantCard({ group }: { group: VariantGroup }) {
+  const r = group.recipes[0];
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0);
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) =>
+      setScale(e.contentRect.width / r.width),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [r.width]);
+  const openKeys = new Set(r.boxes.map(boxKey));
+  return (
+    <figure
+      className="dx-specimen dx-variant"
+      data-variant={group.recipes.map((x) => x.recipe).join(" ")}
+    >
+      <figcaption>
+        <span className="cv-tile-label">
+          {group.recipes.map(RECIPE_NAME).join(", ")}
+        </span>
+        <code className="cv-tile-caption">
+          foundation + {group.added.join(" · ")}
+        </code>
+      </figcaption>
+      <div
+        ref={frameRef}
+        className="cv-frame dx-anatomy-frame"
+        style={{ aspectRatio: `${r.width} / ${r.height}` }}
+      >
+        <img
+          className="cv-poster"
+          src={`./${r.file}`}
+          alt={`${RECIPE_NAME(r)} recipe, opened`}
+          loading="lazy"
+        />
+        <div className="dx-callouts" aria-hidden="true">
+          {r.boxes.map((b, i) => (
+            <div
+              key={i}
+              className="dx-box"
+              data-part={b.part}
+              data-added={group.added.includes(boxKey(b)) || undefined}
+              style={{
+                left: b.x * scale,
+                top: b.y * scale,
+                width: b.w * scale,
+                height: b.h * scale,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+      <ul className="dx-legend dx-variant-legend">
+        {group.added.map((k) => {
+          const [part, slot] = k.split(":");
+          return (
+            <li key={k} data-part-row={k}>
+              <span className="dx-legend-n">+</span>
+              <span>
+                <code>{part}</code>
+                {slot && <code className="dx-slot"> slot={slot}</code>}
+                <span className="dx-legend-desc">
+                  <Cell text={PART_DESC.get(part) ?? ""} />
+                </span>
+              </span>
+              {!openKeys.has(k) && (
+                <code className="dx-legend-size">at rest</code>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </figure>
+  );
+}
+
+function Anatomy({ frames }: { frames: FramesManifest | Error | null }) {
+  const recipes =
+    frames && !(frames instanceof Error) ? (frames.anatomy ?? []) : [];
+  const { foundation, groups, plain } = useMemo(
+    () => foundationOf(recipes),
+    [recipes],
+  );
+  const numbering = useMemo(
+    () => new Map(foundation.map((k, i) => [k, i + 1])),
+    [foundation],
+  );
+  const basic = CANVAS_TILES.find((t) => t.id === "content-basic") as PlayTile;
   return (
     <section id="anatomy" data-anchor-id="dx-anatomy" className="cv-section">
       <header>
         <h2>Anatomy</h2>
         <p>
-          Live specimens, frozen. Every box is a measured{" "}
-          <code>data-vista-sheet-part</code> element.
+          Every recipe is one foundation plus the parts it adds. Every box is a
+          measured <code>data-vista-sheet-part</code> element.
         </p>
       </header>
-      <div className="dx-anatomy">
-        {ANATOMY.map((a) => (
-          <AnatomySpecimen
-            key={a.key}
-            tile={CANVAS_TILES.find((t) => t.id === a.tileId) as PlayTile}
-            open={a.open}
-            title={a.title}
-          />
-        ))}
-      </div>
-      <Exploded
-        tile={CANVAS_TILES.find((t) => t.id === "content-basic") as PlayTile}
-      />
+      {recipes.length === 0 ? (
+        <p className="dx-note">
+          No part sets measured. Run{" "}
+          <code>npm run capture:canvas -- --only=anatomy</code>.
+        </p>
+      ) : (
+        <>
+          <h3 className="dx-h3 dx-h3-first">
+            Foundation · all {recipes.length} recipes
+          </h3>
+          <p className="dx-note dx-anatomy-note">
+            The {foundation.length} parts every recipe renders, numbered on a
+            live Basic specimen, frozen.
+          </p>
+          <div className="dx-anatomy" data-foundation={foundation.join(" ")}>
+            <AnatomySpecimen
+              tile={basic}
+              open={false}
+              title="At rest"
+              numbering={numbering}
+            />
+            <AnatomySpecimen
+              tile={basic}
+              open
+              title="Opened"
+              numbering={numbering}
+            />
+          </div>
+          <h3 className="dx-h3">What each recipe adds</h3>
+          <p className="dx-note dx-anatomy-note">
+            Captured opened by <code>capture:canvas</code>; only the added parts
+            are outlined. Recipes that add the same parts share a card.
+          </p>
+          <div className="dx-anatomy">
+            {groups.map((g) => (
+              <VariantCard key={g.added.join(" ")} group={g} />
+            ))}
+          </div>
+          {plain.length > 0 && (
+            <p className="dx-note dx-anatomy-note" data-variant-plain>
+              {plain.map(RECIPE_NAME).join(", ")}: foundation parts only,
+              different Item content.
+            </p>
+          )}
+        </>
+      )}
+      <Exploded tile={basic} />
     </section>
   );
 }
