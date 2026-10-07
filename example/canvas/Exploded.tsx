@@ -32,6 +32,39 @@ interface Layer {
   /** Index into the document's [data-vista-sheet-part] list. */
   index: number;
   box: PartBox;
+  /** The Shadow part is split into its two looks, one sub-slab each: the
+   * trigger shadow (::before) and the sheet shadow (::after). */
+  look?: ShadowLook;
+  /** That look's computed opacity at the frozen moment. */
+  opacity?: number;
+}
+
+type ShadowLook = "before" | "after";
+
+const LOOK_NAME: Record<ShadowLook, string> = {
+  before: "shadow · trigger (::before)",
+  after: "shadow · sheet (::after)",
+};
+
+/** Paint order with the Shadow part replaced by its two looks, ::before
+ * under ::after (as a box paints them). */
+function splitShadow(
+  doc: Document,
+  order: number[],
+  boxes: PartBox[],
+): Layer[] {
+  const els = [...doc.querySelectorAll<HTMLElement>("[data-vista-sheet-part]")];
+  const win = doc.defaultView!;
+  return order.flatMap((index): Layer[] => {
+    const box = boxes[index];
+    if (box.part !== "shadow") return [{ index, box }];
+    return (["before", "after"] as const).map((look) => ({
+      index,
+      box,
+      look,
+      opacity: Number(win.getComputedStyle(els[index], `::${look}`).opacity),
+    }));
+  });
 }
 
 /**
@@ -86,6 +119,13 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
   const win = doc.defaultView!;
   const original = doc.getElementById("root")!;
   const ground = win.getComputedStyle(doc.body).backgroundColor;
+  // A Shadow sub-slab shows one look: the other pseudo-element is
+  // suppressed on that clone only.
+  const looks = doc.createElement("style");
+  looks.dataset.explodedLooks = "";
+  looks.textContent =
+    '[data-exploded-look="before"]::after,[data-exploded-look="after"]::before{display:none!important}';
+  doc.head.append(looks);
   const stage = doc.createElement("div");
   stage.dataset.explodedStage = "";
   Object.assign(stage.style, {
@@ -97,6 +137,12 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
     transformOrigin: "0 0",
     pointerEvents: "none",
   });
+  const shadowEl = doc.querySelector<HTMLElement>(
+    '[data-vista-sheet-part="shadow"]',
+  );
+  const shadowRadius = shadowEl
+    ? win.getComputedStyle(shadowEl).borderRadius
+    : "";
   const slabs = layers.map((layer) => {
     const clone = original.cloneNode(true) as HTMLElement;
     clone.removeAttribute("id");
@@ -106,15 +152,18 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
     clone.style.setProperty("visibility", "hidden", "important");
     clone
       .querySelectorAll<HTMLElement>("[data-vista-sheet-part]")
-      .forEach((p, j) =>
+      .forEach((p, j) => {
         p.style.setProperty(
           "visibility",
           j === layer.index ? "visible" : "hidden",
           "important",
-        ),
-      );
+        );
+        if (j === layer.index && layer.look)
+          p.dataset.explodedLook = layer.look;
+      });
     const slab = doc.createElement("div");
     slab.dataset.explodedSlab = partKey(layer.box);
+    if (layer.look) slab.dataset.explodedLook = layer.look;
     Object.assign(slab.style, {
       position: "absolute",
       left: "0",
@@ -142,7 +191,13 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
         height: `${h}px`,
         outline: "1px dashed rgba(128, 128, 128, 0.7)",
         outlineOffset: "-0.5px",
-        background: `color-mix(in srgb, ${ground} 45%, transparent)`,
+        // The Shadow has no fill of its own: its sub-slabs are a bare
+        // silhouette, rounded like the shadow, carrying only its cast
+        // shadow. Every other plane is frosted.
+        background: layer.look
+          ? "transparent"
+          : `color-mix(in srgb, ${ground} 45%, transparent)`,
+        borderRadius: layer.look ? shadowRadius : "",
         opacity: "0",
       });
       // Under the clone: the frost sits on the plane, the part's pixels on
@@ -251,10 +306,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
         if (signal.cancelled) return;
         // Measure before cloning: clones carry data-vista-sheet-part too.
         const boxes = measure(doc);
-        const next = paintOrder(doc).map((index) => ({
-          index,
-          box: boxes[index],
-        }));
+        const next = splitShadow(doc, paintOrder(doc), boxes);
         stackRef.current = buildStack(doc, next);
         setLayers(next);
       },
@@ -316,9 +368,10 @@ export function Exploded({ tile }: { tile: PlayTile }) {
     const byKey = new Map<string, number[]>();
     for (const l of layers) {
       const k = partKey(l.box);
-      byKey.set(k, [...(byKey.get(k) ?? []), l.index]);
+      if (!l.look) byKey.set(k, [...(byKey.get(k) ?? []), l.index]);
     }
     return layers.map((l) => {
+      if (l.look) return LOOK_NAME[l.look];
       const k = partKey(l.box);
       const same = byKey.get(k)!.sort((a, b) => a - b);
       return same.length > 1 ? `${k} ${same.indexOf(l.index) + 1}` : k;
@@ -530,6 +583,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
               <li
                 key={l.i}
                 data-exploded-label={partKey(l.layer.box)}
+                data-exploded-look={l.layer.look}
                 data-exploded-n={l.n}
                 data-hover={hover === l.i || undefined}
                 style={{ top: l.y - LABEL_ROW / 2 }}
@@ -540,6 +594,8 @@ export function Exploded({ tile }: { tile: PlayTile }) {
                 <code>{l.name}</code>
                 <code className="dx-z-val">
                   z {l.layer.box.z} · {l.layer.box.position}
+                  {l.layer.opacity !== undefined &&
+                    ` · opacity ${l.layer.opacity.toFixed(2)}`}
                 </code>
               </li>
             ))}

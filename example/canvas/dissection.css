@@ -700,6 +700,12 @@
 
   .dx-exploded-labels li {
     position: static;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    height: auto;
+    line-height: 1.5;
+    padding: 3px 0;
+    white-space: normal;
     border-bottom: 1px solid var(--cv-border);
   }
 }

@@ -69,7 +69,9 @@ test("exploded z-stack: one slab per measured part, labelled by part, flat at ga
   const slabs = await frame.evaluate(
     () => document.querySelectorAll("[data-exploded-slab]").length,
   );
-  expect(slabs, "slab count").toBe(measured.length);
+  // One per measured part, plus one: the Shadow is split into its two
+  // looks (trigger ::before, sheet ::after).
+  expect(slabs, "slab count").toBe(measured.length + 1);
 
   const labels = await fig
     .locator("[data-exploded-label]")
@@ -80,8 +82,51 @@ test("exploded z-stack: one slab per measured part, labelled by part, flat at ga
     .locator("[data-exploded-label] code:first-of-type")
     .allTextContents();
   expect([...labels].sort(), "labels are the part names").toEqual(
-    [...measured].sort(),
+    [...measured, "shadow"].sort(),
   );
+  expect(names, "both Shadow looks").toEqual(
+    expect.arrayContaining([
+      "shadow · trigger (::before)",
+      "shadow · sheet (::after)",
+    ]),
+  );
+  // The Shadow's sub-slabs are bare: no frost, no fill, each showing only
+  // its own pseudo-element.
+  const shadowSlabs = await frame.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("[data-exploded-look]")]
+      .filter((e) => e.matches("[data-exploded-slab]"))
+      .map((slab) => {
+        const look = slab.dataset.explodedLook!;
+        const part = slab.querySelector<HTMLElement>(
+          `[data-exploded-look="${look}"]`,
+        )!;
+        return {
+          look,
+          plane: getComputedStyle(
+            slab.querySelector("[data-exploded-outline]")!,
+          ).backgroundColor,
+          fill: getComputedStyle(part).backgroundColor,
+          before: getComputedStyle(part, "::before").display,
+          after: getComputedStyle(part, "::after").display,
+        };
+      }),
+  );
+  expect(shadowSlabs).toEqual([
+    {
+      look: "before",
+      plane: "rgba(0, 0, 0, 0)",
+      fill: "rgba(0, 0, 0, 0)",
+      before: "block",
+      after: "none",
+    },
+    {
+      look: "after",
+      plane: "rgba(0, 0, 0, 0)",
+      fill: "rgba(0, 0, 0, 0)",
+      before: "none",
+      after: "block",
+    },
+  ]);
   // Every row is numbered 1..n from the top layer, and duplicate parts
   // (two Items) get distinct names.
   const numbers = await fig
@@ -89,9 +134,13 @@ test("exploded z-stack: one slab per measured part, labelled by part, flat at ga
     .evaluateAll((els) =>
       els.map((e) => Number((e as HTMLElement).dataset.explodedN)),
     );
-  expect(numbers).toEqual(measured.map((_, i) => i + 1));
+  expect(numbers).toEqual(labels.map((_, i) => i + 1));
   expect(new Set(names).size, "distinct names").toBe(names.length);
-  expect(names.map((n) => n.replace(/ \d+$/, ""))).toEqual(labels);
+  expect(
+    names.map((n) =>
+      n.startsWith("shadow · ") ? "shadow" : n.replace(/ \d+$/, ""),
+    ),
+  ).toEqual(labels);
   // Tilted, each slab carries its number on the specimen too.
   const badges = await fig
     .locator("[data-exploded-badge]")
