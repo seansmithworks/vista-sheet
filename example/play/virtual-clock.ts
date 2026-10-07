@@ -6,10 +6,10 @@
  * Load order is load-bearing. Motion captures the global
  * requestAnimationFrame when its frameloop module evaluates, and React's
  * scheduler captures setTimeout/performance.now the same way, so this
- * module must evaluate before either. It is therefore the ONLY static
- * import of play/main.tsx, which loads every other module through a
- * dynamic import after it — in dev and in a `vite build` alike. Without
- * `?clock=1` it does nothing.
+ * module must install before either evaluates. It is therefore the ONLY
+ * static import of play/main.tsx, which calls installClock() and then
+ * loads every other module through a dynamic import — in dev and in a
+ * `vite build` alike. Without `?clock=1` it does nothing.
  *
  * What it owns, once installed:
  * - requestAnimationFrame / cancelAnimationFrame: queued, run once per tick.
@@ -62,7 +62,13 @@ const params = new URLSearchParams(
 );
 export const CLOCK_ENABLED = params.has("stage") && params.get("clock") === "1";
 
-if (CLOCK_ENABLED) window.__vistaClock = install();
+/** Called once, first thing, by play/main.tsx. An explicit call rather
+ * than an import side effect: package.json declares every non-CSS module
+ * side-effect free, so a bare `import "./virtual-clock"` is tree-shaken out
+ * of a build and the clock lands in the stage chunk, after Motion. */
+export function installClock() {
+  if (CLOCK_ENABLED && !window.__vistaClock) window.__vistaClock = install();
+}
 
 function install(): VirtualClock {
   const realRaf = window.requestAnimationFrame.bind(window);

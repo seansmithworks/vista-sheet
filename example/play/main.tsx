@@ -1,6 +1,8 @@
 // Must stay the only static import: it virtualises time for ?clock=1
 // stages before Motion or React evaluate (see virtual-clock.ts).
-import "./virtual-clock";
+import { installClock } from "./virtual-clock";
+
+installClock();
 
 // Strawman (v0.2): the specimen runs in a same-origin iframe
 // (play.html?stage=1, this same entry module). The package positions the
