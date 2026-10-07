@@ -1,3 +1,5 @@
+import type { TriggerShape } from "../../src/index";
+
 export type PlayNode =
   | { text: string }
   | {
@@ -35,6 +37,9 @@ interface RecipeBase {
   id: RecipeId;
   label: string;
   triggerLabel: string;
+  /** The disc shape this recipe's content is drawn for (media's app icon is
+   * a squircle). Unset: the recipe keeps whatever disc shape is current. */
+  shape?: Exclude<TriggerShape, "rectangle">;
   layout: {
     sheetMaxWidth: 320 | 360 | 420 | 480 | 560 | 640;
     sheetPadding: number;
@@ -53,11 +58,40 @@ export type Recipe = RecipeBase &
     | { button: RecipeButton; shared?: undefined; media?: undefined }
   );
 
+/**
+ * One sheet geometry for every recipe: the package's default radius, and an
+ * inline gutter of half of it. Half the radius is also where the Shared
+ * element sits (its 24px margin in styles.module.css), so text, rows and the
+ * leading icon share one left edge. BASE_CSS (codegen.ts) derives the
+ * bottom inset from the same radius token.
+ */
+const SHEET_RADIUS = 48;
+const LAYOUT = { sheetRadius: SHEET_RADIUS, sheetPadding: SHEET_RADIUS / 2 };
+
+/**
+ * The leading icon of list, grid and nav: a 40px disc with a 24px glyph, the
+ * same size in the trigger (centred in the disc) and in the sheet, so the
+ * shared morph is a pure move with no scale. Sized through the package's
+ * public --vista-sheet-shared-size and the data-attribute contract.
+ */
+function iconDiscCss(cls: string): string {
+  return `.vs-theme [data-vista-sheet-part="shared"]:has(> .${cls}) {
+  --vista-sheet-shared-size: 40px;
+}
+
+.vs-theme [data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]:has(> .${cls}) {
+  inset: 0;
+  margin: auto;
+  width: var(--vista-sheet-shared-size);
+  height: var(--vista-sheet-shared-size);
+}`;
+}
+
 const BASIC_RECIPE: Recipe = {
   id: "basic",
   label: "Basic",
   triggerLabel: "Open sheet",
-  layout: { sheetMaxWidth: 480, sheetPadding: 24, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 480, ...LAYOUT },
   shared: {
     type: "div",
     props: [["className", "vs-basic-art"]],
@@ -94,7 +128,7 @@ const LIST_RECIPE: Recipe = {
   id: "list",
   label: "List",
   triggerLabel: "Open quick actions",
-  layout: { sheetMaxWidth: 360, sheetPadding: 12, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 360, ...LAYOUT },
   shared: {
     type: "div",
     props: [["className", "vs-list-icon"]],
@@ -139,7 +173,9 @@ const LIST_RECIPE: Recipe = {
       ],
     ),
   ],
-  css: `.vs-list-icon {
+  css: `${iconDiscCss("vs-list-icon")}
+
+.vs-list-icon {
   width: 100%;
   height: 100%;
   display: flex;
@@ -153,8 +189,8 @@ const LIST_RECIPE: Recipe = {
 }
 
 .vs-list-icon svg {
-  width: 44%;
-  height: 44%;
+  width: 24px;
+  height: 24px;
   fill: none;
   stroke: var(--vista-sheet-accent);
   stroke-width: 2;
@@ -162,14 +198,15 @@ const LIST_RECIPE: Recipe = {
 }
 
 .vs-list-title {
-  margin: 12px 12px 4px;
-  font-size: 16px;
   font-weight: 600;
   color: var(--vista-sheet-text);
 }
 
+/* Rows bleed 12px into the gutter so their text, the title and the icon
+ * share one left edge; only the hover fill reaches past it. */
 .vs-list-row {
-  width: 100%;
+  width: calc(100% + 24px);
+  margin-inline: -12px;
   display: block;
   text-align: left;
   padding: 14px 12px;
@@ -226,7 +263,7 @@ const GRID_RECIPE: Recipe = {
   id: "grid",
   label: "Grid",
   triggerLabel: "Open apps",
-  layout: { sheetMaxWidth: 360, sheetPadding: 16, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 360, ...LAYOUT },
   shared: {
     type: "div",
     props: [["className", "vs-grid-icon"]],
@@ -276,7 +313,9 @@ const GRID_RECIPE: Recipe = {
       },
     ]),
   ],
-  css: `.vs-grid-icon {
+  css: `${iconDiscCss("vs-grid-icon")}
+
+.vs-grid-icon {
   width: 100%;
   height: 100%;
   display: flex;
@@ -291,13 +330,11 @@ const GRID_RECIPE: Recipe = {
 }
 
 .vs-grid-icon svg {
-  width: 44%;
-  height: 44%;
+  width: 24px;
+  height: 24px;
 }
 
 .vs-grid-title {
-  margin: 12px 4px 4px;
-  font-size: 16px;
   font-weight: 600;
   color: var(--vista-sheet-text);
 }
@@ -367,7 +404,7 @@ const NAV_RECIPE: Recipe = {
   id: "nav",
   label: "Nav",
   triggerLabel: "Open navigation",
-  layout: { sheetMaxWidth: 320, sheetPadding: 12, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 320, ...LAYOUT },
   shared: {
     type: "div",
     props: [["className", "vs-nav-icon"]],
@@ -420,7 +457,9 @@ const NAV_RECIPE: Recipe = {
       },
     ],
   ],
-  css: `.vs-nav-icon {
+  css: `${iconDiscCss("vs-nav-icon")}
+
+.vs-nav-icon {
   width: 100%;
   height: 100%;
   display: flex;
@@ -434,8 +473,8 @@ const NAV_RECIPE: Recipe = {
 }
 
 .vs-nav-icon svg {
-  width: 44%;
-  height: 44%;
+  width: 24px;
+  height: 24px;
   fill: none;
   stroke: var(--vista-sheet-accent);
   stroke-width: 2;
@@ -443,15 +482,15 @@ const NAV_RECIPE: Recipe = {
 }
 
 .vs-nav-title {
-  margin: 12px 12px 4px;
-  font-size: 16px;
   font-weight: 600;
   color: var(--vista-sheet-text);
 }
 
+/* Links bleed 12px into the gutter, like list rows. */
 .vs-nav {
   display: flex;
   flex-direction: column;
+  margin-inline: -12px;
 }
 
 .vs-nav-link {
@@ -488,7 +527,8 @@ const MEDIA_RECIPE: Recipe = {
   id: "media",
   label: "Media",
   triggerLabel: "Open Wavelength preview",
-  layout: { sheetMaxWidth: 420, sheetPadding: 24, sheetRadius: 48 },
+  shape: "squircle",
+  layout: { sheetMaxWidth: 420, ...LAYOUT },
   shared: {
     type: "div",
     props: [["className", "vs-media-icon"]],
@@ -500,7 +540,11 @@ const MEDIA_RECIPE: Recipe = {
           ["aria-hidden", "true"],
         ],
         children: [
-          { type: "path", props: [["d", "M8 5v14l11-7z"]], children: [] },
+          {
+            type: "path",
+            props: [["d", "M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"]],
+            children: [],
+          },
         ],
       },
     ],
@@ -572,24 +616,24 @@ const MEDIA_RECIPE: Recipe = {
       },
     ],
   ],
-  css: `.vs-media-icon {
+  css: `/* An app icon: its own colour, not the palette's, on every theme. The
+ * squircle comes from shape="squircle", which the Shared slot mirrors. */
+.vs-media-icon {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--vista-sheet-accent) 70%, white) 0%,
-    var(--vista-sheet-accent) 55%,
-    color-mix(in srgb, var(--vista-sheet-accent) 70%, black) 100%
-  );
+  background: linear-gradient(180deg, #7a5cff 0%, #4b2fd6 100%);
 }
 
 .vs-media-icon svg {
-  width: 42%;
-  height: 42%;
-  fill: #ffffff;
+  width: 50%;
+  height: 50%;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.25;
+  stroke-linecap: round;
 }
 
 .vs-media-header {
@@ -624,7 +668,7 @@ const MEDIA_RECIPE: Recipe = {
   padding: 0 16px;
   border-radius: 9999px;
   background: var(--vista-sheet-accent);
-  color: #ffffff;
+  color: var(--vista-sheet-surface-elevated);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -688,7 +732,7 @@ const VIDEO_RECIPE: Recipe = {
   label: "Video",
   triggerLabel: "Open portrait video",
   sheetLabel: "Portrait video",
-  layout: { sheetMaxWidth: 420, sheetPadding: 24, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 420, ...LAYOUT },
   media: {
     src: "/media/vista-sheet-portrait.mp4",
     poster: "/media/vista-sheet-portrait.jpg",
@@ -708,7 +752,7 @@ const SEARCH_RECIPE: Recipe = {
   id: "search",
   label: "Search",
   triggerLabel: "Open search",
-  layout: { sheetMaxWidth: 480, sheetPadding: 16, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 480, ...LAYOUT },
   button: {
     icon: {
       type: "svg",
@@ -797,8 +841,11 @@ const SEARCH_RECIPE: Recipe = {
   opacity: 0.6;
 }
 
+/* Rows bleed 12px into the gutter so their text lines up with the field's
+ * edge and the heading. */
 .vs-search-row {
-  width: 100%;
+  width: calc(100% + 24px);
+  margin-inline: -12px;
   display: block;
   text-align: left;
   padding: 12px;
@@ -824,7 +871,7 @@ const CHAT_RECIPE: Recipe = {
   id: "chat",
   label: "Chat",
   triggerLabel: "Open chat",
-  layout: { sheetMaxWidth: 420, sheetPadding: 16, sheetRadius: 48 },
+  layout: { sheetMaxWidth: 420, ...LAYOUT },
   button: {
     icon: {
       type: "svg",
@@ -966,7 +1013,7 @@ const CHAT_RECIPE: Recipe = {
   border-radius: 9999px;
   border: none;
   background: var(--vista-sheet-accent);
-  color: #ffffff;
+  color: var(--vista-sheet-surface-elevated);
   display: flex;
   align-items: center;
   justify-content: center;

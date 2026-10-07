@@ -177,13 +177,12 @@ export function applyPalette(state: PlayState, id: PaletteId): PlayState {
 
 export function applyRecipe(state: PlayState, id: RecipeId): PlayState {
   const recipe = getRecipe(id);
-  // Strawman (v0.2): the recipe decides disc vs button; Shared/Media aren't
-  // supported inside a rectangle trigger.
+  // Strawman (v0.2): the recipe decides disc vs button (and media its
+  // squircle); Shared/Media aren't supported inside a rectangle trigger.
   const shape = recipe.button
     ? "rectangle"
-    : state.shape === "rectangle"
-      ? "circle"
-      : state.shape;
+    : (recipe.shape ??
+      (state.shape === "rectangle" ? "circle" : state.shape));
   return {
     ...state,
     recipe: id,

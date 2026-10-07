@@ -290,10 +290,21 @@ const BASE_CSS = `.vs-button-icon {
   font-weight: 500;
 }
 
+/* The 44px close sits concentric with the sheet's corner (its centre on the
+ * corner arc's centre), so it clears the curve like the content does. */
 .vs-theme [data-vista-sheet-part="close"] {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: max(16px, calc(var(--vista-sheet-sheet-radius, 48px) - 22px));
+  right: max(16px, calc(var(--vista-sheet-sheet-radius, 48px) - 22px));
+}
+
+/* The bottom inset is the sheet radius, so the last line sits above where
+ * the corner curve starts and clears it by the same gutter as the sides. */
+.vs-theme [data-vista-sheet-part="content"] {
+  padding-bottom: max(
+    var(--vista-sheet-sheet-padding, 24px),
+    var(--vista-sheet-sheet-radius, 48px)
+  );
 }
 
 .vs-theme [data-vista-sheet-part="item"] {
@@ -302,6 +313,15 @@ const BASE_CSS = `.vs-button-icon {
 
 .vs-theme [data-vista-sheet-part="item"]:first-of-type {
   padding-top: 24px;
+}
+
+/* A sheet that opens on its title (no Shared element above it) puts the
+ * title on the close button's centre line, clear of the corner curve. 13px
+ * is half the h2's 26px line. */
+.vs-theme
+  [data-vista-sheet-part="sheet"]:not(:has([data-vista-sheet-part="shared"]))
+  [data-vista-sheet-part="item"]:first-of-type {
+  padding-top: max(25px, calc(var(--vista-sheet-sheet-radius, 48px) - 13px));
 }
 
 .vs-theme [data-vista-sheet-part="content"] h2 {
