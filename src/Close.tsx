@@ -53,7 +53,11 @@ function DefaultCloseGlyph() {
 export function Close({ children, className, ...aria }: CloseProps) {
   const ctx = useVistaSheetInternal("Close");
   const { registerClose, setOpen, collapseProgress, reduceMotion } = ctx;
-  const [revealed, setRevealed] = useState(false);
+  // Seeded from the clock so a sheet mounted open (already at rest) renders
+  // Close in place instead of spinning it in.
+  const [revealed, setRevealed] = useState(
+    () => collapseProgress.get() <= CLOSE_REVEAL_PROGRESS,
+  );
 
   const hidden = reduceMotion
     ? { opacity: 0 }

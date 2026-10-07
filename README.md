@@ -185,6 +185,8 @@ Ten exports total: nine components (`Root`, `Trigger`, `Sheet`, `Shared`,
 `Media`, `Content`, `Item`, `Close`, `Shadow`) plus the `useVistaSheet()`
 hook. That is the whole surface area.
 
+A Root that mounts open (`defaultOpen`, or `open` already `true`) renders the sheet at rest, with no morph and no entrance on its content or close button; every later close and open animates.
+
 **In a Next.js App Router app, `"use client"` has to be the first line of
 the file where you mount `VistaSheet`**, as it is in the snippet above.
 Server Components can't resolve a property access like `VistaSheet.Root` on
