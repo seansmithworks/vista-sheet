@@ -41,6 +41,13 @@ interface Layer {
 
 type ShadowLook = "before" | "after";
 
+/** The trigger's wrapper and button stay mounted while open, but the
+ * surface that paints them unmounts (src/Trigger.tsx), so in an open stack
+ * they are empty planes. They are dimmed and noted rather than dropped. */
+const PARKED_WHILE_OPEN = new Set(["trigger-root", "trigger"]);
+const PARKED_OPACITY = 0.35;
+const PARKED_NOTE = "parked · empty while open";
+
 const LOOK_NAME: Record<ShadowLook, string> = {
   before: "shadow · trigger (::before)",
   after: "shadow · sheet (::after)",
@@ -288,6 +295,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
   const [failed, setFailed] = useState(false);
   const [gap, setGap] = useState(DEFAULT_GAP);
   const [hover, setHover] = useState<number | null>(null);
+  const [parked, setParked] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const el = frameRef.current;
@@ -308,6 +316,17 @@ export function Exploded({ tile }: { tile: PlayTile }) {
         const boxes = measure(doc);
         const next = splitShadow(doc, paintOrder(doc), boxes);
         stackRef.current = buildStack(doc, next);
+        // Parked only when the surface really is absent from the stack.
+        const surface = boxes.some((b) => b.part === "trigger-surface");
+        setParked(
+          new Set(
+            surface
+              ? []
+              : next.flatMap((l, i) =>
+                  !l.look && PARKED_WHILE_OPEN.has(partKey(l.box)) ? [i] : [],
+                ),
+          ),
+        );
         setLayers(next);
       },
       () => !signal.cancelled && setFailed(true),
@@ -350,16 +369,24 @@ export function Exploded({ tile }: { tile: PlayTile }) {
     const flat = gap === 0;
     stack.stage.style.transform = flat ? "none" : matrix.toString();
     stack.stage.style.transformStyle = flat ? "flat" : "preserve-3d";
+    const t = Math.min(1, gap / TILT_FULL_AT);
     stack.slabs.forEach((slab, i) => {
       slab.style.transform = flat ? "none" : `translateZ(${i * gap}px)`;
-      slab.style.opacity = hover === null || hover === i ? "" : "0.18";
+      // Parked slabs dim with the tilt, so gap 0 still composites to the
+      // original; hovering one lifts it to full strength to find it.
+      slab.style.opacity =
+        hover !== null && hover !== i
+          ? "0.18"
+          : parked.has(i) && hover !== i
+            ? String(1 - (1 - PARKED_OPACITY) * t)
+            : "";
       const outline = slab.querySelector<HTMLElement>(
         "[data-exploded-outline]",
       );
       if (outline)
         outline.style.opacity = String(Math.min(1, gap / TILT_FULL_AT));
     });
-  }, [matrix, gap, hover]);
+  }, [matrix, gap, hover, parked]);
 
   // Names: duplicate parts (two Items) get their DOM ordinal. Numbers run
   // top layer first, matching the legend.
@@ -548,6 +575,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
                   className="dx-badge"
                   data-exploded-badge={l.n}
                   data-hover={hover === l.i || undefined}
+                  data-parked={parked.has(l.i) || undefined}
                   style={{ left: l.ax - 8, top: l.ay - 8 }}
                 >
                   {l.n}
@@ -569,6 +597,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
               <polyline
                 key={l.i}
                 data-hover={hover === l.i || undefined}
+                data-parked={parked.has(l.i) || undefined}
                 points={`${l.ax},${l.ay} ${l.gx},${l.ay} ${l.gx},${l.y} ${frameW + LEADER},${l.y}`}
               />
             ))}
@@ -586,6 +615,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
                 data-exploded-look={l.layer.look}
                 data-exploded-n={l.n}
                 data-hover={hover === l.i || undefined}
+                data-parked={parked.has(l.i) || undefined}
                 style={{ top: l.y - LABEL_ROW / 2 }}
                 onPointerEnter={() => setHover(l.i)}
                 onPointerLeave={() => setHover(null)}
@@ -597,6 +627,9 @@ export function Exploded({ tile }: { tile: PlayTile }) {
                   {l.layer.opacity !== undefined &&
                     ` · opacity ${l.layer.opacity.toFixed(2)}`}
                 </code>
+                {parked.has(l.i) && (
+                  <span className="dx-parked-note">{PARKED_NOTE}</span>
+                )}
               </li>
             ))}
           </ol>

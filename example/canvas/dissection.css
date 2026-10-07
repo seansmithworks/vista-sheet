@@ -247,6 +247,24 @@
   color: var(--cv-text-2);
 }
 
+/* Trigger layers that are empty while open: dimmed, with a note saying why.
+ * The note stays at full strength so it reads at phone width. */
+.dx-exploded-labels li[data-parked] > :not(.dx-parked-note),
+.dx-exploded-badges .dx-badge[data-parked]:not([data-hover]) {
+  opacity: 0.4;
+}
+
+.dx-exploded-leaders polyline[data-parked]:not([data-hover]) {
+  opacity: 0.25;
+}
+
+.dx-parked-note {
+  font-family: var(--cv-mono);
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--cv-text-2);
+}
+
 .dx-exploded-gap {
   display: flex;
   gap: 12px;
