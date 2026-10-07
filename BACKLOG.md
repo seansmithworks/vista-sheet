@@ -576,4 +576,4 @@ Done on `canvas` this round: recipe padding/corner clearance, 40px icon discs, l
 - [ ] 49. in flight (other lane) — Playback: ultra-slow / frame-by-frame morph playback, slow-mo choreography with a scrubbable timeline, autoplay for motion and heavier interaction displays (comments 21, 27, 30, 31).
 - [ ] 50. in flight (other lane) — Isometric exploded view of the Z-stack (comment 26).
 - [ ] 51. in flight (other lane) — Anatomy as one foundation plus per-recipe variants: "why is media different here?" (comment 25).
-- [ ] 52. in flight (other lane) — defaultOpen settle bug (item 39): explains the missing close buttons on open tiles (comment 14) and the closed-shape shadow persisting on open sheets (comment 20). Canvas open tiles are the visual check once it lands; recapture posters after.
+- [ ] 52. in flight (other lane) — defaultOpen settle bug (item 39): explains the missing close buttons on open tiles (comment 14), the closed-shape shadow persisting on open sheets (comment 20), and likely the Sheet geometry › Radius 16 tile painting 48px corners (round-2 review). Canvas open tiles are the visual check once it lands; recapture posters after.
