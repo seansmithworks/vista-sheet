@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-07T06:02:03.747Z",
-  "gitHead": "0093566",
+  "capturedAt": "2026-10-07T06:26:25.584Z",
+  "gitHead": "a4c2bec",
   "sequences": [
     {
       "id": "morph-circle",
@@ -796,6 +796,892 @@
           "label": "settled",
           "collapse": null,
           "detail": "sheet opacity 1.00"
+        }
+      ]
+    }
+  ],
+  "anatomy": [
+    {
+      "recipe": "basic",
+      "tileId": "content-basic",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/basic.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 556,
+          "w": 358,
+          "h": 272
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 556,
+          "w": 358,
+          "h": 272
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 581,
+          "w": 92,
+          "h": 92
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 583,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 673,
+          "w": 356,
+          "h": 154
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 673,
+          "w": 308,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 723,
+          "w": 308,
+          "h": 56
+        }
+      ]
+    },
+    {
+      "recipe": "list",
+      "tileId": "content-list",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/list.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 367,
+          "w": 358,
+          "h": 461
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 367,
+          "w": 358,
+          "h": 461
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 392,
+          "w": 40,
+          "h": 40
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 394,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 432,
+          "w": 356,
+          "h": 395
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 432,
+          "w": 308,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 482,
+          "w": 308,
+          "h": 53
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 535,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 596,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 657,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 718,
+          "w": 308,
+          "h": 61
+        }
+      ]
+    },
+    {
+      "recipe": "grid",
+      "tileId": "content-grid",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/grid.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 372,
+          "w": 358,
+          "h": 456
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 372,
+          "w": 358,
+          "h": 456
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 397,
+          "w": 40,
+          "h": 40
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 399,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 437,
+          "w": 356,
+          "h": 390
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 437,
+          "w": 308,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 487,
+          "w": 308,
+          "h": 92
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 579,
+          "w": 308,
+          "h": 100
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 679,
+          "w": 308,
+          "h": 100
+        }
+      ]
+    },
+    {
+      "recipe": "nav",
+      "tileId": "content-nav",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/nav.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 35,
+          "y": 449,
+          "w": 320,
+          "h": 380
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 35,
+          "y": 448.5,
+          "w": 320,
+          "h": 379.5
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 60,
+          "y": 473.5,
+          "w": 40,
+          "h": 40
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 284,
+          "y": 475.5,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 36,
+          "y": 513.5,
+          "w": 318,
+          "h": 313.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 60,
+          "y": 513.5,
+          "w": 270,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 60,
+          "y": 563.5,
+          "w": 270,
+          "h": 215.5
+        }
+      ]
+    },
+    {
+      "recipe": "media",
+      "tileId": "content-media",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/media.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 401,
+          "w": 358,
+          "h": 428
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 400.5,
+          "w": 358,
+          "h": 427.5
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 425.5,
+          "w": 92,
+          "h": 92
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 427.5,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 517.5,
+          "w": 356,
+          "h": 309.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 517.5,
+          "w": 308,
+          "h": 87
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 604.5,
+          "w": 308,
+          "h": 95.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 700,
+          "w": 308,
+          "h": 79
+        }
+      ]
+    },
+    {
+      "recipe": "video",
+      "tileId": "content-video",
+      "parts": [
+        "backdrop",
+        "close",
+        "media:sheet",
+        "media:trigger",
+        "shadow",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/video.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 192,
+          "w": 358,
+          "h": 636
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 191.5625,
+          "w": 358,
+          "h": 636.4375
+        },
+        {
+          "part": "media",
+          "slot": "sheet",
+          "x": 17,
+          "y": 192.5625,
+          "w": 356,
+          "h": 634.4375
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 218.5625,
+          "w": 44,
+          "h": 44
+        }
+      ]
+    },
+    {
+      "recipe": "search",
+      "tileId": "content-search",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "sheet",
+        "trigger",
+        "trigger-label",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/search.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 459,
+          "w": 358,
+          "h": 370
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 139.5,
+          "y": 784,
+          "w": 110.8828125,
+          "h": 44
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 139.5,
+          "y": 784,
+          "w": 110.8828125,
+          "h": 44
+        },
+        {
+          "part": "trigger-label",
+          "slot": null,
+          "x": 157.5,
+          "y": 797,
+          "w": 74.8828125,
+          "h": 18
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 458.5,
+          "w": 358,
+          "h": 369.5
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 485.5,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 459.5,
+          "w": 356,
+          "h": 367.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 459.5,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 520.5,
+          "w": 308,
+          "h": 52
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 572.5,
+          "w": 308,
+          "h": 35.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 608,
+          "w": 308,
+          "h": 57
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 665,
+          "w": 308,
+          "h": 57
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 722,
+          "w": 308,
+          "h": 57
+        }
+      ]
+    },
+    {
+      "recipe": "chat",
+      "tileId": "content-chat",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "sheet",
+        "trigger",
+        "trigger-label",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/chat.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 522,
+          "w": 358,
+          "h": 306
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 118.5,
+          "y": 784,
+          "w": 152.5546875,
+          "h": 44
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 118.5,
+          "y": 784,
+          "w": 152.5546875,
+          "h": 44
+        },
+        {
+          "part": "trigger-label",
+          "slot": null,
+          "x": 136.5,
+          "y": 797,
+          "w": 116.5546875,
+          "h": 18
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 522,
+          "w": 358,
+          "h": 306
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 549,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 523,
+          "w": 356,
+          "h": 304
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 523,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 584,
+          "w": 308,
+          "h": 119
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 703,
+          "w": 308,
+          "h": 76
         }
       ]
     }
