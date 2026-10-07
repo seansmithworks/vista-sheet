@@ -22,7 +22,9 @@ import {
   type PlayState,
 } from "../play/state";
 
-export type CanvasViewport = "phone" | "desktop";
+/** `fluid`: a full-row frame shown 1:1 (no scaling), as wide as the column
+ * and `height` tall; `width` is only the poster capture size. */
+export type CanvasViewport = "phone" | "desktop" | "fluid";
 
 export const VIEWPORTS: Record<
   CanvasViewport,
@@ -30,7 +32,11 @@ export const VIEWPORTS: Record<
 > = {
   phone: { width: 390, height: 844 },
   desktop: { width: 1280, height: 800 },
+  fluid: { width: 1100, height: 760 },
 };
+
+/** The page-level appearance the canvas renders following tiles in. */
+export type Appearance = "light" | "dark";
 
 export type SectionId =
   | "shapes"
@@ -39,6 +45,7 @@ export type SectionId =
   | "anchors"
   | "content"
   | "open"
+  | "theme"
   | "geometry"
   | "behaviour"
   | "motion"
@@ -58,6 +65,12 @@ interface TileBase {
   /** The prop/value this tile demonstrates, shown in mono under the label. */
   caption: string;
   viewport: CanvasViewport;
+  /** A section that shows this tile's subject in full, linked under it. */
+  seeAlso?: SectionId;
+  /** Set only on Theme tiles: the palette is the subject, so the page
+   * appearance never repaints it. Every other tile is neutral and follows
+   * the appearance (neutral or neutral-dark). */
+  fixedTheme?: true;
 }
 
 /** A live specimen: `play.html?stage` driven by one state message. */
@@ -70,7 +83,8 @@ export interface PlayTile extends TileBase {
 /** A page the stage can't express (preview mode), framed as-is. */
 export interface PageTile extends TileBase {
   kind: "page";
-  /** Relative to the example root, e.g. "link-preview.html?dark=1". */
+  /** Relative to the example root, e.g. "link-preview.html?dark=1". Tiles
+   * that follow the appearance get `?dark=` rewritten by `forAppearance`. */
   src: string;
 }
 
@@ -101,19 +115,24 @@ export const CANVAS_SECTIONS: CanvasSection[] = [
   },
   {
     id: "content",
-    title: "Content × palette",
-    description: "Every recipe at rest, cycling the four palettes.",
+    title: "Content",
+    description: "Every recipe at rest.",
   },
   {
     id: "open",
     title: "Open states",
+    description: "Every recipe already open.",
+  },
+  {
+    id: "theme",
+    title: "Theme",
     description:
-      "Every recipe already open, palettes offset from the row above.",
+      "The four palettes on one recipe, and the link preview in dark. Every other section is neutral and follows the Appearance switch.",
   },
   {
     id: "geometry",
     title: "Sheet geometry",
-    description: "Max width, corner radius and padding on a desktop viewport.",
+    description: "Max width, corner radius and padding, against the defaults.",
   },
   {
     id: "behaviour",
@@ -130,12 +149,14 @@ export const CANVAS_SECTIONS: CanvasSection[] = [
   {
     id: "reduced-motion",
     title: "Reduced motion",
-    description: "A 200ms opacity crossfade instead of the morph.",
+    description:
+      "A 200ms opacity crossfade instead of the morph. On by default for anyone whose system asks for reduced motion (prefers-reduced-motion); pass reduceMotion to force it, e.g. from an in-app setting.",
   },
   {
     id: "link-preview",
     title: "Link preview",
-    description: "Root preview: hover, focus or long-press a link.",
+    description:
+      "Root preview: hover, focus or long-press a link. Shown at 1:1, as on a real page.",
   },
 ];
 
@@ -210,11 +231,14 @@ const SHAPE_TILES: CanvasTile[] = [
       state: spec("basic", "neutral", { shape, triggerSize: 96 }),
     }),
   ),
+  // The same button as Rectangle buttons' M · Icon + text. Its corners are
+  // min(trigger radius, height / 2) = 22px on a 44px button: a pill.
   play({
     id: "shape-rectangle",
     section: "shapes",
-    label: "Rectangle",
-    caption: `shape="rectangle" · search recipe`,
+    label: "Rectangle (pill button)",
+    caption: `shape="rectangle" · radius = height / 2`,
+    seeAlso: "buttons",
     state: spec("search", "neutral"),
   }),
 ];
@@ -307,13 +331,6 @@ const RECIPES: RecipeId[] = [
   "chat",
 ];
 
-const PALETTE_CYCLE: PaletteId[] = [
-  "neutral",
-  "warm",
-  "warm-dark",
-  "neutral-dark",
-];
-
 const RECIPE_LABEL: Record<RecipeId, string> = {
   basic: "Basic",
   list: "List",
@@ -325,28 +342,57 @@ const RECIPE_LABEL: Record<RecipeId, string> = {
   chat: "Chat",
 };
 
-const CONTENT_TILES: CanvasTile[] = RECIPES.map((recipe, i) => {
-  const palette = PALETTE_CYCLE[i % PALETTE_CYCLE.length];
-  return play({
+const CONTENT_TILES: CanvasTile[] = RECIPES.map((recipe) =>
+  play({
     id: `content-${recipe}`,
     section: "content",
-    label: `${RECIPE_LABEL[recipe]} · ${PALETTES[palette].label}`,
-    caption: `recipe="${recipe}" · palette="${palette}"`,
-    state: spec(recipe, palette),
-  });
-});
+    label: RECIPE_LABEL[recipe],
+    caption: `recipe="${recipe}"`,
+    state: spec(recipe, "neutral"),
+  }),
+);
 
-const OPEN_TILES: CanvasTile[] = RECIPES.map((recipe, i) => {
-  const palette = PALETTE_CYCLE[(i + 2) % PALETTE_CYCLE.length];
-  return play({
+const OPEN_TILES: CanvasTile[] = RECIPES.map((recipe) =>
+  play({
     id: `open-${recipe}`,
     section: "open",
-    label: `${RECIPE_LABEL[recipe]} · ${PALETTES[palette].label}`,
+    label: RECIPE_LABEL[recipe],
     caption: `defaultOpen · recipe="${recipe}"`,
-    state: spec(recipe, palette),
+    state: spec(recipe, "neutral"),
     overrides: { defaultOpen: true },
-  });
-});
+  }),
+);
+
+const THEME_PALETTES: PaletteId[] = [
+  "neutral",
+  "neutral-dark",
+  "warm",
+  "warm-dark",
+];
+
+const THEME_TILES: CanvasTile[] = [
+  ...THEME_PALETTES.map((palette) =>
+    play({
+      id: `theme-${palette}`,
+      section: "theme",
+      label: PALETTES[palette].label,
+      caption: `palette="${palette}" · list recipe, open`,
+      fixedTheme: true,
+      state: spec("list", palette),
+      overrides: { defaultOpen: true },
+    }),
+  ),
+  {
+    kind: "page",
+    id: "link-preview-dark",
+    section: "theme",
+    label: "Link preview · dark",
+    caption: "<Root preview> · ?dark=1",
+    viewport: "fluid",
+    fixedTheme: true,
+    src: "link-preview.html?dark=1",
+  },
+];
 
 const GEOMETRY_TILES: CanvasTile[] = [
   ...([320, 480, 640] as const).map((w) =>
@@ -372,7 +418,10 @@ const GEOMETRY_TILES: CanvasTile[] = [
     id: "geometry-padding-48",
     section: "geometry",
     label: "Padding 48",
-    caption: "--vista-sheet-sheet-padding: 48px",
+    // sheetPadding pads Content (its sides and bottom) only. The Shared
+    // circle keeps its own 24px margin, so it doesn't move.
+    caption:
+      "--vista-sheet-sheet-padding: 48px · text moves in; the circle keeps its 24px margin",
     state: spec("basic", "neutral", { sheetPadding: 48 }),
     overrides: { defaultOpen: true },
   }),
@@ -455,21 +504,12 @@ const REDUCED_MOTION_TILES: CanvasTile[] = [
 const LINK_PREVIEW_TILES: CanvasTile[] = [
   {
     kind: "page",
-    id: "link-preview-light",
+    id: "link-preview",
     section: "link-preview",
-    label: "Light",
-    caption: "<Root preview> · ?dark=0",
-    viewport: "desktop",
+    label: "Link preview",
+    caption: "<Root preview>",
+    viewport: "fluid",
     src: "link-preview.html?dark=0",
-  },
-  {
-    kind: "page",
-    id: "link-preview-dark",
-    section: "link-preview",
-    label: "Dark",
-    caption: "<Root preview> · ?dark=1",
-    viewport: "desktop",
-    src: "link-preview.html?dark=1",
   },
 ];
 
@@ -480,6 +520,7 @@ export const CANVAS_TILES: CanvasTile[] = [
   ...ANCHOR_TILES,
   ...CONTENT_TILES,
   ...OPEN_TILES,
+  ...THEME_TILES,
   ...GEOMETRY_TILES,
   ...BEHAVIOUR_TILES,
   ...MOTION_TILES,
@@ -487,62 +528,26 @@ export const CANVAS_TILES: CanvasTile[] = [
   ...LINK_PREVIEW_TILES,
 ];
 
-/** Interaction states that only exist under a pointer or key: no tile of
- * their own, each points at the tile to try it on. */
-export interface InteractionNote {
-  id: string;
-  label: string;
-  how: string;
-  tileId: string;
+/**
+ * The tile as rendered under a page appearance. Theme tiles are returned
+ * as declared; every other tile is neutral (tiles.test.ts) and swaps to
+ * neutral-dark in dark, through play's own applyPalette.
+ */
+export function forAppearance(
+  tile: CanvasTile,
+  appearance: Appearance,
+): CanvasTile {
+  if (tile.fixedTheme || appearance === "light") return tile;
+  if (tile.kind === "page") {
+    return { ...tile, src: tile.src.replace("dark=0", "dark=1") };
+  }
+  return { ...tile, state: applyPalette(tile.state, "neutral-dark") };
 }
 
-export const INTERACTION_NOTES: InteractionNote[] = [
-  {
-    id: "hover",
-    label: "Hover",
-    how: "Point at the trigger.",
-    tileId: "shape-circle",
-  },
-  {
-    id: "focus-visible",
-    label: "Focus visible",
-    how: "Click the tile, then Tab to the trigger.",
-    tileId: "shape-squircle",
-  },
-  {
-    id: "pressed",
-    label: "Pressed",
-    how: "Press and hold the button.",
-    tileId: "button-m-icon-text",
-  },
-  {
-    id: "drag",
-    label: "Drag and snap",
-    how: "Drag the disc toward a corner and release.",
-    tileId: DRAG_TILE_ID,
-  },
-  {
-    id: "swipe-dismiss",
-    label: "Swipe to dismiss",
-    how: "Swipe the open sheet down.",
-    tileId: "behaviour-swipe-dismiss",
-  },
-  {
-    id: "esc-dismiss",
-    label: "Esc dismiss",
-    how: "Click the open tile, then press Esc: the sheet closes and the tile releases.",
-    tileId: "open-basic",
-  },
-  {
-    id: "backdrop-dismiss",
-    label: "Backdrop dismiss",
-    how: "On by default: click outside the open sheet and it closes. Compare Backdrop click ignored.",
-    tileId: "open-basic",
-  },
-  {
-    id: "long-press",
-    label: "Long-press preview",
-    how: "On touch, press and hold a link.",
-    tileId: "link-preview-light",
-  },
-];
+/** Poster file for a tile under an appearance. Following tiles have a dark
+ * twin; Theme tiles have one poster. */
+export function posterName(tile: CanvasTile, appearance: Appearance): string {
+  return appearance === "dark" && !tile.fixedTheme
+    ? `${tile.id}.dark.png`
+    : `${tile.id}.png`;
+}

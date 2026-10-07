@@ -191,22 +191,22 @@ export const STATE_ROWS: StateRow[] = [
   {
     name: "Preview trigger",
     surface: "Trigger asChild",
-    status: { kind: "live", tileId: "link-preview-light" },
+    status: { kind: "live", tileId: "link-preview" },
   },
   {
     name: "Preview hover intent",
     surface: `PREVIEW_HOVER_INTENT_MS = ${PREVIEW_HOVER_INTENT_MS}ms`,
-    status: { kind: "live", tileId: "link-preview-light" },
+    status: { kind: "live", tileId: "link-preview" },
   },
   {
     name: "Preview close grace",
     surface: `PREVIEW_CLOSE_GRACE_MS = ${PREVIEW_CLOSE_GRACE_MS}ms`,
-    status: { kind: "live", tileId: "link-preview-light" },
+    status: { kind: "live", tileId: "link-preview" },
   },
   {
     name: "Preview long-press",
     surface: `PREVIEW_LONG_PRESS_MS = ${PREVIEW_LONG_PRESS_MS}ms · slop ${PREVIEW_LONG_PRESS_SLOP_PX}px`,
-    status: { kind: "live", tileId: "link-preview-light" },
+    status: { kind: "live", tileId: "link-preview" },
   },
   {
     name: "Link preview, dark",

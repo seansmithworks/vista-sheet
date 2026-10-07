@@ -42,7 +42,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   CANVAS_TILES,
+  forAppearance,
+  posterName,
   VIEWPORTS,
+  type Appearance,
   type CanvasTile,
   type CanvasViewport,
 } from "../example/canvas/tiles";
@@ -67,6 +70,7 @@ const want = (s: string) => only.length === 0 || only.includes(s);
 const POSTER_DSF: Record<CanvasViewport, number> = {
   phone: 2,
   desktop: 1,
+  fluid: 1,
 };
 const MARGIN = 40;
 
@@ -451,7 +455,12 @@ async function morph(
   def: SeqDef,
   opts: { isolateShadow?: boolean } = {},
 ): Promise<SequenceMeta> {
-  const tile = tileById(def.tileId);
+  // A morph starts at rest, whatever the tile shows by default.
+  const declared = tileById(def.tileId);
+  const tile: CanvasTile =
+    declared.kind === "play" && declared.overrides?.defaultOpen
+      ? { ...declared, overrides: { ...declared.overrides, defaultOpen: false } }
+      : declared;
   const d = def.link ? link(def.link) : modal(Boolean(def.touch));
   const ctx = await newCtx(browser, def.viewport, {
     dsf: def.dsf,
@@ -810,9 +819,9 @@ const SEQUENCES: Array<
   {
     id: "morph-dark",
     group: "morph",
-    title: "Nav · neutral dark",
+    title: "List · neutral dark",
     description: MORPH_DESC,
-    tileId: "content-nav",
+    tileId: "theme-neutral-dark",
     viewport: "desktop",
     dsf: 1,
     run: (b, d) => morph(b, d),
@@ -833,7 +842,7 @@ const SEQUENCES: Array<
     group: "morph",
     title: "Link preview · hover",
     description: `${MORPH_DESC} Opens on hover intent, closes on pointer-out after the grace period. The previewed page is held on its skeleton so frames compare.`,
-    tileId: "link-preview-light",
+    tileId: "link-preview",
     viewport: "desktop",
     dsf: 1,
     link: "Ghostties",
@@ -903,10 +912,19 @@ async function posters(browser: Browser) {
   const tiles = CANVAS_TILES.filter(
     (t) => tileFilter.length === 0 || tileFilter.includes(t.id),
   );
-  for (const vp of ["phone", "desktop"] as const) {
+  // Every tile gets a light poster; tiles that follow the page appearance
+  // get a dark twin too (posterName).
+  const shots = (["light", "dark"] as Appearance[]).flatMap((a) =>
+    tiles
+      .filter((t) => a === "light" || !t.fixedTheme)
+      .map((t) => ({ tile: forAppearance(t, a), file: posterName(t, a) })),
+  );
+  for (const vp of ["phone", "desktop", "fluid"] as const) {
     const ctx = await newCtx(browser, vp, { dsf: POSTER_DSF[vp] });
     const page = await ctx.newPage();
-    for (const tile of tiles.filter((t) => t.viewport === vp)) {
+    for (const { tile, file: name } of shots.filter(
+      (s) => s.tile.viewport === vp,
+    )) {
       await loadTile(page, tile);
       await page.mouse.move(0, 0);
       // A defaultOpen mount never sets data-vista-sheet-settled (its
@@ -915,17 +933,18 @@ async function posters(browser: Browser) {
         await page.waitForSelector(SEL.sheet, { state: "visible" });
         await page.waitForTimeout(1500);
       } else await page.waitForTimeout(700);
-      const file = join(dir, `${tile.id}.png`);
+      const file = join(dir, name);
       await page.screenshot({ path: file });
       compress(file);
-      console.log("   poster", tile.id);
+      console.log("   poster", name);
     }
     await ctx.close();
   }
   // Drop posters for tiles that no longer exist.
-  const ids = new Set(CANVAS_TILES.map((t) => t.id));
-  for (const f of readdirSync(dir))
-    if (!ids.has(f.replace(/\.png$/, ""))) rmSync(join(dir, f));
+  const names = new Set(
+    CANVAS_TILES.flatMap((t) => [posterName(t, "light"), posterName(t, "dark")]),
+  );
+  for (const f of readdirSync(dir)) if (!names.has(f)) rmSync(join(dir, f));
 }
 
 // ---------- run ----------

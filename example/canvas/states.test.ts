@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { INTERACTION_NOTES, CANVAS_TILES } from "./tiles";
+import { CANVAS_TILES } from "./tiles";
 import { PROP_COVERAGE, STATE_ROWS } from "./states";
 
 /**
@@ -93,9 +93,19 @@ describe("states rows", () => {
     expect(missing).toEqual([]);
   });
 
-  it("interaction notes point at real tiles", () => {
-    expect(
-      INTERACTION_NOTES.filter((n) => !TILE_IDS.has(n.tileId)).map((n) => n.id),
-    ).toEqual([]);
+  // The Interactive view's old "Interaction states" key was retired
+  // (2026-10-07); every state it listed must stay a States & API row.
+  it("every pointer- and key-only interaction state has a row", () => {
+    const interactions = [
+      "Hover",
+      "Focus visible",
+      "Pressed",
+      "Drag and snap",
+      "Swipe to dismiss",
+      "Esc dismiss",
+      "Backdrop dismiss",
+      "Preview long-press",
+    ];
+    expect(interactions.filter((n) => !ROW_NAMES.has(n))).toEqual([]);
   });
 });

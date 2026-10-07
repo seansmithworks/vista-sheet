@@ -6,7 +6,7 @@ import { PALETTES, type PaletteId } from "../play/state";
 import {
   CANVAS_SECTIONS,
   CANVAS_TILES,
-  INTERACTION_NOTES,
+  forAppearance,
   type PlayTile,
 } from "./tiles";
 
@@ -83,10 +83,40 @@ describe("CANVAS_TILES validity", () => {
     expect(playTiles.filter((t) => t.state.draggable)).toHaveLength(1);
   });
 
-  it("every tile belongs to a declared section and every note to a tile", () => {
+  it("every tile belongs to a declared section", () => {
     const sections = new Set(CANVAS_SECTIONS.map((s) => s.id));
-    const ids = new Set(CANVAS_TILES.map((t) => t.id));
     for (const t of CANVAS_TILES) expect(sections.has(t.section), t.id).toBe(true);
-    for (const n of INTERACTION_NOTES) expect(ids.has(n.tileId), n.id).toBe(true);
+  });
+
+  it("every see-also link names a declared section", () => {
+    const sections = new Set(CANVAS_SECTIONS.map((s) => s.id));
+    for (const t of CANVAS_TILES) {
+      if (t.seeAlso) expect(sections.has(t.seeAlso), t.id).toBe(true);
+    }
+  });
+});
+
+describe("CANVAS_TILES theme", () => {
+  it("only Theme tiles fix their palette; every other play tile is neutral", () => {
+    for (const t of CANVAS_TILES) {
+      expect(Boolean(t.fixedTheme), t.id).toBe(t.section === "theme");
+    }
+    for (const t of playTiles.filter((x) => !x.fixedTheme)) {
+      expect(t.state.palette, t.id).toBe("neutral");
+    }
+  });
+
+  it("dark appearance repaints following tiles to neutral-dark, never Theme tiles", () => {
+    for (const t of CANVAS_TILES) {
+      const dark = forAppearance(t, "dark");
+      if (t.fixedTheme) {
+        expect(dark, t.id).toBe(t);
+      } else if (dark.kind === "play") {
+        expect(dark.state.palette, t.id).toBe("neutral-dark");
+      } else {
+        expect(dark.src, t.id).toContain("dark=1");
+      }
+      expect(forAppearance(t, "light"), t.id).toBe(t);
+    }
   });
 });

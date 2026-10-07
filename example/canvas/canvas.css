@@ -14,6 +14,25 @@
   --cv-mono: ui-monospace, "SF Mono", Menlo, monospace;
   --cv-topbar-h: 56px;
   --cv-review-top: 0px;
+  --cv-glass: rgba(245, 245, 247, 0.86);
+  --cv-fill: rgba(118, 118, 128, 0.12);
+  --cv-hover: rgba(0, 0, 0, 0.04);
+  color-scheme: light;
+}
+
+/* Appearance: Dark. The neutral-dark palette's values (play/state.ts,
+ * example.css body[data-dark-mode]), so the chrome matches the tiles. */
+html[data-appearance="dark"] {
+  --cv-ground: #0b0b0c;
+  --cv-surface: #2c2c2e;
+  --cv-border: rgba(255, 255, 255, 0.1);
+  --cv-text: #f5f5f7;
+  --cv-text-2: #a1a1a6;
+  --cv-accent: #f5f5f7;
+  --cv-glass: rgba(11, 11, 12, 0.86);
+  --cv-fill: rgba(118, 118, 128, 0.24);
+  --cv-hover: rgba(255, 255, 255, 0.06);
+  color-scheme: dark;
 }
 
 *,
@@ -52,7 +71,7 @@ body {
   gap: 24px;
   height: var(--cv-topbar-h);
   padding: 0 24px;
-  background: rgba(245, 245, 247, 0.86);
+  background: var(--cv-glass);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--cv-border);
@@ -79,7 +98,7 @@ body {
   display: inline-flex;
   padding: 2px;
   border-radius: 9px;
-  background: rgba(118, 118, 128, 0.12);
+  background: var(--cv-fill);
 }
 
 .cv-switch button {
@@ -94,7 +113,8 @@ body {
   cursor: pointer;
 }
 
-.cv-switch button[aria-selected="true"] {
+.cv-switch button[aria-selected="true"],
+.cv-switch button[aria-checked="true"] {
   background: var(--cv-surface);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.08),
@@ -144,7 +164,14 @@ body {
 
 .cv-index a:hover {
   color: var(--cv-text);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--cv-hover);
+}
+
+/* The section in view (scroll-spy). */
+.cv-index a[aria-current] {
+  color: var(--cv-text);
+  background: var(--cv-fill);
+  font-weight: 500;
 }
 
 .cv-sections {
@@ -181,6 +208,10 @@ body {
   .cv-tile[data-viewport="desktop"] {
     grid-column: span 2;
   }
+}
+
+.cv-tile[data-viewport="fluid"] {
+  grid-column: 1 / -1;
 }
 
 /* ---- Tile ---- */
@@ -234,6 +265,43 @@ body {
 
 .cv-poster {
   object-fit: cover;
+}
+
+/* A fluid frame is wider or narrower than its poster: pin the poster to
+ * the page's top-left, where a 1:1 page starts. */
+.cv-tile[data-viewport="fluid"] .cv-poster {
+  object-position: left top;
+}
+
+.cv-tile-see {
+  justify-self: start;
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+/* ---- Section defaults (Sheet geometry) ---- */
+.cv-defaults {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px 24px;
+  margin: 12px 0 0;
+}
+
+.cv-defaults div {
+  display: grid;
+  gap: 1px;
+}
+
+.cv-defaults dt {
+  font-size: 12px;
+  color: var(--cv-text-2);
+}
+
+.cv-defaults dd {
+  margin: 0;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  overflow-wrap: anywhere;
 }
 
 .cv-poster-empty {
@@ -323,38 +391,6 @@ body {
   white-space: nowrap;
 }
 
-/* ---- Interaction notes ---- */
-.cv-notes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--cv-border);
-}
-
-.cv-notes li {
-  display: grid;
-  grid-template-columns: 180px minmax(0, 1fr) auto;
-  gap: 16px;
-  align-items: baseline;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--cv-border);
-  font-size: 14px;
-}
-
-.cv-note-label {
-  font-weight: 500;
-}
-
-.cv-note-how {
-  color: var(--cv-text-2);
-}
-
-.cv-notes a {
-  font-family: var(--cv-mono);
-  font-size: 11px;
-  color: var(--cv-text);
-}
-
 /* ---- Phone ---- */
 @media (max-width: 719px) {
   html {
@@ -362,17 +398,37 @@ body {
     scroll-padding-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 60px);
   }
 
+  :root {
+    /* Two rows: title and appearance, then the view switch. */
+    --cv-topbar-h: 96px;
+  }
+
   .cv-topbar {
-    gap: 12px;
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 8px 12px;
     padding: 0 16px;
+  }
+
+  .cv-title h1 {
+    white-space: nowrap;
   }
 
   .cv-meta {
     display: none;
   }
 
-  .cv-switch {
+  .cv-appearance {
     margin-left: auto;
+  }
+
+  .cv-switch[role="tablist"] {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .cv-switch[role="tablist"] button {
+    flex: 1;
   }
 
   .cv-layout {
@@ -386,7 +442,7 @@ body {
     z-index: 5;
     margin: 0 -16px 24px;
     padding: 8px 16px;
-    background: rgba(245, 245, 247, 0.86);
+    background: var(--cv-glass);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 1px solid var(--cv-border);
@@ -411,15 +467,6 @@ body {
    * whole specimen visible at a time. */
   .cv-tile[data-viewport="phone"] .cv-frame {
     max-width: 260px;
-  }
-
-  .cv-notes li {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .cv-note-how {
-    grid-column: 1 / -1;
-    grid-row: 2;
   }
 }
 

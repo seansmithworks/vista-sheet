@@ -3,8 +3,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { FramesManifest } from "./canvas/Dissection";
 import {
+  CANVAS_SECTIONS,
   CANVAS_TILES,
   DRAG_TILE_ID,
+  posterName,
   VIEWPORTS,
   type PlayTile,
 } from "./canvas/tiles";
@@ -277,9 +279,69 @@ test("dissection renders every captured sequence with no broken image", async ({
   await expect(page.locator(".dx-legend")).toHaveCount(4, { timeout: 20_000 });
 });
 
-test("every tile has a poster", () => {
-  const missing = CANVAS_TILES.filter(
-    (t) => !existsSync(`${PUBLIC}canvas/posters/${t.id}.png`),
-  ).map((t) => t.id);
+test("every tile has a poster, and a dark twin unless it's a Theme tile", () => {
+  const missing = CANVAS_TILES.flatMap((t) =>
+    [posterName(t, "light"), posterName(t, "dark")].filter(
+      (f) => !existsSync(`${PUBLIC}canvas/posters/${f}`),
+    ),
+  );
   expect(missing).toEqual([]);
+});
+
+test("Appearance: Dark repaints following tiles neutral-dark, never Theme tiles", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/canvas.html");
+  await page.getByRole("radio", { name: "Dark", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-appearance", "dark");
+
+  const fill = (frame: Frame, part: string) =>
+    frame.evaluate((p) => {
+      const el = document.querySelector(`[data-vista-sheet-part="${p}"]`)!;
+      return {
+        seen: getComputedStyle(el).backgroundColor,
+        body: getComputedStyle(document.body).backgroundColor,
+      };
+    }, part);
+  const norm = (c: string) =>
+    page.evaluate((v) => {
+      const probe = document.createElement("div");
+      document.body.append(probe);
+      probe.style.backgroundColor = v;
+      const out = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return out;
+    }, c);
+
+  const dark = PALETTES["neutral-dark"];
+  const open = await liveFrame(page, "open-basic");
+  await expect
+    .poll(async () => (await fill(open, "sheet")).seen)
+    .toBe(await norm(dark.surfaceElevated));
+  expect((await fill(open, "sheet")).body).toBe(await norm(dark.ground));
+
+  const warm = await liveFrame(page, "theme-warm");
+  expect((await fill(warm, "sheet")).seen).toBe(
+    await norm(PALETTES.warm.surfaceElevated),
+  );
+
+  const lp = await liveFrame(page, "link-preview");
+  await expect(lp.locator("body")).toHaveAttribute("data-dark-mode", "true");
+});
+
+test("the section index marks the section in view", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/canvas.html");
+  const index = page.getByRole("navigation", { name: "Sections" });
+  await expect(index.locator("a[aria-current]")).toHaveText(
+    CANVAS_SECTIONS[0].title,
+  );
+  for (const s of [CANVAS_SECTIONS[5], CANVAS_SECTIONS[2]]) {
+    await page.locator(`section#${s.id}`).evaluate((el) =>
+      el.scrollIntoView({ block: "start" }),
+    );
+    await expect(index.locator("a[aria-current]")).toHaveCount(1);
+    await expect(index.locator("a[aria-current]")).toHaveText(s.title);
+  }
 });
