@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-07T15:50:26.769Z",
-  "gitHead": "a1c9ad6",
+  "capturedAt": "2026-10-07T23:00:23.604Z",
+  "gitHead": "9c3b41a",
   "sequences": [
     {
       "id": "morph-circle",
@@ -14,69 +14,69 @@
         {
           "file": "canvas/frames/morph-circle/00-rest.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-circle/01-open-20.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 20%",
-          "collapse": 0.7514154616061468,
-          "ms": 64
+          "collapse": 0.7633688564824715,
+          "ms": 60
         },
         {
           "file": "canvas/frames/morph-circle/02-open-40.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 40%",
-          "collapse": 0.5593044008107199,
-          "ms": 96
+          "collapse": 0.5709825755240434,
+          "ms": 92
         },
         {
           "file": "canvas/frames/morph-circle/03-open-60.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 60%",
-          "collapse": 0.3871989833749903,
-          "ms": 128
+          "collapse": 0.3970011441662333,
+          "ms": 124
         },
         {
           "file": "canvas/frames/morph-circle/04-open-80.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 80%",
-          "collapse": 0.1954506099274467,
-          "ms": 176
+          "collapse": 0.15485165565308154,
+          "ms": 188
         },
         {
           "file": "canvas/frames/morph-circle/05-settled.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-circle/06-close-33.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "close 33%",
-          "collapse": 0.4099513206337059,
-          "ms": 104
+          "collapse": 0.3862590989744932,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-circle/07-close-67.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "close 67%",
-          "collapse": 0.7292151201321599,
-          "ms": 152
+          "collapse": 0.7133582864969097,
+          "ms": 148
         },
         {
           "file": "canvas/frames/morph-circle/08-closed.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-circle/00-rest.png"
@@ -95,69 +95,69 @@
         {
           "file": "canvas/frames/morph-squircle/00-rest.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-squircle/01-open-20.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 20%",
-          "collapse": 0.7454147206166969,
-          "ms": 64
+          "collapse": 0.7152351613190461,
+          "ms": 68
         },
         {
           "file": "canvas/frames/morph-squircle/02-open-40.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 40%",
-          "collapse": 0.5534971119524106,
-          "ms": 96
+          "collapse": 0.5248066023870597,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-squircle/03-open-60.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 60%",
-          "collapse": 0.3823506093648528,
-          "ms": 128
+          "collapse": 0.3586427256924125,
+          "ms": 132
         },
         {
           "file": "canvas/frames/morph-squircle/04-open-80.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "open 80%",
-          "collapse": 0.19233375245715578,
-          "ms": 176
+          "collapse": 0.17725711493433868,
+          "ms": 180
         },
         {
           "file": "canvas/frames/morph-squircle/05-settled.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-squircle/06-close-33.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "close 33%",
-          "collapse": 0.4020812898141496,
-          "ms": 104
+          "collapse": 0.37034177233503607,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-squircle/07-close-67.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "close 67%",
-          "collapse": 0.7239941383253669,
-          "ms": 152
+          "collapse": 0.7024634498630604,
+          "ms": 148
         },
         {
           "file": "canvas/frames/morph-squircle/08-closed.png",
           "width": 562,
-          "height": 329,
+          "height": 331,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-squircle/00-rest.png"
@@ -185,32 +185,32 @@
           "width": 562,
           "height": 426,
           "label": "open 20%",
-          "collapse": 0.7212893482313201,
-          "ms": 68
+          "collapse": 0.7693181157790063,
+          "ms": 60
         },
         {
           "file": "canvas/frames/morph-rectangle/02-open-40.png",
           "width": 562,
           "height": 426,
           "label": "open 40%",
-          "collapse": 0.5304963757594531,
-          "ms": 100
+          "collapse": 0.5768519645541793,
+          "ms": 92
         },
         {
           "file": "canvas/frames/morph-rectangle/03-open-60.png",
           "width": 562,
           "height": 426,
           "label": "open 60%",
-          "collapse": 0.3633125950694393,
-          "ms": 132
+          "collapse": 0.32697068905092297,
+          "ms": 140
         },
         {
           "file": "canvas/frames/morph-rectangle/04-open-80.png",
           "width": 562,
           "height": 426,
           "label": "open 80%",
-          "collapse": 0.1802053206668389,
-          "ms": 180
+          "collapse": 0.1575393460728737,
+          "ms": 188
         },
         {
           "file": "canvas/frames/morph-rectangle/05-settled.png",
@@ -266,32 +266,32 @@
           "width": 442,
           "height": 518,
           "label": "open 20%",
-          "collapse": 0.7514154616061468,
-          "ms": 64
+          "collapse": 0.7987186902756147,
+          "ms": 56
         },
         {
           "file": "canvas/frames/morph-dark/02-open-40.png",
           "width": 442,
           "height": 518,
           "label": "open 40%",
-          "collapse": 0.5593044008107199,
-          "ms": 96
+          "collapse": 0.5135038864801249,
+          "ms": 104
         },
         {
           "file": "canvas/frames/morph-dark/03-open-60.png",
           "width": 442,
           "height": 518,
           "label": "open 60%",
-          "collapse": 0.3871989833749903,
-          "ms": 128
+          "collapse": 0.34941146156065717,
+          "ms": 136
         },
         {
           "file": "canvas/frames/morph-dark/04-open-80.png",
           "width": 442,
           "height": 518,
           "label": "open 80%",
-          "collapse": 0.1954506099274467,
-          "ms": 176
+          "collapse": 0.1714601578676766,
+          "ms": 184
         },
         {
           "file": "canvas/frames/morph-dark/05-settled.png",
@@ -305,7 +305,7 @@
           "width": 442,
           "height": 518,
           "label": "close 33%",
-          "collapse": 0.37034177233503607,
+          "collapse": 0.3862590989744932,
           "ms": 100
         },
         {
@@ -313,7 +313,7 @@
           "width": 442,
           "height": 518,
           "label": "close 67%",
-          "collapse": 0.7024634498630604,
+          "collapse": 0.7133582864969097,
           "ms": 148
         },
         {
@@ -338,14 +338,14 @@
         {
           "file": "canvas/frames/morph-phone/00-rest.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-phone/01-open-20.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "open 20%",
           "collapse": 0.7394001516259557,
           "ms": 64
@@ -353,7 +353,7 @@
         {
           "file": "canvas/frames/morph-phone/02-open-40.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "open 40%",
           "collapse": 0.547711982676271,
           "ms": 96
@@ -361,7 +361,7 @@
         {
           "file": "canvas/frames/morph-phone/03-open-60.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "open 60%",
           "collapse": 0.3775376193681761,
           "ms": 128
@@ -369,7 +369,7 @@
         {
           "file": "canvas/frames/morph-phone/04-open-80.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "open 80%",
           "collapse": 0.18925096112274556,
           "ms": 176
@@ -377,30 +377,30 @@
         {
           "file": "canvas/frames/morph-phone/05-settled.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-phone/06-close-33.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "close 33%",
-          "collapse": 0.3783112103429952,
+          "collapse": 0.39418318370918437,
           "ms": 100
         },
         {
           "file": "canvas/frames/morph-phone/07-close-67.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "close 67%",
-          "collapse": 0.7079432651819999,
+          "collapse": 0.7187085559682169,
           "ms": 148
         },
         {
           "file": "canvas/frames/morph-phone/08-closed.png",
           "width": 585,
-          "height": 726,
+          "height": 729,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-phone/00-rest.png"
@@ -428,32 +428,32 @@
           "width": 441,
           "height": 642,
           "label": "open 20%",
-          "collapse": 0.7394001516259557,
-          "ms": 216
+          "collapse": 0.7693181157790063,
+          "ms": 212
         },
         {
           "file": "canvas/frames/morph-link-preview/02-open-40.png",
           "width": 441,
           "height": 642,
           "label": "open 40%",
-          "collapse": 0.547711982676271,
-          "ms": 248
+          "collapse": 0.5768519645541793,
+          "ms": 244
         },
         {
           "file": "canvas/frames/morph-link-preview/03-open-60.png",
           "width": 441,
           "height": 642,
           "label": "open 60%",
-          "collapse": 0.3775376193681761,
-          "ms": 280
+          "collapse": 0.32697068905092297,
+          "ms": 292
         },
         {
           "file": "canvas/frames/morph-link-preview/04-open-80.png",
           "width": 441,
           "height": 642,
           "label": "open 80%",
-          "collapse": 0.18925096112274556,
-          "ms": 328
+          "collapse": 0.1575393460728737,
+          "ms": 340
         },
         {
           "file": "canvas/frames/morph-link-preview/05-settled.png",
@@ -467,16 +467,16 @@
           "width": 441,
           "height": 642,
           "label": "close 33%",
-          "collapse": 0.4333731307676023,
-          "ms": 360
+          "collapse": 0.4020812898141496,
+          "ms": 356
         },
         {
           "file": "canvas/frames/morph-link-preview/07-close-67.png",
           "width": 441,
           "height": 642,
           "label": "close 67%",
-          "collapse": 0.7444916403963149,
-          "ms": 408
+          "collapse": 0.7239941383253669,
+          "ms": 404
         },
         {
           "file": "canvas/frames/morph-link-preview/08-closed.png",
@@ -502,7 +502,7 @@
           "width": 300,
           "height": 300,
           "label": "+0ms",
-          "collapse": 0.0032466207413811964,
+          "collapse": 0.005404438830131082,
           "ms": 0,
           "detail": "opacity 0.00 · scale 0.00 · rotate 0°"
         },
@@ -511,34 +511,34 @@
           "width": 300,
           "height": 300,
           "label": "+40ms",
-          "collapse": -0.00577875849696797,
+          "collapse": -0.004828571162382776,
           "ms": 40,
-          "detail": "opacity 0.00 · scale 0.15 · rotate -72°"
+          "detail": "opacity 0.00 · scale 0.14 · rotate -73°"
         },
         {
           "file": "canvas/frames/close-reveal/02-t80.png",
           "width": 300,
           "height": 300,
           "label": "+80ms",
-          "collapse": -0.009406316513575576,
+          "collapse": -0.009366214627831002,
           "ms": 80,
-          "detail": "opacity 0.00 · scale 0.57 · rotate -20°"
+          "detail": "opacity 0.00 · scale 0.56 · rotate -21°"
         },
         {
           "file": "canvas/frames/close-reveal/03-t150.png",
           "width": 300,
           "height": 300,
           "label": "+150ms",
-          "collapse": -0.007028386294552342,
+          "collapse": -0.007308808775829069,
           "ms": 150,
-          "detail": "opacity 0.35 · scale 0.93 · rotate 14°"
+          "detail": "opacity 0.53 · scale 0.93 · rotate 14°"
         },
         {
           "file": "canvas/frames/close-reveal/04-t250.png",
           "width": 300,
           "height": 300,
           "label": "+250ms",
-          "collapse": -0.002327544652780115,
+          "collapse": -0.002504597804739804,
           "ms": 250,
           "detail": "opacity 1.00 · scale 1.03 · rotate 3°"
         },
@@ -574,7 +574,7 @@
         {
           "file": "canvas/frames/shadow-crossfade/00-rest.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "rest",
           "collapse": 1,
           "shadowOpacity": 1,
@@ -583,47 +583,47 @@
         {
           "file": "canvas/frames/shadow-crossfade/01-open-20.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "open 20%",
-          "collapse": 0.7870349735412188,
-          "ms": 56,
+          "collapse": 0.7693181157790063,
+          "ms": 60,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/02-open-40.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "open 40%",
-          "collapse": 0.5945718742945859,
-          "ms": 88,
+          "collapse": 0.5768519645541793,
+          "ms": 92,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/03-open-60.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "open 60%",
-          "collapse": 0.3403255406312685,
-          "ms": 136,
+          "collapse": 0.32697068905092297,
+          "ms": 140,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/04-open-80.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "open 80%",
-          "collapse": 0.1657945950990512,
-          "ms": 184,
-          "shadowOpacity": 0.6631783803962048,
-          "sheetShadowOpacity": 0.3368216196037952
+          "collapse": 0.1575393460728737,
+          "ms": 188,
+          "shadowOpacity": 0.6301573842914948,
+          "sheetShadowOpacity": 0.3698426157085052
         },
         {
           "file": "canvas/frames/shadow-crossfade/05-settled.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "settled",
           "collapse": 0,
           "shadowOpacity": 0,
@@ -632,27 +632,27 @@
         {
           "file": "canvas/frames/shadow-crossfade/06-close-33.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "close 33%",
-          "collapse": 0.4020812898141496,
-          "ms": 104,
+          "collapse": 0.354347675645996,
+          "ms": 96,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/07-close-67.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "close 67%",
-          "collapse": 0.7239941383253669,
-          "ms": 152,
+          "collapse": 0.6913093859317017,
+          "ms": 144,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/08-closed.png",
           "width": 562,
-          "height": 361,
+          "height": 363,
           "label": "closed",
           "collapse": 1,
           "shadowOpacity": 1,
@@ -683,8 +683,7 @@
           "height": 408,
           "label": "hover",
           "collapse": null,
-          "detail": "pointer over the trigger",
-          "identicalTo": "canvas/frames/trigger-states-disc/00-rest.png"
+          "detail": "pointer over the trigger"
         },
         {
           "file": "canvas/frames/trigger-states-disc/02-focus-visible.png",
@@ -700,8 +699,7 @@
           "height": 408,
           "label": "pressed",
           "collapse": null,
-          "detail": "pointer down, held",
-          "identicalTo": "canvas/frames/trigger-states-disc/00-rest.png"
+          "detail": "pointer down, held"
         }
       ]
     },
@@ -727,8 +725,7 @@
           "height": 252,
           "label": "hover",
           "collapse": null,
-          "detail": "pointer over the trigger",
-          "identicalTo": "canvas/frames/trigger-states-button/00-rest.png"
+          "detail": "pointer over the trigger"
         },
         {
           "file": "canvas/frames/trigger-states-button/02-focus-visible.png",
@@ -744,8 +741,7 @@
           "height": 252,
           "label": "pressed",
           "collapse": null,
-          "detail": "pointer down, held",
-          "identicalTo": "canvas/frames/trigger-states-button/00-rest.png"
+          "detail": "pointer down, held"
         }
       ]
     },
@@ -761,41 +757,41 @@
         {
           "file": "canvas/frames/reduced-motion/00-rest.png",
           "width": 560,
-          "height": 360,
+          "height": 362,
           "label": "rest",
           "collapse": null
         },
         {
           "file": "canvas/frames/reduced-motion/01-t50.png",
           "width": 560,
-          "height": 360,
+          "height": 362,
           "label": "+50ms",
           "collapse": null,
           "ms": 50,
-          "detail": "sheet opacity 0.56"
+          "detail": "sheet opacity 0.61"
         },
         {
           "file": "canvas/frames/reduced-motion/02-t100.png",
           "width": 560,
-          "height": 360,
+          "height": 362,
           "label": "+100ms",
           "collapse": null,
           "ms": 100,
-          "detail": "sheet opacity 0.82"
+          "detail": "sheet opacity 0.85"
         },
         {
           "file": "canvas/frames/reduced-motion/03-t150.png",
           "width": 560,
-          "height": 360,
+          "height": 362,
           "label": "+150ms",
           "collapse": null,
           "ms": 150,
-          "detail": "sheet opacity 0.98"
+          "detail": "sheet opacity 0.99"
         },
         {
           "file": "canvas/frames/reduced-motion/04-settled.png",
           "width": 560,
-          "height": 360,
+          "height": 362,
           "label": "settled",
           "collapse": null,
           "detail": "sheet opacity 1.00"
@@ -828,9 +824,9 @@
           "part": "shadow",
           "slot": null,
           "x": 16,
-          "y": 556,
+          "y": 554,
           "w": 358,
-          "h": 272
+          "h": 274
         },
         {
           "part": "trigger-root",
@@ -860,23 +856,23 @@
           "part": "sheet",
           "slot": null,
           "x": 16,
-          "y": 556,
+          "y": 554,
           "w": 358,
-          "h": 272
+          "h": 274
         },
         {
           "part": "shared",
           "slot": "sheet",
           "x": 41,
-          "y": 581,
-          "w": 92,
-          "h": 92
+          "y": 579,
+          "w": 94,
+          "h": 94
         },
         {
           "part": "close",
           "slot": null,
           "x": 303,
-          "y": 583,
+          "y": 581,
           "w": 44,
           "h": 44
         },
@@ -1284,9 +1280,9 @@
           "part": "shadow",
           "slot": null,
           "x": 16,
-          "y": 400,
+          "y": 398,
           "w": 358,
-          "h": 428
+          "h": 430
         },
         {
           "part": "trigger-root",
@@ -1316,23 +1312,23 @@
           "part": "sheet",
           "slot": null,
           "x": 16,
-          "y": 400,
+          "y": 398,
           "w": 358,
-          "h": 428
+          "h": 430
         },
         {
           "part": "shared",
           "slot": "sheet",
           "x": 41,
-          "y": 425,
-          "w": 92,
-          "h": 92
+          "y": 423,
+          "w": 94,
+          "h": 94
         },
         {
           "part": "close",
           "slot": null,
           "x": 303,
-          "y": 427,
+          "y": 425,
           "w": 44,
           "h": 44
         },
