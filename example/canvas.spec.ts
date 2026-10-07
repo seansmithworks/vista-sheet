@@ -379,3 +379,29 @@ test("the section index marks the section in view", async ({ page }) => {
     await expect(index.locator("a[aria-current]")).toHaveText(s.title);
   }
 });
+
+test("list, grid and nav open tiles: the shared icon is a 40px disc with a 24px glyph", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/canvas.html");
+  for (const id of ["open-list", "open-grid", "open-nav"]) {
+    await test.step(id, async () => {
+      const frame = await liveFrame(page, id);
+      const shared = frame.locator(
+        '[data-vista-sheet-part="shared"][data-vista-sheet-slot="sheet"]',
+      );
+      await expect(shared).toHaveCount(1);
+      const size = await shared.evaluate((el) => {
+        const disc = el.getBoundingClientRect();
+        const glyph = el.querySelector("svg")!.getBoundingClientRect();
+        return {
+          disc: [Math.round(disc.width), Math.round(disc.height)],
+          glyph: [Math.round(glyph.width), Math.round(glyph.height)],
+        };
+      });
+      expect(size.disc, "disc").toEqual([40, 40]);
+      expect(size.glyph, "glyph").toEqual([24, 24]);
+    });
+  }
+});
