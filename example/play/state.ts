@@ -39,8 +39,7 @@ export const PACKAGE_DEFAULTS = {
   border: "#e5e5e5",
   text: "#1d1d1f",
   accent: "#1d1d1f",
-  triggerShadow:
-    "0 1px 4px rgba(26, 22, 16, 0.14), 0 6px 24px rgba(0, 0, 0, 0.15)",
+  triggerShadow: "0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08)",
   sheetShadow: "0 8px 48px rgba(0, 0, 0, 0.24), 0 2px 8px rgba(0, 0, 0, 0.12)",
 } as const;
 
@@ -75,7 +74,7 @@ interface PaletteDef {
 }
 
 const DARK_SHADOW =
-  "0 1px 4px rgba(0, 0, 0, 0.4), 0 6px 24px rgba(0, 0, 0, 0.45)";
+  "0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.3)";
 const DARK_SHEET_SHADOW =
   "0 8px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35)";
 

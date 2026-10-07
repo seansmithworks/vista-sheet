@@ -9,7 +9,12 @@ import {
   useRef,
 } from "react";
 import type { TriggerBox } from "./shape";
-import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from "react";
 import { animate, motion, useMotionValue } from "motion/react";
 import type { MotionValue, PanInfo } from "motion/react";
 import {
@@ -38,6 +43,8 @@ import { LinkTrigger } from "./LinkTrigger";
 import { Shared } from "./Shared";
 import { Media } from "./Media";
 import { TriggerSurface } from "./TriggerSurface";
+import { writeTriggerFeedback } from "./triggerFeedback";
+import type { TriggerFeedback } from "./triggerFeedback";
 import type { Rect, TriggerComponentProps, TriggerProps } from "./types";
 import styles from "./styles.module.css";
 
@@ -98,6 +105,7 @@ function ButtonTrigger({
     triggerElRef,
     sheetRect,
     collapseProgress,
+    shadowElRef,
   } = ctx;
 
   const x = useMotionValue(0);
@@ -347,9 +355,69 @@ function ButtonTrigger({
     }
   }, [sheetRect, publishBox]);
 
-  const handlePointerDown = useCallback(() => {
-    maxTravelRef.current = 0;
-  }, []);
+  // Hover/pressed feedback (triggerFeedback.ts). Only at rest: while the
+  // sheet is mounted, the invisible trigger must never move the shadow.
+  // Handlers live on the wrapper because Motion's drag captures the pointer
+  // there, so pointerup after a drag never reaches the button.
+  const openRef = useRef(open);
+  openRef.current = open;
+  const setFeedback = useCallback(
+    (state: TriggerFeedback) => {
+      if (reduceMotion) return;
+      if (openRef.current || sheetRectRef.current !== null) return;
+      writeTriggerFeedback([triggerRef.current, shadowElRef.current], state);
+    },
+    [reduceMotion, shadowElRef],
+  );
+
+  // Root's setOpen already drops feedback before an open it starts; a
+  // controlled `open` prop flips without it, so cover that commit here.
+  useLayoutEffect(() => {
+    if (open) {
+      writeTriggerFeedback([triggerRef.current, shadowElRef.current], "none");
+    }
+  }, [open, shadowElRef]);
+
+  const handlePointerEnter = useCallback(
+    (e: ReactPointerEvent) => {
+      if (e.pointerType === "mouse") setFeedback("hover");
+    },
+    [setFeedback],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: ReactPointerEvent) => {
+      setFeedback(e.pointerType === "mouse" ? "hover" : "rest");
+    },
+    [setFeedback],
+  );
+
+  const handleFeedbackEnd = useCallback(
+    () => setFeedback("rest"),
+    [setFeedback],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: ReactKeyboardEvent) => {
+      if (e.key === " " && !e.repeat) setFeedback("pressed");
+    },
+    [setFeedback],
+  );
+
+  const handleKeyUp = useCallback(
+    (e: ReactKeyboardEvent) => {
+      if (e.key === " ") setFeedback("rest");
+    },
+    [setFeedback],
+  );
+
+  const handlePointerDown = useCallback(
+    (e: ReactPointerEvent) => {
+      maxTravelRef.current = 0;
+      if (e.button === 0) setFeedback("pressed");
+    },
+    [setFeedback],
+  );
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
@@ -501,6 +569,13 @@ function ButtonTrigger({
         shape === "rectangle" ? buttonSize : undefined
       }
       onPointerDown={handlePointerDown}
+      onPointerEnter={handlePointerEnter}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handleFeedbackEnd}
+      onPointerCancel={handleFeedbackEnd}
+      onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
+      onBlur={handleFeedbackEnd}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}

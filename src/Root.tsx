@@ -10,6 +10,7 @@ import {
 } from "motion/react";
 import { DEFAULT_ANCHOR, PREVIEW_DEFAULT_SIZE, type AnchorId } from "./anchors";
 import { VistaSheetContext, type VistaSheetContextValue } from "./context";
+import { writeTriggerFeedback } from "./triggerFeedback";
 import {
   PREVIEW_TRIGGER_RADIUS_PX,
   resolveMotion,
@@ -84,12 +85,24 @@ export function Root({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const open = isControlled ? controlledOpen : uncontrolledOpen;
 
+  const triggerElRef = useRef<HTMLElement | null>(null);
+  const shadowElRef = useRef<HTMLElement | null>(null);
+
   const setOpen = useCallback(
     (next: boolean) => {
+      // Drop any hover/pressed transform before the open commit: Motion
+      // measures the morph's start from the trigger's rendered box in this
+      // same task (triggerFeedback.ts). A link preview has no feedback.
+      if (next && !preview) {
+        writeTriggerFeedback(
+          [triggerElRef.current, shadowElRef.current],
+          "none",
+        );
+      }
       if (!isControlled) setUncontrolledOpen(next);
       onOpenChange?.(next);
     },
-    [isControlled, onOpenChange],
+    [isControlled, onOpenChange, preview],
   );
 
   const [anchor, setAnchorState] = usePersistedAnchor(
@@ -290,7 +303,6 @@ export function Root({
   const [triggerRect, setTriggerRect] = useState<Rect | null>(null);
   const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
 
-  const triggerElRef = useRef<HTMLElement | null>(null);
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
 
   // The single numeric-px border-radius MotionValue both crossfade
@@ -361,6 +373,7 @@ export function Root({
     registerClose,
     hasRegisteredClose,
     triggerElRef,
+    shadowElRef,
     preview,
     layerEl,
     setLayerArmed,

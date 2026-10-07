@@ -440,17 +440,33 @@ package renders correctly out of the box:
 | `--vista-sheet-sheet-radius` | `48px` |
 | `--vista-sheet-trigger-radius` | `9999px` |
 | `--vista-sheet-sheet-padding` | `24px` |
-| `--vista-sheet-shadow` | `0 1px 4px rgba(26,22,16,.14), 0 6px 24px rgba(0,0,0,.15)` |
+| `--vista-sheet-shadow` | `0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)` |
 | `--vista-sheet-sheet-shadow` | `0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)` |
 | `--vista-sheet-sheet-shadow-fade-start` | `0` |
 | `--vista-sheet-sheet-shadow-fade-end` | `0.25` |
 | `--vista-sheet-z` | `100` |
+| `--vista-sheet-trigger-hover-lift` | `1px` |
+| `--vista-sheet-trigger-press-scale` | `0.97` |
 
 `--vista-sheet-sheet-shadow-fade-start`/`-fade-end` are unitless
 `collapseProgress` fractions (0 = open at rest, 1 = closed at rest) marking
 where `<VistaSheet.Shadow>` crossfades from the heavy `--vista-sheet-sheet-shadow`
 look to the thin `--vista-sheet-shadow` look — see "Two shadows, one painter"
 below.
+
+`--vista-sheet-trigger-hover-lift` (how far the resting trigger rises on
+mouse hover) and `--vista-sheet-trigger-press-scale` (its scale while
+pressed, by pointer or Space) drive the disc and button triggers' hover and
+pressed states. The trigger and its `<VistaSheet.Shadow>` move together, over
+150ms. Set `0px` / `1` to turn either off. Neither applies under reduced
+motion, while the sheet is open or closing, or to a link preview; any open
+drops them instantly so the morph starts from the trigger at rest. Every
+trigger also has an invisible hit area of at least 48px on each axis (a
+rectangle `s`/`m` button, or a disc under 48px) without changing its visual
+size or layout.
+
+A dark palette's shadow needs more alpha to read on a dark ground. The
+example pages use `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)`.
 
 The package writes `--vista-sheet-trigger-size`, `--vista-sheet-button-width`,
 `--vista-sheet-trigger-x/-y`,

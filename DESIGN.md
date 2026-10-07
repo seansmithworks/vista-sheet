@@ -31,8 +31,16 @@ rounded:
   triggerSquircleFallback: "27.16% of trigger size (strawman, awaiting dial)"
   triggerRectangle: "min(trigger radius token, height / 2): a pill (strawman, awaiting dial)"
 shadows:
-  silhouette: "0 1px 4px rgba(26,22,16,.14), 0 6px 24px rgba(0,0,0,.15)"
+  silhouette: "0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)"
+  silhouetteDark: "0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)"
   sheetAtRest: "0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)"
+triggerFeedback:
+  # strawman, awaiting dial
+  hoverLift: "1px"
+  pressScale: 0.97
+  durationMs: 150
+  easing: "cubic-bezier(0.23, 1, 0.32, 1)"
+  minHitArea: "48px"
 buttonSizes:
   # strawman, awaiting dial
   s: { height: 36px, paddingInline: 14px, gap: 6px }
@@ -82,6 +90,9 @@ Consumers override with `--vista-sheet-*` custom properties. Never add a hex to 
 - **Trigger:** `shape` on Root, default circle (`--vista-sheet-trigger-radius: 9999px`). Squircle is a true superellipse via `corner-shape` (Chromium; 27.16% radius elsewhere) and gives the sheet squircle corners too; rounded square is 25% of trigger size; square is 0. Surface, silhouette shadow, Shared clip and focus ring all follow the shape, and the shadow's corner uses the surface's own radius curve. It rests at its shape after every close path (geometry tests (o) and (o-shape)).
 - **Sheet:** `--vista-sheet-sheet-radius: 48px`. During the morph the radius is a pure function of `collapseProgress`, never its own spring.
 - **Two shadow looks, one painter.** `<VistaSheet.Shadow>` paints both the thin disc shadow and the sheet's heavier resting shadow on its own silhouette, crossfaded by opacity as `collapseProgress` moves (2026-09-11). Nothing else paints a shadow.
+- **Trigger shadow:** soft and low-contrast (2026-10-07): `0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)` on light, `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)` on dark. The 2px `--vista-sheet-surface-border` ring carries the edge; the shadow only lifts it off the page.
+- **Trigger hover and press:** at rest only, the trigger rises 1px on mouse hover and scales to 0.97 while pressed, 150ms strong ease-out, with `<VistaSheet.Shadow>` moving identically so the two never disagree (Strawman, awaiting dial). Never while the sheet is mounted, never under reduced motion, and any open drops it instantly before the morph measures its start.
+- **Tap target:** every trigger has an invisible hit area of at least 48px on each axis (rectangle s/m, small discs). The visual and every measured box keep their size.
 - **Close button:** 44px hit area, transparent, circular focus ring.
 - **Media sheet:** `<VistaSheet.Sheet aspectRatio>` contain-fits the media ratio; `<VistaSheet.Media>` covers the surface, centred, clipped by the surface shape (Strawman (v0.2): centred crop, no focal point).
 - **Rectangle trigger:** `shape="rectangle"` with `buttonSize` s/m/l → height 36/44/52px, inline padding 14/18/22px, gap 6/8/10px. Width sizes to the label by default, or a fixed `buttonWidth`. Corners are a pill, `min(--vista-sheet-trigger-radius, height / 2)` (Strawman (v0.2), awaiting dial). Shared and Media are not supported inside it in v0.2.
