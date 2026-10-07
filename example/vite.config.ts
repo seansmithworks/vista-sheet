@@ -2,7 +2,26 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+// Dev only: html-review (:4849) serves its widget and API same-origin. The
+// canvas pulls both through this proxy; its guard rejects any Origin other
+// than localhost:4849, so the header is dropped on the way through.
+const htmlReview = {
+  target: "http://localhost:4849",
+  changeOrigin: true,
+  configure: (proxy: {
+    on: (
+      ev: "proxyReq",
+      cb: (req: { removeHeader: (n: string) => void }) => void,
+    ) => void;
+  }) => {
+    proxy.on("proxyReq", (proxyReq) => proxyReq.removeHeader("origin"));
+  },
+};
+
 export default defineConfig({
+  define: {
+    __REVIEW_SOURCE_PATH__: JSON.stringify(resolve(__dirname, "canvas.html")),
+  },
   plugins: [react()],
   root: "./example",
   resolve: {
@@ -13,6 +32,9 @@ export default defineConfig({
       // file also run here against live local source.
       "@seansmithworks/vista-sheet": resolve(__dirname, "../src/index.ts"),
     },
+  },
+  server: {
+    proxy: { "/widget": htmlReview, "/api": htmlReview },
   },
   build: {
     outDir: "dist",

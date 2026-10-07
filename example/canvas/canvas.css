@@ -13,6 +13,7 @@
   --cv-accent: #1d1d1f;
   --cv-mono: ui-monospace, "SF Mono", Menlo, monospace;
   --cv-topbar-h: 56px;
+  --cv-review-top: 0px;
 }
 
 *,
@@ -22,7 +23,7 @@
 }
 
 html {
-  scroll-padding-top: calc(var(--cv-topbar-h) + 16px);
+  scroll-padding-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 16px);
 }
 
 body {
@@ -44,7 +45,7 @@ body {
 /* ---- Top bar ---- */
 .cv-topbar {
   position: sticky;
-  top: 0;
+  top: var(--cv-review-top);
   z-index: 10;
   display: flex;
   align-items: center;
@@ -120,7 +121,7 @@ body {
 
 .cv-index {
   position: sticky;
-  top: calc(var(--cv-topbar-h) + 40px);
+  top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 40px);
   align-self: start;
 }
 
@@ -358,7 +359,7 @@ body {
 @media (max-width: 719px) {
   html {
     /* Top bar plus the sticky section index. */
-    scroll-padding-top: calc(var(--cv-topbar-h) + 60px);
+    scroll-padding-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 60px);
   }
 
   .cv-topbar {
@@ -381,7 +382,7 @@ body {
   }
 
   .cv-index {
-    top: var(--cv-topbar-h);
+    top: calc(var(--cv-review-top) + var(--cv-topbar-h));
     z-index: 5;
     margin: 0 -16px 24px;
     padding: 8px 16px;
@@ -420,4 +421,17 @@ body {
     grid-column: 1 / -1;
     grid-row: 2;
   }
+}
+
+/* html-review comment mode (dev): let clicks reach the poster and frame
+   instead of activating a tile or entering its iframe. */
+body.hw-comment-mode .cv-activate,
+body.hw-comment-mode .cv-iframe {
+  pointer-events: none;
+}
+
+/* html-review's fixed 44px top bar sits over the sticky canvas bar; push the
+   canvas's sticky chrome below it (class set by review.ts). */
+html.cv-review {
+  --cv-review-top: 44px;
 }

@@ -13,6 +13,7 @@ import {
 } from "./tiles";
 import "../example.css";
 import "./canvas.css";
+import { loadReview } from "./review";
 
 type View = "interactive" | "dissection";
 
@@ -136,18 +137,25 @@ function Tile({ tile, lives }: { tile: CanvasTile; lives: LiveSet }) {
     <figure
       className="cv-tile"
       id={`tile-${tile.id}`}
+      data-anchor-id={`tile-${tile.id}`}
       data-canvas-tile={tile.id}
       data-viewport={tile.viewport}
       data-active={isActive || undefined}
     >
       <figcaption>
-        <span className="cv-tile-label">{tile.label}</span>
+        <span
+          className="cv-tile-label"
+          data-anchor-id={`tile-${tile.id}-label`}
+        >
+          {tile.label}
+        </span>
         <code className="cv-tile-caption">{tile.caption}</code>
       </figcaption>
       <div
         ref={setFrame}
         className="cv-frame"
         data-canvas-tile-frame={tile.id}
+        data-anchor-id={`tile-${tile.id}-frame`}
         style={{
           aspectRatio: `${vp.width} / ${vp.height}`,
           background: tileGround(tile),
@@ -156,6 +164,7 @@ function Tile({ tile, lives }: { tile: CanvasTile; lives: LiveSet }) {
         {!posterMissing ? (
           <img
             className="cv-poster"
+            data-anchor-id={`tile-${tile.id}-poster`}
             src={`./canvas/posters/${tile.id}.png`}
             alt=""
             loading="lazy"
@@ -248,7 +257,12 @@ function Interactive() {
       </nav>
       <main className="cv-sections">
         {CANVAS_SECTIONS.map((s) => (
-          <section key={s.id} id={s.id} className="cv-section">
+          <section
+            key={s.id}
+            id={s.id}
+            data-anchor-id={`section-${s.id}`}
+            className="cv-section"
+          >
             <header>
               <h2>{s.title}</h2>
               <p>{s.description}</p>
@@ -260,7 +274,11 @@ function Interactive() {
             </div>
           </section>
         ))}
-        <section id="interactions" className="cv-section">
+        <section
+          id="interactions"
+          data-anchor-id="section-interactions"
+          className="cv-section"
+        >
           <header>
             <h2>Interaction states</h2>
             <p>Live only. Each one points at the tile to try it on.</p>
@@ -269,7 +287,7 @@ function Interactive() {
             {INTERACTION_NOTES.map((n) => {
               const tile = CANVAS_TILES.find((t) => t.id === n.tileId)!;
               return (
-                <li key={n.id}>
+                <li key={n.id} data-anchor-id={`interaction-${n.id}`}>
                   <span className="cv-note-label">{n.label}</span>
                   <span className="cv-note-how">{n.how}</span>
                   <a href={`#tile-${n.tileId}`}>{tile.label}</a>
@@ -322,5 +340,7 @@ function Canvas() {
     </>
   );
 }
+
+loadReview();
 
 createRoot(document.getElementById("root")!).render(<Canvas />);

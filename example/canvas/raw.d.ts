@@ -3,3 +3,9 @@ declare module "*?raw" {
   const text: string;
   export default text;
 }
+
+// Dev-only html-review loader (review.ts).
+interface ImportMeta {
+  readonly env: { readonly DEV: boolean };
+}
+declare const __REVIEW_SOURCE_PATH__: string;

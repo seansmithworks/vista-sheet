@@ -126,7 +126,7 @@ export function Dissection() {
       </nav>
       <main className="cv-sections">
         <Anatomy />
-        <section id="morph" className="cv-section">
+        <section id="morph" data-anchor-id="dx-morph" className="cv-section">
           <header>
             <h2>Morph sequences</h2>
             <p>
@@ -136,7 +136,11 @@ export function Dissection() {
           </header>
           <Strips frames={frames} groups={["morph"]} />
         </section>
-        <section id="details" className="cv-section">
+        <section
+          id="details"
+          data-anchor-id="dx-details"
+          className="cv-section"
+        >
           <header>
             <h2>Detail captures</h2>
             <p>
@@ -506,7 +510,7 @@ function Anatomy() {
   const all = Object.values(measured).flat();
 
   return (
-    <section id="anatomy" className="cv-section">
+    <section id="anatomy" data-anchor-id="dx-anatomy" className="cv-section">
       <header>
         <h2>Anatomy</h2>
         <p>
@@ -581,6 +585,7 @@ function Strips({
           key={s.id}
           className="dx-seq"
           id={`seq-${s.id}`}
+          data-anchor-id={`seq-${s.id}`}
           data-sequence={s.id}
         >
           <header>
@@ -605,9 +610,11 @@ function Strips({
                   key={f.file}
                   className="dx-frame"
                   id={frameAnchor(s.id, i)}
+                  data-anchor-id={frameAnchor(s.id, i)}
                 >
                   <img
                     src={`./${f.file}`}
+                    data-anchor-id={`${frameAnchor(s.id, i)}-img`}
                     width={Math.round((h * f.width) / f.height)}
                     height={h}
                     alt={`${s.title}, ${f.label}`}
@@ -875,7 +882,11 @@ function Choreography() {
     ) * 100;
 
   return (
-    <section id="choreography" className="cv-section">
+    <section
+      id="choreography"
+      data-anchor-id="dx-choreography"
+      className="cv-section"
+    >
       <header>
         <h2>Choreography</h2>
         <p>
@@ -958,7 +969,7 @@ function Springs() {
     },
   ];
   return (
-    <section id="springs" className="cv-section">
+    <section id="springs" data-anchor-id="dx-springs" className="cv-section">
       <header>
         <h2>Springs & presets</h2>
         <p>
@@ -1110,7 +1121,7 @@ function Swatch({ token, palette }: { token: string; palette: PaletteId }) {
 
 function Tokens() {
   return (
-    <section id="tokens" className="cv-section">
+    <section id="tokens" data-anchor-id="dx-tokens" className="cv-section">
       <header>
         <h2>Tokens</h2>
         <p>
@@ -1240,7 +1251,7 @@ function StatusCell({
 function StatesTable({ frames }: { frames: FramesManifest | Error | null }) {
   const manifest = frames && !(frames instanceof Error) ? frames : null;
   return (
-    <section id="states" className="cv-section">
+    <section id="states" data-anchor-id="dx-states" className="cv-section">
       <header>
         <h2>States & API</h2>
         <p>
@@ -1259,7 +1270,11 @@ function StatesTable({ frames }: { frames: FramesManifest | Error | null }) {
           </thead>
           <tbody>
             {STATE_ROWS.map((r) => (
-              <tr key={r.name} data-state-kind={r.status.kind}>
+              <tr
+                key={r.name}
+                data-anchor-id={`state-${r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                data-state-kind={r.status.kind}
+              >
                 <th scope="row">{r.name}</th>
                 <td>
                   <code>{r.surface}</code>
