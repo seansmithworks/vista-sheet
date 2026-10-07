@@ -393,7 +393,7 @@ const THEME_TILES: CanvasTile[] = [
     caption: "<Root preview> · ?dark=1",
     viewport: "fluid",
     fixedTheme: true,
-    src: "link-preview.html?dark=1",
+    src: "canvas/link-preview-host.html?dark=1",
   },
 ];
 
@@ -520,7 +520,7 @@ const LINK_PREVIEW_TILES: CanvasTile[] = [
     label: "Link preview",
     caption: "<Root preview>",
     viewport: "fluid",
-    src: "link-preview.html?dark=0",
+    src: "canvas/link-preview-host.html?dark=0",
   },
 ];
 

@@ -51,6 +51,7 @@ export default defineConfig({
         video: resolve(__dirname, "video.html"),
         buttons: resolve(__dirname, "buttons.html"),
         linkPreview: resolve(__dirname, "link-preview.html"),
+        linkPreviewHost: resolve(__dirname, "canvas/link-preview-host.html"),
         focus: resolve(__dirname, "fixtures/focus.html"),
       },
     },
