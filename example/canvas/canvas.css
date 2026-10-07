@@ -254,14 +254,23 @@ body {
 }
 
 /* ---- Tile ---- */
+/* Caption, frame and hint are rows of the section grid (subgrid), so a
+ * caption that wraps further pushes every frame in its row down with it:
+ * frames in a row always share a top edge. */
 .cv-tile {
   margin: 0;
   min-width: 0;
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  align-content: start;
 }
 
 .cv-tile figcaption {
   display: grid;
   gap: 2px;
+  align-content: start;
   margin-bottom: 10px;
 }
 
@@ -276,8 +285,6 @@ body {
   color: var(--cv-text-2);
   overflow-wrap: anywhere;
   line-height: 1.35;
-  /* Two lines reserved so frames in a row share a top edge. */
-  min-height: calc(2 * 1.35em);
 }
 
 .cv-frame {
