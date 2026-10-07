@@ -14,6 +14,7 @@ import {
 } from "../../src/anchors";
 import { isPlayMessage } from "../play/messages";
 import { groundFor } from "../play/state";
+import { useAutoplay, useAutoplayToggle } from "./autoplay";
 import { Dissection } from "./Dissection";
 import { MAX_LIVE, useLiveSet, type LiveSet } from "./live";
 import { PUBLIC_TOKENS } from "./readme";
@@ -66,11 +67,17 @@ function Tile({
   tile,
   lives,
   poster,
+  autoplay,
+  autoplayIndex,
 }: {
   /** Already resolved for the page appearance (forAppearance). */
   tile: CanvasTile;
   lives: LiveSet;
   poster: string;
+  /** The page's Autoplay toggle. */
+  autoplay: boolean;
+  /** Position among autoplaying tiles, to stagger their loops. */
+  autoplayIndex: number;
 }) {
   const vp = VIEWPORTS[tile.viewport];
   const fluid = tile.viewport === "fluid";
@@ -113,6 +120,13 @@ function Tile({
     [observe],
   );
   const { setActive } = lives;
+
+  useAutoplay(
+    iframeRef,
+    tile.autoplay,
+    autoplay && isLive && !isActive && shown,
+    autoplayIndex,
+  );
 
   useEffect(() => {
     const el = frameRef.current;
@@ -205,6 +219,9 @@ function Tile({
       data-canvas-tile={tile.id}
       data-viewport={tile.viewport}
       data-active={isActive || undefined}
+      data-autoplay={
+        (tile.autoplay && autoplay && isLive && !isActive) || undefined
+      }
     >
       <figcaption>
         <span
@@ -367,7 +384,17 @@ function useSectionInView(ids: string[]): string {
 
 const SECTION_IDS = CANVAS_SECTIONS.map((s) => s.id);
 
-function Interactive({ appearance }: { appearance: Appearance }) {
+const AUTOPLAY_INDEX = new Map(
+  CANVAS_TILES.filter((t) => t.autoplay).map((t, i) => [t.id, i]),
+);
+
+function Interactive({
+  appearance,
+  autoplay,
+}: {
+  appearance: Appearance;
+  autoplay: boolean;
+}) {
   const lives = useLiveSet();
   const { active, setActive } = lives;
   const current = useSectionInView(SECTION_IDS);
@@ -445,6 +472,8 @@ function Interactive({ appearance }: { appearance: Appearance }) {
                       tile={t}
                       lives={lives}
                       poster={posterName(t, appearance)}
+                      autoplay={autoplay}
+                      autoplayIndex={AUTOPLAY_INDEX.get(t.id) ?? 0}
                     />
                   ))}
               </div>
@@ -466,6 +495,7 @@ function Canvas() {
   const [view, setView] = useState<View>(readView);
   const [choice, setChoice] = useState<AppearanceChoice>("system");
   const appearance = useAppearance(choice);
+  const [autoplay, setAutoplay] = useAutoplayToggle();
 
   useEffect(() => {
     document.documentElement.dataset.appearance = appearance;
@@ -516,12 +546,24 @@ function Canvas() {
             </button>
           ))}
         </div>
+        {view === "interactive" && (
+          <button
+            type="button"
+            role="switch"
+            aria-checked={autoplay}
+            className="cv-autoplay"
+            onClick={() => setAutoplay(!autoplay)}
+            title="Motion and behaviour tiles play themselves"
+          >
+            Autoplay
+          </button>
+        )}
         <span className="cv-meta">
           {CANVAS_TILES.length} specimens · {MAX_LIVE} live at once
         </span>
       </header>
       {view === "interactive" ? (
-        <Interactive appearance={appearance} />
+        <Interactive appearance={appearance} autoplay={autoplay} />
       ) : (
         <Dissection />
       )}

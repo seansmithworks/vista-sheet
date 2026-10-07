@@ -71,6 +71,9 @@ interface TileBase {
    * appearance never repaints it. Every other tile is neutral and follows
    * the appearance (neutral or neutral-dark). */
   fixedTheme?: true;
+  /** Plays itself in the Interactive view while the Autoplay toggle is on:
+   * opens and closes on a loop ("morph"), or closes by a swipe down. */
+  autoplay?: "morph" | "swipe";
 }
 
 /** A live specimen: `play.html?stage` driven by one state message. */
@@ -435,6 +438,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     section: "behaviour",
     label: "Draggable",
     caption: "draggable · snaps to nearest anchor",
+    autoplay: "morph",
     state: spec("basic", "neutral", { draggable: true }),
   }),
   play({
@@ -442,6 +446,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     section: "behaviour",
     label: "Shadow on",
     caption: "<VistaSheet.Shadow />",
+    autoplay: "morph",
     state: spec("basic", "neutral", { shadow: true }),
   }),
   play({
@@ -449,6 +454,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     section: "behaviour",
     label: "Shadow off",
     caption: "no <VistaSheet.Shadow />",
+    autoplay: "morph",
     state: spec("basic", "neutral", { shadow: false }),
   }),
   play({
@@ -457,6 +463,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     label: "Swipe to dismiss",
     caption: "dismissOnSwipe",
     state: spec("list", "neutral", { dismissOnSwipe: true }),
+    autoplay: "swipe",
     overrides: { defaultOpen: true },
   }),
   play({
@@ -464,6 +471,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     section: "behaviour",
     label: "Backdrop click ignored",
     caption: "dismissOnBackdrop={false}",
+    autoplay: "morph",
     state: spec("basic", "neutral", { dismissOnBackdrop: false }),
     overrides: { defaultOpen: true },
   }),
@@ -477,6 +485,7 @@ const MOTION_TILES: CanvasTile[] = PRESETS.map((preset) =>
     section: "motion",
     label: preset[0].toUpperCase() + preset.slice(1),
     caption: `preset={presets.${preset}}`,
+    autoplay: "morph",
     state: spec("basic", "neutral"),
     overrides: { preset },
   }),
@@ -488,6 +497,7 @@ const REDUCED_MOTION_TILES: CanvasTile[] = [
     section: "reduced-motion",
     label: "Basic",
     caption: "reduceMotion · open it to see the fade-only transition",
+    autoplay: "morph",
     state: spec("basic", "neutral"),
     overrides: { reduceMotion: true },
   }),
@@ -496,6 +506,7 @@ const REDUCED_MOTION_TILES: CanvasTile[] = [
     section: "reduced-motion",
     label: "Media",
     caption: "reduceMotion · media · open it to see the fade-only transition",
+    autoplay: "morph",
     state: spec("media", "neutral"),
     overrides: { reduceMotion: true },
   }),

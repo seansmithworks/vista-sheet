@@ -122,6 +122,45 @@ body {
   font-weight: 500;
 }
 
+/* Autoplay: a switch, drawn as a small track and thumb before the label. */
+.cv-autoplay {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  border: 0;
+  background: none;
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cv-autoplay::before {
+  content: "";
+  width: 26px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--cv-fill);
+  box-shadow: inset 0 0 0 1px var(--cv-border);
+  background-image: radial-gradient(
+    circle at 8px 50%,
+    var(--cv-surface) 5px,
+    transparent 5.5px
+  );
+}
+
+.cv-autoplay[aria-checked="true"]::before {
+  background-color: var(--cv-text);
+  background-image: radial-gradient(
+    circle at 18px 50%,
+    var(--cv-ground) 5px,
+    transparent 5.5px
+  );
+}
+
 .cv-meta {
   margin-left: auto;
   font-family: var(--cv-mono);
@@ -424,7 +463,12 @@ body {
 
   .cv-switch[role="tablist"] {
     order: 1;
-    flex-basis: 100%;
+    flex: 1 1 60%;
+  }
+
+  /* Shares the second row with the view tabs. */
+  .cv-autoplay {
+    order: 2;
   }
 
   .cv-switch[role="tablist"] button {
