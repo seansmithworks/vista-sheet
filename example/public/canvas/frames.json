@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-07T06:26:25.584Z",
-  "gitHead": "a4c2bec",
+  "capturedAt": "2026-10-07T07:54:40.887Z",
+  "gitHead": "2b54a7b",
   "sequences": [
     {
       "id": "morph-circle",
@@ -23,32 +23,32 @@
           "width": 562,
           "height": 329,
           "label": "open 20%",
-          "collapse": 0.7212893482313201,
-          "ms": 68
+          "collapse": 0.7514154616061468,
+          "ms": 64
         },
         {
           "file": "canvas/frames/morph-circle/02-open-40.png",
           "width": 562,
           "height": 329,
           "label": "open 40%",
-          "collapse": 0.5304963757594531,
-          "ms": 100
+          "collapse": 0.5593044008107199,
+          "ms": 96
         },
         {
           "file": "canvas/frames/morph-circle/03-open-60.png",
           "width": 562,
           "height": 329,
           "label": "open 60%",
-          "collapse": 0.3633125950694393,
-          "ms": 132
+          "collapse": 0.3871989833749903,
+          "ms": 128
         },
         {
           "file": "canvas/frames/morph-circle/04-open-80.png",
           "width": 562,
           "height": 329,
           "label": "open 80%",
-          "collapse": 0.1802053206668389,
-          "ms": 180
+          "collapse": 0.1954506099274467,
+          "ms": 176
         },
         {
           "file": "canvas/frames/morph-circle/05-settled.png",
@@ -104,32 +104,32 @@
           "width": 562,
           "height": 329,
           "label": "open 20%",
-          "collapse": 0.7212893482313201,
-          "ms": 68
+          "collapse": 0.7454147206166969,
+          "ms": 64
         },
         {
           "file": "canvas/frames/morph-squircle/02-open-40.png",
           "width": 562,
           "height": 329,
           "label": "open 40%",
-          "collapse": 0.5304963757594531,
-          "ms": 100
+          "collapse": 0.5534971119524106,
+          "ms": 96
         },
         {
           "file": "canvas/frames/morph-squircle/03-open-60.png",
           "width": 562,
           "height": 329,
           "label": "open 60%",
-          "collapse": 0.3633125950694393,
-          "ms": 132
+          "collapse": 0.3823506093648528,
+          "ms": 128
         },
         {
           "file": "canvas/frames/morph-squircle/04-open-80.png",
           "width": 562,
           "height": 329,
           "label": "open 80%",
-          "collapse": 0.1802053206668389,
-          "ms": 180
+          "collapse": 0.19233375245715578,
+          "ms": 176
         },
         {
           "file": "canvas/frames/morph-squircle/05-settled.png",
@@ -143,16 +143,16 @@
           "width": 562,
           "height": 329,
           "label": "close 33%",
-          "collapse": 0.37034177233503607,
-          "ms": 100
+          "collapse": 0.4020812898141496,
+          "ms": 104
         },
         {
           "file": "canvas/frames/morph-squircle/07-close-67.png",
           "width": 562,
           "height": 329,
           "label": "close 67%",
-          "collapse": 0.7024634498630604,
-          "ms": 148
+          "collapse": 0.7239941383253669,
+          "ms": 152
         },
         {
           "file": "canvas/frames/morph-squircle/08-closed.png",
@@ -185,7 +185,7 @@
           "width": 562,
           "height": 426,
           "label": "open 20%",
-          "collapse": 0.7152351613190461,
+          "collapse": 0.7212893482313201,
           "ms": 68
         },
         {
@@ -193,7 +193,7 @@
           "width": 562,
           "height": 426,
           "label": "open 40%",
-          "collapse": 0.5248066023870597,
+          "collapse": 0.5304963757594531,
           "ms": 100
         },
         {
@@ -201,7 +201,7 @@
           "width": 562,
           "height": 426,
           "label": "open 60%",
-          "collapse": 0.3586427256924125,
+          "collapse": 0.3633125950694393,
           "ms": 132
         },
         {
@@ -209,7 +209,7 @@
           "width": 562,
           "height": 426,
           "label": "open 80%",
-          "collapse": 0.17725711493433868,
+          "collapse": 0.1802053206668389,
           "ms": 180
         },
         {
@@ -224,16 +224,16 @@
           "width": 562,
           "height": 426,
           "label": "close 33%",
-          "collapse": 0.36235312099378447,
-          "ms": 96
+          "collapse": 0.3862590989744932,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-rectangle/07-close-67.png",
           "width": 562,
           "height": 426,
           "label": "close 67%",
-          "collapse": 0.696918821698637,
-          "ms": 144
+          "collapse": 0.7133582864969097,
+          "ms": 148
         },
         {
           "file": "canvas/frames/morph-rectangle/08-closed.png",
@@ -266,32 +266,32 @@
           "width": 442,
           "height": 518,
           "label": "open 20%",
-          "collapse": 0.7811529867259415,
-          "ms": 60
+          "collapse": 0.7514154616061468,
+          "ms": 64
         },
         {
           "file": "canvas/frames/morph-dark/02-open-40.png",
           "width": 442,
           "height": 518,
           "label": "open 40%",
-          "collapse": 0.5886474319589767,
-          "ms": 92
+          "collapse": 0.5593044008107199,
+          "ms": 96
         },
         {
           "file": "canvas/frames/morph-dark/03-open-60.png",
           "width": 442,
           "height": 518,
           "label": "open 60%",
-          "collapse": 0.3358373120556869,
-          "ms": 140
+          "collapse": 0.3871989833749903,
+          "ms": 128
         },
         {
           "file": "canvas/frames/morph-dark/04-open-80.png",
           "width": 442,
           "height": 518,
           "label": "open 80%",
-          "collapse": 0.16301062257208065,
-          "ms": 188
+          "collapse": 0.1954506099274467,
+          "ms": 176
         },
         {
           "file": "canvas/frames/morph-dark/05-settled.png",
@@ -305,16 +305,16 @@
           "width": 442,
           "height": 518,
           "label": "close 33%",
-          "collapse": 0.4020812898141496,
-          "ms": 104
+          "collapse": 0.37034177233503607,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-dark/07-close-67.png",
           "width": 442,
           "height": 518,
           "label": "close 67%",
-          "collapse": 0.7239941383253669,
-          "ms": 152
+          "collapse": 0.7024634498630604,
+          "ms": 148
         },
         {
           "file": "canvas/frames/morph-dark/08-closed.png",
@@ -347,32 +347,32 @@
           "width": 585,
           "height": 726,
           "label": "open 20%",
-          "collapse": 0.7693181157790063,
-          "ms": 60
+          "collapse": 0.7394001516259557,
+          "ms": 64
         },
         {
           "file": "canvas/frames/morph-phone/02-open-40.png",
           "width": 585,
           "height": 726,
           "label": "open 40%",
-          "collapse": 0.5768519645541793,
-          "ms": 92
+          "collapse": 0.547711982676271,
+          "ms": 96
         },
         {
           "file": "canvas/frames/morph-phone/03-open-60.png",
           "width": 585,
           "height": 726,
           "label": "open 60%",
-          "collapse": 0.32697068905092297,
-          "ms": 140
+          "collapse": 0.3775376193681761,
+          "ms": 128
         },
         {
           "file": "canvas/frames/morph-phone/04-open-80.png",
           "width": 585,
           "height": 726,
           "label": "open 80%",
-          "collapse": 0.1575393460728737,
-          "ms": 188
+          "collapse": 0.18925096112274556,
+          "ms": 176
         },
         {
           "file": "canvas/frames/morph-phone/05-settled.png",
@@ -386,16 +386,16 @@
           "width": 585,
           "height": 726,
           "label": "close 33%",
-          "collapse": 0.36235312099378447,
-          "ms": 96
+          "collapse": 0.3783112103429952,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-phone/07-close-67.png",
           "width": 585,
           "height": 726,
           "label": "close 67%",
-          "collapse": 0.696918821698637,
-          "ms": 144
+          "collapse": 0.7079432651819999,
+          "ms": 148
         },
         {
           "file": "canvas/frames/morph-phone/08-closed.png",
@@ -428,32 +428,32 @@
           "width": 441,
           "height": 629,
           "label": "open 20%",
-          "collapse": 0.7394001516259557,
-          "ms": 216
+          "collapse": 0.7752467567974107,
+          "ms": 212
         },
         {
           "file": "canvas/frames/morph-link-preview/02-open-40.png",
           "width": 441,
           "height": 629,
           "label": "open 40%",
-          "collapse": 0.547711982676271,
-          "ms": 248
+          "collapse": 0.5827405187391612,
+          "ms": 244
         },
         {
           "file": "canvas/frames/morph-link-preview/03-open-60.png",
           "width": 441,
           "height": 629,
           "label": "open 60%",
-          "collapse": 0.3775376193681761,
-          "ms": 280
+          "collapse": 0.3313856733596702,
+          "ms": 292
         },
         {
           "file": "canvas/frames/morph-link-preview/04-open-80.png",
           "width": 441,
           "height": 629,
           "label": "open 80%",
-          "collapse": 0.18925096112274556,
-          "ms": 328
+          "collapse": 0.1602589369405072,
+          "ms": 340
         },
         {
           "file": "canvas/frames/morph-link-preview/05-settled.png",
@@ -467,23 +467,24 @@
           "width": 441,
           "height": 629,
           "label": "close 33%",
-          "collapse": 0.39418318370918437,
-          "ms": 352
+          "collapse": 0.4020812898141496,
+          "ms": 356
         },
         {
           "file": "canvas/frames/morph-link-preview/07-close-67.png",
           "width": 441,
           "height": 629,
           "label": "close 67%",
-          "collapse": 0.7187085559682169,
-          "ms": 400
+          "collapse": 0.7239941383253669,
+          "ms": 404
         },
         {
           "file": "canvas/frames/morph-link-preview/08-closed.png",
           "width": 441,
           "height": 629,
           "label": "closed",
-          "collapse": 1
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-link-preview/00-rest.png"
         }
       ]
     },
@@ -501,7 +502,7 @@
           "width": 300,
           "height": 300,
           "label": "+0ms",
-          "collapse": 0.00408114522111906,
+          "collapse": 0.0032466207413811964,
           "ms": 0,
           "detail": "opacity 0.00 · scale 0.00 · rotate 0°"
         },
@@ -510,34 +511,34 @@
           "width": 300,
           "height": 300,
           "label": "+40ms",
-          "collapse": -0.005415895087534372,
+          "collapse": -0.00577875849696797,
           "ms": 40,
-          "detail": "opacity 0.00 · scale 0.13 · rotate -74°"
+          "detail": "opacity 0.00 · scale 0.15 · rotate -72°"
         },
         {
           "file": "canvas/frames/close-reveal/02-t80.png",
           "width": 300,
           "height": 300,
           "label": "+80ms",
-          "collapse": -0.009396869965451995,
+          "collapse": -0.009406316513575576,
           "ms": 80,
-          "detail": "opacity 0.00 · scale 0.56 · rotate -22°"
+          "detail": "opacity 0.00 · scale 0.57 · rotate -20°"
         },
         {
           "file": "canvas/frames/close-reveal/03-t150.png",
           "width": 300,
           "height": 300,
           "label": "+150ms",
-          "collapse": -0.007141069090313069,
+          "collapse": -0.007028386294552342,
           "ms": 150,
-          "detail": "opacity 0.92 · scale 0.92 · rotate 14°"
+          "detail": "opacity 0.35 · scale 0.93 · rotate 14°"
         },
         {
           "file": "canvas/frames/close-reveal/04-t250.png",
           "width": 300,
           "height": 300,
           "label": "+250ms",
-          "collapse": -0.0023973390069272353,
+          "collapse": -0.002327544652780115,
           "ms": 250,
           "detail": "opacity 1.00 · scale 1.03 · rotate 3°"
         },
@@ -584,7 +585,7 @@
           "width": 562,
           "height": 361,
           "label": "open 20%",
-          "collapse": 0.7987186902756147,
+          "collapse": 0.7870349735412188,
           "ms": 56,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
@@ -594,8 +595,8 @@
           "width": 562,
           "height": 361,
           "label": "open 40%",
-          "collapse": 0.5135038864801249,
-          "ms": 104,
+          "collapse": 0.5945718742945859,
+          "ms": 88,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
@@ -604,7 +605,7 @@
           "width": 562,
           "height": 361,
           "label": "open 60%",
-          "collapse": 0.34941146156065717,
+          "collapse": 0.3403255406312685,
           "ms": 136,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
@@ -614,10 +615,10 @@
           "width": 562,
           "height": 361,
           "label": "open 80%",
-          "collapse": 0.1714601578676766,
+          "collapse": 0.1657945950990512,
           "ms": 184,
-          "shadowOpacity": 0.6858406314707064,
-          "sheetShadowOpacity": 0.3141593685292936
+          "shadowOpacity": 0.6631783803962048,
+          "sheetShadowOpacity": 0.3368216196037952
         },
         {
           "file": "canvas/frames/shadow-crossfade/05-settled.png",
@@ -633,8 +634,8 @@
           "width": 562,
           "height": 361,
           "label": "close 33%",
-          "collapse": 0.4333731307676023,
-          "ms": 108,
+          "collapse": 0.4020812898141496,
+          "ms": 104,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
@@ -643,8 +644,8 @@
           "width": 562,
           "height": 361,
           "label": "close 67%",
-          "collapse": 0.7444916403963149,
-          "ms": 156,
+          "collapse": 0.7239941383253669,
+          "ms": 152,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
@@ -699,7 +700,8 @@
           "height": 408,
           "label": "pressed",
           "collapse": null,
-          "detail": "pointer down, held"
+          "detail": "pointer down, held",
+          "identicalTo": "canvas/frames/trigger-states-disc/00-rest.png"
         }
       ]
     },
@@ -725,7 +727,8 @@
           "height": 252,
           "label": "hover",
           "collapse": null,
-          "detail": "pointer over the trigger"
+          "detail": "pointer over the trigger",
+          "identicalTo": "canvas/frames/trigger-states-button/00-rest.png"
         },
         {
           "file": "canvas/frames/trigger-states-button/02-focus-visible.png",
@@ -742,7 +745,7 @@
           "label": "pressed",
           "collapse": null,
           "detail": "pointer down, held",
-          "identicalTo": "canvas/frames/trigger-states-button/01-hover.png"
+          "identicalTo": "canvas/frames/trigger-states-button/00-rest.png"
         }
       ]
     },
@@ -769,7 +772,7 @@
           "label": "+50ms",
           "collapse": null,
           "ms": 50,
-          "detail": "sheet opacity 0.53"
+          "detail": "sheet opacity 0.56"
         },
         {
           "file": "canvas/frames/reduced-motion/02-t100.png",
@@ -778,7 +781,7 @@
           "label": "+100ms",
           "collapse": null,
           "ms": 100,
-          "detail": "sheet opacity 0.79"
+          "detail": "sheet opacity 0.82"
         },
         {
           "file": "canvas/frames/reduced-motion/03-t150.png",
@@ -787,7 +790,7 @@
           "label": "+150ms",
           "collapse": null,
           "ms": 150,
-          "detail": "sheet opacity 0.97"
+          "detail": "sheet opacity 0.98"
         },
         {
           "file": "canvas/frames/reduced-motion/04-settled.png",
@@ -1179,9 +1182,9 @@
           "part": "shadow",
           "slot": null,
           "x": 35,
-          "y": 449,
+          "y": 446,
           "w": 320,
-          "h": 380
+          "h": 382
         },
         {
           "part": "trigger-root",
@@ -1211,15 +1214,15 @@
           "part": "sheet",
           "slot": null,
           "x": 35,
-          "y": 448.5,
+          "y": 446,
           "w": 320,
-          "h": 379.5
+          "h": 382
         },
         {
           "part": "shared",
           "slot": "sheet",
           "x": 60,
-          "y": 473.5,
+          "y": 471,
           "w": 40,
           "h": 40
         },
@@ -1227,7 +1230,7 @@
           "part": "close",
           "slot": null,
           "x": 284,
-          "y": 475.5,
+          "y": 473,
           "w": 44,
           "h": 44
         },
@@ -1235,15 +1238,15 @@
           "part": "content",
           "slot": null,
           "x": 36,
-          "y": 513.5,
+          "y": 511,
           "w": 318,
-          "h": 313.5
+          "h": 316
         },
         {
           "part": "item",
           "slot": null,
           "x": 60,
-          "y": 513.5,
+          "y": 511,
           "w": 270,
           "h": 50
         },
@@ -1251,9 +1254,9 @@
           "part": "item",
           "slot": null,
           "x": 60,
-          "y": 563.5,
+          "y": 561,
           "w": 270,
-          "h": 215.5
+          "h": 218
         }
       ]
     },
@@ -1281,7 +1284,7 @@
           "part": "shadow",
           "slot": null,
           "x": 16,
-          "y": 401,
+          "y": 400,
           "w": 358,
           "h": 428
         },
@@ -1313,15 +1316,15 @@
           "part": "sheet",
           "slot": null,
           "x": 16,
-          "y": 400.5,
+          "y": 400,
           "w": 358,
-          "h": 427.5
+          "h": 428
         },
         {
           "part": "shared",
           "slot": "sheet",
           "x": 41,
-          "y": 425.5,
+          "y": 425,
           "w": 92,
           "h": 92
         },
@@ -1329,7 +1332,7 @@
           "part": "close",
           "slot": null,
           "x": 303,
-          "y": 427.5,
+          "y": 427,
           "w": 44,
           "h": 44
         },
@@ -1337,15 +1340,15 @@
           "part": "content",
           "slot": null,
           "x": 17,
-          "y": 517.5,
+          "y": 517,
           "w": 356,
-          "h": 309.5
+          "h": 310
         },
         {
           "part": "item",
           "slot": null,
           "x": 41,
-          "y": 517.5,
+          "y": 517,
           "w": 308,
           "h": 87
         },
@@ -1353,9 +1356,9 @@
           "part": "item",
           "slot": null,
           "x": 41,
-          "y": 604.5,
+          "y": 604,
           "w": 308,
-          "h": 95.5
+          "h": 96
         },
         {
           "part": "item",
@@ -1475,7 +1478,7 @@
           "slot": null,
           "x": 139.5,
           "y": 784,
-          "w": 110.8828125,
+          "w": 110.890625,
           "h": 44
         },
         {
@@ -1483,7 +1486,7 @@
           "slot": null,
           "x": 139.5,
           "y": 784,
-          "w": 110.8828125,
+          "w": 110.890625,
           "h": 44
         },
         {
@@ -1491,7 +1494,7 @@
           "slot": null,
           "x": 157.5,
           "y": 797,
-          "w": 74.8828125,
+          "w": 74.890625,
           "h": 18
         },
         {
@@ -1608,7 +1611,7 @@
           "slot": null,
           "x": 118.5,
           "y": 784,
-          "w": 152.5546875,
+          "w": 152.5625,
           "h": 44
         },
         {
@@ -1616,7 +1619,7 @@
           "slot": null,
           "x": 118.5,
           "y": 784,
-          "w": 152.5546875,
+          "w": 152.5625,
           "h": 44
         },
         {
@@ -1624,7 +1627,7 @@
           "slot": null,
           "x": 136.5,
           "y": 797,
-          "w": 116.5546875,
+          "w": 116.5625,
           "h": 18
         },
         {
