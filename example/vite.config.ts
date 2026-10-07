@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // Dev only: html-review (:4849) serves its widget and API same-origin. The
-// canvas pulls both through this proxy; its guard rejects any Origin other
+// canvas and surface pages pull both through this proxy; its guard rejects any Origin other
 // than localhost:4849, so the header is dropped on the way through.
 const htmlReview = {
   target: "http://localhost:4849",
@@ -20,7 +20,8 @@ const htmlReview = {
 
 export default defineConfig({
   define: {
-    __REVIEW_SOURCE_PATH__: JSON.stringify(resolve(__dirname, "canvas.html")),
+    // review.ts resolves each page's own .html against this root.
+    __REVIEW_EXAMPLE_ROOT__: JSON.stringify(__dirname),
   },
   plugins: [react()],
   root: "./example",
@@ -51,6 +52,7 @@ export default defineConfig({
         video: resolve(__dirname, "video.html"),
         buttons: resolve(__dirname, "buttons.html"),
         linkPreview: resolve(__dirname, "link-preview.html"),
+        surface: resolve(__dirname, "surface.html"),
         focus: resolve(__dirname, "fixtures/focus.html"),
       },
     },

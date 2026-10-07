@@ -3,7 +3,14 @@
 // `vite build`, so the whole body is dropped from production output.
 // The widget and its API are reached through the dev-server proxy in
 // example/vite.config.ts (same origin, forwarded to html-review on :4849).
-const SOURCE_PATH = import.meta.env.DEV ? __REVIEW_SOURCE_PATH__ : "";
+// Per page: the session's source is the .html file this page was served
+// from, resolved against the example root (canvas.html, surface.html, ...).
+const EXAMPLE_ROOT = import.meta.env.DEV ? __REVIEW_EXAMPLE_ROOT__ : "";
+
+function sourcePath(): string {
+  const page = location.pathname.replace(/\/$/, "/index.html");
+  return `${EXAMPLE_ROOT}${page.endsWith(".html") ? page : `${page}.html`}`;
+}
 
 export function loadReview(): void {
   if (!import.meta.env.DEV) return;
@@ -13,7 +20,7 @@ export function loadReview(): void {
   (window as unknown as Record<string, unknown>).__HTML_REVIEW__ = {
     sessionId,
     apiBase: "",
-    sourcePath: SOURCE_PATH,
+    sourcePath: sourcePath(),
   };
 
   document.documentElement.classList.add("cv-review");
