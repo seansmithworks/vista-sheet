@@ -6,14 +6,15 @@ colors:
   # Package defaults (README theming table; consumers override via --vista-sheet-* vars)
   surface: "#fafafa"
   surfaceElevated: "#ffffff"
-  border: "#e5e5e5"
+  border: "rgba(229,229,229,.6)"
+  borderWidth: "1px (trigger ring; Shared inset derives from it)"
   textPrimary: "#1d1d1f"
   accent: "#1d1d1f"
   # Example pages (match the package defaults, example/example.css)
   exampleBackground: "#f5f5f7"
   exampleSurface: "#fafafa"
   exampleSurfaceElevated: "#ffffff"
-  exampleBorder: "#e5e5e5"
+  exampleBorder: "rgba(229,229,229,.6)"
   exampleTextPrimary: "#1d1d1f"
   exampleTextSecondary: "#6e6e73"
   exampleAccent: "#1d1d1f"
@@ -31,21 +32,25 @@ rounded:
   triggerSquircleFallback: "27.16% of trigger size (strawman, awaiting dial)"
   triggerRectangle: "min(trigger radius token, height / 2): a pill (strawman, awaiting dial)"
 shadows:
-  silhouette: "0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)"
-  silhouetteDark: "0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)"
-  sheetAtRest: "0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)"
+  # Dialled by Sean 2026-10-07 (surface tuner, saved version "Dark Mode")
+  silhouette: "0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)"
+  sheetAtRest: "0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)"
+  # Dark example palettes: a white glow, not a dark shadow
+  silhouetteDark: "0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15)"
+  sheetAtRestDark: "0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15)"
+  borderDark: "rgba(255,255,255,.1)"
 triggerFeedback:
-  # strawman, awaiting dial
+  # lift, press, highlight and tint dialled by Sean 2026-10-07
   hoverLift: "1px"
   pressScale: 0.97
   durationMs: 150
   easing: "cubic-bezier(0.23, 1, 0.32, 1)"
   minHitArea: "48px"
-  highlightColor: "7% of text colour (dark example palettes: rgba(255,255,255,.1))"
+  highlightColor: "7% of text colour, rgba(29,29,31,.07) on the default palette (dark example palettes: rgba(255,255,255,.1))"
   highlightSize: "96px"
   highlightPressScale: 0.6
-  highlightStrength: 1
-  pressTint: "rgba(0,0,0,.05) (dark example palettes: rgba(0,0,0,.2))"
+  highlightStrength: "0.75 (dark example palettes: 1)"
+  pressTint: "rgba(0,0,0,.06) (dark example palettes: rgba(255,255,255,.15))"
 buttonSizes:
   # strawman, awaiting dial
   s: { height: 36px, paddingInline: 14px, gap: 6px }
@@ -83,7 +88,7 @@ A bare disc that becomes a sheet. Everything else on screen is quiet so the morp
 | --- | --- | --- | --- |
 | Surface (trigger) | `#fafafa` | `#fafafa` | `#faf7f2` |
 | Surface, elevated (sheet) | `#ffffff` | `#ffffff` | `#f4f0e8` |
-| Border | `#e5e5e5` | `#e5e5e5` | `#e6dfd2` |
+| Border | `rgba(229,229,229,.6)` | `rgba(229,229,229,.6)` | `#e6dfd2` |
 | Text | `#1d1d1f` | `#1d1d1f` | `#1a1610` |
 | Accent (focus ring only) | `#1d1d1f` | `#1d1d1f` | `#1a1610` |
 | Page background | consumer's | `#f5f5f7` | consumer's |
@@ -95,9 +100,11 @@ Consumers override with `--vista-sheet-*` custom properties. Never add a hex to 
 - **Trigger:** `shape` on Root, default circle (`--vista-sheet-trigger-radius: 9999px`). Squircle is a true superellipse via `corner-shape` (Chromium; 27.16% radius elsewhere) and gives the sheet squircle corners too; rounded square is 25% of trigger size; square is 0. Surface, silhouette shadow, Shared clip and focus ring all follow the shape, and the shadow's corner uses the surface's own radius curve. It rests at its shape after every close path (geometry tests (o) and (o-shape)).
 - **Sheet:** `--vista-sheet-sheet-radius: 48px`. During the morph the radius is a pure function of `collapseProgress`, never its own spring.
 - **Two shadow looks, one painter.** `<VistaSheet.Shadow>` paints both the thin disc shadow and the sheet's heavier resting shadow on its own silhouette, crossfaded by opacity as `collapseProgress` moves (2026-09-11). Nothing else paints a shadow.
-- **Trigger shadow:** soft and low-contrast (2026-10-07): `0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)` on light, `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)` on dark. The 2px `--vista-sheet-surface-border` ring carries the edge; the shadow only lifts it off the page.
-- **Trigger hover and press:** at rest only, the trigger rises 1px on mouse hover and scales to 0.97 while pressed, 150ms strong ease-out, with `<VistaSheet.Shadow>` moving identically so the two never disagree (Strawman, awaiting dial). Never while the sheet is mounted, never under reduced motion, and any open drops it instantly before the morph measures its start.
-- **Trigger highlight:** a soft radial spot inside the trigger surface follows the mouse on hover; on press it tightens to 0.6 and the surface takes a slight dark tint (Strawman, awaiting dial). It is 7% of the text colour by default, so it reads as a tint on light and a glow on dark. Touch, keyboard and reduced motion get it centred and static, fade only. It lives inside the surface, so it never changes a measured box, never paints on the sheet, and is gone before any open. `--vista-sheet-trigger-highlight-strength: 0` turns it off.
+- **Trigger shadow:** soft and low-contrast, dialled by Sean 2026-10-07: `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` on light. The dark example palettes use a faint white glow instead (`0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15)`), because a dark shadow does not read on a dark ground. The 1px `--vista-sheet-surface-border` ring (60% `#e5e5e5` on light, 10% white on dark) carries the edge; the shadow only lifts it off the page.
+- **Sheet shadow:** `0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)` on light; `0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15)` on the dark example palettes (2026-10-07).
+- **Ring width is one token.** `--vista-sheet-surface-border-width` (1px) sets the trigger ring, and Shared's inset, its size fallback and its rounded-square radius all derive from it, so the Shared clip stays concentric with the ring at any width. Never hard-code the ring width anywhere else. The sheet's border stays 1px.
+- **Trigger hover and press:** at rest only, the trigger rises 1px on mouse hover and scales to 0.97 while pressed, 150ms strong ease-out, with `<VistaSheet.Shadow>` moving identically so the two never disagree (lift and press dialled 2026-10-07). Never while the sheet is mounted, never under reduced motion, and any open drops it instantly before the morph measures its start.
+- **Trigger highlight:** a soft radial spot inside the trigger surface follows the mouse on hover; on press it tightens to 0.6 and the surface takes a slight tint, `rgba(0,0,0,.06)` on light and `rgba(255,255,255,.15)` on the dark example palettes. It is 7% of the text colour at strength 0.75 by default (dark example palettes: `rgba(255,255,255,.1)` at strength 1), 96px, dialled 2026-10-07. Touch, keyboard and reduced motion get it centred and static, fade only. It lives inside the surface, so it never changes a measured box, never paints on the sheet, and is gone before any open. `--vista-sheet-trigger-highlight-strength: 0` turns it off.
 - **Tap target:** every trigger has an invisible hit area of at least 48px on each axis (rectangle s/m, small discs). The visual and every measured box keep their size.
 - **Close button:** 44px hit area, transparent, circular focus ring.
 - **Media sheet:** `<VistaSheet.Sheet aspectRatio>` contain-fits the media ratio; `<VistaSheet.Media>` covers the surface, centred, clipped by the surface shape (Strawman (v0.2): centred crop, no focal point).

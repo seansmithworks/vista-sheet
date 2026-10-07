@@ -91,10 +91,12 @@
   z-index: -1;
   border-radius: var(--vista-sheet-trigger-radius, 9999px);
   background: var(--vista-sheet-surface, #fafafa);
-  /* 2px, not 1px — .shared[data-vista-sheet-slot="trigger"]'s inset:2px exists to
-   * expose exactly this ring; the two must agree or the ring reads as
-   * lopsided. */
-  border: 2px solid var(--vista-sheet-surface-border, #e5e5e5);
+  /* The ring width is one token: .shared[data-vista-sheet-slot="trigger"]'s
+   * inset, the .shared size fallback and the rounded-square Shared radius all
+   * derive from --vista-sheet-surface-border-width, so the ring stays even
+   * and concentric at any width. */
+  border: var(--vista-sheet-surface-border-width, 1px) solid
+    var(--vista-sheet-surface-border, rgba(229, 229, 229, 0.6));
   /* No box-shadow here: <VistaSheet.Shadow> paints the silhouette shadow
    * (docs/PACKAGE-DESIGN.md §4). This surface used to carry the same shadow
    * too, so the resting disc painted it twice and the first frame of every
@@ -108,8 +110,8 @@
  * surface. Individual translate/scale, never transform: Motion owns the
  * surface's and Shared's inline transform. Every target is centred on the
  * button, so each scales about the same point. Off under reduced motion
- * (the shadow never gets the attribute then). Strawman, awaiting dial:
- * 1px lift, 0.97 press, 150ms strong ease-out. */
+ * (the shadow never gets the attribute then). 1px lift and 0.97 press
+ * dialled by Sean 2026-10-07; 150ms strong ease-out. */
 .triggerButton[data-vista-sheet-feedback]:not([data-vista-sheet-reduce-motion])
   > :is(.triggerSurface, .shared, .triggerLabel),
 [data-vista-sheet-part="shadow"][data-vista-sheet-feedback] {
@@ -141,8 +143,8 @@
  * (written per frame by Trigger.tsx; centred for touch, keyboard and
  * reduced motion). Default colour: 7% of the text colour, so a light
  * palette gets a faint tint and a dark one a faint glow. Strength 0 turns
- * both layers off. Strawman, awaiting dial: 96px spot, tightens to 0.6 on
- * press, tint rgba(0,0,0,.05). */
+ * both layers off. Dialled by Sean 2026-10-07: 96px spot at strength 0.75,
+ * tightens to 0.6 on press, tint rgba(0,0,0,.06). */
 .triggerSurface::before,
 .triggerSurface::after {
   content: "";
@@ -174,13 +176,13 @@
 
 .triggerSurface::after {
   inset: 0;
-  background: var(--vista-sheet-trigger-press-tint, rgba(0, 0, 0, 0.05));
+  background: var(--vista-sheet-trigger-press-tint, rgba(0, 0, 0, 0.06));
 }
 
 .triggerButton[data-vista-sheet-feedback="hover"] > .triggerSurface::before,
 .triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::before,
 .triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::after {
-  opacity: var(--vista-sheet-trigger-highlight-strength, 1);
+  opacity: var(--vista-sheet-trigger-highlight-strength, 0.75);
 }
 
 .triggerButton[data-vista-sheet-feedback="pressed"]:not(
@@ -231,20 +233,27 @@
  */
 .shared {
   position: relative;
-  /* The fallback is trigger-size MINUS the trigger-side slot's 2px inset on
-   * each edge (4px total), not the raw trigger-size: the trigger-side
-   * instance below is inset:2px inside a triggerSize-square parent, so its
-   * EFFECTIVE rendered box is triggerSize-4. Both instances must resolve to
+  /* The fallback is trigger-size MINUS the trigger-side slot's ring inset
+   * (--vista-sheet-surface-border-width) on each edge, not the raw
+   * trigger-size: the trigger-side instance below is inset by the ring width
+   * inside a triggerSize-square parent, so its EFFECTIVE rendered box is
+   * triggerSize - 2 * ring. Both instances must resolve to
    * the same effective size — that equality is what a zero-scale FLIP (B1)
    * requires — so this base rule (which the sheet-side slot inherits
    * unmodified) has to match it. */
   width: var(
     --vista-sheet-shared-size,
-    calc(var(--vista-sheet-trigger-size, 96px) - 4px)
+    calc(
+      var(--vista-sheet-trigger-size, 96px) -
+        2 * var(--vista-sheet-surface-border-width, 1px)
+    )
   );
   height: var(
     --vista-sheet-shared-size,
-    calc(var(--vista-sheet-trigger-size, 96px) - 4px)
+    calc(
+      var(--vista-sheet-trigger-size, 96px) -
+        2 * var(--vista-sheet-surface-border-width, 1px)
+    )
   );
   pointer-events: none;
 }
@@ -252,7 +261,7 @@
 /* Trigger-side: inset in the surface ring, clipped to a circle, centered. */
 .shared[data-vista-sheet-slot="trigger"] {
   position: absolute;
-  inset: 2px;
+  inset: var(--vista-sheet-surface-border-width, 1px);
   z-index: 1;
   width: auto;
   height: auto;
@@ -296,7 +305,7 @@
   display: flex;
   flex-direction: column;
   background: var(--vista-sheet-surface-elevated, #ffffff);
-  border: 1px solid var(--vista-sheet-surface-border, #e5e5e5);
+  border: 1px solid var(--vista-sheet-surface-border, rgba(229, 229, 229, 0.6));
   /* Motion's inline borderRadius MotionValue (Sheet.tsx) wins during the
    * morph; this supplies the resting shape AND the reduced-motion shape,
    * which never gets an inline value at all (its render branch passes no
@@ -386,8 +395,8 @@
 .shadow::before {
   box-shadow: var(
     --vista-sheet-shadow,
-    0 1px 2px rgba(0, 0, 0, 0.06),
-    0 4px 12px rgba(0, 0, 0, 0.08)
+    0 2px 16px -4px rgba(0, 0, 0, 0.03),
+    0 6px 20px -4px rgba(0, 0, 0, 0.08)
   );
   opacity: var(--vista-sheet-shadow-opacity, 1);
 }
@@ -395,8 +404,8 @@
 .shadow::after {
   box-shadow: var(
     --vista-sheet-sheet-shadow,
-    0 8px 48px rgba(0, 0, 0, 0.24),
-    0 2px 8px rgba(0, 0, 0, 0.12)
+    0 12px 16px -12px rgba(0, 0, 0, 0.12),
+    0 8px 22px -4px rgba(0, 0, 0, 0.12)
   );
   opacity: var(--vista-sheet-sheet-shadow-opacity, 0);
 }
@@ -417,7 +426,7 @@
   );
 }
 
-/* Minus 2px: concentric with the surface's 2px ring. The sheet-side slot
+/* Minus the ring width: concentric with the surface's ring. The sheet-side slot
  * uses this same value so the Shared FLIP has no radius pop. */
 .shared[data-vista-sheet-slot][data-vista-sheet-shape="rounded-square"] {
   border-radius: max(
@@ -427,7 +436,7 @@
           var(--vista-sheet-trigger-radius, 9999px),
           calc(var(--vista-sheet-trigger-size, 96px) * 0.25)
         ) -
-        2px
+        var(--vista-sheet-surface-border-width, 1px)
     )
   );
 }

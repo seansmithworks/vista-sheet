@@ -51,15 +51,25 @@ export type TunerState = Record<Theme, ThemeLook>;
 
 export const LAYER_NAMES = ["Key", "Ambient"] as const;
 
-/** A preset layer: geometry, colour, and its alpha on light and on dark
- * grounds (a dark ground needs more alpha to read, DESIGN.md §3). */
-type PresetLayer = {
+type LayerGeometry = {
   y: number;
   blur: number;
   spread: number;
   color?: string;
-  alpha: [light: number, dark: number];
-} | null;
+};
+
+/** A preset layer: geometry, colour, and its alpha on light and on dark
+ * grounds (a dark ground needs more alpha to read, DESIGN.md §3). `dark`
+ * overrides the geometry and colour on dark, for a preset whose dark look is
+ * a different shadow (the shipped default's dark glow). */
+type PresetLayer =
+  | (LayerGeometry & {
+      alpha: [light: number, dark: number];
+      dark?: Partial<LayerGeometry>;
+    })
+  | null;
+
+const WHITE = "#ffffff";
 
 export interface ShadowPreset {
   id: string;
@@ -80,8 +90,20 @@ export const CLOSED_PRESETS: ShadowPreset[] = [
     id: "soft",
     label: "Soft (current default)",
     layers: [
-      { y: 1, blur: 2, spread: 0, alpha: [0.06, 0.3] },
-      { y: 4, blur: 12, spread: 0, alpha: [0.08, 0.3] },
+      {
+        y: 2,
+        blur: 16,
+        spread: -4,
+        alpha: [0.03, 0.14],
+        dark: { y: 2, blur: 4, spread: -2, color: WHITE },
+      },
+      {
+        y: 6,
+        blur: 20,
+        spread: -4,
+        alpha: [0.08, 0.15],
+        dark: { y: 8, blur: 12, spread: 0, color: WHITE },
+      },
     ],
   },
   {
@@ -126,8 +148,20 @@ export const OPEN_PRESETS: ShadowPreset[] = [
     id: "soft",
     label: "Soft (current default)",
     layers: [
-      { y: 2, blur: 8, spread: 0, alpha: [0.12, 0.35] },
-      { y: 8, blur: 48, spread: 0, alpha: [0.24, 0.55] },
+      {
+        y: 12,
+        blur: 16,
+        spread: -12,
+        alpha: [0.12, 0.1],
+        dark: { y: 4, blur: 20, spread: 0, color: WHITE },
+      },
+      {
+        y: 8,
+        blur: 22,
+        spread: -4,
+        alpha: [0.12, 0.15],
+        dark: { y: 16, blur: 28, spread: -8, color: WHITE },
+      },
     ],
   },
   {
@@ -175,17 +209,18 @@ export function presetShadow(
   theme: Theme,
 ): LayeredShadow {
   const i = theme === "light" ? 0 : 1;
-  const layer = (p: PresetLayer, fallback: ShadowLayer): ShadowLayer =>
-    p
-      ? {
-          on: true,
-          y: p.y,
-          blur: p.blur,
-          spread: p.spread,
-          color: p.color ?? "#000000",
-          opacity: p.alpha[i],
-        }
-      : { ...fallback, on: false };
+  const layer = (p: PresetLayer, fallback: ShadowLayer): ShadowLayer => {
+    if (!p) return { ...fallback, on: false };
+    const g = { ...p, ...(theme === "dark" ? p.dark : undefined) };
+    return {
+      on: true,
+      y: g.y,
+      blur: g.blur,
+      spread: g.spread,
+      color: g.color ?? "#000000",
+      opacity: p.alpha[i],
+    };
+  };
   return [
     layer(preset.layers[0], OFF_LAYER),
     layer(preset.layers[1], OFF_LAYER),
@@ -197,25 +232,27 @@ function presetById(list: ShadowPreset[], id: string): ShadowPreset {
 }
 
 /** Current package defaults (README theming table) and the example pages'
- * dark cell (example/example.css). */
+ * dark cell (example/example.css). Sean's dial, 2026-10-07. */
 export function defaultLook(theme: Theme): ThemeLook {
   const dark = theme === "dark";
   return {
     closed: {
       preset: "soft",
       shadow: presetShadow(presetById(CLOSED_PRESETS, "soft"), theme),
-      borderWidth: 2,
+      borderWidth: 1,
       border: dark
         ? { color: "#ffffff", opacity: 0.1 }
-        : { color: "#e5e5e5", opacity: 1 },
+        : { color: "#e5e5e5", opacity: 0.6 },
       hoverLift: 1,
       pressScale: 0.97,
       highlight: dark
         ? { color: "#ffffff", opacity: 0.1 }
         : { color: "#1d1d1f", opacity: 0.07 },
       highlightSize: 96,
-      highlightStrength: 1,
-      pressTint: { color: "#000000", opacity: dark ? 0.2 : 0.05 },
+      highlightStrength: dark ? 1 : 0.75,
+      pressTint: dark
+        ? { color: "#ffffff", opacity: 0.15 }
+        : { color: "#000000", opacity: 0.06 },
     },
     open: {
       preset: "soft",
@@ -259,6 +296,7 @@ export function lookVars(look: ThemeLook): Record<string, string> {
     "--vista-sheet-shadow": shadowCss(c.shadow),
     "--vista-sheet-sheet-shadow": shadowCss(look.open.shadow),
     "--vista-sheet-surface-border": paint(c.border),
+    "--vista-sheet-surface-border-width": px(c.borderWidth),
     "--vista-sheet-trigger-hover-lift": px(c.hoverLift),
     "--vista-sheet-trigger-press-scale": num(c.pressScale),
     "--vista-sheet-trigger-highlight-color": paint(c.highlight),
@@ -275,21 +313,10 @@ function block(selector: string, look: ThemeLook): string {
   return `${selector} {\n${body}\n}`;
 }
 
-function borderWidthNote(look: ThemeLook, theme: Theme): string {
-  const w = look.closed.borderWidth;
-  if (w === 2) return "";
-  return (
-    `\n\n/* ${theme}: trigger ring width ${w}px. Not a token yet: the package ` +
-    `fixes it at 2px (and Shared's 2px inset matches it). Preview only. */`
-  );
-}
-
 export function copyCss(state: TunerState): string {
   return (
     `/* vista-sheet surface & shadow — light */\n${block(":root", state.light)}` +
     `\n\n/* dark — use your own dark-palette selector */\n` +
-    `${block('[data-theme="dark"]', state.dark)}` +
-    borderWidthNote(state.light, "light") +
-    borderWidthNote(state.dark, "dark")
+    `${block('[data-theme="dark"]', state.dark)}`
   );
 }

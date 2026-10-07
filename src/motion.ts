@@ -52,7 +52,7 @@ export const DEFAULT_SHARED_SPRING: Spring = {
  * the same "Version 4" pass as DEFAULT_CLOSE_SPRING; not derived, so don't
  * recompute it. This, the close spring and the lead delay are a dialled set:
  * change one and re-dial the others on /tune, or the shared element trails
- * the box and spills past the trigger's 2px border.
+ * the box and spills past the trigger's border ring.
  */
 export const DEFAULT_SHARED_CLOSE_SPRING: Spring = {
   stiffness: 340,
@@ -255,7 +255,7 @@ function isSpringShorthand(value: Spring | Transition): value is Spring {
  * `preset={presets.snappy} transition={{ shared: { open: x } }}` silently
  * resets the close-direction shared spring to 340/30/1 instead of snappy's
  * 449.65/34.5, and the shared element trails the box by 45ms instead of
- * leading it (measured), spilling past the trigger's 2px border.
+ * leading it (measured), spilling past the trigger's border ring.
  */
 function resolveSharedForDirection(
   explicitShared: Spring | Transition | SharedTransitionByDirection | undefined,

@@ -55,10 +55,6 @@ function applyToFrame(frame: HTMLIFrameElement, theme: Theme, look: ThemeLook) {
   for (const [k, v] of Object.entries(lookVars(look))) {
     body.style.setProperty(k, v);
   }
-  body.style.setProperty(
-    "--surface-tuner-ring-width",
-    `${look.closed.borderWidth}px`,
-  );
 }
 
 // ── Controls ──────────────────────────────────────────────────────────────
@@ -585,10 +581,6 @@ export function Tuner() {
             unit="px"
             onChange={(borderWidth) => setClosed({ borderWidth })}
           />
-          <p className="st-note">
-            Width is preview only: the package fixes the ring at 2px (no token
-            yet).
-          </p>
           <PaintControl
             label="Colour"
             value={c.border}

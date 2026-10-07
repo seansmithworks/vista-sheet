@@ -11,7 +11,7 @@
 :root {
   --vista-sheet-surface: #fafafa;
   --vista-sheet-surface-elevated: #ffffff;
-  --vista-sheet-surface-border: #e5e5e5;
+  --vista-sheet-surface-border: rgba(229, 229, 229, 0.6);
   --vista-sheet-text: #1d1d1f;
   --vista-sheet-accent: #1d1d1f;
   /* Example-only token: muted body copy on both the sheet surface (content
@@ -67,11 +67,11 @@
  * overrides the --vista-sheet-* consumer tokens on this ancestor, so both
  * VistaSheet.Root instances (main + settings) read dark chrome rather than
  * a white sheet on a black page — every VistaSheet.Root's own wrapper div
- * inherits these custom properties from body. DESIGN.md defines no dark
- * values, so these are hue-consistent dark neutrals chosen here: surface
- * near #1c1c1e, elevated near #2c2c2e, a translucent white hairline border,
- * and shadows deepened (higher alpha) so they still read against a dark
- * ground instead of washing out. */
+ * inherits these custom properties from body. Hue-consistent dark neutrals:
+ * surface near #1c1c1e, elevated near #2c2c2e, a translucent white hairline
+ * border. Shadows, highlight and tint are Sean's dark dial (2026-10-07,
+ * DESIGN.md §3): a faint white glow, since a dark shadow washes out against
+ * a dark ground. */
 body[data-dark-mode="true"] {
   background: #0b0b0c;
   color: #f5f5f7;
@@ -81,11 +81,14 @@ body[data-dark-mode="true"] {
   --vista-sheet-text: #f5f5f7;
   --vista-sheet-accent: #f5f5f7;
   --vista-sheet-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.3);
+    0 2px 4px -2px rgba(255, 255, 255, 0.14),
+    0 8px 12px rgba(255, 255, 255, 0.15);
   --vista-sheet-trigger-highlight-color: rgba(255, 255, 255, 0.1);
-  --vista-sheet-trigger-press-tint: rgba(0, 0, 0, 0.2);
+  --vista-sheet-trigger-highlight-strength: 1;
+  --vista-sheet-trigger-press-tint: rgba(255, 255, 255, 0.15);
   --vista-sheet-sheet-shadow:
-    0 8px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+    0 4px 20px rgba(255, 255, 255, 0.1),
+    0 16px 28px -8px rgba(255, 255, 255, 0.15);
   --demo-text-muted: #a1a1a6;
 }
 
@@ -116,11 +119,14 @@ body[data-dark-mode="true"][data-surface="warm"] {
   --vista-sheet-text: #f2ece3;
   --vista-sheet-accent: #f2ece3;
   --vista-sheet-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.3);
+    0 2px 4px -2px rgba(255, 255, 255, 0.14),
+    0 8px 12px rgba(255, 255, 255, 0.15);
   --vista-sheet-trigger-highlight-color: rgba(255, 255, 255, 0.1);
-  --vista-sheet-trigger-press-tint: rgba(0, 0, 0, 0.2);
+  --vista-sheet-trigger-highlight-strength: 1;
+  --vista-sheet-trigger-press-tint: rgba(255, 255, 255, 0.15);
   --vista-sheet-sheet-shadow:
-    0 8px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+    0 4px 20px rgba(255, 255, 255, 0.1),
+    0 16px 28px -8px rgba(255, 255, 255, 0.15);
   --demo-text-muted: #c9beae;
 }
 

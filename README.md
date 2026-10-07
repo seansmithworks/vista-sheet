@@ -432,7 +432,8 @@ package renders correctly out of the box:
 | --- | --- |
 | `--vista-sheet-surface` | `#fafafa` |
 | `--vista-sheet-surface-elevated` | `#ffffff` |
-| `--vista-sheet-surface-border` | `#e5e5e5` |
+| `--vista-sheet-surface-border` | `rgba(229,229,229,.6)` |
+| `--vista-sheet-surface-border-width` | `1px` |
 | `--vista-sheet-text` | `#1d1d1f` |
 | `--vista-sheet-accent` | `#1d1d1f` |
 | `--vista-sheet-sheet-max-width` | `480px` |
@@ -440,8 +441,8 @@ package renders correctly out of the box:
 | `--vista-sheet-sheet-radius` | `48px` |
 | `--vista-sheet-trigger-radius` | `9999px` |
 | `--vista-sheet-sheet-padding` | `24px` |
-| `--vista-sheet-shadow` | `0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)` |
-| `--vista-sheet-sheet-shadow` | `0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)` |
+| `--vista-sheet-shadow` | `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` |
+| `--vista-sheet-sheet-shadow` | `0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)` |
 | `--vista-sheet-sheet-shadow-fade-start` | `0` |
 | `--vista-sheet-sheet-shadow-fade-end` | `0.25` |
 | `--vista-sheet-z` | `100` |
@@ -449,14 +450,19 @@ package renders correctly out of the box:
 | `--vista-sheet-trigger-press-scale` | `0.97` |
 | `--vista-sheet-trigger-highlight-color` | 7% of `--vista-sheet-text` |
 | `--vista-sheet-trigger-highlight-size` | `96px` |
-| `--vista-sheet-trigger-highlight-strength` | `1` |
-| `--vista-sheet-trigger-press-tint` | `rgba(0,0,0,.05)` |
+| `--vista-sheet-trigger-highlight-strength` | `0.75` |
+| `--vista-sheet-trigger-press-tint` | `rgba(0,0,0,.06)` |
 
 `--vista-sheet-sheet-shadow-fade-start`/`-fade-end` are unitless
 `collapseProgress` fractions (0 = open at rest, 1 = closed at rest) marking
 where `<VistaSheet.Shadow>` crossfades from the heavy `--vista-sheet-sheet-shadow`
 look to the thin `--vista-sheet-shadow` look — see "Two shadows, one painter"
 below.
+
+`--vista-sheet-surface-border-width` is the width of the trigger surface's
+`--vista-sheet-surface-border` ring. `<VistaSheet.Shared>` sits inset by the
+same width, so its clip stays concentric with the ring at any width. The
+sheet's own border stays 1px.
 
 `--vista-sheet-trigger-hover-lift` (how far the resting trigger rises on
 mouse hover) and `--vista-sheet-trigger-press-scale` (its scale while
@@ -479,10 +485,20 @@ faint tint and a dark palette a faint glow. Set
 press tint off. Both layers sit inside the trigger surface: they never paint
 on the sheet and are gone before any open.
 
-A dark palette's shadow needs more alpha to read on a dark ground. The
-example pages use `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)`,
-with `--vista-sheet-trigger-highlight-color: rgba(255,255,255,.1)` and
-`--vista-sheet-trigger-press-tint: rgba(0,0,0,.2)`.
+A dark shadow barely reads on a dark ground, so the example pages' dark
+palette uses a faint white glow instead:
+
+```css
+--vista-sheet-shadow: 0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15);
+--vista-sheet-sheet-shadow: 0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15);
+--vista-sheet-surface-border: rgba(255,255,255,.1);
+--vista-sheet-trigger-highlight-color: rgba(255,255,255,.1);
+--vista-sheet-trigger-highlight-strength: 1;
+--vista-sheet-trigger-press-tint: rgba(255,255,255,.15);
+```
+
+Hover lift (`1px`), press scale (`0.97`), highlight size (`96px`) and ring
+width (`1px`) are the same as the light defaults.
 
 The package writes `--vista-sheet-trigger-size`, `--vista-sheet-button-width`,
 `--vista-sheet-trigger-x/-y`, `--vista-sheet-trigger-highlight-x/-y`,
@@ -607,7 +623,7 @@ damping by `k`, with `k = Ts / (Ts + D)`); Sean's later hand-dial pass moved
 or `surfaceCloseLeadDelayMs` and re-dial `shared.close` to match on the
 `/tune` panel — do not recompute it — or the shared element stops arriving
 with the box: too fast and it parks early, too slow and it trails, and a
-trailing shared element spills past the round trigger's 2px border.
+trailing shared element spills past the round trigger's border ring.
 
 ### Presets
 

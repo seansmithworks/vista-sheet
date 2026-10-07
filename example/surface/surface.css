@@ -1,6 +1,5 @@
-/* Surface & shadow tuner (surface.html). Page chrome only: nothing here
- * styles a [data-vista-sheet-*] part except the stage's ring-width preview,
- * which has no package token yet. */
+/* Surface & shadow tuner (surface.html). Page chrome and the stage's label
+ * colour only: every dial writes a real --vista-sheet-* token. */
 
 *,
 *::before,
@@ -26,10 +25,6 @@ html[data-surface-stage] body {
 
 html[data-surface-stage] body[data-dark-mode="true"] {
   background: #0b0b0c;
-}
-
-html[data-surface-stage] [data-vista-sheet-part="trigger-surface"] {
-  border-width: var(--surface-tuner-ring-width, 2px);
 }
 
 /* The rectangle trigger's label: buttons don't inherit colour. */
