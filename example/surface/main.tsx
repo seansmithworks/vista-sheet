@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import "../example.css";
-import { loadReview } from "../canvas/review";
+import { loadSurfaceReview } from "./review";
 import { Stage, type SpecimenKind } from "./Stage";
 import { Tuner } from "./Tuner";
 import "./surface.css";
@@ -17,4 +17,4 @@ createRoot(document.getElementById("root")!).render(
   kind ? <Stage kind={kind} /> : <Tuner />,
 );
 
-if (!kind) loadReview();
+if (!kind) loadSurfaceReview();

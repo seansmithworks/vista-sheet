@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   CLOSED_PRESETS,
   LAYER_NAMES,
   OPEN_PRESETS,
   copyCss,
   defaultLook,
-  defaultState,
   lookVars,
   presetShadow,
   shadowCss,
@@ -19,19 +24,26 @@ import {
   type TunerState,
 } from "./model";
 import type { SpecimenKind } from "./Stage";
-
-const STORE_KEY = "vista-sheet:surface-tuner:v1";
-const THEME_KEY = "vista-sheet:surface-tuner:theme";
-
-function load(): TunerState {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return { ...defaultState(), ...(JSON.parse(raw) as TunerState) };
-  } catch {
-    /* fall through to defaults */
-  }
-  return defaultState();
-}
+import {
+  addVersion,
+  autoSnapshot,
+  commit,
+  initHistory,
+  redo,
+  undo,
+  type History,
+  type Version,
+} from "./history";
+import { reportSurface } from "./review";
+import {
+  STORE_KEY,
+  THEME_KEY,
+  VERSIONS_KEY,
+  loadState,
+  loadVersions,
+  safeGet,
+  safeSet,
+} from "./storage";
 
 /** Writes one theme's vars onto a specimen iframe's body (inline, so it
  * outranks example.css's body[data-dark-mode] cell). */
@@ -136,14 +148,14 @@ function ShadowControls(props: {
   preset: string;
   shadow: LayeredShadow;
   theme: Theme;
-  onPreset: (id: string, shadow: LayeredShadow) => void;
-  onLayers: (shadow: LayeredShadow) => void;
+  onPreset: (id: string, label: string, shadow: LayeredShadow) => void;
+  onLayers: (shadow: LayeredShadow, key: string) => void;
 }) {
   const { state, presets, preset, shadow, theme, onPreset, onLayers } = props;
   const setLayer = (i: 0 | 1, patch: Partial<ShadowLayer>) => {
     const next = [...shadow] as LayeredShadow;
     next[i] = { ...next[i], ...patch };
-    onLayers(next);
+    onLayers(next, `${state}-${i}-${Object.keys(patch).join("+")}`);
   };
   const big = state === "open";
   return (
@@ -163,7 +175,7 @@ function ShadowControls(props: {
               type="button"
               data-preset={p.id}
               aria-pressed={preset === p.id}
-              onClick={() => onPreset(p.id, presetShadow(p, theme))}
+              onClick={() => onPreset(p.id, p.label, presetShadow(p, theme))}
             >
               {p.label}
             </button>
@@ -252,22 +264,32 @@ const SPECIMENS: Array<{ kind: SpecimenKind; label: string; note: string }> = [
 ];
 
 export function Tuner() {
-  const [state, setState] = useState<TunerState>(load);
+  const [hist, setHist] = useState<History>(() => initHistory(loadState()));
+  const [versions, setVersions] = useState<Version[]>(loadVersions);
   const [theme, setTheme] = useState<Theme>(() =>
-    localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light",
+    safeGet(THEME_KEY) === "dark" ? "dark" : "light",
   );
   const [copied, setCopied] = useState(false);
   const frames = useRef<Partial<Record<SpecimenKind, HTMLIFrameElement>>>({});
+  const state = hist.state;
   const look = state[theme];
 
   useEffect(() => {
-    localStorage.setItem(STORE_KEY, JSON.stringify(state));
-    localStorage.setItem(THEME_KEY, theme);
+    safeSet(STORE_KEY, JSON.stringify(state));
+    safeSet(THEME_KEY, theme);
     document.documentElement.dataset.theme = theme;
     for (const f of Object.values(frames.current)) {
       if (f) applyToFrame(f, theme, state[theme]);
     }
   }, [state, theme]);
+
+  useEffect(() => {
+    safeSet(VERSIONS_KEY, JSON.stringify(versions));
+  }, [versions]);
+
+  useEffect(() => {
+    reportSurface(state, versions);
+  }, [state, versions]);
 
   const latest = useRef({ state, theme });
   latest.current = { state, theme };
@@ -276,16 +298,79 @@ export function Tuner() {
     applyToFrame(f, t, s[t]);
   }, []);
 
-  const setClosed = (patch: Partial<ClosedLook>) =>
-    setState((s) => ({
-      ...s,
-      [theme]: { ...s[theme], closed: { ...s[theme].closed, ...patch } },
-    }));
-  const setOpen = (patch: Partial<ThemeLook["open"]>) =>
-    setState((s) => ({
-      ...s,
-      [theme]: { ...s[theme], open: { ...s[theme].open, ...patch } },
-    }));
+  // Every change goes through the history. `key` names the dial so a drag
+  // coalesces into one undo step; null always starts a new one.
+  const change = (
+    fn: (s: TunerState) => TunerState,
+    key: string | null = null,
+  ) => {
+    const now = Date.now();
+    setHist((h) => commit(h, fn(h.state), key, now));
+  };
+  const setClosed = (patch: Partial<ClosedLook>, key?: string | null) =>
+    change(
+      (s) => ({
+        ...s,
+        [theme]: { ...s[theme], closed: { ...s[theme].closed, ...patch } },
+      }),
+      key === undefined ? `${theme}-closed-${Object.keys(patch).join("+")}` : key,
+    );
+  const setOpen = (patch: Partial<ThemeLook["open"]>, key?: string | null) =>
+    change(
+      (s) => ({
+        ...s,
+        [theme]: { ...s[theme], open: { ...s[theme].open, ...patch } },
+      }),
+      key === undefined ? `${theme}-open-${Object.keys(patch).join("+")}` : key,
+    );
+
+  // A preset click, Reset or restore replaces values wholesale, so the
+  // state it replaces is saved first.
+  const snapshot = (why: string) => {
+    const now = Date.now();
+    const id = `v${now}-${Math.random().toString(36).slice(2, 6)}`;
+    const s = latest.current.state;
+    setVersions((v) => autoSnapshot(v, s, `Auto: before ${why}`, now, id));
+  };
+  const pickPreset = (
+    st: "closed" | "open",
+    id: string,
+    label: string,
+    shadow: LayeredShadow,
+  ) => {
+    snapshot(`${theme} ${st} preset ${label}`);
+    if (st === "closed") setClosed({ preset: id, shadow }, null);
+    else setOpen({ preset: id, shadow }, null);
+  };
+
+  const [draft, setDraft] = useState("");
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const saveVersion = () => {
+    const now = Date.now();
+    const name = draft.trim() || `Version ${versions.filter((v) => !v.auto).length + 1}`;
+    setVersions((v) =>
+      addVersion(v, { name, savedAt: now, auto: false, state }, `v${now}`),
+    );
+    setDraft("");
+  };
+  const restore = (v: Version) => {
+    snapshot(`restoring "${v.name}"`);
+    change(() => v.state, null);
+  };
+
+  const doUndo = useCallback(() => setHist(undo), []);
+  const doRedo = useCallback(() => setHist(redo), []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      if (e.key.toLowerCase() !== "z") return;
+      e.preventDefault();
+      if (e.shiftKey) doRedo();
+      else doUndo();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [doUndo, doRedo]);
 
   const css = useMemo(() => copyCss(state), [state]);
   const c = look.closed;
@@ -345,15 +430,117 @@ export function Tuner() {
           <h2>
             Dials <span>({theme})</span>
           </h2>
-          <button
-            type="button"
-            onClick={() =>
-              setState((s) => ({ ...s, [theme]: defaultLook(theme) }))
-            }
-          >
-            Reset {theme}
-          </button>
+          <div className="st-panel-actions">
+            <button
+              type="button"
+              data-undo
+              disabled={!hist.past.length}
+              onClick={doUndo}
+              title="Undo (Cmd/Ctrl+Z)"
+            >
+              Undo
+            </button>
+            <button
+              type="button"
+              data-redo
+              disabled={!hist.future.length}
+              onClick={doRedo}
+              title="Redo (Shift+Cmd/Ctrl+Z)"
+            >
+              Redo
+            </button>
+            <button
+              type="button"
+              data-reset
+              onClick={() => {
+                snapshot(`reset ${theme}`);
+                change((s) => ({ ...s, [theme]: defaultLook(theme) }));
+              }}
+            >
+              Reset {theme}
+            </button>
+          </div>
         </div>
+
+        <Group
+          anchor="versions"
+          title="Saved versions"
+          aside={
+            <span className="st-save">
+              <input
+                type="text"
+                value={draft}
+                placeholder="Name"
+                aria-label="Version name"
+                data-version-name
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveVersion()}
+              />
+              <button type="button" data-save-version onClick={saveVersion}>
+                Save version
+              </button>
+            </span>
+          }
+        >
+          {versions.length === 0 ? (
+            <p className="st-note">
+              Nothing saved yet. A version is also saved automatically before
+              any preset click or Reset.
+            </p>
+          ) : (
+            <ul className="st-versions" data-versions>
+              {versions.map((v) => (
+                <li key={v.id} data-version={v.name} data-auto={v.auto || undefined}>
+                  {renaming === v.id ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      defaultValue={v.name}
+                      aria-label="Rename version"
+                      onBlur={(e) => {
+                        const name = e.target.value.trim();
+                        if (name)
+                          setVersions((l) =>
+                            l.map((x) => (x.id === v.id ? { ...x, name } : x)),
+                          );
+                        setRenaming(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") e.currentTarget.blur();
+                        if (e.key === "Escape") setRenaming(null);
+                      }}
+                    />
+                  ) : (
+                    <span className="st-version-name">
+                      {v.name}
+                      <small>
+                        {new Date(v.savedAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </small>
+                    </span>
+                  )}
+                  <button type="button" data-restore onClick={() => restore(v)}>
+                    Restore
+                  </button>
+                  <button type="button" data-rename onClick={() => setRenaming(v.id)}>
+                    Rename
+                  </button>
+                  <button
+                    type="button"
+                    data-delete
+                    onClick={() =>
+                      setVersions((l) => l.filter((x) => x.id !== v.id))
+                    }
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Group>
 
         <h2 className="st-state">Closed state</h2>
         <ShadowControls
@@ -362,8 +549,8 @@ export function Tuner() {
           preset={c.preset}
           shadow={c.shadow}
           theme={theme}
-          onPreset={(preset, shadow) => setClosed({ preset, shadow })}
-          onLayers={(shadow) => setClosed({ preset: "custom", shadow })}
+          onPreset={(id, label, shadow) => pickPreset("closed", id, label, shadow)}
+          onLayers={(shadow, key) => setClosed({ preset: "custom", shadow }, `${theme}-${key}`)}
         />
         <Group anchor="closed-ring" title="Surface border ring">
           <Slider
@@ -443,8 +630,8 @@ export function Tuner() {
           preset={look.open.preset}
           shadow={look.open.shadow}
           theme={theme}
-          onPreset={(preset, shadow) => setOpen({ preset, shadow })}
-          onLayers={(shadow) => setOpen({ preset: "custom", shadow })}
+          onPreset={(id, label, shadow) => pickPreset("open", id, label, shadow)}
+          onLayers={(shadow, key) => setOpen({ preset: "custom", shadow }, `${theme}-${key}`)}
         />
 
         <Group

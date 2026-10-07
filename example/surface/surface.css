@@ -319,3 +319,60 @@ body.hw-comment-mode .st-specimen iframe {
   color: var(--st-muted);
   font-size: 12px;
 }
+
+.st-panel-actions,
+.st-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.st-save input,
+.st-versions input {
+  font: inherit;
+  font-size: 12px;
+  width: 110px;
+  padding: 3px 6px;
+  border: 1px solid var(--st-line);
+  border-radius: 6px;
+  background: var(--st-panel);
+  color: var(--st-text);
+}
+
+.st-versions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.st-versions li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.st-version-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-version-name small {
+  margin-left: 6px;
+  color: var(--st-muted);
+}
+
+.st-panel button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* The tuner is the one editor; the review widget's DIALS list would be a
+ * second copy (its values still ride along with a sent round). */
+.cv-review #hw-dials-section {
+  display: none !important;
+}
