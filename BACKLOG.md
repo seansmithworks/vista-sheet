@@ -586,3 +586,18 @@ Done on `canvas` this round: recipe padding/corner clearance, 40px icon discs, l
 - [ ] 57. carried — Naming round 3 runs in its own thread: pickup `ccp naming` (~/.claude/pickup/-Users-seansmith-Code-vista-sheet-naming.md). Note: @seansmithworks/vista-sheet@0.1.0 is already on npm, so a rename now means a new package and a deprecation.
 - [ ] 58. carried — DECIDE: `canvas` branch → PR to main (or fold into PR #2 explore/link-preview). Branch carries the canvas page, motion lab, html-review wiring, recipe content changes, and the defaultOpen fix (src/Root.tsx, Sheet.tsx, Close.tsx). Merge is Sean's nod only.
 - [ ] 59. parked — Main checkout ~/Code/vista-sheet has uncommitted work NOT from this thread (M BACKLOG.md; untracked AGENTS.md, docs/plans/distribution-gap-audit.html, scripts/record-demo.mjs, .rescued-2026-09-24/). Sean to check whose it is.
+
+## 2026-10-07 — defaults/hover-shadow-tap merged into canvas
+Status on earlier items:
+- 43 (shadow/ring) — done: softer shadow and Sean's dialled surface look shipped as package defaults (`57bd049`, `578f2ce`); ring width is now a token. Canvas assets recaptured.
+- 44 (hover/pressed) — done: package ships hover and pressed feedback (`57bd049`, `5674e77`).
+- 45 (48px tap target) — done: 48px hit area on rectangle buttons (`57bd049`).
+- 53 (exploded trigger layers) — dimmed in the open explode (`b80e22e`); the Open/Closed toggle is still the strawman, not built. Sean to confirm or kill.
+- 55 (link preview larger type) — done as strawman: canvas-only host page with larger type (`a1c9ad6`, `321e8d9`). Sean to confirm.
+- 42 (sharing) — a Vercel preview is pending Sean's deploy; nothing deployed from this thread.
+
+New open items:
+- [ ] 60. DECIDE — Sean's comment on the open sheet in the surface tuner: "The corner radius here is probably too much, maybe we need to set some ratio depending on the width or height. Or a class depending on the content. or both."
+- [ ] 61. docs — `docs/PACKAGE-DESIGN.md:356` still lists the old sheet shadow.
+- [ ] 62. parked — The sheet's own border stays a fixed 1px and is not coupled to `--vista-sheet-surface-border-width` (only the trigger ring follows the token).
+- [ ] 63. parked — Flagship's own `:active` `scale(0.94)` stacks with the package's `0.97` pressed scale.
