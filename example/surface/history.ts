@@ -13,8 +13,9 @@ export interface History {
   lastAt: number;
 }
 
-/** Changes to the same dial inside this window (measured from the previous
- * change) are one undo step: a slider drag, or a run of arrow keys. */
+/** Keyboard runs: changes to the same dial inside this window (measured from
+ * the previous change) are one undo step. A pointer drag is one step however
+ * long it pauses: pass `held` while the pointer is down. */
 export const COALESCE_MS = 800;
 const MAX_STEPS = 200;
 
@@ -29,12 +30,13 @@ export function commit(
   next: TunerState,
   key: string | null,
   now: number,
+  held = false,
 ): History {
   if (next === h.state) return h;
   const merge =
     key !== null &&
     key === h.lastKey &&
-    now - h.lastAt < COALESCE_MS &&
+    (held || now - h.lastAt < COALESCE_MS) &&
     h.past.length > 0;
   return {
     state: next,
@@ -43,6 +45,11 @@ export function commit(
     lastKey: key,
     lastAt: now,
   };
+}
+
+/** A pointer went down on a dial: its first change starts a fresh step. */
+export function breakRun(h: History): History {
+  return h.lastKey === null ? h : { ...h, lastKey: null };
 }
 
 export function undo(h: History): History {

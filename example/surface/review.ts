@@ -164,8 +164,8 @@ export function loadSurfaceReview(): void {
   document.addEventListener("click", beforeSend, true);
 }
 
-// Posts the derived dials (Copy CSS, saved versions) just before the
-// widget's own Send handler runs, then lets the click through.
+// Before the widget's own Send handler runs: flush every pending dial, post
+// the derived ones (Copy CSS, saved versions), then let the click through.
 let resending = false;
 async function beforeSend(e: MouseEvent): Promise<void> {
   const btn = (e.target as Element).closest?.("#hw-root button");
@@ -174,18 +174,13 @@ async function beforeSend(e: MouseEvent): Promise<void> {
   e.preventDefault();
   const id = sessionId();
   if (id && latest) {
+    clearTimeout(timer);
+    pending = latest;
+    await flush(id);
     for (const d of dialsFor(latest.state, latest.versions)) {
-      if (!d.derived) continue;
-      try {
-        await fetch(`/api/dials/${encodeURIComponent(d.id)}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId: id, value: d.value }),
-        });
-      } catch {
-        /* send anyway */
-      }
+      if (d.derived) await post(id, d);
     }
+    await verify(id, latest, true);
   }
   resending = true;
   (btn as HTMLElement).click();
@@ -196,67 +191,126 @@ let latest: { state: TunerState; versions: Version[] } | null = null;
 let pending: { state: TunerState; versions: Version[] } | null = null;
 const sent = new Map<string, string>();
 let ready: Promise<boolean> | null = null;
+let running: Promise<void> | null = null;
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-let flushing = false;
+async function post(id: string, d: Dial): Promise<boolean> {
+  try {
+    const r = await fetch(`/api/dials/${encodeURIComponent(d.id)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId: id, value: d.value }),
+    });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
 
-// The widget declares dials asynchronously; wait until the session has them.
+// The store can drop an update when two POSTs overlap (ours and the
+// widget's). Compare the server with what we meant to send and repost any
+// difference. Returns true if it had to repost something.
+async function verify(
+  id: string,
+  at: { state: TunerState; versions: Version[] },
+  withDerived: boolean,
+): Promise<boolean> {
+  let reposted = false;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let server: Map<string, string>;
+    try {
+      const r = await fetch(`/api/sessions/${id}`);
+      if (!r.ok) return reposted;
+      const dials: Array<{ id: string; value: Value }> = (await r.json()).dials;
+      server = new Map(dials.map((d) => [d.id, JSON.stringify(d.value)]));
+    } catch {
+      return reposted;
+    }
+    const stale = dialsFor(at.state, at.versions).filter(
+      (d) =>
+        (withDerived || !d.derived) && server.get(d.id) !== JSON.stringify(d.value),
+    );
+    if (!stale.length) return reposted;
+    reposted = true;
+    for (const d of stale) {
+      if (await post(id, d)) sent.set(d.id, JSON.stringify(d.value));
+    }
+  }
+  return reposted;
+}
+
+// The widget declares dials asynchronously; wait until the session has them,
+// and note the values it holds so only real differences get posted. A
+// timeout is not remembered: the next flush tries again.
 function whenDeclared(id: string): Promise<boolean> {
   return (ready ??= (async () => {
     for (let i = 0; i < 40; i++) {
       try {
         const r = await fetch(`/api/sessions/${id}`);
-        if (r.ok && ((await r.json()).dials ?? []).length) return true;
+        const dials: Array<{ id: string; value: Value }> = r.ok
+          ? ((await r.json()).dials ?? [])
+          : [];
+        if (dials.length) {
+          for (const d of dials) sent.set(d.id, JSON.stringify(d.value));
+          return true;
+        }
       } catch {
         /* retry */
       }
       await new Promise((r) => setTimeout(r, 250));
     }
     return false;
-  })());
+  })().then((ok) => {
+    if (!ok) ready = null;
+    return ok;
+  }));
 }
 
 // html-review's store is read-modify-write on one file per session, so
 // parallel dial POSTs overwrite each other. Send them one at a time.
+// Resolves once everything pending at call time has reached the server.
 async function flush(id: string): Promise<void> {
-  if (flushing) return;
-  flushing = true;
-  try {
-    if (!(await whenDeclared(id))) return;
-    while (pending) {
-      const { state, versions } = pending;
-      pending = null;
-      let posted = false;
-      for (const d of dialsFor(state, versions)) {
-        if (d.derived) continue;
-        const json = JSON.stringify(d.value);
-        if (sent.get(d.id) === json) continue;
-        try {
-          await fetch(`/api/dials/${encodeURIComponent(d.id)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId: id, value: d.value }),
-          });
-          sent.set(d.id, json);
-          posted = true;
-        } catch {
-          /* retried on the next change */
+  do {
+    running ??= (async () => {
+      try {
+        if (!(await whenDeclared(id))) {
+          // Widget not ready yet: keep what is pending and try again.
+          timer = setTimeout(() => void flush(id), 2000);
+          return;
         }
+        while (pending) {
+          const { state, versions } = pending;
+          pending = null;
+          let posted = false;
+          for (const d of dialsFor(state, versions)) {
+            if (d.derived) continue;
+            const json = JSON.stringify(d.value);
+            if (sent.get(d.id) === json) continue;
+            if (await post(id, d)) {
+              sent.set(d.id, json);
+              posted = true;
+            }
+          }
+          if (posted) {
+            nudgeWidget();
+            // The widget's own sync POST can overlap ours; check and repost.
+            await new Promise((r) => setTimeout(r, 300));
+            if (await verify(id, { state, versions }, false)) nudgeWidget();
+          }
+        }
+      } finally {
+        running = null;
       }
-      if (posted) nudgeWidget();
-    }
-  } finally {
-    flushing = false;
-  }
+    })();
+    await running;
+  } while (pending && ready && (await ready));
 }
 
-/** Mirrors the current state onto the session's dials (debounced). The
- * first call pushes everything, so a session that already held older
- * values is brought in line with the page. */
+/** Mirrors the current state onto the session's dials (debounced). */
 export function reportSurface(state: TunerState, versions: Version[]): void {
   const id = import.meta.env.DEV ? sessionId() : null;
   if (!id) return;
   latest = pending = { state, versions };
   clearTimeout(timer);
-  timer = setTimeout(() => void flush(id), 150);
+  timer = setTimeout(() => void flush(id), 100);
 }

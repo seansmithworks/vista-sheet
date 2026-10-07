@@ -27,6 +27,7 @@ import type { SpecimenKind } from "./Stage";
 import {
   addVersion,
   autoSnapshot,
+  breakRun,
   commit,
   initHistory,
   redo,
@@ -300,12 +301,34 @@ export function Tuner() {
 
   // Every change goes through the history. `key` names the dial so a drag
   // coalesces into one undo step; null always starts a new one.
+  // A slider drag (pointerdown to pointerup) is one undo step.
+  const holding = useRef(false);
+  useEffect(() => {
+    const down = (e: PointerEvent) => {
+      if ((e.target as Element).closest?.('input[type="range"]')) {
+        holding.current = true;
+        setHist(breakRun);
+      }
+    };
+    const up = () => {
+      holding.current = false;
+    };
+    window.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointerup", up, true);
+    window.addEventListener("pointercancel", up, true);
+    return () => {
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", up, true);
+    };
+  }, []);
   const change = (
     fn: (s: TunerState) => TunerState,
     key: string | null = null,
   ) => {
     const now = Date.now();
-    setHist((h) => commit(h, fn(h.state), key, now));
+    const held = holding.current;
+    setHist((h) => commit(h, fn(h.state), key, now, held));
   };
   const setClosed = (patch: Partial<ClosedLook>, key?: string | null) =>
     change(

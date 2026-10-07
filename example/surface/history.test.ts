@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   autoSnapshot,
+  breakRun,
   commit,
   initHistory,
   redo,
@@ -36,6 +37,17 @@ describe("tuner history", () => {
     h = commit(h, at(5), null, 5100);
     h = commit(h, at(6), null, 5200);
     expect(h.past).toHaveLength(5);
+  });
+
+  it("keeps a held pointer drag as one step across a long pause", () => {
+    let h = initHistory(at(1));
+    h = commit(h, at(2), "lift", 0);
+    h = breakRun(h);
+    h = commit(h, at(3), "lift", 100, true);
+    h = commit(h, at(4), "lift", 1500, true);
+    h = commit(h, at(5), "lift", 4000, true);
+    expect(h.past).toHaveLength(2);
+    expect(undo(h).state.light.closed.hoverLift).toBe(2);
   });
 
   it("clears redo on a new change", () => {
