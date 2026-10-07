@@ -564,3 +564,16 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 - [ ] 40. parked — Canvas design pass (Sean's call): phone-viewport tiles are mostly empty space (96px disc at the bottom of a ~260×560 frame); Anatomy callout numbers overlap on small triggers; Shadow on/off tiles look near-identical at tile scale; at 390 the States & API "Where" column needs horizontal scroll inside the table.
 - [ ] 41. parked (low) — Canvas follow-ups: the reduced-motion posters are byte-identical to the basic disc at rest; the link-preview tiles don't demonstrate hover intent/grace live (documented only); the disc "pressed" and button "hover" frames are pixel-identical to rest because the package has no hover/pressed styles (a design question: should it?).
 - [ ] 42. parked — Canvas sharing: the live iframes (`play.html?stage`) reject messages from non-same-origin parents (`stage-entry.tsx` origin check), so neither view works as a claude.ai Artifact. Sharing needs a hosted build of `example/dist` (e.g. a Vercel preview, free on hobby) — Sean's call.
+
+## 2026-10-07 — canvas review round 1+2 (html-review sess_0246bd1a6e4f)
+Done on `canvas` this round: recipe padding/corner clearance, 40px icon discs, list grid, media squircle app icon, scroll-spy index, Rectangle tile caption, Appearance switch + Theme section, 1:1 link preview, geometry defaults, padding-48 caption, reduced-motion subtitle, Interaction states key removed. Open below.
+- [ ] 43. DECIDE — Trigger/button shadow reads heavy and generic (comments 7, 29), and "is there a stroke/border as well?" (yes: a 2px `--vista-sheet-surface-border` ring on the trigger surface). Strawman: tone down per theme, smaller blur or lower-contrast colour; library default, so README/DESIGN.md values change with it.
+- [ ] 44. DECIDE — Button and disc hover/pressed are visually identical to rest (comment 28; see 41). Should the package ship hover/pressed styles?
+- [ ] 45. DECIDE — 48pt minimum tap target for rectangle buttons; the visual can stay smaller (comment 6). Library default.
+- [ ] 46. DECIDE — Text-only button height consistency: Sean expects one min-height per size with padding on four sides (comment 6). Measure s/m/l text vs icon+text heights first.
+- [ ] 47. DECIDE — "What set up for custom do we have? Design System / DESIGN.md / token-key friendly? How do we share the token naming?" (comment 8). Strawman to draft: a token map (`--vista-sheet-*` ↔ DESIGN.md keys) exported as JSON.
+- [ ] 48. DECIDE — Link preview placement: "should these be part of the top section, Buttons & Shapes?" (comment 23). Kept as its own section this round.
+- [ ] 49. in flight (other lane) — Playback: ultra-slow / frame-by-frame morph playback, slow-mo choreography with a scrubbable timeline, autoplay for motion and heavier interaction displays (comments 21, 27, 30, 31).
+- [ ] 50. in flight (other lane) — Isometric exploded view of the Z-stack (comment 26).
+- [ ] 51. in flight (other lane) — Anatomy as one foundation plus per-recipe variants: "why is media different here?" (comment 25).
+- [ ] 52. in flight (other lane) — defaultOpen settle bug (item 39): explains the missing close buttons on open tiles (comment 14) and the closed-shape shadow persisting on open sheets (comment 20). Canvas open tiles are the visual check once it lands; recapture posters after.
