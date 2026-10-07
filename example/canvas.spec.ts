@@ -72,24 +72,19 @@ test("every play tile renders the state it declares", async ({ page }) => {
       const trigger = frame.locator('[data-vista-sheet-part="trigger"]');
 
       // Shape and button size, from the package's own attributes.
-      await expect(trigger).toHaveAttribute(
-        "data-vista-sheet-shape",
-        state.shape,
-      );
+      await expect(trigger).toHaveAttribute("data-vista-sheet-shape", state.shape);
       if (state.shape === "rectangle") {
         await expect(trigger).toHaveAttribute(
           "data-vista-sheet-button-size",
           state.buttonSize,
         );
       } else {
-        await expect(trigger).not.toHaveAttribute(
-          "data-vista-sheet-button-size",
-        );
+        await expect(trigger).not.toHaveAttribute("data-vista-sheet-button-size");
       }
       // Open state.
-      await expect(
-        frame.locator('[data-vista-sheet-part="sheet"]'),
-      ).toHaveCount(open ? 1 : 0);
+      await expect(frame.locator('[data-vista-sheet-part="sheet"]')).toHaveCount(
+        open ? 1 : 0,
+      );
       // Recipe: each recipe's trigger carries its own accessible name.
       await expect(trigger).toHaveAttribute(
         "aria-label",
@@ -100,9 +95,7 @@ test("every play tile renders the state it declares", async ({ page }) => {
       const m = await frame.evaluate(
         ({ surface, elevated, ground }) => {
           const q = (part: string) =>
-            document.querySelector<HTMLElement>(
-              `[data-vista-sheet-part="${part}"]`,
-            );
+            document.querySelector<HTMLElement>(`[data-vista-sheet-part="${part}"]`);
           // Normalise a CSS colour the way the browser computes it.
           const probe = document.createElement("div");
           document.body.append(probe);
@@ -135,11 +128,7 @@ test("every play tile renders the state it declares", async ({ page }) => {
           probe.remove();
           return out;
         },
-        {
-          surface: palette.surface,
-          elevated: palette.surfaceElevated,
-          ground: palette.ground,
-        },
+        { surface: palette.surface, elevated: palette.surfaceElevated, ground: palette.ground },
       );
 
       // Anchor: the trigger sits in the declared ninth of the viewport.
@@ -147,9 +136,7 @@ test("every play tile renders the state it declares", async ({ page }) => {
 
       // Trigger size: measured box vs declared size.
       if (state.shape === "rectangle") {
-        expect(Math.round(m.h), "button height").toBe(
-          BUTTON_HEIGHT[state.buttonSize],
-        );
+        expect(Math.round(m.h), "button height").toBe(BUTTON_HEIGHT[state.buttonSize]);
         if (state.buttonWidth !== "label") {
           expect(Math.round(m.w), "button width").toBe(state.buttonWidth);
         }
@@ -164,29 +151,19 @@ test("every play tile renders the state it declares", async ({ page }) => {
 
       // Sheet geometry when open.
       if (open) {
-        expect(m.sheetW!, "sheet max width").toBeLessThanOrEqual(
-          state.sheetMaxWidth,
-        );
-        if (
-          tile.section === "geometry" &&
-          tile.id.startsWith("geometry-width")
-        ) {
+        expect(m.sheetW!, "sheet max width").toBeLessThanOrEqual(state.sheetMaxWidth);
+        if (tile.section === "geometry" && tile.id.startsWith("geometry-width")) {
           expect(m.sheetW, "sheet width").toBe(state.sheetMaxWidth);
         }
         const ratio = getRecipe(state.recipe).media?.aspectRatio;
         if (ratio) {
-          expect(m.sheetW! / m.sheetH!, "sheet aspect ratio").toBeCloseTo(
-            ratio,
-            1,
-          );
+          expect(m.sheetW! / m.sheetH!, "sheet aspect ratio").toBeCloseTo(ratio, 1);
         }
       }
 
       // Drag: only the drag tile's wrapper is drag-enabled (Motion's drag
       // sets user-select: none on it).
-      expect(m.userSelect === "none", "draggable").toBe(
-        tile.id === DRAG_TILE_ID,
-      );
+      expect(m.userSelect === "none", "draggable").toBe(tile.id === DRAG_TILE_ID);
       expect(state.draggable).toBe(tile.id === DRAG_TILE_ID);
     });
   }
@@ -372,9 +349,9 @@ test("the section index marks the section in view", async ({ page }) => {
     CANVAS_SECTIONS[0].title,
   );
   for (const s of [CANVAS_SECTIONS[5], CANVAS_SECTIONS[2]]) {
-    await page
-      .locator(`section#${s.id}`)
-      .evaluate((el) => el.scrollIntoView({ block: "start" }));
+    await page.locator(`section#${s.id}`).evaluate((el) =>
+      el.scrollIntoView({ block: "start" }),
+    );
     await expect(index.locator("a[aria-current]")).toHaveCount(1);
     await expect(index.locator("a[aria-current]")).toHaveText(s.title);
   }
