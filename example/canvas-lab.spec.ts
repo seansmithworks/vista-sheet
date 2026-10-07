@@ -83,3 +83,62 @@ test("Motion Lab: scrub, play, and strip frames seek it", async ({ page }) => {
     "Close · ms from the click",
   );
 });
+
+test("Motion Lab keys keep the canvas's focus and scroll through re-arms", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/canvas.html?view=dissection");
+  const lab = page.locator("[data-motion-lab]");
+  await expect(lab.locator("iframe[data-shown]")).toHaveCount(1, {
+    timeout: 20_000,
+  });
+  const t = async () =>
+    parseFloat((await lab.locator("[data-lab-t]").textContent())!.slice(1));
+  const back = lab.getByRole("button", { name: "Back one frame" });
+  await back.scrollIntoViewIfNeeded();
+  // Somewhere to step back from.
+  await lab.getByRole("button", { name: "Forward one frame" }).click();
+  await lab.getByRole("button", { name: "Forward one frame" }).click();
+  await lab.getByRole("button", { name: "Forward one frame" }).click();
+  await expect.poll(t).toBeGreaterThan(40);
+  // Let everything above the lab finish loading first (frozen specimens,
+  // lazy captures): their layout shifts move scrollY by scroll anchoring,
+  // which is not what this checks.
+  await expect(page.locator("[data-exploded-ready]")).toHaveCount(1, {
+    timeout: 20_000,
+  });
+  await expect(page.locator("[data-anatomy] .dx-legend")).toHaveCount(2, {
+    timeout: 20_000,
+  });
+  await page.evaluate(() =>
+    Promise.all(
+      [...document.querySelectorAll<HTMLImageElement>("#anatomy img")].map(
+        (img) => {
+          img.loading = "eager";
+          return img.decode().catch(() => {});
+        },
+      ),
+    ),
+  );
+  await page.waitForTimeout(500);
+  await back.focus();
+  const y0 = await page.evaluate(() => scrollY);
+  const focused = () =>
+    page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
+  // Each ← is a backward seek: a re-arm that opens a modal sheet inside.
+  for (let i = 0; i < 3; i++) {
+    const before = await t();
+    await page.keyboard.press("ArrowLeft");
+    await expect.poll(t).toBeLessThan(before);
+    await page.waitForTimeout(300);
+    expect(await focused(), `focus after ← ${i + 1}`).toBe("Back one frame");
+  }
+  await page.keyboard.press(" ");
+  await expect(lab.locator(".dx-lab-play")).toHaveText("Pause");
+  await page.keyboard.press(" ");
+  await expect(lab.locator(".dx-lab-play")).toHaveText("Play");
+  expect(await focused()).toBe("Back one frame");
+  expect(await page.evaluate(() => scrollY), "canvas scroll").toBe(y0);
+});

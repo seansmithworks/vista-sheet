@@ -56,6 +56,16 @@ export function MotionLab({ request }: { request: LabRequest | null }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { openBars, closeBars, total } = useMemo(choreography, []);
+  // The canvas element that last had focus (never the lab's iframe).
+  const lastFocus = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    function onFocusIn(e: FocusEvent) {
+      const t = e.target as HTMLElement;
+      if (t.tagName !== "IFRAME") lastFocus.current = t;
+    }
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, []);
   // Applied once the (re)mounted stage says it's ready.
   const pending = useRef<{ direction: LabDirection; ms: number }>({
     direction: "open",
@@ -89,9 +99,27 @@ export function MotionLab({ request }: { request: LabRequest | null }) {
       }
       if (e.data.type !== "vista-sheet-play:ready") return;
       const win = frame.contentWindow!;
-      // Every re-arm opens a modal sheet, which focuses its panel; keep
-      // the canvas's focus (the transport keys live on this page).
-      win.addEventListener("focusin", () => frame.blur(), true);
+      // Every re-arm opens a modal sheet, which focuses its panel and
+      // pulls the canvas's focus onto the iframe. Hand it straight back to
+      // whatever had it (a transport button, the timeline), so the keys
+      // keep working and Space never falls through to scroll the page.
+      // And the panel's own focus() would scroll the canvas to bring the
+      // iframe into view: the lab's specimen never scrolls anything.
+      const proto = (win as Window & typeof globalThis).HTMLElement.prototype;
+      const focus = proto.focus;
+      proto.focus = function (this: HTMLElement, options?: FocusOptions) {
+        focus.call(this, { ...options, preventScroll: true });
+      };
+      win.addEventListener(
+        "focusin",
+        () => {
+          if (document.activeElement !== frame) return;
+          frame.blur();
+          const back = lastFocus.current;
+          if (back?.isConnected) back.focus({ preventScroll: true });
+        },
+        true,
+      );
       win.postMessage(
         {
           type: "vista-sheet-play:state",
@@ -138,9 +166,10 @@ export function MotionLab({ request }: { request: LabRequest | null }) {
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.defaultPrevented) return;
+    // Transport keys work from any lab control; the picker keeps its own.
     const tag = (e.target as HTMLElement).tagName;
     if (tag === "SELECT" || tag === "INPUT") return;
-    if (e.key === " " && tag !== "BUTTON") {
+    if (e.key === " ") {
       e.preventDefault();
       send({ op: playing ? "pause" : "play" });
     } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
