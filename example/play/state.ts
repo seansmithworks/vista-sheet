@@ -36,12 +36,13 @@ export interface PlayState {
 export const PACKAGE_DEFAULTS = {
   surface: "#fafafa",
   surfaceElevated: "#ffffff",
-  border: "#e5e5e5",
+  border: "rgba(229, 229, 229, 0.6)",
   text: "#1d1d1f",
   accent: "#1d1d1f",
   triggerShadow:
-    "0 1px 4px rgba(26, 22, 16, 0.14), 0 6px 24px rgba(0, 0, 0, 0.15)",
-  sheetShadow: "0 8px 48px rgba(0, 0, 0, 0.24), 0 2px 8px rgba(0, 0, 0, 0.12)",
+    "0 2px 16px -4px rgba(0, 0, 0, 0.03), 0 6px 20px -4px rgba(0, 0, 0, 0.08)",
+  sheetShadow:
+    "0 12px 16px -12px rgba(0, 0, 0, 0.12), 0 8px 22px -4px rgba(0, 0, 0, 0.12)",
 } as const;
 
 export const ANCHORS: AnchorId[] = [
@@ -75,9 +76,9 @@ interface PaletteDef {
 }
 
 const DARK_SHADOW =
-  "0 1px 4px rgba(0, 0, 0, 0.4), 0 6px 24px rgba(0, 0, 0, 0.45)";
+  "0 2px 4px -2px rgba(255, 255, 255, 0.14), 0 8px 12px rgba(255, 255, 255, 0.15)";
 const DARK_SHEET_SHADOW =
-  "0 8px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35)";
+  "0 4px 20px rgba(255, 255, 255, 0.1), 0 16px 28px -8px rgba(255, 255, 255, 0.15)";
 
 // Strawman (v0.2): "Neutral" is the default palette because it equals the
 // package's own README defaults — the first copy the playground shows has
@@ -111,7 +112,7 @@ export const PALETTES: Record<PaletteId, PaletteDef> = {
     ground: "#f5f5f7",
     surface: "#fafafa",
     surfaceElevated: "#ffffff",
-    border: "#e5e5e5",
+    border: PACKAGE_DEFAULTS.border,
     text: "#1d1d1f",
     accent: "#1d1d1f",
     triggerShadow: PACKAGE_DEFAULTS.triggerShadow,

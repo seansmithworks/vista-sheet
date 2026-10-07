@@ -8,4 +8,4 @@ declare module "*?raw" {
 interface ImportMeta {
   readonly env: { readonly DEV: boolean };
 }
-declare const __REVIEW_SOURCE_PATH__: string;
+declare const __REVIEW_EXAMPLE_ROOT__: string;

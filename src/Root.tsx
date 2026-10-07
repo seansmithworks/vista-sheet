@@ -84,6 +84,9 @@ export function Root({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const open = isControlled ? controlledOpen : uncontrolledOpen;
 
+  const triggerElRef = useRef<HTMLElement | null>(null);
+  const shadowElRef = useRef<HTMLElement | null>(null);
+
   const setOpen = useCallback(
     (next: boolean) => {
       if (!isControlled) setUncontrolledOpen(next);
@@ -290,7 +293,6 @@ export function Root({
   const [triggerRect, setTriggerRect] = useState<Rect | null>(null);
   const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
 
-  const triggerElRef = useRef<HTMLElement | null>(null);
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
 
   // The single numeric-px border-radius MotionValue both crossfade
@@ -361,6 +363,7 @@ export function Root({
     registerClose,
     hasRegisteredClose,
     triggerElRef,
+    shadowElRef,
     preview,
     layerEl,
     setLayerArmed,
