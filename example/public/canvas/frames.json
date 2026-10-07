@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-06T23:24:39.629Z",
-  "gitHead": "e7c2512",
+  "capturedAt": "2026-10-07T06:02:03.747Z",
+  "gitHead": "0093566",
   "sequences": [
     {
       "id": "morph-circle",
@@ -14,69 +14,69 @@
         {
           "file": "canvas/frames/morph-circle/00-rest.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-circle/01-open-20.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 20%",
-          "collapse": 0.7574007330691845,
-          "ms": 64
+          "collapse": 0.7212893482313201,
+          "ms": 68
         },
         {
           "file": "canvas/frames/morph-circle/02-open-40.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 40%",
-          "collapse": 0.5651331343700969,
-          "ms": 96
+          "collapse": 0.5304963757594531,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-circle/03-open-60.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 60%",
-          "collapse": 0.3920825596073644,
-          "ms": 128
+          "collapse": 0.3633125950694393,
+          "ms": 132
         },
         {
           "file": "canvas/frames/morph-circle/04-open-80.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 80%",
-          "collapse": 0.19860169491971477,
-          "ms": 176
+          "collapse": 0.1802053206668389,
+          "ms": 180
         },
         {
           "file": "canvas/frames/morph-circle/05-settled.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-circle/06-close-33.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "close 33%",
-          "collapse": 0.39418318370918437,
-          "ms": 100
+          "collapse": 0.4099513206337059,
+          "ms": 104
         },
         {
           "file": "canvas/frames/morph-circle/07-close-67.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "close 67%",
-          "collapse": 0.7187085559682169,
-          "ms": 148
+          "collapse": 0.7292151201321599,
+          "ms": 152
         },
         {
           "file": "canvas/frames/morph-circle/08-closed.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-circle/00-rest.png"
@@ -95,69 +95,69 @@
         {
           "file": "canvas/frames/morph-squircle/00-rest.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-squircle/01-open-20.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 20%",
-          "collapse": 0.7454147206166969,
-          "ms": 64
+          "collapse": 0.7212893482313201,
+          "ms": 68
         },
         {
           "file": "canvas/frames/morph-squircle/02-open-40.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 40%",
-          "collapse": 0.5534971119524106,
-          "ms": 96
+          "collapse": 0.5304963757594531,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-squircle/03-open-60.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 60%",
-          "collapse": 0.3823506093648528,
-          "ms": 128
+          "collapse": 0.3633125950694393,
+          "ms": 132
         },
         {
           "file": "canvas/frames/morph-squircle/04-open-80.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "open 80%",
-          "collapse": 0.19233375245715578,
-          "ms": 176
+          "collapse": 0.1802053206668389,
+          "ms": 180
         },
         {
           "file": "canvas/frames/morph-squircle/05-settled.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-squircle/06-close-33.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "close 33%",
-          "collapse": 0.36235312099378447,
-          "ms": 96
+          "collapse": 0.37034177233503607,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-squircle/07-close-67.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "close 67%",
-          "collapse": 0.696918821698637,
-          "ms": 144
+          "collapse": 0.7024634498630604,
+          "ms": 148
         },
         {
           "file": "canvas/frames/morph-squircle/08-closed.png",
           "width": 562,
-          "height": 305,
+          "height": 329,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-squircle/00-rest.png"
@@ -176,69 +176,69 @@
         {
           "file": "canvas/frames/morph-rectangle/00-rest.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-rectangle/01-open-20.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "open 20%",
-          "collapse": 0.7811529867259415,
-          "ms": 60
+          "collapse": 0.7152351613190461,
+          "ms": 68
         },
         {
           "file": "canvas/frames/morph-rectangle/02-open-40.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "open 40%",
-          "collapse": 0.5886474319589767,
-          "ms": 92
+          "collapse": 0.5248066023870597,
+          "ms": 100
         },
         {
           "file": "canvas/frames/morph-rectangle/03-open-60.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "open 60%",
-          "collapse": 0.3358373120556869,
-          "ms": 140
+          "collapse": 0.3586427256924125,
+          "ms": 132
         },
         {
           "file": "canvas/frames/morph-rectangle/04-open-80.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "open 80%",
-          "collapse": 0.16301062257208065,
-          "ms": 188
+          "collapse": 0.17725711493433868,
+          "ms": 180
         },
         {
           "file": "canvas/frames/morph-rectangle/05-settled.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-rectangle/06-close-33.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "close 33%",
-          "collapse": 0.34632794068829753,
+          "collapse": 0.36235312099378447,
           "ms": 96
         },
         {
           "file": "canvas/frames/morph-rectangle/07-close-67.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "close 67%",
-          "collapse": 0.6856351726708207,
+          "collapse": 0.696918821698637,
           "ms": 144
         },
         {
           "file": "canvas/frames/morph-rectangle/08-closed.png",
           "width": 562,
-          "height": 383,
+          "height": 426,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-rectangle/00-rest.png"
@@ -248,78 +248,78 @@
     {
       "id": "morph-dark",
       "group": "morph",
-      "title": "Nav · neutral dark",
+      "title": "List · neutral dark",
       "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed.",
-      "tileId": "content-nav",
+      "tileId": "theme-neutral-dark",
       "viewport": "desktop",
       "deviceScaleFactor": 1,
       "frames": [
         {
           "file": "canvas/frames/morph-dark/00-rest.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-dark/01-open-20.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "open 20%",
-          "collapse": 0.7693181157790063,
+          "collapse": 0.7811529867259415,
           "ms": 60
         },
         {
           "file": "canvas/frames/morph-dark/02-open-40.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "open 40%",
-          "collapse": 0.5768519645541793,
+          "collapse": 0.5886474319589767,
           "ms": 92
         },
         {
           "file": "canvas/frames/morph-dark/03-open-60.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "open 60%",
-          "collapse": 0.32697068905092297,
+          "collapse": 0.3358373120556869,
           "ms": 140
         },
         {
           "file": "canvas/frames/morph-dark/04-open-80.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "open 80%",
-          "collapse": 0.1575393460728737,
+          "collapse": 0.16301062257208065,
           "ms": 188
         },
         {
           "file": "canvas/frames/morph-dark/05-settled.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-dark/06-close-33.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "close 33%",
-          "collapse": 0.37034177233503607,
-          "ms": 100
+          "collapse": 0.4020812898141496,
+          "ms": 104
         },
         {
           "file": "canvas/frames/morph-dark/07-close-67.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "close 67%",
-          "collapse": 0.7024634498630604,
-          "ms": 148
+          "collapse": 0.7239941383253669,
+          "ms": 152
         },
         {
           "file": "canvas/frames/morph-dark/08-closed.png",
-          "width": 402,
-          "height": 484,
+          "width": 442,
+          "height": 518,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-dark/00-rest.png"
@@ -338,69 +338,69 @@
         {
           "file": "canvas/frames/morph-phone/00-rest.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "rest",
           "collapse": 1
         },
         {
           "file": "canvas/frames/morph-phone/01-open-20.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "open 20%",
-          "collapse": 0.7212893482313201,
-          "ms": 68
+          "collapse": 0.7693181157790063,
+          "ms": 60
         },
         {
           "file": "canvas/frames/morph-phone/02-open-40.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "open 40%",
-          "collapse": 0.5304963757594531,
-          "ms": 100
+          "collapse": 0.5768519645541793,
+          "ms": 92
         },
         {
           "file": "canvas/frames/morph-phone/03-open-60.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "open 60%",
-          "collapse": 0.3633125950694393,
-          "ms": 132
+          "collapse": 0.32697068905092297,
+          "ms": 140
         },
         {
           "file": "canvas/frames/morph-phone/04-open-80.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "open 80%",
-          "collapse": 0.1802053206668389,
-          "ms": 180
+          "collapse": 0.1575393460728737,
+          "ms": 188
         },
         {
           "file": "canvas/frames/morph-phone/05-settled.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "settled",
           "collapse": 0
         },
         {
           "file": "canvas/frames/morph-phone/06-close-33.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "close 33%",
-          "collapse": 0.4333731307676023,
-          "ms": 108
+          "collapse": 0.36235312099378447,
+          "ms": 96
         },
         {
           "file": "canvas/frames/morph-phone/07-close-67.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "close 67%",
-          "collapse": 0.7444916403963149,
-          "ms": 156
+          "collapse": 0.696918821698637,
+          "ms": 144
         },
         {
           "file": "canvas/frames/morph-phone/08-closed.png",
           "width": 585,
-          "height": 690,
+          "height": 726,
           "label": "closed",
           "collapse": 1,
           "identicalTo": "canvas/frames/morph-phone/00-rest.png"
@@ -412,7 +412,7 @@
       "group": "morph",
       "title": "Link preview · hover",
       "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed. Opens on hover intent, closes on pointer-out after the grace period. The previewed page is held on its skeleton so frames compare.",
-      "tileId": "link-preview-light",
+      "tileId": "link-preview",
       "viewport": "desktop",
       "deviceScaleFactor": 1,
       "frames": [
@@ -428,32 +428,32 @@
           "width": 441,
           "height": 629,
           "label": "open 20%",
-          "collapse": 0.7987186902756147,
-          "ms": 208
+          "collapse": 0.7394001516259557,
+          "ms": 216
         },
         {
           "file": "canvas/frames/morph-link-preview/02-open-40.png",
           "width": 441,
           "height": 629,
           "label": "open 40%",
-          "collapse": 0.5135038864801249,
-          "ms": 256
+          "collapse": 0.547711982676271,
+          "ms": 248
         },
         {
           "file": "canvas/frames/morph-link-preview/03-open-60.png",
           "width": 441,
           "height": 629,
           "label": "open 60%",
-          "collapse": 0.34941146156065717,
-          "ms": 288
+          "collapse": 0.3775376193681761,
+          "ms": 280
         },
         {
           "file": "canvas/frames/morph-link-preview/04-open-80.png",
           "width": 441,
           "height": 629,
           "label": "open 80%",
-          "collapse": 0.1714601578676766,
-          "ms": 336
+          "collapse": 0.18925096112274556,
+          "ms": 328
         },
         {
           "file": "canvas/frames/morph-link-preview/05-settled.png",
@@ -467,16 +467,16 @@
           "width": 441,
           "height": 629,
           "label": "close 33%",
-          "collapse": 0.36235312099378447,
-          "ms": 348
+          "collapse": 0.39418318370918437,
+          "ms": 352
         },
         {
           "file": "canvas/frames/morph-link-preview/07-close-67.png",
           "width": 441,
           "height": 629,
           "label": "close 67%",
-          "collapse": 0.696918821698637,
-          "ms": 396
+          "collapse": 0.7187085559682169,
+          "ms": 400
         },
         {
           "file": "canvas/frames/morph-link-preview/08-closed.png",
@@ -501,7 +501,7 @@
           "width": 300,
           "height": 300,
           "label": "+0ms",
-          "collapse": 0.00992529515056653,
+          "collapse": 0.00408114522111906,
           "ms": 0,
           "detail": "opacity 0.00 · scale 0.00 · rotate 0°"
         },
@@ -510,7 +510,7 @@
           "width": 300,
           "height": 300,
           "label": "+40ms",
-          "collapse": -0.0027310157778211237,
+          "collapse": -0.005415895087534372,
           "ms": 40,
           "detail": "opacity 0.00 · scale 0.13 · rotate -74°"
         },
@@ -519,7 +519,7 @@
           "width": 300,
           "height": 300,
           "label": "+80ms",
-          "collapse": -0.009141921712568625,
+          "collapse": -0.009396869965451995,
           "ms": 80,
           "detail": "opacity 0.00 · scale 0.56 · rotate -22°"
         },
@@ -528,16 +528,16 @@
           "width": 300,
           "height": 300,
           "label": "+150ms",
-          "collapse": -0.007798429940811118,
+          "collapse": -0.007141069090313069,
           "ms": 150,
-          "detail": "opacity 0.36 · scale 0.92 · rotate 14°"
+          "detail": "opacity 0.92 · scale 0.92 · rotate 14°"
         },
         {
           "file": "canvas/frames/close-reveal/04-t250.png",
           "width": 300,
           "height": 300,
           "label": "+250ms",
-          "collapse": -0.002845001006280613,
+          "collapse": -0.0023973390069272353,
           "ms": 250,
           "detail": "opacity 1.00 · scale 1.03 · rotate 3°"
         },
@@ -573,7 +573,7 @@
         {
           "file": "canvas/frames/shadow-crossfade/00-rest.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "rest",
           "collapse": 1,
           "shadowOpacity": 1,
@@ -582,47 +582,47 @@
         {
           "file": "canvas/frames/shadow-crossfade/01-open-20.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "open 20%",
-          "collapse": 0.7811529867259415,
-          "ms": 60,
+          "collapse": 0.7987186902756147,
+          "ms": 56,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/02-open-40.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "open 40%",
-          "collapse": 0.5886474319589767,
-          "ms": 92,
+          "collapse": 0.5135038864801249,
+          "ms": 104,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/03-open-60.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "open 60%",
-          "collapse": 0.3358373120556869,
-          "ms": 140,
+          "collapse": 0.34941146156065717,
+          "ms": 136,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/04-open-80.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "open 80%",
-          "collapse": 0.16301062257208065,
-          "ms": 188,
-          "shadowOpacity": 0.6520424902883226,
-          "sheetShadowOpacity": 0.3479575097116774
+          "collapse": 0.1714601578676766,
+          "ms": 184,
+          "shadowOpacity": 0.6858406314707064,
+          "sheetShadowOpacity": 0.3141593685292936
         },
         {
           "file": "canvas/frames/shadow-crossfade/05-settled.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "settled",
           "collapse": 0,
           "shadowOpacity": 0,
@@ -631,27 +631,27 @@
         {
           "file": "canvas/frames/shadow-crossfade/06-close-33.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "close 33%",
-          "collapse": 0.34632794068829753,
-          "ms": 96,
+          "collapse": 0.4333731307676023,
+          "ms": 108,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/07-close-67.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "close 67%",
-          "collapse": 0.6856351726708207,
-          "ms": 144,
+          "collapse": 0.7444916403963149,
+          "ms": 156,
           "shadowOpacity": 1,
           "sheetShadowOpacity": 0
         },
         {
           "file": "canvas/frames/shadow-crossfade/08-closed.png",
           "width": 562,
-          "height": 337,
+          "height": 361,
           "label": "closed",
           "collapse": 1,
           "shadowOpacity": 1,
@@ -682,7 +682,8 @@
           "height": 408,
           "label": "hover",
           "collapse": null,
-          "detail": "pointer over the trigger"
+          "detail": "pointer over the trigger",
+          "identicalTo": "canvas/frames/trigger-states-disc/00-rest.png"
         },
         {
           "file": "canvas/frames/trigger-states-disc/02-focus-visible.png",
@@ -698,8 +699,7 @@
           "height": 408,
           "label": "pressed",
           "collapse": null,
-          "detail": "pointer down, held",
-          "identicalTo": "canvas/frames/trigger-states-disc/01-hover.png"
+          "detail": "pointer down, held"
         }
       ]
     },
@@ -758,41 +758,41 @@
         {
           "file": "canvas/frames/reduced-motion/00-rest.png",
           "width": 560,
-          "height": 336,
+          "height": 360,
           "label": "rest",
           "collapse": null
         },
         {
           "file": "canvas/frames/reduced-motion/01-t50.png",
           "width": 560,
-          "height": 336,
+          "height": 360,
           "label": "+50ms",
           "collapse": null,
           "ms": 50,
-          "detail": "sheet opacity 0.49"
+          "detail": "sheet opacity 0.53"
         },
         {
           "file": "canvas/frames/reduced-motion/02-t100.png",
           "width": 560,
-          "height": 336,
+          "height": 360,
           "label": "+100ms",
           "collapse": null,
           "ms": 100,
-          "detail": "sheet opacity 0.76"
+          "detail": "sheet opacity 0.79"
         },
         {
           "file": "canvas/frames/reduced-motion/03-t150.png",
           "width": 560,
-          "height": 336,
+          "height": 360,
           "label": "+150ms",
           "collapse": null,
           "ms": 150,
-          "detail": "sheet opacity 0.95"
+          "detail": "sheet opacity 0.97"
         },
         {
           "file": "canvas/frames/reduced-motion/04-settled.png",
           "width": 560,
-          "height": 336,
+          "height": 360,
           "label": "settled",
           "collapse": null,
           "detail": "sheet opacity 1.00"
