@@ -310,7 +310,11 @@ export function Sheet({
           onClick={() => setOpen(false)}
         />
       )}
+      {/* initial={false}: a sheet already open when this first renders (a
+          Root mounted open) is at rest — its content, items and Close skip
+          their entrance. Later opens are unaffected. */}
       <AnimatePresence
+        initial={false}
         onExitComplete={() => {
           if (modal) triggerElRef.current?.focus();
           // Exit-complete is when the close morph is actually done — the
