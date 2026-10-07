@@ -13,6 +13,34 @@ export interface PlayStageOverrides {
   preset?: "default" | "snappy" | "gentle";
 }
 
+/** The Motion Lab's scene: open from rest, or close from settled. Time is
+ * ms since that scene's click. */
+export type LabDirection = "open" | "close";
+
+/** Commands to a `?clock=1` stage's lab (example/play/clock-lab.ts). */
+export type ClockCommand =
+  | { op: "play" }
+  | { op: "pause" }
+  | { op: "speed"; speed: number }
+  /** ± display frames (1000/60 ms each), as a seek. */
+  | { op: "step"; frames: number }
+  | { op: "seek"; ms: number }
+  | { op: "scene"; direction: LabDirection; endMs: number };
+
+/** What a `?clock=1` stage reports back after every change. */
+export interface LabState {
+  direction: LabDirection;
+  /** Virtual ms since the scene's click (0 before it). */
+  t: number;
+  endMs: number;
+  playing: boolean;
+  speed: number;
+  /** Seeking (reset + fast-forward) in progress. */
+  busy: boolean;
+  /** The package's own collapseProgress, read off the Shadow layer. */
+  collapse: number | null;
+}
+
 export type PlayMessage =
   | { type: "vista-sheet-play:ready" }
   | {
@@ -25,7 +53,12 @@ export type PlayMessage =
   // A command: the shell tells the stage to move the specimen (Anchor
   // dropdown only). Never sent in response to a report — that round trip
   // is what looped forever before this type existed.
-  | { type: "vista-sheet-play:set-anchor"; anchor: AnchorId };
+  | { type: "vista-sheet-play:set-anchor"; anchor: AnchorId }
+  // Remount the specimen at rest (renderer-only; PlayState is untouched).
+  | { type: "vista-sheet-play:reset" }
+  // Motion Lab: a clock command in, the lab's state out.
+  | { type: "vista-sheet-play:clock"; command: ClockCommand }
+  | { type: "vista-sheet-play:clock-state"; state: LabState };
 
 export function isPlayMessage(data: unknown): data is PlayMessage {
   if (typeof data !== "object" || data === null) return false;
@@ -34,6 +67,9 @@ export function isPlayMessage(data: unknown): data is PlayMessage {
     type === "vista-sheet-play:ready" ||
     type === "vista-sheet-play:state" ||
     type === "vista-sheet-play:anchor" ||
-    type === "vista-sheet-play:set-anchor"
+    type === "vista-sheet-play:set-anchor" ||
+    type === "vista-sheet-play:reset" ||
+    type === "vista-sheet-play:clock" ||
+    type === "vista-sheet-play:clock-state"
   );
 }
