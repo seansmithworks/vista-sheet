@@ -248,6 +248,115 @@
   color: var(--cv-text-2);
 }
 
+/* ---- Motion Lab ---- */
+.dx-lab {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  margin-bottom: 44px;
+  scroll-margin-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 16px);
+}
+
+.dx-lab-frame .cv-iframe {
+  pointer-events: none;
+}
+
+.dx-lab-controls {
+  min-width: 0;
+}
+
+.dx-lab-transport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.dx-lab-transport > button {
+  appearance: none;
+  min-width: 36px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--cv-fill);
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dx-lab-transport > button:hover {
+  background: var(--cv-hover);
+}
+
+.dx-lab-transport > button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dx-lab-play {
+  min-width: 68px;
+  font-weight: 500;
+}
+
+.dx-lab-pick select {
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--cv-fill);
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.dx-lab-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 14px 0 16px;
+}
+
+.dx-lab-readout code {
+  color: var(--cv-text-2);
+}
+
+.dx-lab-readout code[data-lab-t] {
+  color: var(--cv-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.dx-timeline[data-scrubber] .dx-timeline-rows {
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+.dx-tl-playhead {
+  stroke: var(--cv-text);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A captured frame that seeks the lab. */
+.dx-frame-seek {
+  appearance: none;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.dx-frame-seek:hover img {
+  box-shadow:
+    0 0 0 1px var(--cv-border),
+    0 0 0 3px var(--cv-text-2);
+}
+
 /* ---- Strips ---- */
 .dx-strips {
   display: grid;
@@ -544,6 +653,16 @@
 
   .dx-tl-label {
     padding-bottom: 0;
+  }
+
+  .dx-lab {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .dx-lab-specimen {
+    width: min(100%, 240px);
+    margin: 0 auto;
   }
 
   /* No room for a leader-line column: the labels become a plain list. */

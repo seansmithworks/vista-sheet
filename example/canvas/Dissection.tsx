@@ -5,30 +5,14 @@
  * src/motion.ts and the README contract. Nothing is drawn to look like the
  * component.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { LabDirection } from "../play/messages";
 import { groundFor, PALETTES, type PaletteId } from "../play/state";
 import type { Spring } from "../../src/types";
 import {
-  CLOSE_EXIT_SEC,
-  CLOSE_FADE_IN_SEC,
-  CLOSE_REVEAL_PROGRESS,
   CLOSE_REVEAL_ROTATE_SPRING,
   CLOSE_REVEAL_SPRING,
-  CONTENT_FADE_OUT_MS,
-  DEFAULT_CLOSE_SPRING,
-  DEFAULT_OPEN_SPRING,
-  DEFAULT_SHARED_CLOSE_SPRING,
-  DEFAULT_SHARED_SPRING,
-  ITEM_STAGGER_INTERVAL_SEC,
-  OPEN_CONTENT_REVEAL_DELAY_SEC,
-  PREVIEW_CLOSE_GRACE_MS,
-  PREVIEW_HOVER_INTENT_MS,
-  PREVIEW_LONG_PRESS_MS,
-  PREVIEW_LONG_PRESS_SLOP_PX,
-  RADIUS_HOLD_FRACTION,
   SNAP_SPRING,
-  SURFACE_CLOSE_LEAD_DELAY_MS,
-  TRIGGER_LABEL_REVEAL_START,
   presets,
 } from "../../src/motion";
 import {
@@ -44,8 +28,10 @@ import {
   type VariantGroup,
 } from "./anatomy";
 import { Exploded } from "./Exploded";
+import { MotionLab, type LabRequest } from "./MotionLab";
 import { freezeSpecimen, measure, partKey, type PartBox } from "./parts";
-import { crossing, dampingRatio, simulate } from "./springs";
+import { dampingRatio, simulate } from "./springs";
+import { choreography, Timeline } from "./timeline";
 import { STATE_ROWS, type Status } from "./states";
 import { CANVAS_TILES, VIEWPORTS, type PlayTile } from "./tiles";
 import "./dissection.css";
@@ -115,6 +101,12 @@ const SECTIONS = [
 
 export function Dissection() {
   const frames = useFrames();
+  const [labRequest, setLabRequest] = useState<LabRequest | null>(null);
+  const seekLab = useCallback(
+    (r: Omit<LabRequest, "nonce">) =>
+      setLabRequest({ ...r, nonce: performance.now() }),
+    [],
+  );
 
   // The browser's own #hash scroll runs before the sections exist.
   useEffect(() => {
@@ -139,11 +131,15 @@ export function Dissection() {
           <header>
             <h2>Morph sequences</h2>
             <p>
-              Captured frames, each labelled with the package's own
-              collapseProgress (1 closed, 0 open) at the tick it was taken.
+              The Motion Lab runs the real specimen on a virtual clock: slow,
+              frame by frame, or scrubbed on its timeline. Below it, captured
+              frames, each labelled with the package's own collapseProgress (1
+              closed, 0 open) at the tick it was taken; click one to see that
+              moment in the lab.
             </p>
           </header>
-          <Strips frames={frames} groups={["morph"]} />
+          <MotionLab request={labRequest} />
+          <Strips frames={frames} groups={["morph"]} onSeek={seekLab} />
         </section>
         <section
           id="details"
@@ -159,6 +155,7 @@ export function Dissection() {
           </header>
           <Strips
             frames={frames}
+            onSeek={seekLab}
             groups={[
               "close-reveal",
               "shadow",
@@ -510,12 +507,41 @@ function frameCaption(f: FrameMeta): string {
   return parts.join(" · ");
 }
 
+/** Where a captured frame sits on the Motion Lab's clock, or null for
+ * frames it can't replay (trigger states, the link preview, video). */
+function labTarget(
+  s: SequenceMeta,
+  f: FrameMeta,
+): Omit<LabRequest, "nonce"> | null {
+  const tile = CANVAS_TILES.find((t) => t.id === s.tileId);
+  if (!tile || tile.kind !== "play" || tile.state.recipe === "video") {
+    return null;
+  }
+  if (s.group === "trigger-states") return null;
+  const { total, reveal } = choreography();
+  const at = (direction: LabDirection, ms: number) => ({
+    tileId: s.tileId,
+    direction,
+    ms,
+  });
+  if (s.group === "close-reveal") {
+    return f.ms === undefined ? null : at("open", reveal + f.ms);
+  }
+  if (f.label === "rest") return at("open", 0);
+  if (f.label === "settled") return at("open", total);
+  if (f.label === "closed") return at("close", total);
+  if (f.ms === undefined) return null;
+  return at(f.label.startsWith("close") ? "close" : "open", f.ms);
+}
+
 function Strips({
   frames,
   groups,
+  onSeek,
 }: {
   frames: FramesManifest | Error | null;
   groups: Array<SequenceMeta["group"]>;
+  onSeek: (r: Omit<LabRequest, "nonce">) => void;
 }) {
   if (frames === null) return <p className="dx-note">Loading frames…</p>;
   if (frames instanceof Error) {
@@ -560,15 +586,32 @@ function Strips({
                   id={frameAnchor(s.id, i)}
                   data-anchor-id={frameAnchor(s.id, i)}
                 >
-                  <img
-                    src={`./${f.file}`}
-                    data-anchor-id={`${frameAnchor(s.id, i)}-img`}
-                    width={Math.round((h * f.width) / f.height)}
-                    height={h}
-                    alt={`${s.title}, ${f.label}`}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  {(() => {
+                    const img = (
+                      <img
+                        src={`./${f.file}`}
+                        data-anchor-id={`${frameAnchor(s.id, i)}-img`}
+                        width={Math.round((h * f.width) / f.height)}
+                        height={h}
+                        alt={`${s.title}, ${f.label}`}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    );
+                    const target = labTarget(s, f);
+                    if (!target) return img;
+                    return (
+                      <button
+                        type="button"
+                        className="dx-frame-seek"
+                        data-lab-seek={`${target.direction}:${Math.round(target.ms)}`}
+                        title={`Show this moment in the Motion Lab (${target.direction} +${Math.round(target.ms)}ms)`}
+                        onClick={() => onSeek(target)}
+                      >
+                        {img}
+                      </button>
+                    );
+                  })()}
                   <figcaption>
                     <span className="dx-frame-label">
                       {String(i).padStart(2, "0")} {f.label}
@@ -599,236 +642,8 @@ function Strips({
 
 // ---------- Choreography ----------
 
-interface Bar {
-  label: string;
-  start: number;
-  end?: number;
-  /** Instant markers inside the bar. */
-  marks?: Array<{ at: number; label: string }>;
-  note: string;
-}
-
-function Timeline({
-  title,
-  bars,
-  total,
-}: {
-  title: string;
-  bars: Bar[];
-  total: number;
-}) {
-  const W = 1000;
-  const ROW = 34;
-  const LABEL = 0;
-  const x = (ms: number) => LABEL + (ms / total) * (W - LABEL);
-  const ticks: number[] = [];
-  for (let t = 0; t <= total; t += 100) ticks.push(t);
-  return (
-    <figure className="dx-timeline">
-      <figcaption>{title}</figcaption>
-      <div className="dx-timeline-rows">
-        {bars.map((b) => (
-          <div key={b.label} className="dx-tl-row">
-            <div className="dx-tl-label">
-              <span>{b.label}</span>
-              <code>{b.note}</code>
-            </div>
-            <svg
-              viewBox={`0 0 ${W} ${ROW}`}
-              preserveAspectRatio="none"
-              className="dx-tl-svg"
-              role="img"
-              aria-label={`${b.label}: ${b.note}`}
-            >
-              {ticks.map((t) => (
-                <line
-                  key={t}
-                  x1={x(t)}
-                  x2={x(t)}
-                  y1={0}
-                  y2={ROW}
-                  className="dx-tl-grid"
-                />
-              ))}
-              {b.end !== undefined ? (
-                <rect
-                  x={x(b.start)}
-                  y={10}
-                  width={Math.max(2, x(b.end) - x(b.start))}
-                  height={14}
-                  rx={3}
-                  className="dx-tl-bar"
-                />
-              ) : (
-                <rect
-                  x={x(b.start) - 1}
-                  y={6}
-                  width={3}
-                  height={22}
-                  className="dx-tl-tick"
-                />
-              )}
-              {b.marks?.map((m) => (
-                <rect
-                  key={m.label}
-                  x={x(m.at) - 1}
-                  y={4}
-                  width={2.5}
-                  height={26}
-                  className="dx-tl-mark"
-                />
-              ))}
-            </svg>
-          </div>
-        ))}
-        <div className="dx-tl-row dx-tl-axis">
-          <div className="dx-tl-label" />
-          <div className="dx-tl-axis-labels">
-            {ticks
-              .filter((t) => t % 200 === 0)
-              .map((t) => (
-                <code key={t} style={{ left: `${(t / total) * 100}%` }}>
-                  {t}
-                </code>
-              ))}
-          </div>
-        </div>
-      </div>
-    </figure>
-  );
-}
-
 function Choreography() {
-  const open = simulate(DEFAULT_OPEN_SPRING);
-  const sharedOpen = simulate(DEFAULT_SHARED_SPRING);
-  const close = simulate(DEFAULT_CLOSE_SPRING, 0, 1);
-  const sharedClose = simulate(DEFAULT_SHARED_CLOSE_SPRING, 0, 1);
-  const reveal = crossing(open, CLOSE_REVEAL_PROGRESS);
-  const lead = SURFACE_CLOSE_LEAD_DELAY_MS;
-  const radiusAt = lead + crossing(close, RADIUS_HOLD_FRACTION, 0);
-  const labelAt = lead + crossing(close, TRIGGER_LABEL_REVEAL_START, 0);
-  const contentAt = OPEN_CONTENT_REVEAL_DELAY_SEC * 1000;
-  const stagger = ITEM_STAGGER_INTERVAL_SEC * 1000;
-  const ITEMS = 3;
-
-  const openBars: Bar[] = [
-    {
-      label: "Surface",
-      start: 0,
-      end: open.settleMs,
-      marks: [{ at: reveal, label: "reveal" }],
-      note: `open spring · settles ${open.settleMs}ms · collapse ≤ ${CLOSE_REVEAL_PROGRESS} at ${reveal}ms`,
-    },
-    {
-      label: "Shared",
-      start: 0,
-      end: sharedOpen.settleMs,
-      note: `shared.open spring · settles ${sharedOpen.settleMs}ms`,
-    },
-    {
-      label: "Content",
-      start: contentAt,
-      note: `starts at OPEN_CONTENT_REVEAL_DELAY ${contentAt}ms`,
-    },
-    ...Array.from({ length: ITEMS }, (_, i) => ({
-      label: `Item ${i + 1}`,
-      start: contentAt + i * stagger,
-      end: contentAt + (i + 1) * stagger,
-      note: `starts ${Math.round(contentAt + i * stagger)}ms (+${stagger}ms stagger)`,
-    })),
-    {
-      label: "Close · fade",
-      start: reveal,
-      end: reveal + CLOSE_FADE_IN_SEC * 1000,
-      note: `${CLOSE_FADE_IN_SEC * 1000}ms from ${reveal}ms`,
-    },
-    {
-      label: "Close · scale",
-      start: reveal,
-      end: reveal + CLOSE_REVEAL_SPRING.duration * 1000,
-      note: `spring ${CLOSE_REVEAL_SPRING.duration * 1000}ms · bounce ${CLOSE_REVEAL_SPRING.bounce}`,
-    },
-    {
-      label: "Close · turn",
-      start: reveal,
-      end: reveal + CLOSE_REVEAL_ROTATE_SPRING.duration * 1000,
-      note: `spring ${CLOSE_REVEAL_ROTATE_SPRING.duration * 1000}ms · bounce ${CLOSE_REVEAL_ROTATE_SPRING.bounce}`,
-    },
-  ];
-
-  const closeBars: Bar[] = [
-    {
-      label: "Content",
-      start: 0,
-      end: CONTENT_FADE_OUT_MS,
-      note: `fades out ${CONTENT_FADE_OUT_MS}ms`,
-    },
-    {
-      label: "Close",
-      start: 0,
-      end: CLOSE_EXIT_SEC * 1000,
-      note: `exits ${CLOSE_EXIT_SEC * 1000}ms`,
-    },
-    {
-      label: "Shared",
-      start: 0,
-      end: sharedClose.settleMs,
-      note: `shared.close spring · settles ${sharedClose.settleMs}ms`,
-    },
-    {
-      label: "Surface",
-      start: lead,
-      end: lead + close.settleMs,
-      marks: [
-        { at: radiusAt, label: "radius" },
-        { at: labelAt, label: "label" },
-      ],
-      note: `waits ${lead}ms lead · close spring · settles ${lead + close.settleMs}ms`,
-    },
-    {
-      label: "Radius",
-      start: radiusAt,
-      end: lead + close.settleMs,
-      note: `held to collapse ${RADIUS_HOLD_FRACTION} (${radiusAt}ms), then rounds`,
-    },
-    {
-      label: "Trigger label",
-      start: labelAt,
-      end: lead + close.settleMs,
-      note: `fades in from collapse ${TRIGGER_LABEL_REVEAL_START} (${labelAt}ms)`,
-    },
-  ];
-
-  const previewBars: Bar[] = [
-    {
-      label: "Hover intent",
-      start: 0,
-      end: PREVIEW_HOVER_INTENT_MS,
-      note: `hover or focus rests ${PREVIEW_HOVER_INTENT_MS}ms, then opens`,
-    },
-    {
-      label: "Close grace",
-      start: 0,
-      end: PREVIEW_CLOSE_GRACE_MS,
-      note: `pointer out: ${PREVIEW_CLOSE_GRACE_MS}ms to reach the card`,
-    },
-    {
-      label: "Long-press",
-      start: 0,
-      end: PREVIEW_LONG_PRESS_MS,
-      note: `touch hold ${PREVIEW_LONG_PRESS_MS}ms · ${PREVIEW_LONG_PRESS_SLOP_PX}px slop cancels`,
-    },
-  ];
-
-  const total =
-    Math.ceil(
-      Math.max(
-        open.settleMs,
-        reveal + CLOSE_REVEAL_ROTATE_SPRING.duration * 1000,
-        lead + close.settleMs,
-      ) / 100,
-    ) * 100;
-
+  const { previewBars, total } = choreography();
   return (
     <section
       id="choreography"
@@ -838,21 +653,11 @@ function Choreography() {
       <header>
         <h2>Choreography</h2>
         <p>
-          Every number is imported from <code>src/motion.ts</code>. Spring
-          durations are simulated from their constants; the strips above are the
-          measured record.
+          Every number is imported from <code>src/motion.ts</code>. The Open and
+          Close timelines are the Motion Lab's scrubber, at the top of{" "}
+          <a href="#morph">Morph sequences</a>.
         </p>
       </header>
-      <Timeline
-        title="Open · ms from the click"
-        bars={openBars}
-        total={total}
-      />
-      <Timeline
-        title="Close · ms from the click"
-        bars={closeBars}
-        total={total}
-      />
       <Timeline
         title="Link preview · ms from the pointer or finger"
         bars={previewBars}
