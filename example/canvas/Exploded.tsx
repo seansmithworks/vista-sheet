@@ -85,6 +85,7 @@ interface Stack {
 function buildStack(doc: Document, layers: Layer[]): Stack {
   const win = doc.defaultView!;
   const original = doc.getElementById("root")!;
+  const ground = win.getComputedStyle(doc.body).backgroundColor;
   const stage = doc.createElement("div");
   stage.dataset.explodedStage = "";
   Object.assign(stage.style, {
@@ -124,20 +125,30 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
     // The part's measured box, outlined on its slab, so a part that paints
     // nothing while open (the hidden trigger) still reads as a layer. Faded
     // in with the tilt: at gap 0 the stack must composite to the original.
+    // The plane is frosted with the page ground, so a higher slab veils
+    // what sits under it and the layering reads at a glance. Parts that
+    // cover the viewport (the backdrop) get no outline: their plane is the
+    // whole slab, wider than any crop of the stack.
     const { x, y, w, h } = layer.box;
-    const outline = doc.createElement("div");
-    outline.dataset.explodedOutline = "";
-    Object.assign(outline.style, {
-      position: "absolute",
-      left: `${x}px`,
-      top: `${y}px`,
-      width: `${w}px`,
-      height: `${h}px`,
-      outline: "1px dashed rgba(128, 128, 128, 0.7)",
-      outlineOffset: "-0.5px",
-      opacity: "0",
-    });
-    slab.append(clone, outline);
+    slab.append(clone);
+    if (!coversViewport(layer.box, win)) {
+      const outline = doc.createElement("div");
+      outline.dataset.explodedOutline = "";
+      Object.assign(outline.style, {
+        position: "absolute",
+        left: `${x}px`,
+        top: `${y}px`,
+        width: `${w}px`,
+        height: `${h}px`,
+        outline: "1px dashed rgba(128, 128, 128, 0.7)",
+        outlineOffset: "-0.5px",
+        background: `color-mix(in srgb, ${ground} 45%, transparent)`,
+        opacity: "0",
+      });
+      // Under the clone: the frost sits on the plane, the part's pixels on
+      // top of it.
+      slab.prepend(outline);
+    }
     stage.append(slab);
     return slab;
   });
@@ -145,6 +156,13 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
   original.style.visibility = "hidden";
   original.dataset.explodedOriginal = "";
   return { stage, slabs, original };
+}
+
+function coversViewport(
+  b: { w: number; h: number },
+  win: { innerWidth: number; innerHeight: number },
+) {
+  return b.w * b.h >= 0.8 * win.innerWidth * win.innerHeight;
 }
 
 /** The stage transform for a gap: identity at 0; at full tilt the whole
@@ -200,6 +218,8 @@ function stageMatrix(
 }
 
 const LABEL_ROW = 22;
+/** Space kept around the stack inside the cropped frame. */
+const CROP_PAD = 24;
 /** Width of the leader-line gutter between the frame and the labels. */
 const LEADER = 28;
 
@@ -289,37 +309,129 @@ export function Exploded({ tile }: { tile: PlayTile }) {
     });
   }, [matrix, gap, hover]);
 
-  // Labels: each part box's centre, projected, then laid out in a column
-  // ordered by that projected height, nudged apart to stay legible.
+  // Names: duplicate parts (two Items) get their DOM ordinal. Numbers run
+  // top layer first, matching the legend.
+  const names = useMemo(() => {
+    if (!layers) return [];
+    const byKey = new Map<string, number[]>();
+    for (const l of layers) {
+      const k = partKey(l.box);
+      byKey.set(k, [...(byKey.get(k) ?? []), l.index]);
+    }
+    return layers.map((l) => {
+      const k = partKey(l.box);
+      const same = byKey.get(k)!.sort((a, b) => a - b);
+      return same.length > 1 ? `${k} ${same.indexOf(l.index) + 1}` : k;
+    });
+  }, [layers]);
+
+  // A part's anchor: the corner of its box that projects furthest right,
+  // nearest the label column, so leaders stay off the specimen's pixels.
+  // A part that covers the viewport is anchored on the stack's box instead.
+  const project = useMemo(() => {
+    if (!layers || !box) return null;
+    const vpSize = { innerWidth: vp.width, innerHeight: vp.height };
+    return (m: DOMMatrix, i: number, g: number, b: PartBox) => {
+      const src = coversViewport(b, vpSize) ? box : b;
+      let best: DOMPoint | null = null;
+      for (const [x, y] of [
+        [src.x, src.y],
+        [src.x + src.w, src.y],
+        [src.x, src.y + src.h],
+        [src.x + src.w, src.y + src.h],
+      ]) {
+        const p = m.transformPoint(new DOMPoint(x, y, i * g));
+        if (!best || p.x > best.x) best = p;
+      }
+      return best!;
+    };
+  }, [layers, box, vp.width, vp.height]);
+
+  const bandY = (g: number) => {
+    const m = stageMatrix(vp.width, vp.height, box!, layers!.length, g);
+    const ys: number[] = [];
+    layers!.forEach((l, i) => {
+      if (
+        coversViewport(l.box, { innerWidth: vp.width, innerHeight: vp.height })
+      )
+        return;
+      for (const [x, y] of [
+        [l.box.x, l.box.y],
+        [l.box.x + l.box.w, l.box.y],
+        [l.box.x, l.box.y + l.box.h],
+        [l.box.x + l.box.w, l.box.y + l.box.h],
+      ]) {
+        ys.push(m.transformPoint(new DOMPoint(x, y, i * g)).y);
+      }
+    });
+    return [Math.min(...ys), Math.max(...ys)] as const;
+  };
+
+  // The crop: the frame shows a window of the iframe just tall enough for
+  // the stack at the current gap, so there are no empty bands above or
+  // below it (the slider sits above the frame, so it never moves while the
+  // frame resizes). The iframe itself is never resized.
+  const [windowH, offset] = useMemo(() => {
+    if (!layers || !box) return [vp.height, 0];
+    const [a, b] = bandY(gap);
+    const h = Math.min(vp.height, Math.ceil(b - a + 2 * CROP_PAD));
+    const top = Math.max(0, Math.min(vp.height - h, a - CROP_PAD));
+    return [h, top];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layers, box, gap, vp.height, vp.width]);
+
+  // Badges and labels: each part's centre, projected into the window.
+  // Labels sit in a column ordered by that height, pushed apart to stay
+  // legible; leaders are elbows whose vertical runs step left as they go
+  // down the column, so no two cross.
+  const frameW = vp.width * scale;
+  const frameH = windowH * scale;
   const labels = useMemo(() => {
-    if (!layers || !matrix || scale === 0) return [];
+    if (!layers || !matrix || !project || scale === 0) return [];
+    const n = layers.length;
     const placed = layers
       .map((l, i) => {
-        const p = matrix.transformPoint(
-          new DOMPoint(l.box.x + l.box.w / 2, l.box.y + l.box.h / 2, i * gap),
-        );
-        return { i, layer: l, ax: p.x * scale, ay: p.y * scale, y: 0 };
+        const p = project(matrix, i, gap, l.box);
+        return {
+          i,
+          n: n - i,
+          name: names[i],
+          layer: l,
+          ax: p.x * scale,
+          ay: (p.y - offset) * scale,
+          y: 0,
+          gx: 0,
+        };
       })
       .sort((a, b) => a.ay - b.ay || b.i - a.i);
-    const height = vp.height * scale;
+    // Until the stack is tilted the slabs are coplanar: a plain numbered
+    // list, no badges or leaders.
+    if (gap < TILT_FULL_AT) {
+      placed.sort((a, b) => a.n - b.n);
+      placed.forEach((p, k) => (p.y = LABEL_ROW / 2 + k * LABEL_ROW));
+      return placed;
+    }
     let y = -Infinity;
     for (const p of placed) {
-      p.y = Math.max(p.ay, y + LABEL_ROW);
+      p.y = Math.max(p.ay, y + LABEL_ROW, LABEL_ROW / 2);
       y = p.y;
     }
-    const overflow = y + LABEL_ROW / 2 - height;
-    if (overflow > 0) {
-      let floor = height - LABEL_ROW / 2;
+    if (y + LABEL_ROW / 2 > frameH) {
+      let floor = frameH - LABEL_ROW / 2;
       for (let k = placed.length - 1; k >= 0; k--) {
         placed[k].y = Math.min(placed[k].y, floor);
         floor = placed[k].y - LABEL_ROW;
       }
     }
+    const step = Math.min(2.5, (LEADER - 8) / Math.max(1, placed.length));
+    placed.forEach((p, k) => {
+      p.gx = frameW + LEADER - 4 - k * step;
+    });
     return placed;
-  }, [layers, matrix, scale, gap, vp.height]);
+  }, [layers, matrix, project, scale, gap, names, offset, frameH, frameW]);
 
-  const frameW = vp.width * scale;
-  const frameH = vp.height * scale;
+  const legend = [...labels].sort((a, b) => a.n - b.n);
+  const tilted = gap >= TILT_FULL_AT;
 
   return (
     <figure
@@ -331,16 +443,31 @@ export function Exploded({ tile }: { tile: PlayTile }) {
       <figcaption>
         <span className="cv-tile-label">Exploded z-stack</span>
         <code className="cv-tile-caption">
-          {tile.id} · opened, settled · one slab per measured part, bottom layer
-          first
+          {tile.id} · opened, settled · one slab per measured part, numbered
+          from the top layer
         </code>
       </figcaption>
+      <label className="dx-exploded-gap">
+        <span>Explode</span>
+        <input
+          type="range"
+          min={0}
+          max={MAX_GAP}
+          step={1}
+          value={gap}
+          disabled={!layers}
+          onChange={(e) => setGap(Number(e.currentTarget.value))}
+        />
+        <code>{gap}px</code>
+      </label>
       <div className="dx-exploded-body">
         <div
           ref={frameRef}
           className="cv-frame dx-exploded-frame"
           style={{
-            aspectRatio: `${vp.width} / ${vp.height}`,
+            ...(layers && scale > 0
+              ? { height: frameH }
+              : { aspectRatio: `${vp.width} / ${vp.height}` }),
             background: groundFor(tile.state),
           }}
         >
@@ -356,14 +483,29 @@ export function Exploded({ tile }: { tile: PlayTile }) {
               style={{
                 width: vp.width,
                 height: vp.height,
-                transform: `scale(${scale})`,
+                transform: `scale(${scale}) translateY(${-offset}px)`,
               }}
             />
+          )}
+          {layers && tilted && (
+            <div className="dx-exploded-badges" aria-hidden="true">
+              {labels.map((l) => (
+                <span
+                  key={l.i}
+                  className="dx-badge"
+                  data-exploded-badge={l.n}
+                  data-hover={hover === l.i || undefined}
+                  style={{ left: l.ax - 8, top: l.ay - 8 }}
+                >
+                  {l.n}
+                </span>
+              ))}
+            </div>
           )}
           {!layers && !failed && <div className="dx-loading">measuring…</div>}
           {failed && <div className="dx-loading">specimen did not settle</div>}
         </div>
-        {layers && (
+        {layers && tilted && (
           <svg
             className="dx-exploded-leaders"
             aria-hidden="true"
@@ -374,23 +516,28 @@ export function Exploded({ tile }: { tile: PlayTile }) {
               <polyline
                 key={l.i}
                 data-hover={hover === l.i || undefined}
-                points={`${l.ax},${l.ay} ${frameW + LEADER / 2},${l.y} ${frameW + LEADER},${l.y}`}
+                points={`${l.ax},${l.ay} ${l.gx},${l.ay} ${l.gx},${l.y} ${frameW + LEADER},${l.y}`}
               />
             ))}
           </svg>
         )}
         {layers && (
-          <ol className="dx-exploded-labels" style={{ height: frameH }}>
-            {labels.map((l) => (
+          <ol
+            className="dx-exploded-labels"
+            style={{ height: Math.max(frameH, labels.length * LABEL_ROW) }}
+          >
+            {legend.map((l) => (
               <li
                 key={l.i}
                 data-exploded-label={partKey(l.layer.box)}
+                data-exploded-n={l.n}
                 data-hover={hover === l.i || undefined}
                 style={{ top: l.y - LABEL_ROW / 2 }}
                 onPointerEnter={() => setHover(l.i)}
                 onPointerLeave={() => setHover(null)}
               >
-                <code>{partKey(l.layer.box)}</code>
+                <span className="dx-legend-n">{l.n}</span>
+                <code>{l.name}</code>
                 <code className="dx-z-val">
                   z {l.layer.box.z} · {l.layer.box.position}
                 </code>
@@ -399,19 +546,6 @@ export function Exploded({ tile }: { tile: PlayTile }) {
           </ol>
         )}
       </div>
-      <label className="dx-exploded-gap">
-        <span>Explode</span>
-        <input
-          type="range"
-          min={0}
-          max={MAX_GAP}
-          step={1}
-          value={gap}
-          disabled={!layers}
-          onChange={(e) => setGap(Number(e.currentTarget.value))}
-        />
-        <code>{gap}px</code>
-      </label>
     </figure>
   );
 }

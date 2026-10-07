@@ -76,13 +76,31 @@ test("exploded z-stack: one slab per measured part, labelled by part, flat at ga
     .evaluateAll((els) =>
       els.map((e) => (e as HTMLElement).dataset.explodedLabel!),
     );
-  const texts = await fig
-    .locator("[data-exploded-label] code:first-child")
+  const names = await fig
+    .locator("[data-exploded-label] code:first-of-type")
     .allTextContents();
   expect([...labels].sort(), "labels are the part names").toEqual(
     [...measured].sort(),
   );
-  expect(texts).toEqual(labels);
+  // Every row is numbered 1..n from the top layer, and duplicate parts
+  // (two Items) get distinct names.
+  const numbers = await fig
+    .locator("[data-exploded-label]")
+    .evaluateAll((els) =>
+      els.map((e) => Number((e as HTMLElement).dataset.explodedN)),
+    );
+  expect(numbers).toEqual(measured.map((_, i) => i + 1));
+  expect(new Set(names).size, "distinct names").toBe(names.length);
+  expect(names.map((n) => n.replace(/ \d+$/, ""))).toEqual(labels);
+  // Tilted, each slab carries its number on the specimen too.
+  const badges = await fig
+    .locator("[data-exploded-badge]")
+    .evaluateAll((els) =>
+      els
+        .map((e) => Number((e as HTMLElement).dataset.explodedBadge))
+        .sort((a, b) => a - b),
+    );
+  expect(badges).toEqual(numbers);
 
   // Gap 0: identity stage, so the stack is the specimen. The leader lines
   // are canvas chrome drawn over the frame; keep them out of the pixels.
