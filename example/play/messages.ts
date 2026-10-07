@@ -22,7 +22,7 @@ export type ClockCommand =
   | { op: "play" }
   | { op: "pause" }
   | { op: "speed"; speed: number }
-  /** ± display frames (1000/60 ms each), as a seek. */
+  /** ± frames (FRAME_TICKS fine ticks each, about 16ms), as a seek. */
   | { op: "step"; frames: number }
   | { op: "seek"; ms: number }
   | { op: "scene"; direction: LabDirection; endMs: number };

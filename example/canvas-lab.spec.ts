@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { FramesManifest } from "./canvas/Dissection";
+import { FRAME_TICKS } from "./play/clock-lab";
+import { TICK_MS } from "./play/virtual-clock";
 
 /**
  * Dissection › Morph sequences › Motion Lab, driven through its UI: the
@@ -45,7 +47,7 @@ test("Motion Lab: scrub, play, and strip frames seek it", async ({ page }) => {
   // Arrow key: one display frame.
   await slider.focus();
   await page.keyboard.press("ArrowRight");
-  await expect.poll(t).toBeCloseTo(300 + 1000 / 60, 0);
+  await expect.poll(t).toBeCloseTo(300 + FRAME_TICKS * TICK_MS, 0);
 
   // Play at 0.1x: time moves, and slowly.
   await lab.getByRole("radio", { name: "0.1×" }).click();

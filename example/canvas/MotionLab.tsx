@@ -16,7 +16,9 @@ import {
   type LabDirection,
   type LabState,
 } from "../play/messages";
+import { FRAME_TICKS } from "../play/clock-lab";
 import { groundFor } from "../play/state";
+import { TICK_MS } from "../play/virtual-clock";
 import { choreography, Timeline } from "./timeline";
 import { CANVAS_TILES, VIEWPORTS, type PlayTile } from "./tiles";
 
@@ -33,7 +35,8 @@ const PICKER = CANVAS_TILES.filter(
     t.kind === "play" && t.section === "content" && t.state.recipe !== "video",
 );
 const SPEEDS = [0.1, 0.25, 1] as const;
-const FRAME_MS = 1000 / 60;
+/** One frame step: FRAME_TICKS of the lab's clock. */
+const FRAME_MS = FRAME_TICKS * TICK_MS;
 
 function labTile(id: string): PlayTile {
   const t = CANVAS_TILES.find((x) => x.id === id) as PlayTile;

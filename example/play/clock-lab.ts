@@ -1,11 +1,11 @@
 /**
  * The Motion Lab's driver, inside a `?clock=1` stage. One scene at a time
  * (open from rest, or close from settled) on one tick grid: TICK_MS
- * (1/600 s), anchored at the scene's click. Playback, frame steps and seeks
+ * (1/640 s), anchored at the scene's click. Playback, frame steps and seeks
  * all run the same ticks, so the same virtual time is the same frame.
  *
  * Springs can't run backwards, so a seek that goes back re-arms: remount
- * the specimen at rest, pre-roll in coarse 60Hz ticks (the trigger measures
+ * the specimen at rest, pre-roll in coarse ticks (COARSE_MS) (the trigger measures
  * itself in a rAF), click, and for a close scene run the whole open
  * coarsely to settled plus the Dissection's 1400ms grace before clicking
  * Close. Only then does the fine grid start. A first play re-arms too: a
@@ -16,9 +16,8 @@
  * concurrently; seek requests coalesce (latest wins).
  */
 import type { ClockCommand, LabDirection, LabState } from "./messages";
-import { TICK_MS, type VirtualClock } from "./virtual-clock";
+import { COARSE_MS, TICK_MS, type VirtualClock } from "./virtual-clock";
 
-const COARSE_MS = 1000 / 60;
 /** Ticks per display frame, for frame steps. */
 export const FRAME_TICKS = 10;
 const PREROLL_MS = 500;

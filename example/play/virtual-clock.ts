@@ -19,12 +19,9 @@
  *   That is intended; the specimen has no Suspense.)
  * - Element.prototype.animate: every WAAPI animation on a connected
  *   element is born paused and positioned from the clock, with no real-time
- *   gap. When one passes its end it is finished inside the tick and its
- *   `onfinish` handler is called synchronously: the browser would otherwise
- *   dispatch that event on the next real frame, which during a fast-forward
- *   is an arbitrary virtual time. Motion's own completion (commit the final
- *   style, cancel, resolve `finished` for AnimatePresence) lives in that
- *   handler.
+ *   gap, and is finished inside the tick that passes its end. Motion's own
+ *   completion (commit the final style, cancel, resolve `finished` for
+ *   AnimatePresence) runs from that finish, within the same tick.
  * - ResizeObserver: real ones deliver in the browser's rendering step, so
  *   during a fast-forward (hundreds of ticks per real frame) the Sheet's
  *   and Trigger's re-measure would land on whatever tick is current. Here
@@ -36,7 +33,19 @@
  * excluded).
  */
 
-export const TICK_MS = 1000 / 600;
+/**
+ * The fine tick: 1/640 s = 1.5625ms, an exact binary fraction. Virtual time
+ * starts on a 1/16ms boundary and only ever moves by multiples of it, so
+ * every timestamp, every difference and every timer's due time is exact in
+ * floating point. With a 1/600 s tick (5/3 ms) they carried rounding error
+ * that depended on how much virtual time had passed before the scene, so a
+ * timer due exactly on a tick (60ms = 36 ticks) fired a tick early on one
+ * path and on time on another. At 0.1x this is still about one tick per
+ * 60Hz frame.
+ */
+export const TICK_MS = 1000 / 640;
+/** A coarse tick (pre-roll, the open before a close scene): 10 fine. */
+export const COARSE_MS = 10 * TICK_MS;
 
 export interface VirtualClock {
   /** Virtual ms (what performance.now returns in the stage). */
@@ -74,7 +83,7 @@ function install(): VirtualClock {
   const realRaf = window.requestAnimationFrame.bind(window);
   const realNow = performance.now.bind(performance);
   const realAnimate = Element.prototype.animate;
-  let now = realNow();
+  let now = Math.round(realNow() * 16) / 16;
 
   // ---- requestAnimationFrame ----
   let rafId = 0;
@@ -146,20 +155,14 @@ function install(): VirtualClock {
   const endOf = (a: Animation) =>
     Number(a.effect?.getComputedTiming().endTime ?? Infinity);
 
+  /** Finished inside the tick, so `finished` and the finish event are
+   * queued now, at this virtual time. Chromium dispatches them as tasks,
+   * which the tick's yields run before it returns (clock.spec.ts's exit
+   * completion test holds this): no real frame is needed. */
   function finishNow(o: Owned) {
     o.playing = false;
     owned.delete(o);
-    const a = o.a;
-    const handler = a.onfinish;
-    a.onfinish = null;
-    realFinish.call(a);
-    handler?.call(
-      a,
-      new AnimationPlaybackEvent("finish", {
-        currentTime: Number(ct.get!.call(a)),
-        timelineTime: null,
-      }),
-    );
+    realFinish.call(o.a);
   }
 
   function own(a: Animation) {
@@ -330,7 +333,7 @@ function install(): VirtualClock {
     for (const cb of frame.values()) cb(now);
     deliverResizes();
     // React's scheduler runs on MessageChannel: let commits (and the
-    // effects and promise chains they start) land on this tick.
+    // effects, events and promise chains they start) land on this tick.
     for (let i = 0; i < 3; i++) await macrotask();
   }
 
