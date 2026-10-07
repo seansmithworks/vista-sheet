@@ -23,7 +23,6 @@
 }
 
 .dx-h3,
-.dx-zstack h3,
 .dx-seq h3 {
   margin: 0;
   font-size: 14px;
@@ -136,34 +135,93 @@
   color: var(--cv-text-2);
 }
 
-.dx-zstack {
-  margin-top: 36px;
+/* ---- Exploded z-stack ---- */
+.dx-exploded {
+  margin: 40px 0 0;
 }
 
-.dx-zstack p {
-  margin: 4px 0 12px;
+.dx-exploded figcaption {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 10px;
 }
 
-.dx-zstack ol {
+.dx-exploded-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(200px, 1fr);
+  column-gap: 28px;
+  align-items: start;
+}
+
+.dx-exploded-frame .cv-iframe {
+  pointer-events: none;
+}
+
+.dx-exploded-leaders {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dx-exploded-leaders polyline {
+  fill: none;
+  stroke: var(--cv-text-2);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.dx-exploded-leaders polyline[data-hover] {
+  stroke: var(--cv-text);
+  opacity: 1;
+}
+
+.dx-exploded-labels {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.dx-zstack ol ol {
-  padding-left: 20px;
-  border-left: 1px solid var(--cv-border);
-  margin-left: 6px;
+.dx-exploded-labels li {
+  position: absolute;
+  left: 0;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  height: 22px;
+  line-height: 22px;
+  white-space: nowrap;
+  cursor: default;
 }
 
-.dx-z-row {
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-  padding: 4px 0;
+.dx-exploded-labels li[data-hover] code:first-child {
+  text-decoration: underline;
 }
 
 .dx-z-val {
+  color: var(--cv-text-2);
+}
+
+.dx-exploded-gap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+  max-width: 360px;
+  font-size: 12px;
+}
+
+.dx-exploded-gap input {
+  flex: 1;
+  accent-color: var(--cv-text);
+}
+
+.dx-exploded-gap code {
+  min-width: 36px;
   color: var(--cv-text-2);
 }
 
@@ -463,6 +521,26 @@
 
   .dx-tl-label {
     padding-bottom: 0;
+  }
+
+  /* No room for a leader-line column: the labels become a plain list. */
+  .dx-exploded-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dx-exploded-leaders {
+    display: none;
+  }
+
+  .dx-exploded-labels {
+    height: auto !important;
+    margin-top: 12px;
+    border-top: 1px solid var(--cv-border);
+  }
+
+  .dx-exploded-labels li {
+    position: static;
+    border-bottom: 1px solid var(--cv-border);
   }
 }
 

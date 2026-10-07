@@ -5,8 +5,7 @@
  * src/motion.ts and the README contract. Nothing is drawn to look like the
  * component.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
-import { isPlayMessage } from "../play/messages";
+import { useEffect, useRef, useState } from "react";
 import { groundFor, PALETTES, type PaletteId } from "../play/state";
 import type { Spring } from "../../src/types";
 import {
@@ -38,6 +37,8 @@ import {
   PUBLIC_TOKENS,
   RUNTIME_VARS,
 } from "./readme";
+import { Exploded } from "./Exploded";
+import { freezeSpecimen, measure, partKey, type PartBox } from "./parts";
 import { crossing, dampingRatio, simulate } from "./springs";
 import { STATE_ROWS, type Status } from "./states";
 import { CANVAS_TILES, VIEWPORTS, type PlayTile } from "./tiles";
@@ -175,65 +176,7 @@ export function Dissection() {
 
 // ---------- Anatomy ----------
 
-interface PartBox {
-  n: number;
-  part: string;
-  slot: string | null;
-  parent: string | null;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  z: string;
-  position: string;
-}
-
-const partKey = (b: Pick<PartBox, "part" | "slot">) =>
-  b.slot ? `${b.part}:${b.slot}` : b.part;
-
 const PART_DESC = new Map(PART_CONTRACT.map((r) => [r.part, r.element]));
-
-function wait(fn: () => boolean, timeout = 8000): Promise<void> {
-  const until = performance.now() + timeout;
-  return new Promise((resolve, reject) => {
-    const tick = () => {
-      if (fn()) return resolve();
-      if (performance.now() > until) return reject(new Error("timeout"));
-      setTimeout(tick, 50);
-    };
-    tick();
-  });
-}
-
-function measure(doc: Document): PartBox[] {
-  const win = doc.defaultView!;
-  return [...doc.querySelectorAll<HTMLElement>("[data-vista-sheet-part]")].map(
-    (el, i) => {
-      const r = el.getBoundingClientRect();
-      const cs = win.getComputedStyle(el);
-      const parentEl = el.parentElement?.closest<HTMLElement>(
-        "[data-vista-sheet-part]",
-      );
-      return {
-        n: i + 1,
-        part: el.dataset.vistaSheetPart!,
-        slot: el.dataset.vistaSheetSlot ?? null,
-        parent: parentEl
-          ? partKey({
-              part: parentEl.dataset.vistaSheetPart!,
-              slot: parentEl.dataset.vistaSheetSlot ?? null,
-            })
-          : null,
-        x: r.left,
-        y: r.top,
-        w: r.width,
-        h: r.height,
-        z: cs.zIndex,
-        position: cs.position,
-      };
-    },
-  );
-}
 
 /** One specimen, mounted live, opened by script if asked, then measured and
  * left inert. Callouts are the measured boxes, scaled with the frame. */
@@ -241,12 +184,10 @@ function AnatomySpecimen({
   tile,
   open,
   title,
-  onMeasured,
 }: {
   tile: PlayTile;
   open: boolean;
   title: string;
-  onMeasured: (boxes: PartBox[]) => void;
 }) {
   const vp = VIEWPORTS[tile.viewport];
   const frameRef = useRef<HTMLDivElement>(null);
@@ -266,47 +207,18 @@ function AnatomySpecimen({
   }, [vp.width]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function onMessage(e: MessageEvent) {
-      const frame = iframeRef.current;
-      if (!frame || e.source !== frame.contentWindow) return;
-      if (e.origin !== location.origin || !isPlayMessage(e.data)) return;
-      if (e.data.type !== "vista-sheet-play:ready") return;
-      const win = frame.contentWindow!;
-      // Opening the sheet focuses its panel; keep the canvas's focus.
-      win.addEventListener("focusin", () => frame.blur(), true);
-      win.postMessage(
-        { type: "vista-sheet-play:state", state: tile.state },
-        location.origin,
-      );
-      const doc = frame.contentDocument!;
-      try {
-        const trigger = () =>
-          doc.querySelector<HTMLElement>('[data-vista-sheet-part="trigger"]');
-        await wait(() => Boolean(trigger()));
-        if (open) {
-          trigger()!.click();
-          await wait(() =>
-            Boolean(doc.querySelector("[data-vista-sheet-settled]")),
-          );
-        }
-        // Content reveal, Item stagger and the Close spin all land well
-        // inside this.
-        await new Promise((r) => setTimeout(r, 1400));
-        if (cancelled) return;
-        const measured = measure(doc);
-        setBoxes(measured);
-        onMeasured(measured);
-      } catch {
-        if (!cancelled) setFailed(true);
-      }
-    }
-    window.addEventListener("message", onMessage);
+    const signal = { cancelled: false };
+    freezeSpecimen(() => iframeRef.current, tile, open, signal).then(
+      (doc) => {
+        if (signal.cancelled) return;
+        setBoxes(measure(doc));
+      },
+      () => !signal.cancelled && setFailed(true),
+    );
     return () => {
-      cancelled = true;
-      window.removeEventListener("message", onMessage);
+      signal.cancelled = true;
     };
-  }, [tile, open, onMeasured]);
+  }, [tile, open]);
 
   // Badges sit on each box's top-left corner, nudged right past any badge
   // already placed there (nested parts share a corner).
@@ -441,74 +353,7 @@ const ANATOMY: Array<{
   },
 ];
 
-interface ZNode {
-  key: string;
-  z: string;
-  position: string;
-  children: ZNode[];
-}
-
-/** Every distinct part across the measured specimens, nested under its
- * nearest part ancestor, siblings ordered by computed z-index (top first). */
-function zTree(all: PartBox[]): ZNode[] {
-  const nodes = new Map<string, ZNode & { parent: string | null }>();
-  for (const b of all) {
-    const key = partKey(b);
-    if (!nodes.has(key)) {
-      nodes.set(key, {
-        key,
-        z: b.z,
-        position: b.position,
-        children: [],
-        parent: b.parent,
-      });
-    }
-  }
-  const roots: ZNode[] = [];
-  for (const n of nodes.values()) {
-    const parent = n.parent ? nodes.get(n.parent) : undefined;
-    (parent ? parent.children : roots).push(n);
-  }
-  const zNum = (z: string) => (z === "auto" ? 0 : Number(z));
-  const sort = (list: ZNode[]) => {
-    list.sort((a, b) => zNum(b.z) - zNum(a.z));
-    list.forEach((n) => sort(n.children));
-  };
-  sort(roots);
-  return roots;
-}
-
-function ZList({ nodes }: { nodes: ZNode[] }) {
-  return (
-    <ol>
-      {nodes.map((n) => (
-        <li key={n.key} data-z-part={n.key}>
-          <span className="dx-z-row">
-            <code>{n.key}</code>
-            <code className="dx-z-val">
-              z {n.z} · {n.position}
-            </code>
-          </span>
-          {n.children.length > 0 && <ZList nodes={n.children} />}
-        </li>
-      ))}
-    </ol>
-  );
-}
-
 function Anatomy() {
-  const [measured, setMeasured] = useState<Record<string, PartBox[]>>({});
-  const callbacks = useRef(new Map<string, (b: PartBox[]) => void>());
-  const onMeasured = useCallback((key: string) => {
-    let cb = callbacks.current.get(key);
-    if (!cb) {
-      cb = (boxes) => setMeasured((m) => ({ ...m, [key]: boxes }));
-      callbacks.current.set(key, cb);
-    }
-    return cb;
-  }, []);
-  const all = Object.values(measured).flat();
-
   return (
     <section id="anatomy" data-anchor-id="dx-anatomy" className="cv-section">
       <header>
@@ -525,22 +370,12 @@ function Anatomy() {
             tile={CANVAS_TILES.find((t) => t.id === a.tileId) as PlayTile}
             open={a.open}
             title={a.title}
-            onMeasured={onMeasured(a.key)}
           />
         ))}
       </div>
-      <div className="dx-zstack">
-        <h3>Z-stack</h3>
-        <p className="dx-note">
-          Computed z-index of each part, nested under its nearest part ancestor,
-          top layer first.
-        </p>
-        {all.length > 0 ? (
-          <ZList nodes={zTree(all)} />
-        ) : (
-          <p className="dx-note">measuring…</p>
-        )}
-      </div>
+      <Exploded
+        tile={CANVAS_TILES.find((t) => t.id === "content-basic") as PlayTile}
+      />
     </section>
   );
 }
