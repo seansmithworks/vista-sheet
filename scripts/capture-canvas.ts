@@ -459,7 +459,10 @@ async function morph(
   const declared = tileById(def.tileId);
   const tile: CanvasTile =
     declared.kind === "play" && declared.overrides?.defaultOpen
-      ? { ...declared, overrides: { ...declared.overrides, defaultOpen: false } }
+      ? {
+          ...declared,
+          overrides: { ...declared.overrides, defaultOpen: false },
+        }
       : declared;
   const d = def.link ? link(def.link) : modal(Boolean(def.touch));
   const ctx = await newCtx(browser, def.viewport, {
@@ -942,7 +945,10 @@ async function posters(browser: Browser) {
   }
   // Drop posters for tiles that no longer exist.
   const names = new Set(
-    CANVAS_TILES.flatMap((t) => [posterName(t, "light"), posterName(t, "dark")]),
+    CANVAS_TILES.flatMap((t) => [
+      posterName(t, "light"),
+      posterName(t, "dark"),
+    ]),
   );
   for (const f of readdirSync(dir)) if (!names.has(f)) rmSync(join(dir, f));
 }

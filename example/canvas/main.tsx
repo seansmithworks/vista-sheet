@@ -124,6 +124,9 @@ function Tile({
     return () => ro.disconnect();
   }, []);
 
+  // The appearance swaps the poster file; a miss on one isn't a miss on both.
+  useEffect(() => setPosterMissing(false), [poster]);
+
   const src = tile.kind === "play" ? "./play.html?stage=1" : `./${tile.src}`;
 
   // A page tile's src changes with the appearance: the iframe remounts
@@ -332,8 +335,9 @@ function useSectionInView(ids: string[]): string {
     function measure() {
       frame = 0;
       const line =
-        parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) +
-        8;
+        parseFloat(
+          getComputedStyle(document.documentElement).scrollPaddingTop,
+        ) + 8;
       const atEnd =
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - 2;

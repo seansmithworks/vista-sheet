@@ -181,8 +181,7 @@ export function applyRecipe(state: PlayState, id: RecipeId): PlayState {
   // squircle); Shared/Media aren't supported inside a rectangle trigger.
   const shape = recipe.button
     ? "rectangle"
-    : (recipe.shape ??
-      (state.shape === "rectangle" ? "circle" : state.shape));
+    : (recipe.shape ?? (state.shape === "rectangle" ? "circle" : state.shape));
   return {
     ...state,
     recipe: id,
