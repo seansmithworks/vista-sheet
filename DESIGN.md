@@ -41,6 +41,11 @@ triggerFeedback:
   durationMs: 150
   easing: "cubic-bezier(0.23, 1, 0.32, 1)"
   minHitArea: "48px"
+  highlightColor: "7% of text colour (dark example palettes: rgba(255,255,255,.1))"
+  highlightSize: "96px"
+  highlightPressScale: 0.6
+  highlightStrength: 1
+  pressTint: "rgba(0,0,0,.05) (dark example palettes: rgba(0,0,0,.2))"
 buttonSizes:
   # strawman, awaiting dial
   s: { height: 36px, paddingInline: 14px, gap: 6px }
@@ -92,6 +97,7 @@ Consumers override with `--vista-sheet-*` custom properties. Never add a hex to 
 - **Two shadow looks, one painter.** `<VistaSheet.Shadow>` paints both the thin disc shadow and the sheet's heavier resting shadow on its own silhouette, crossfaded by opacity as `collapseProgress` moves (2026-09-11). Nothing else paints a shadow.
 - **Trigger shadow:** soft and low-contrast (2026-10-07): `0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.08)` on light, `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)` on dark. The 2px `--vista-sheet-surface-border` ring carries the edge; the shadow only lifts it off the page.
 - **Trigger hover and press:** at rest only, the trigger rises 1px on mouse hover and scales to 0.97 while pressed, 150ms strong ease-out, with `<VistaSheet.Shadow>` moving identically so the two never disagree (Strawman, awaiting dial). Never while the sheet is mounted, never under reduced motion, and any open drops it instantly before the morph measures its start.
+- **Trigger highlight:** a soft radial spot inside the trigger surface follows the mouse on hover; on press it tightens to 0.6 and the surface takes a slight dark tint (Strawman, awaiting dial). It is 7% of the text colour by default, so it reads as a tint on light and a glow on dark. Touch, keyboard and reduced motion get it centred and static, fade only. It lives inside the surface, so it never changes a measured box, never paints on the sheet, and is gone before any open. `--vista-sheet-trigger-highlight-strength: 0` turns it off.
 - **Tap target:** every trigger has an invisible hit area of at least 48px on each axis (rectangle s/m, small discs). The visual and every measured box keep their size.
 - **Close button:** 44px hit area, transparent, circular focus ring.
 - **Media sheet:** `<VistaSheet.Sheet aspectRatio>` contain-fits the media ratio; `<VistaSheet.Media>` covers the surface, centred, clipped by the surface shape (Strawman (v0.2): centred crop, no focal point).

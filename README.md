@@ -447,6 +447,10 @@ package renders correctly out of the box:
 | `--vista-sheet-z` | `100` |
 | `--vista-sheet-trigger-hover-lift` | `1px` |
 | `--vista-sheet-trigger-press-scale` | `0.97` |
+| `--vista-sheet-trigger-highlight-color` | 7% of `--vista-sheet-text` |
+| `--vista-sheet-trigger-highlight-size` | `96px` |
+| `--vista-sheet-trigger-highlight-strength` | `1` |
+| `--vista-sheet-trigger-press-tint` | `rgba(0,0,0,.05)` |
 
 `--vista-sheet-sheet-shadow-fade-start`/`-fade-end` are unitless
 `collapseProgress` fractions (0 = open at rest, 1 = closed at rest) marking
@@ -465,11 +469,23 @@ trigger also has an invisible hit area of at least 48px on each axis (a
 rectangle `s`/`m` button, or a disc under 48px) without changing its visual
 size or layout.
 
+The trigger surface also shows a soft radial highlight that follows the mouse
+on hover (`--vista-sheet-trigger-highlight-color`, `-size`). On press the
+highlight tightens and the surface darkens by `--vista-sheet-trigger-press-tint`.
+For touch, keyboard and reduced motion the highlight is centred and only fades.
+The default colour is 7% of `--vista-sheet-text`, so a light palette gets a
+faint tint and a dark palette a faint glow. Set
+`--vista-sheet-trigger-highlight-strength: 0` to turn the highlight and the
+press tint off. Both layers sit inside the trigger surface: they never paint
+on the sheet and are gone before any open.
+
 A dark palette's shadow needs more alpha to read on a dark ground. The
-example pages use `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)`.
+example pages use `0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3)`,
+with `--vista-sheet-trigger-highlight-color: rgba(255,255,255,.1)` and
+`--vista-sheet-trigger-press-tint: rgba(0,0,0,.2)`.
 
 The package writes `--vista-sheet-trigger-size`, `--vista-sheet-button-width`,
-`--vista-sheet-trigger-x/-y`,
+`--vista-sheet-trigger-x/-y`, `--vista-sheet-trigger-highlight-x/-y`,
 `--vista-sheet-sheet-left`, `--vista-sheet-collapse`,
 `--vista-sheet-shadow-x/-y/-w/-h/-radius`, and
 `--vista-sheet-shadow-opacity`/`--vista-sheet-sheet-shadow-opacity` (the live

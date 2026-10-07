@@ -355,34 +355,113 @@ function ButtonTrigger({
     }
   }, [sheetRect, publishBox]);
 
-  // Hover/pressed feedback (triggerFeedback.ts). Only at rest: while the
-  // sheet is mounted, the invisible trigger must never move the shadow.
-  // Handlers live on the wrapper because Motion's drag captures the pointer
-  // there, so pointerup after a drag never reaches the button.
+  // Hover/pressed feedback and the pointer highlight (triggerFeedback.ts).
+  // Only at rest: while the sheet is mounted, the invisible trigger must
+  // never move the shadow. Handlers live on the wrapper because Motion's
+  // drag captures the pointer there, so pointerup after a drag never
+  // reaches the button.
+  //
+  // The lift and press move the trigger surface, which is the morph's FLIP
+  // source, so feedback has to be gone before Motion snapshots that source.
+  // The snapshot happens in the commit; the only point guaranteed to precede
+  // it on every open path (click, setOpen, a controlled `open` prop) is the
+  // render that flips `open`. So that render drops feedback, instantly.
   const openRef = useRef(open);
+  if (open && !openRef.current) {
+    writeTriggerFeedback([triggerRef.current, shadowElRef.current], "none");
+  }
   openRef.current = open;
+
   const setFeedback = useCallback(
     (state: TriggerFeedback) => {
-      if (reduceMotion) return;
       if (openRef.current || sheetRectRef.current !== null) return;
-      writeTriggerFeedback([triggerRef.current, shadowElRef.current], state);
+      // Reduced motion keeps the highlight (an opacity fade) but never moves
+      // the shadow; the button's lift/scale rules are off via
+      // data-vista-sheet-reduce-motion.
+      writeTriggerFeedback(
+        reduceMotion
+          ? [triggerRef.current]
+          : [triggerRef.current, shadowElRef.current],
+        state,
+      );
     },
     [reduceMotion, shadowElRef],
   );
 
-  // Root's setOpen already drops feedback before an open it starts; a
-  // controlled `open` prop flips without it, so cover that commit here.
-  useLayoutEffect(() => {
-    if (open) {
-      writeTriggerFeedback([triggerRef.current, shadowElRef.current], "none");
-    }
-  }, [open, shadowElRef]);
+  // Pointer-following highlight: written straight to the button's style, at
+  // most once per frame, never through React state. Touch, keyboard and
+  // reduced motion get it centred and static (no press tighten either):
+  // data-vista-sheet-highlight="static".
+  const highlightRafRef = useRef<number | null>(null);
+  const highlightPointRef = useRef({ x: 0, y: 0 });
+  const writeHighlightAt = useCallback((x: string, y: string) => {
+    const el = triggerRef.current;
+    if (!el) return;
+    el.style.setProperty("--vista-sheet-trigger-highlight-x", x);
+    el.style.setProperty("--vista-sheet-trigger-highlight-y", y);
+    el.setAttribute(
+      "data-vista-sheet-highlight",
+      x === "50%" ? "static" : "follow",
+    );
+  }, []);
+  const flushHighlight = useCallback(() => {
+    highlightRafRef.current = null;
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const { x, y } = highlightPointRef.current;
+    writeHighlightAt(`${x - rect.left}px`, `${y - rect.top}px`);
+  }, [writeHighlightAt]);
+  const trackHighlight = useCallback(
+    (e: ReactPointerEvent, immediate: boolean) => {
+      if (e.pointerType !== "mouse" || reduceMotion) {
+        writeHighlightAt("50%", "50%");
+        return;
+      }
+      highlightPointRef.current = { x: e.clientX, y: e.clientY };
+      if (immediate) {
+        if (highlightRafRef.current !== null) {
+          cancelAnimationFrame(highlightRafRef.current);
+        }
+        flushHighlight();
+      } else if (highlightRafRef.current === null) {
+        highlightRafRef.current = requestAnimationFrame(flushHighlight);
+      }
+    },
+    [reduceMotion, flushHighlight, writeHighlightAt],
+  );
+  useEffect(
+    () => () => {
+      if (highlightRafRef.current !== null) {
+        cancelAnimationFrame(highlightRafRef.current);
+      }
+    },
+    [],
+  );
 
   const handlePointerEnter = useCallback(
     (e: ReactPointerEvent) => {
-      if (e.pointerType === "mouse") setFeedback("hover");
+      if (e.pointerType !== "mouse") return;
+      trackHighlight(e, true);
+      setFeedback("hover");
     },
-    [setFeedback],
+    [setFeedback, trackHighlight],
+  );
+
+  // A close that lands under a still mouse fires no pointerenter, so the
+  // first move over the resting trigger restores hover. Not at the settle
+  // frame itself: the trigger would land, then jump again, with no input.
+  const handlePointerMove = useCallback(
+    (e: ReactPointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      if (openRef.current || sheetRectRef.current !== null) return;
+      trackHighlight(e, false);
+      const current = triggerRef.current?.getAttribute(
+        "data-vista-sheet-feedback",
+      );
+      if (current !== "hover" && current !== "pressed") setFeedback("hover");
+    },
+    [setFeedback, trackHighlight],
   );
 
   const handlePointerUp = useCallback(
@@ -399,9 +478,12 @@ function ButtonTrigger({
 
   const handleKeyDown = useCallback(
     (e: ReactKeyboardEvent) => {
-      if (e.key === " " && !e.repeat) setFeedback("pressed");
+      if (e.key === " " && !e.repeat) {
+        writeHighlightAt("50%", "50%");
+        setFeedback("pressed");
+      }
     },
-    [setFeedback],
+    [setFeedback, writeHighlightAt],
   );
 
   const handleKeyUp = useCallback(
@@ -414,9 +496,12 @@ function ButtonTrigger({
   const handlePointerDown = useCallback(
     (e: ReactPointerEvent) => {
       maxTravelRef.current = 0;
-      if (e.button === 0) setFeedback("pressed");
+      if (e.button === 0) {
+        trackHighlight(e, true);
+        setFeedback("pressed");
+      }
     },
-    [setFeedback],
+    [setFeedback, trackHighlight],
   );
 
   const handleDragStart = useCallback(() => {
@@ -570,6 +655,7 @@ function ButtonTrigger({
       }
       onPointerDown={handlePointerDown}
       onPointerEnter={handlePointerEnter}
+      onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handleFeedbackEnd}
       onPointerCancel={handleFeedbackEnd}
@@ -588,6 +674,7 @@ function ButtonTrigger({
         type="button"
         className={styles.triggerButton}
         data-vista-sheet-part="trigger"
+        data-vista-sheet-reduce-motion={reduceMotion ? "" : undefined}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? sheetId : undefined}

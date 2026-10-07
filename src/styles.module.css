@@ -107,9 +107,10 @@
  * <VistaSheet.Shadow>'s element together, so the shadow moves with the
  * surface. Individual translate/scale, never transform: Motion owns the
  * surface's and Shared's inline transform. Every target is centred on the
- * button, so each scales about the same point. Strawman, awaiting dial:
+ * button, so each scales about the same point. Off under reduced motion
+ * (the shadow never gets the attribute then). Strawman, awaiting dial:
  * 1px lift, 0.97 press, 150ms strong ease-out. */
-.triggerButton[data-vista-sheet-feedback]
+.triggerButton[data-vista-sheet-feedback]:not([data-vista-sheet-reduce-motion])
   > :is(.triggerSurface, .shared, .triggerLabel),
 [data-vista-sheet-part="shadow"][data-vista-sheet-feedback] {
   transition:
@@ -117,22 +118,86 @@
     scale 150ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.triggerButton[data-vista-sheet-feedback="hover"]
+.triggerButton[data-vista-sheet-feedback="hover"]:not(
+    [data-vista-sheet-reduce-motion]
+  )
   > :is(.triggerSurface, .shared, .triggerLabel),
 [data-vista-sheet-part="shadow"][data-vista-sheet-feedback="hover"] {
   translate: 0 calc(var(--vista-sheet-trigger-hover-lift, 1px) * -1);
 }
 
-.triggerButton[data-vista-sheet-feedback="pressed"]
+.triggerButton[data-vista-sheet-feedback="pressed"]:not(
+    [data-vista-sheet-reduce-motion]
+  )
   > :is(.triggerSurface, .shared, .triggerLabel),
 [data-vista-sheet-part="shadow"][data-vista-sheet-feedback="pressed"] {
   scale: var(--vista-sheet-trigger-press-scale, 0.97);
 }
 
+/* Pointer highlight and press tint: two layers inside the trigger surface,
+ * clipped by its own shape. They ride the surface's lift and scale and
+ * never change its box, so the morph measures nothing new. The highlight
+ * is a soft radial spot centred on --vista-sheet-trigger-highlight-x/-y
+ * (written per frame by Trigger.tsx; centred for touch, keyboard and
+ * reduced motion). Default colour: 7% of the text colour, so a light
+ * palette gets a faint tint and a dark one a faint glow. Strength 0 turns
+ * both layers off. Strawman, awaiting dial: 96px spot, tightens to 0.6 on
+ * press, tint rgba(0,0,0,.05). */
+.triggerSurface::before,
+.triggerSurface::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.triggerSurface::before {
+  left: var(--vista-sheet-trigger-highlight-x, 50%);
+  top: var(--vista-sheet-trigger-highlight-y, 50%);
+  width: var(--vista-sheet-trigger-highlight-size, 96px);
+  height: var(--vista-sheet-trigger-highlight-size, 96px);
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(
+      --vista-sheet-trigger-highlight-color,
+      color-mix(in srgb, var(--vista-sheet-text, #1d1d1f) 7%, transparent)
+    ),
+    transparent
+  );
+  transition:
+    opacity 150ms ease-out,
+    scale 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.triggerSurface::after {
+  inset: 0;
+  background: var(--vista-sheet-trigger-press-tint, rgba(0, 0, 0, 0.05));
+}
+
+.triggerButton[data-vista-sheet-feedback="hover"] > .triggerSurface::before,
+.triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::before,
+.triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::after {
+  opacity: var(--vista-sheet-trigger-highlight-strength, 1);
+}
+
+.triggerButton[data-vista-sheet-feedback="pressed"]:not(
+    [data-vista-sheet-reduce-motion]
+  ):not([data-vista-sheet-highlight="static"])
+  > .triggerSurface::before {
+  scale: 0.6;
+}
+
 /* Before an open: rest instantly, so the morph never measures a transform
- * that is still transitioning out. */
-.triggerButton[data-vista-sheet-feedback="none"]
+ * that is still transitioning out and no highlight rides into the morph. */
+.triggerButton[data-vista-sheet-feedback="none"]:not(
+    [data-vista-sheet-reduce-motion]
+  )
   > :is(.triggerSurface, .shared, .triggerLabel),
+.triggerButton[data-vista-sheet-feedback="none"] > .triggerSurface::before,
+.triggerButton[data-vista-sheet-feedback="none"] > .triggerSurface::after,
 [data-vista-sheet-part="shadow"][data-vista-sheet-feedback="none"] {
   transition: none;
 }

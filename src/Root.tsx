@@ -10,7 +10,6 @@ import {
 } from "motion/react";
 import { DEFAULT_ANCHOR, PREVIEW_DEFAULT_SIZE, type AnchorId } from "./anchors";
 import { VistaSheetContext, type VistaSheetContextValue } from "./context";
-import { writeTriggerFeedback } from "./triggerFeedback";
 import {
   PREVIEW_TRIGGER_RADIUS_PX,
   resolveMotion,
@@ -90,19 +89,10 @@ export function Root({
 
   const setOpen = useCallback(
     (next: boolean) => {
-      // Drop any hover/pressed transform before the open commit: Motion
-      // measures the morph's start from the trigger's rendered box in this
-      // same task (triggerFeedback.ts). A link preview has no feedback.
-      if (next && !preview) {
-        writeTriggerFeedback(
-          [triggerElRef.current, shadowElRef.current],
-          "none",
-        );
-      }
       if (!isControlled) setUncontrolledOpen(next);
       onOpenChange?.(next);
     },
-    [isControlled, onOpenChange, preview],
+    [isControlled, onOpenChange],
   );
 
   const [anchor, setAnchorState] = usePersistedAnchor(
