@@ -245,7 +245,7 @@ export const STATE_ROWS: StateRow[] = [
   { name: "Custom springs", surface: "transition", status: { kind: "api" } },
   {
     name: "Close lead delay",
-    surface: "surfaceCloseLeadDelayMs",
+    surface: "surfaceCloseLeadDelayMs (preset field)",
     status: { kind: "api" },
   },
   { name: "Initial focus", surface: "initialFocus", status: { kind: "api" } },
@@ -305,7 +305,6 @@ export const PROP_COVERAGE: {
     buttonWidth: "Button width",
     preset: "Motion presets",
     transition: "Custom springs",
-    surfaceCloseLeadDelayMs: "Close lead delay",
     reduceMotion: "Reduced motion",
     id: "Root id",
     zIndex: "Stacking base",
