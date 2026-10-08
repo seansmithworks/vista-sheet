@@ -52,7 +52,14 @@ export interface VistaSheetContextValue extends VistaSheetState {
     close: Transition;
     shared: Transition;
   };
+  /** Publishes a rect to both triggerRect (React state) and
+   * triggerRectLive. */
   setTriggerRect: (rect: Rect | null) => void;
+  /** Internal only — the trigger's rect, written in the same task as every
+   * x/y change (ButtonTrigger) or alongside setTriggerRect (LinkTrigger).
+   * <Shadow> positions from this, never from the React state, so it moves
+   * in the frame the trigger does. */
+  triggerRectLive: MotionValue<Rect | null>;
   setSheetRect: (rect: SheetRect | null) => void;
   /** A stable numeric-px border-radius MotionValue, owned by Root, that
    * Sheet.tsx relays its own useCollapseRadius() output into every tick so

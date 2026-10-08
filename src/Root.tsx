@@ -328,7 +328,15 @@ export function Root({
     startMorphClock,
   ]);
 
-  const [triggerRect, setTriggerRect] = useState<Rect | null>(null);
+  const [triggerRect, setTriggerRectState] = useState<Rect | null>(null);
+  const triggerRectLive = useMotionValue<Rect | null>(null);
+  const setTriggerRect = useCallback(
+    (rect: Rect | null) => {
+      triggerRectLive.set(rect);
+      setTriggerRectState(rect);
+    },
+    [triggerRectLive],
+  );
   const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
 
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
@@ -392,6 +400,7 @@ export function Root({
     collapseRadius,
     triggerRect,
     setTriggerRect,
+    triggerRectLive,
     sheetRect,
     setSheetRect,
     sheetDragY,

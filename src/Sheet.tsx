@@ -231,10 +231,22 @@ export function Sheet({
     return sheetBorderRadius.on("change", (v) => collapseRadius.set(v));
   }, [sheetBorderRadius, collapseRadius]);
 
+  // A sheet on screen holds the placement of the anchor it opened at: a
+  // setAnchor() while it is open re-seats the hidden trigger, and the close
+  // morph carries the sheet there, instead of the open sheet sliding across
+  // the viewport. Taken at every open edge (including a reopen mid-close)
+  // and whenever no panel is present.
+  const placedAnchorRef = useRef(anchor);
+  const placedOpenRef = useRef(open);
+  if (!isPresent || (open && !placedOpenRef.current)) {
+    placedAnchorRef.current = anchor;
+  }
+  placedOpenRef.current = open;
+
   const vpW = typeof window !== "undefined" ? window.innerWidth : 1440;
   const vpH = typeof window !== "undefined" ? window.innerHeight : 900;
   const modalPlacement = sheetPlacement(
-    anchor,
+    placedAnchorRef.current,
     vpW,
     vpH,
     triggerBox.width,

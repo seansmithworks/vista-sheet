@@ -106,6 +106,7 @@ function ButtonTrigger({
     triggerId,
     sheetId,
     setTriggerRect,
+    triggerRectLive,
     triggerElRef,
     sheetRect,
     collapseProgress,
@@ -286,18 +287,27 @@ function ButtonTrigger({
   // wrapper without a React re-render, mirroring the source site's bloom-
   // tracking pattern.
   //
+  // The rect is computed, not measured: x/y plus the button's layout box
+  // inside the wrapper (the wrapper is fixed at the viewport origin and
+  // moved only by x/y; hover/press feedback transforms the button's
+  // children, never the button). It is written to triggerRectLive on every
+  // x/y change, synchronously, so <Shadow> follows in the same frame Motion
+  // paints the move. A getBoundingClientRect() in a later rAF could run
+  // before Motion's render step and read the old seat.
+  //
   // setTriggerRect is React state on Root, so calling it synchronously here
   // would re-render the whole Root subtree on every pointer-move frame of a
   // drag. The imperative --vista-sheet-trigger-x/-y writes stay per-frame;
   // the React commit is rAF-coalesced to at most once per frame and skipped
   // entirely when the rect hasn't moved by more than half a pixel.
-  useEffect(() => {
+  //
+  // A layout effect so the first live rect is published before <Shadow>'s
+  // passive effect first applies: one shadow write at mount, not two.
+  useLayoutEffect(() => {
     const commit = () => {
       rafRef.current = null;
-      const el = triggerRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const next = rectFromBox(rect.left, rect.top, rect.width, rect.height);
+      const next = triggerRectLive.get();
+      if (!next) return;
       const last = lastRectRef.current;
       if (last && rectsNear(last, next, 0.5)) return;
       lastRectRef.current = next;
@@ -305,6 +315,17 @@ function ButtonTrigger({
     };
 
     const update = () => {
+      const el = triggerRef.current;
+      if (el) {
+        triggerRectLive.set(
+          rectFromBox(
+            x.get() + el.offsetLeft,
+            y.get() + el.offsetTop,
+            el.offsetWidth,
+            el.offsetHeight,
+          ),
+        );
+      }
       wrapperRef.current?.style.setProperty(
         "--vista-sheet-trigger-x",
         `${x.get()}px`,
@@ -346,7 +367,7 @@ function ButtonTrigger({
         rafRef.current = null;
       }
     };
-  }, [x, y, setTriggerRect]);
+  }, [x, y, setTriggerRect, triggerRectLive]);
 
   // Strawman (v0.2): a rectangle's measured size is held while the sheet is
   // mounted and published at exit-complete - re-seating the wrapper
@@ -537,19 +558,20 @@ function ButtonTrigger({
         commitAnchor(to);
         if (announce) announceAnchor(to);
       }
-      // The x/y writes run in Motion's update step, the same step its own
-      // animations write in, so the move is painted in that frame's render
-      // step before anything that measures the trigger next frame
-      // (triggerRect, and through it <Shadow>). Written straight from an
-      // input task, the move lands between frames and those trail it by an
-      // extra frame; written in postRender, the next frame's measurement can
-      // run before Motion paints a jump, and the shadow is left behind.
+      // Seated directly, never sprung, under reduced motion and while the
+      // sheet is mounted: the trigger is hidden behind the open sheet, and
+      // the close morph then lands on the new seat.
+      if (reduceMotion || openRef.current || sheetRectRef.current !== null) {
+        x.jump(left);
+        y.jump(top);
+        return;
+      }
+      // Started in Motion's update step, so the spring's clock starts on the
+      // frame it first paints. Called straight from a key or click handler,
+      // the clock starts in that task and a long frame after it skips the
+      // start of the move (Motion caches time per task; see Root.tsx's
+      // clock-coupling note). A drag release is already in the frameloop.
       frame.update(() => {
-        if (reduceMotion) {
-          x.jump(left);
-          y.jump(top);
-          return;
-        }
         const snapSpring = { type: "spring" as const, ...SNAP_SPRING };
         animate(x, left, snapSpring);
         animate(y, top, snapSpring);
