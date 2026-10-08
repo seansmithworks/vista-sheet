@@ -162,7 +162,7 @@ interface RootProps {
 
 type PreviewKept =
   | "children" | "onOpenChange" | "sheetMaxWidth" | "preset" | "transition"
-  | "surfaceCloseLeadDelayMs" | "reduceMotion" | "id" | "zIndex" | "className";
+  | "reduceMotion" | "id" | "zIndex" | "className";
 
 type PreviewRootProps = Pick<RootProps, PreviewKept> & {
   /** Fixed for the Root's lifetime. Sheet max width defaults to 360. */
@@ -320,7 +320,7 @@ Throws outside `<VistaSheet.Root>`. This hook is the escape hatch for §3 and th
 | --- | --- |
 | `dragElastic`, `dragMomentum`, `dragConstraints`, drag threshold (5px) | Drag feel is one dialed system. Exposing pieces of it lets a consumer produce an off-screen excursion or a tap that registers as a drag. |
 | Snap spring (`stiffness 700, damping 52, mass 1`) | Deliberately overdamped so the trigger never overshoots past a viewport edge. A softer value is a bug, not a preference. |
-| `radiusHoldFraction`, `openContentRevealDelaySec`, `contentFadeOutMs` | The close choreography. Every one of these exists to suppress a specific artifact. See §3. (`surfaceCloseLeadDelayMs` was promoted OUT of this row and into §3's props table — it is a duration, not a suppressed artifact.) |
+| `radiusHoldFraction`, `openContentRevealDelaySec`, `contentFadeOutMs` | The close choreography. Every one of these exists to suppress a specific artifact. See §3. (`surfaceCloseLeadDelayMs` was promoted OUT of this row and into §3's preset table — it is a duration, not a suppressed artifact.) |
 | The trailing-paper mask envelope constants (`FADE_START/PEAK/END`, `MAX_FADE`, `BAND`) | Internal to one artifact fix. See §8, where this is a cut. |
 | The anchor region map thresholds (thirds each axis) | Changing them makes "nearest anchor" not mean nearest. |
 | Swipe-to-close thresholds (96px offset, 400px/s velocity) | Platform convention values. |
@@ -427,7 +427,7 @@ above), so if `close` is ever retuned again, `shared.close` must be re-dialled
 on /tune to match — it will not stay coupled automatically.
 
 `surfaceCloseLeadDelayMs` is the one internal choreography constant that has
-been promoted to a prop, and the reason is the rule below rather than an
+been promoted to a preset field (not a Root prop), and the reason is the rule below rather than an
 exception to it. The rule says a constant stays internal when exposing it
 turns "we solved this" into "you can un-solve this". This one is different in
 kind: it is not a suppressed artifact, it is a *duration*, and it is the

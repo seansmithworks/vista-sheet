@@ -56,8 +56,8 @@ export interface MorphTransition {
  * A named feel, carrying exactly the two fields the tuner can actually
  * export ({@link MorphTransition} and the surface close lead delay —
  * `triggerSize` is a separate geometry prop, not part of a feel). Explicit
- * `transition`/`surfaceCloseLeadDelayMs` props on Root win over a preset,
- * field by field — see RootProps.preset.
+ * `transition` prop on Root wins over a preset's `transition`, field by
+ * field — see RootProps.preset. `surfaceCloseLeadDelayMs` is preset-only.
  */
 export interface MotionPreset {
   transition?: MorphTransition;
@@ -129,20 +129,11 @@ export interface RootProps {
   // Motion
   /**
    * A named feel from `presets` (or a hand-built {@link MotionPreset}).
-   * `transition` and `surfaceCloseLeadDelayMs` below win over it field by
-   * field — pass `preset={presets.snappy} transition={{ open: mySpring }}`
-   * to take snappy's close/shared and override only open.
+   * `transition` below wins over its `transition` field by field — pass
+   * `preset={presets.snappy} transition={{ open: mySpring }}` to take snappy's close/shared and override only open.
    */
   preset?: MotionPreset;
   transition?: MorphTransition;
-  /**
-   * Delay (ms) before the surface box begins its close FLIP, so the shared
-   * element visibly leads the shrink instead of scaling in lockstep. Default
-   * 35. Ignored under reduced motion. Coupled by feel to
-   * `transition.shared.close`: change this and re-dial that on /tune, or the
-   * shared element trails the box and spills past the trigger's border.
-   */
-  surfaceCloseLeadDelayMs?: number;
   /** Force reduced-motion behavior. Default: the media query. */
   reduceMotion?: boolean;
 
@@ -165,7 +156,6 @@ type PreviewKept =
   | "sheetMaxWidth"
   | "preset"
   | "transition"
-  | "surfaceCloseLeadDelayMs"
   | "reduceMotion"
   | "id"
   | "zIndex"

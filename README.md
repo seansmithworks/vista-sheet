@@ -412,7 +412,7 @@ version, with a loading skeleton and an "Open" link inside the card.
   you pass `sheetMaxWidth` or an `aspectRatio` of your own.
 - **One card at a time**, across every preview Root on the page.
 - **Props.** A preview Root accepts only `children`, `onOpenChange`,
-  `sheetMaxWidth`, `preset`, `transition`, `surfaceCloseLeadDelayMs`,
+  `sheetMaxWidth`, `preset`, `transition`,
   `reduceMotion`, `id`, `zIndex` and `className`. Modal-only props (`open`,
   `defaultOpen`, `shape`, `triggerSize`, `defaultAnchor`, `draggable` and the
   rest) are type errors. `preview` is fixed for the Root's lifetime.
@@ -576,7 +576,7 @@ no box-shadow of its own; see "Two shadows, one painter" above.
 Three springs are props (`transition.open` / `.close` / `.shared`), each
 accepting either `{ stiffness, damping, mass? }` or `{ visualDuration, bounce }`
 (see below for both spring shorthands), or a full Motion `Transition`, plus
-one number: `surfaceCloseLeadDelayMs`. Everything else,
+one number, `surfaceCloseLeadDelayMs`, which lives on a preset. Everything else,
 hold fractions, stagger intervals, swipe thresholds, drag feel, is internal.
 These are fixes for specific artifacts, not knobs; see
 `docs/PACKAGE-DESIGN.md` §3 and §7C in the source repo for why.
@@ -610,10 +610,10 @@ independently:
 ### `surfaceCloseLeadDelayMs`
 
 ```tsx
-<VistaSheet.Root surfaceCloseLeadDelayMs={35}>
+<VistaSheet.Root preset={{ surfaceCloseLeadDelayMs: 35 }}>
 ```
 
-Milliseconds the surface box waits before starting its close FLIP, so the
+A field of a [preset](#presets), not a Root prop. Milliseconds the surface box waits before starting its close FLIP, so the
 shared element visibly leads the shrink instead of scaling in lockstep — the
 close reads as a re-home rather than a scale. Default `35`. Ignored under
 reduced motion. It is the single biggest lever on how long a close feels: at
@@ -625,7 +625,7 @@ The three close values are coupled, but not by formula. `shared.close` was
 originally derived from `close` by frequency-scaling (stiffness by `k²`,
 damping by `k`, with `k = Ts / (Ts + D)`); Sean's later hand-dial pass moved
 `shared.close` past that derived value, so it no longer holds. Change `close`
-or `surfaceCloseLeadDelayMs` and re-dial `shared.close` to match on the
+or the preset's `surfaceCloseLeadDelayMs` and re-dial `shared.close` to match on the
 `/tune` panel — do not recompute it — or the shared element stops arriving
 with the box: too fast and it parks early, too slow and it trails, and a
 trailing shared element spills past the round trigger's border ring.
@@ -646,7 +646,7 @@ nothing. `snappy` and `gentle` are un-dialled strawmen (frequency-scaled off
 `default`, not judged by eye) — expect Sean to re-dial their actual values on
 the `/tune` panel; that's a one-line change per preset, not an API change.
 
-An explicit `transition` or `surfaceCloseLeadDelayMs` prop on `Root` always
+An explicit `transition` prop on `Root` always
 wins over the same field on `preset`, field by field — **except `shared`**,
 which is replaced whole rather than merged (it can be a Spring, a
 Transition, or a directional `{ open, close }` object, and those three

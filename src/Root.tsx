@@ -65,7 +65,6 @@ export function Root({
   buttonWidth,
   preset,
   transition,
-  surfaceCloseLeadDelayMs: surfaceCloseLeadDelayMsProp,
   reduceMotion: reduceMotionProp,
   id,
   zIndex = 100,
@@ -194,14 +193,12 @@ export function Root({
   // never see a drag on its own).
   const sheetDragY = useMotionValue(0);
 
-  // Per-field precedence: an explicit prop wins over the same field on
+  // Per-field precedence: an explicit `transition` wins over the same field on
   // `preset`, field by field — not a whole-object override. This is what
   // lets `preset={presets.snappy} transition={{ open: mySpring }}` keep
   // snappy's close/shared and take only the caller's open.
   const surfaceCloseLeadDelayMs =
-    surfaceCloseLeadDelayMsProp ??
-    preset?.surfaceCloseLeadDelayMs ??
-    SURFACE_CLOSE_LEAD_DELAY_MS;
+    preset?.surfaceCloseLeadDelayMs ?? SURFACE_CLOSE_LEAD_DELAY_MS;
 
   // The shared element's transition is DIRECTION-AWARE. On the open it only
   // has to clear the growing sheet; on the close it has to arrive home
