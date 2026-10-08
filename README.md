@@ -17,6 +17,8 @@ of a persistent trigger. Nobody has standardized "trigger morphs into
 surface," so `vista-sheet` / `VistaSheet` names the shape directly rather than
 reaching for an existing term.
 
+Browser and platform limits: [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
+
 ## Install
 
 ```bash
