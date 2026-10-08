@@ -154,7 +154,7 @@ function Tile({
     if (tile.kind !== "play") return;
     iframeRef.current?.contentWindow?.postMessage(
       {
-        type: "vista-sheet-play:state",
+        type: "wicket-iris-play:state",
         state: tile.state,
         overrides: tile.overrides,
       },
@@ -170,7 +170,7 @@ function Tile({
       const frame = iframeRef.current;
       if (!frame || e.source !== frame.contentWindow) return;
       if (e.origin !== location.origin || !isPlayMessage(e.data)) return;
-      if (e.data.type !== "vista-sheet-play:ready") return;
+      if (e.data.type !== "wicket-iris-play:ready") return;
       readyRef.current = true;
       guardFocus(frame);
       postState();
@@ -316,14 +316,14 @@ function GeometryDefaults() {
   const maxHeight = (anchor: "bottom-center" | "top-center" | "center") =>
     sheetPlacement(anchor, 1280, 800, 96, 480).maxHeight;
   const rows: Array<[string, string]> = [
-    ["Max width", token("--vista-sheet-sheet-max-width")],
+    ["Max width", token("--wicket-iris-sheet-max-width")],
     ["Width", SHEET_DEFAULT_WIDTH],
     ["Height", `${SHEET_DEFAULT_HEIGHT} (no minimum)`],
     ["Max height, bottom anchors", maxHeight("bottom-center")],
     ["Max height, top anchors", maxHeight("top-center")],
     ["Max height, center", maxHeight("center")],
-    ["Corner radius", token("--vista-sheet-sheet-radius")],
-    ["Padding", token("--vista-sheet-sheet-padding")],
+    ["Corner radius", token("--wicket-iris-sheet-radius")],
+    ["Padding", token("--wicket-iris-sheet-padding")],
   ];
   return (
     <dl className="cv-defaults" data-anchor-id="geometry-defaults">
@@ -513,7 +513,7 @@ function Canvas() {
     <>
       <header className="cv-topbar">
         <div className="cv-title">
-          <h1>vista-sheet</h1>
+          <h1>Wicket Iris</h1>
           <span>Canvas</span>
         </div>
         <div className="cv-switch" role="tablist" aria-label="View">

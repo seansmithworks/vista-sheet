@@ -23,7 +23,7 @@ function hasInitialFocusMarker(node: PlayNode): boolean {
  * Builds the same PlayNode tree the stage renders (one codegen model drives
  * both sides — see the copy-tool spec's "structurally impossible" drift
  * strawman). Root props omit every value equal to the package default so
- * the copied JSX reads as a minimal diff from `<VistaSheet.Root>`.
+ * the copied JSX reads as a minimal diff from `<Iris.Root>`.
  */
 export function buildSpecimenTree(state: PlayState): PlayNode {
   const recipe = getRecipe(state.recipe);
@@ -52,7 +52,7 @@ export function buildSpecimenTree(state: PlayState): PlayNode {
     if (recipe.media) {
       const m = recipe.media;
       return {
-        type: "VistaSheet.Media",
+        type: "Iris.Media",
         props: [
           ["src", m.src],
           ["poster", m.poster],
@@ -64,7 +64,7 @@ export function buildSpecimenTree(state: PlayState): PlayNode {
     // Only called for shared/media recipes (see triggerChildren and the
     // sheet-children spread below), so recipe.shared is always defined here.
     return {
-      type: "VistaSheet.Shared",
+      type: "Iris.Shared",
       props: [],
       children: [recipe.shared as PlayNode],
     };
@@ -89,11 +89,11 @@ export function buildSpecimenTree(state: PlayState): PlayNode {
 
   const children: PlayNode[] = [];
   if (state.shadow) {
-    children.push({ type: "VistaSheet.Shadow", props: [], children: [] });
+    children.push({ type: "Iris.Shadow", props: [], children: [] });
   }
 
   children.push({
-    type: "VistaSheet.Trigger",
+    type: "Iris.Trigger",
     props: [["aria-label", recipe.triggerLabel]],
     children: triggerChildren(),
   });
@@ -106,25 +106,25 @@ export function buildSpecimenTree(state: PlayState): PlayNode {
   if (!state.dismissOnBackdrop) sheetProps.push(["dismissOnBackdrop", false]);
 
   const itemNodes: PlayNode[] = recipe.items.map((itemChildren) => ({
-    type: "VistaSheet.Item",
+    type: "Iris.Item",
     props: [],
     children: itemChildren,
   }));
 
   children.push({
-    type: "VistaSheet.Sheet",
+    type: "Iris.Sheet",
     props: sheetProps,
     children: [
       ...(recipe.button ? [] : [slotNode()]),
       {
-        type: "VistaSheet.Close",
+        type: "Iris.Close",
         props: [["aria-label", "Close"]],
         children: [],
       },
       ...(recipe.items.length > 0
         ? [
             {
-              type: "VistaSheet.Content",
+              type: "Iris.Content",
               props: [],
               children: itemNodes,
             } as PlayNode,
@@ -133,7 +133,7 @@ export function buildSpecimenTree(state: PlayState): PlayNode {
     ],
   });
 
-  return { type: "VistaSheet.Root", props: rootProps, children };
+  return { type: "Iris.Root", props: rootProps, children };
 }
 
 function formatPropValue(value: PropValue): string {
@@ -182,7 +182,7 @@ function printElement(
   const marked =
     focusRefName !== null &&
     props.some(([name]) => name === INITIAL_FOCUS_PROP);
-  const isSheet = tag === "VistaSheet.Sheet";
+  const isSheet = tag === "Iris.Sheet";
 
   const propStrings = props
     .filter(([name]) => name !== INITIAL_FOCUS_PROP)
@@ -237,7 +237,7 @@ function printElement(
 /**
  * Serialises `state` into the same JSX a consumer would paste into their own
  * file — real Unicode, never HTML entities; defaults omitted (Strawman
- * (v0.2)); component name fixed to VistaSheetExample (Strawman (v0.2)); a
+ * (v0.2)); component name fixed to IrisExample (Strawman (v0.2)); a
  * CSS-comment pointer replaces a CSS import (Strawman (v0.2)), since the
  * playground has no bundler-relative path to hand a consumer.
  */
@@ -250,10 +250,10 @@ export function printJsxFile(state: PlayState): string {
   const lines = ['"use client";', ""];
   if (treeHasFocus) lines.push('import { useRef } from "react";');
   lines.push(
-    'import { VistaSheet } from "@seansmithworks/vista-sheet";',
+    'import { Iris } from "@wicket/iris";',
     "// Styles: paste the CSS output into your global stylesheet.",
     "",
-    "export default function VistaSheetExample() {",
+    "export default function IrisExample() {",
   );
   if (treeHasFocus) {
     lines.push(`  const ${focusRefName} = useRef<HTMLInputElement>(null);`);
@@ -292,26 +292,26 @@ const BASE_CSS = `.vs-button-icon {
 
 /* The 44px close sits concentric with the sheet's corner (its centre on the
  * corner arc's centre), so it clears the curve like the content does. */
-.vs-theme [data-vista-sheet-part="close"] {
+.vs-theme [data-wicket-iris-part="close"] {
   position: absolute;
-  top: max(16px, calc(var(--vista-sheet-sheet-radius, 48px) - 22px));
-  right: max(16px, calc(var(--vista-sheet-sheet-radius, 48px) - 22px));
+  top: max(16px, calc(var(--wicket-iris-sheet-radius, 48px) - 22px));
+  right: max(16px, calc(var(--wicket-iris-sheet-radius, 48px) - 22px));
 }
 
 /* The bottom inset is the sheet radius, so the last line sits above where
  * the corner curve starts and clears it by the same gutter as the sides. */
-.vs-theme [data-vista-sheet-part="content"] {
+.vs-theme [data-wicket-iris-part="content"] {
   padding-bottom: max(
-    var(--vista-sheet-sheet-padding, 24px),
-    var(--vista-sheet-sheet-radius, 48px)
+    var(--wicket-iris-sheet-padding, 24px),
+    var(--wicket-iris-sheet-radius, 48px)
   );
 }
 
-.vs-theme [data-vista-sheet-part="item"] {
+.vs-theme [data-wicket-iris-part="item"] {
   padding-top: 16px;
 }
 
-.vs-theme [data-vista-sheet-part="item"]:first-of-type {
+.vs-theme [data-wicket-iris-part="item"]:first-of-type {
   padding-top: 24px;
 }
 
@@ -319,25 +319,25 @@ const BASE_CSS = `.vs-button-icon {
  * title on the close button's centre line, clear of the corner curve. 13px
  * is half the h2's 26px line. */
 .vs-theme
-  [data-vista-sheet-part="sheet"]:not(:has([data-vista-sheet-part="shared"]))
-  [data-vista-sheet-part="item"]:first-of-type {
-  padding-top: max(25px, calc(var(--vista-sheet-sheet-radius, 48px) - 13px));
+  [data-wicket-iris-part="sheet"]:not(:has([data-wicket-iris-part="shared"]))
+  [data-wicket-iris-part="item"]:first-of-type {
+  padding-top: max(25px, calc(var(--wicket-iris-sheet-radius, 48px) - 13px));
 }
 
-.vs-theme [data-vista-sheet-part="content"] h2 {
+.vs-theme [data-wicket-iris-part="content"] h2 {
   font-size: 20px;
   line-height: 1.3;
   margin: 0;
 }
 
-.vs-theme [data-vista-sheet-part="item"]:has(h2) + [data-vista-sheet-part="item"] {
+.vs-theme [data-wicket-iris-part="item"]:has(h2) + [data-wicket-iris-part="item"] {
   padding-top: 8px;
 }
 
-.vs-theme [data-vista-sheet-part="content"] p {
+.vs-theme [data-wicket-iris-part="content"] p {
   margin: 0;
   line-height: 1.5;
-  color: color-mix(in srgb, var(--vista-sheet-text) 72%, transparent);
+  color: color-mix(in srgb, var(--wicket-iris-text) 72%, transparent);
 }`;
 
 /**
@@ -348,8 +348,8 @@ const BASE_CSS = `.vs-button-icon {
  *
  * The var block is never omitted, even when the current palette equals the
  * package's own README defaults (Warm): a recipe's css can read any
- * `--vista-sheet-*` token via `var(...)` with no fallback (e.g. the chat
- * bubble's `background: var(--vista-sheet-accent)`), so the copied CSS must
+ * `--wicket-iris-*` token via `var(...)` with no fallback (e.g. the chat
+ * bubble's `background: var(--wicket-iris-accent)`), so the copied CSS must
  * be self-contained on every palette or that token resolves to nothing.
  * (Previously this block was emitted only for values that differed from
  * PACKAGE_DEFAULTS, which meant Warm — the default palette — never declared
@@ -358,20 +358,20 @@ const BASE_CSS = `.vs-button-icon {
 export function buildCss(state: PlayState): string {
   const recipe = getRecipe(state.recipe);
   const varLines: string[] = [
-    `  --vista-sheet-surface: ${state.surface};`,
-    `  --vista-sheet-surface-elevated: ${state.surfaceElevated};`,
-    `  --vista-sheet-surface-border: ${state.border};`,
-    `  --vista-sheet-text: ${state.text};`,
-    `  --vista-sheet-accent: ${state.accent};`,
+    `  --wicket-iris-surface: ${state.surface};`,
+    `  --wicket-iris-surface-elevated: ${state.surfaceElevated};`,
+    `  --wicket-iris-surface-border: ${state.border};`,
+    `  --wicket-iris-text: ${state.text};`,
+    `  --wicket-iris-accent: ${state.accent};`,
   ];
   if (state.sheetRadius !== 48) {
-    varLines.push(`  --vista-sheet-sheet-radius: ${state.sheetRadius}px;`);
+    varLines.push(`  --wicket-iris-sheet-radius: ${state.sheetRadius}px;`);
   }
   if (state.sheetPadding !== 24) {
-    varLines.push(`  --vista-sheet-sheet-padding: ${state.sheetPadding}px;`);
+    varLines.push(`  --wicket-iris-sheet-padding: ${state.sheetPadding}px;`);
   }
-  varLines.push(`  --vista-sheet-shadow: ${state.triggerShadow};`);
-  varLines.push(`  --vista-sheet-sheet-shadow: ${state.sheetShadow};`);
+  varLines.push(`  --wicket-iris-shadow: ${state.triggerShadow};`);
+  varLines.push(`  --wicket-iris-sheet-shadow: ${state.sheetShadow};`);
 
   const blocks: string[] = [`.vs-theme {\n${varLines.join("\n")}\n}`];
   blocks.push(BASE_CSS);

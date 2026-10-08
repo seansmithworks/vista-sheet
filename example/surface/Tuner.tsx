@@ -401,8 +401,8 @@ export function Tuner() {
           <div>
             <h1>Surface &amp; shadow</h1>
             <p>
-              Live specimens. Every dial writes a <code>--vista-sheet-*</code>{" "}
-              var; <code>&lt;VistaSheet.Shadow&gt;</code> paints both looks.
+              Live specimens. Every dial writes a <code>--wicket-iris-*</code>{" "}
+              var; <code>&lt;Iris.Shadow&gt;</code> paints both looks.
             </p>
           </div>
           <div className="st-seg" role="group" aria-label="Theme">

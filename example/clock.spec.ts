@@ -20,7 +20,7 @@ async function openStage(page: Page) {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {
     window.addEventListener("message", (e) => {
-      if (e.data?.type === "vista-sheet-play:ready")
+      if (e.data?.type === "wicket-iris-play:ready")
         (window as { __ready?: boolean }).__ready = true;
     });
   });
@@ -33,7 +33,7 @@ async function openStage(page: Page) {
   await page.evaluate(
     (state) =>
       window.postMessage(
-        { type: "vista-sheet-play:state", state },
+        { type: "wicket-iris-play:state", state },
         location.origin,
       ),
     TILE.state,
@@ -75,23 +75,23 @@ const snapshot = (page: Page) =>
     const nums = (s: string) =>
       s === "none" ? s : (s.match(/-?[\d.e-]+/g) ?? []).map((v) => r3(+v));
     const parts = [
-      ...document.querySelectorAll<HTMLElement>("[data-vista-sheet-part]"),
+      ...document.querySelectorAll<HTMLElement>("[data-wicket-iris-part]"),
     ].map((el) => {
       const b = el.getBoundingClientRect();
       const cs = getComputedStyle(el);
       return {
-        part: el.dataset.vistaSheetPart,
-        slot: el.dataset.vistaSheetSlot ?? null,
+        part: el.dataset.wicketIrisPart,
+        slot: el.dataset.wicketIrisSlot ?? null,
         rect: [r2(b.x), r2(b.y), r2(b.width), r2(b.height)],
         opacity: r3(+cs.opacity),
         transform: nums(cs.transform),
-        settled: el.hasAttribute("data-vista-sheet-settled"),
-        closing: el.hasAttribute("data-vista-sheet-closing"),
+        settled: el.hasAttribute("data-wicket-iris-settled"),
+        closing: el.hasAttribute("data-wicket-iris-closing"),
       };
     });
     const shadow = [
       ...document.querySelectorAll<HTMLElement>(
-        '[data-vista-sheet-part="shadow"]',
+        '[data-wicket-iris-part="shadow"]',
       ),
     ].map((el) => {
       const cs = getComputedStyle(el);
@@ -102,9 +102,9 @@ const snapshot = (page: Page) =>
           ),
         );
       return {
-        collapse: v("--vista-sheet-collapse"),
-        thin: v("--vista-sheet-shadow-opacity"),
-        heavy: v("--vista-sheet-sheet-shadow-opacity"),
+        collapse: v("--wicket-iris-collapse"),
+        thin: v("--wicket-iris-shadow-opacity"),
+        heavy: v("--wicket-iris-sheet-shadow-opacity"),
         layers: [el, ...el.querySelectorAll("*")].flatMap((n) =>
           ["::before", "::after", null].map((p) =>
             r3(+getComputedStyle(n, p).opacity),
@@ -114,11 +114,11 @@ const snapshot = (page: Page) =>
     });
     const flagged = [
       ...document.querySelectorAll(
-        "[data-vista-sheet-settled],[data-vista-sheet-closing]",
+        "[data-wicket-iris-settled],[data-wicket-iris-closing]",
       ),
     ].map(
       (el) =>
-        `${el.getAttribute("data-vista-sheet-part")}:${el.hasAttribute("data-vista-sheet-settled") ? "settled" : ""}${el.hasAttribute("data-vista-sheet-closing") ? "closing" : ""}`,
+        `${el.getAttribute("data-wicket-iris-part")}:${el.hasAttribute("data-wicket-iris-settled") ? "settled" : ""}${el.hasAttribute("data-wicket-iris-closing") ? "closing" : ""}`,
     );
     // Set by a scenario's own hooks (the exit-completion test).
     const marks = document.body.dataset.afterExit ?? null;
@@ -184,7 +184,7 @@ test("a sheet that resizes mid-morph: same frame on every path, and the Shadow f
       d.style.height = "40px";
       d.dataset.testGrow = "";
       (
-        sheet.querySelector('[data-vista-sheet-part="content"]') ?? sheet
+        sheet.querySelector('[data-wicket-iris-part="content"]') ?? sheet
       ).append(d);
     };
     const armed = new WeakSet<Element>();
@@ -192,14 +192,14 @@ test("a sheet that resizes mid-morph: same frame on every path, and the Shadow f
     // Microtask-timed, then a (virtual) timer: the same virtual time on
     // every path.
     new MutationObserver(() => {
-      const sheet = document.querySelector('[data-vista-sheet-part="sheet"]');
+      const sheet = document.querySelector('[data-wicket-iris-part="sheet"]');
       if (!sheet) return;
       if (!armed.has(sheet)) {
         armed.add(sheet);
         setTimeout(() => grow(sheet), 60);
       }
       if (
-        document.querySelector("[data-vista-sheet-closing]") &&
+        document.querySelector("[data-wicket-iris-closing]") &&
         !closing.has(sheet)
       ) {
         closing.add(sheet);
@@ -223,10 +223,10 @@ test("a sheet that resizes mid-morph: same frame on every path, and the Shadow f
   await lab.seek(page, 700);
   const m = await page.evaluate(() => {
     const sheet = document.querySelector<HTMLElement>(
-      '[data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-part="sheet"]',
     )!;
     const shadow = document.querySelector<HTMLElement>(
-      '[data-vista-sheet-part="shadow"]',
+      '[data-wicket-iris-part="shadow"]',
     )!;
     return {
       grown: sheet.querySelectorAll("[data-test-grow]").length,
@@ -258,7 +258,7 @@ test("exit completion lands on its own tick: what reacts to the unmount sees the
     let present = false;
     new MutationObserver(() => {
       const sheet = Boolean(
-        document.querySelector('[data-vista-sheet-part="sheet"]'),
+        document.querySelector('[data-wicket-iris-part="sheet"]'),
       );
       if (sheet && !present) delete document.body.dataset.afterExit;
       if (!sheet && present) {
@@ -323,7 +323,7 @@ test("Close reveal: opacity 0 one tick before the CLOSE_REVEAL marker, >0 one ti
   const closeOpacity = () =>
     page.evaluate(() => {
       const el = document.querySelector(
-        '[data-vista-sheet-part="sheet"] [data-vista-sheet-part="close"]',
+        '[data-wicket-iris-part="sheet"] [data-wicket-iris-part="close"]',
       );
       return el ? Number(getComputedStyle(el).opacity) : 0;
     });

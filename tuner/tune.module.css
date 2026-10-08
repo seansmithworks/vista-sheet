@@ -15,7 +15,7 @@
   width: 288px;
   max-height: 86vh;
 
-  /* Below the trigger and the sheet (--vista-sheet-z defaults to 100) so the
+  /* Below the trigger and the sheet (--wicket-iris-z defaults to 100) so the
      motion being measured is never occluded by the thing measuring it. */
   z-index: 50;
 
@@ -28,7 +28,7 @@
   overflow: hidden;
 }
 
-/* The dock stays put through the morph. It sits below --vista-sheet-z (100),
+/* The dock stays put through the morph. It sits below --wicket-iris-z (100),
    so the trigger and sheet paint OVER it and the motion is never occluded.
    Hiding it was worse: the readouts matter most during the morph, and a panel
    fading in and out is itself motion competing with the motion being judged. */

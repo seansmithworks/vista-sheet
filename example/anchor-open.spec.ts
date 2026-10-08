@@ -2,18 +2,18 @@ import { test, expect, type Page } from "@playwright/test";
 import { restingLeft, restingTop, type AnchorId } from "../src/anchors";
 
 /**
- * anchor-open.spec.ts — useVistaSheet().setAnchor while the sheet is open
+ * anchor-open.spec.ts — useIris().setAnchor while the sheet is open
  * (P0-3 follow-up). The anchor updates and fires onAnchorChange once; the
  * hidden trigger seats directly at the new anchor (no spring); the open
  * sheet holds its placement; Escape's close morph lands on the new seat
  * with the Shadow on it. Fixture: example/fixtures/anchor-open.tsx.
  */
 
-const ROOT = '[data-vista-sheet-root="ao"] ';
-const WRAPPER = `${ROOT}[data-vista-sheet-part="trigger-root"]`;
-const SURFACE = `${ROOT}[data-vista-sheet-part="trigger-surface"]`;
-const SHADOW = `${ROOT}[data-vista-sheet-part="shadow"]`;
-const SHEET = `${ROOT}[data-vista-sheet-part="sheet"]`;
+const ROOT = '[data-wicket-iris-root="ao"] ';
+const WRAPPER = `${ROOT}[data-wicket-iris-part="trigger-root"]`;
+const SURFACE = `${ROOT}[data-wicket-iris-part="trigger-surface"]`;
+const SHADOW = `${ROOT}[data-wicket-iris-part="shadow"]`;
+const SHEET = `${ROOT}[data-wicket-iris-part="sheet"]`;
 
 type Point = { x: number; y: number };
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -49,7 +49,7 @@ test("setAnchor while open: seats without a spring, sheet holds, close lands on 
   await page.waitForTimeout(400);
 
   await page.getByRole("button", { name: "Open fixture sheet" }).click();
-  await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
+  await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
   await page.waitForTimeout(300);
   const sheetBefore = (await page.locator(SHEET).boundingBox())!;
   const from = await seatCentre(page, "bottom-center");

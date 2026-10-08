@@ -3,7 +3,7 @@ import type { MutableRefObject } from "react";
 import type { MotionValue, Transition } from "motion/react";
 import type { AnchorId } from "./anchors";
 import type {
-  VistaSheetState,
+  IrisState,
   Rect,
   TriggerShape,
   ButtonSize,
@@ -13,10 +13,10 @@ import type { TriggerBox } from "./shape";
 /**
  * Internal context value — everything Trigger, Sheet, Shared, Content, Close
  * and Shadow need to coordinate, plus the subset re-exported publicly by
- * useVistaSheet(). Keeping the internal shape richer than the public one means
- * widening useVistaSheet() later is additive, not a breaking change.
+ * useIris(). Keeping the internal shape richer than the public one means
+ * widening useIris() later is additive, not a breaking change.
  */
-export interface VistaSheetContextValue extends VistaSheetState {
+export interface IrisContextValue extends IrisState {
   /** Internal only — record a new anchor (state, persistence,
    * onAnchorChange) without moving the trigger. Trigger's snapTo is the
    * mover; this is what it commits through. */
@@ -32,7 +32,7 @@ export interface VistaSheetContextValue extends VistaSheetState {
   setIsDragging: (dragging: boolean) => void;
   draggable: boolean;
   sheetMaxWidth: number;
-  /** Internal only — not part of the public VistaSheetState/useVistaSheet. */
+  /** Internal only — not part of the public IrisState/useIris. */
   shape: TriggerShape;
   /** Internal only — s/m/l for a shape="rectangle" trigger. */
   buttonSize: ButtonSize;
@@ -88,7 +88,7 @@ export interface VistaSheetContextValue extends VistaSheetState {
   hasRegisteredClose: () => boolean;
   /** The trigger button element — Sheet focuses it back on exit-complete. */
   triggerElRef: MutableRefObject<HTMLElement | null>;
-  /** <VistaSheet.Shadow>'s element — the trigger writes its hover/pressed
+  /** <Iris.Shadow>'s element — the trigger writes its hover/pressed
    * feedback attribute here too (triggerFeedback.ts). */
   shadowElRef: MutableRefObject<HTMLElement | null>;
   /** Link-preview mode (Root `preview`). Fixed for the Root's lifetime. */
@@ -105,7 +105,7 @@ export interface VistaSheetContextValue extends VistaSheetState {
   contentScrollElRef: MutableRefObject<HTMLDivElement | null>;
 }
 
-export const VistaSheetContext = createContext<VistaSheetContextValue | null>(
+export const IrisContext = createContext<IrisContextValue | null>(
   null,
 );
 
@@ -116,18 +116,18 @@ export const VistaSheetContext = createContext<VistaSheetContextValue | null>(
  * trigger-side instance is an inset, circular clip; the sheet-side instance
  * is an in-flow, margined circle. One mechanism serves both findings.
  */
-export type VistaSheetSlot = "trigger" | "sheet";
+export type IrisSlot = "trigger" | "sheet";
 
-export const SlotContext = createContext<VistaSheetSlot | null>(null);
+export const SlotContext = createContext<IrisSlot | null>(null);
 
-export function useVistaSheetSlot(): VistaSheetSlot | undefined {
+export function useIrisSlot(): IrisSlot | undefined {
   const slot = useContext(SlotContext);
   return slot ?? undefined;
 }
 
 /**
  * TriggerSurfaceStore — publishes the trigger surface's DOM node so
- * <VistaSheet.Media> can portal its trigger-side instance inside it and ride
+ * <Iris.Media> can portal its trigger-side instance inside it and ride
  * the close FLIP, instead of popping in at the trigger's resting spot. A
  * pub/sub, not useState or a ref: <Media> must re-portal when the surface
  * node is recreated, without re-rendering the Trigger.
@@ -160,18 +160,18 @@ export const TriggerSurfaceContext = createContext<TriggerSurfaceStore | null>(
 );
 
 /**
- * useVistaSheet — the public escape hatch. Throws outside <VistaSheet.Root>.
+ * useIris — the public escape hatch. Throws outside <Iris.Root>.
  *
- * useVistaSheet().collapseProgress is the raw MotionValue the package's own radius,
+ * useIris().collapseProgress is the raw MotionValue the package's own radius,
  * mask and opacity transforms read (0 = fully open, 1 = fully closed).
  * Combined with triggerRect/sheetRect, it is enough to rebuild any of the
  * internal choreography externally — see example/CloseMask.tsx.
  */
-export function useVistaSheet(): VistaSheetState {
-  const ctx = useContext(VistaSheetContext);
+export function useIris(): IrisState {
+  const ctx = useContext(IrisContext);
   if (!ctx) {
     throw new Error(
-      "useVistaSheet() must be called from inside <VistaSheet.Root>.",
+      "useIris() must be called from inside <Iris.Root>.",
     );
   }
   const {
@@ -199,13 +199,13 @@ export function useVistaSheet(): VistaSheetState {
 }
 
 /** Internal-only accessor, used by the compound components themselves. */
-export function useVistaSheetInternal(
+export function useIrisInternal(
   componentName: string,
-): VistaSheetContextValue {
-  const ctx = useContext(VistaSheetContext);
+): IrisContextValue {
+  const ctx = useContext(IrisContext);
   if (!ctx) {
     throw new Error(
-      `<VistaSheet.${componentName}> must be rendered inside <VistaSheet.Root>.`,
+      `<Iris.${componentName}> must be rendered inside <Iris.Root>.`,
     );
   }
   return ctx;

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { ALL_ANCHORS, type AnchorId } from "./anchors";
 
-const DEFAULT_STORAGE_KEY = "vista-sheet-anchor";
+const DEFAULT_STORAGE_KEY = "wicket-iris-anchor";
+// Pre-rename default key. Read as a fallback (never written) so an anchor a
+// user already dragged to survives the package rename.
+const LEGACY_DEFAULT_STORAGE_KEY = "vista-sheet-anchor";
 
 function isAnchorId(value: string): value is AnchorId {
   return (ALL_ANCHORS as string[]).includes(value);
@@ -24,7 +27,11 @@ export function usePersistedAnchor(
   useEffect(() => {
     if (!key || typeof window === "undefined") return;
     try {
-      const raw = window.localStorage.getItem(key);
+      const raw =
+        window.localStorage.getItem(key) ??
+        (key === DEFAULT_STORAGE_KEY
+          ? window.localStorage.getItem(LEGACY_DEFAULT_STORAGE_KEY)
+          : null);
       if (raw && isAnchorId(raw)) {
         setAnchorState(raw);
       }

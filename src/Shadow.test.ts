@@ -4,11 +4,11 @@ import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { mergeRefs } from "./mergeRefs";
 import { Shadow } from "./Shadow";
-import { VistaSheetContext } from "./context";
-import type { VistaSheetContextValue } from "./context";
+import { IrisContext } from "./context";
+import type { IrisContextValue } from "./context";
 
 /**
- * F1 regression: <VistaSheet.Shadow asChild> used to hard-code its clone's
+ * F1 regression: <Iris.Shadow asChild> used to hard-code its clone's
  * `ref`, silently dropping whatever ref the consumer already put on the
  * child (docs/PACKAGE-DESIGN.md §4, "asChild ... merges ... onto it" — a
  * ref is part of that merge). mergeRefs is the composition Shadow.tsx's
@@ -71,7 +71,7 @@ describe("mergeRefs", () => {
  */
 type CapturedShadowChild = ReactElement<{
   ref?: (n: HTMLElement | null) => void;
-  "data-vista-sheet-part"?: string;
+  "data-wicket-iris-part"?: string;
 }>;
 
 function renderShadowAsChild(
@@ -87,7 +87,7 @@ function renderShadowAsChild(
     isDragging: false,
     open: false,
     shadowElRef: { current: null },
-  } as unknown as VistaSheetContextValue;
+  } as unknown as IrisContextValue;
 
   const captured: { el: CapturedShadowChild | null } = { el: null };
 
@@ -103,7 +103,7 @@ function renderShadowAsChild(
 
   renderToString(
     createElement(
-      VistaSheetContext.Provider,
+      IrisContext.Provider,
       { value: ctx },
       createElement(Probe),
     ),
@@ -136,6 +136,6 @@ describe("<Shadow asChild>", () => {
   it("clone carries the shadow part attribute", () => {
     const el = renderShadowAsChild(undefined);
 
-    expect(el.props["data-vista-sheet-part"]).toBe("shadow");
+    expect(el.props["data-wicket-iris-part"]).toBe("shadow");
   });
 });

@@ -3,9 +3,9 @@
 import { defaultState, type TunerState } from "./model";
 import type { Version } from "./history";
 
-export const STORE_KEY = "vista-sheet:surface-tuner:v1";
-export const THEME_KEY = "vista-sheet:surface-tuner:theme";
-export const VERSIONS_KEY = "vista-sheet:surface-tuner:versions:v1";
+export const STORE_KEY = "wicket-iris:surface-tuner:v1";
+export const THEME_KEY = "wicket-iris:surface-tuner:theme";
+export const VERSIONS_KEY = "wicket-iris:surface-tuner:versions:v1";
 
 export function safeGet(key: string): string | null {
   try {

@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 // against them ahead of that landing, so `npx tsc --noEmit` is expected to
 // report new errors here until then (see the task's RUN AND CLASSIFY step).
 import {
-  VistaSheet,
+  Iris,
   type TriggerShape,
   type ButtonSize,
 } from "../../src/index";
@@ -86,7 +86,7 @@ const rows = [
 
 function App() {
   return (
-    <VistaSheet.Root
+    <Iris.Root
       id="buttons"
       className="buttons-theme"
       shape={shape}
@@ -95,31 +95,31 @@ function App() {
       defaultAnchor={anchor}
       persistKey="vista-sheet-buttons-anchor"
     >
-      <VistaSheet.Shadow />
+      <Iris.Shadow />
 
-      <VistaSheet.Trigger aria-label="Open search messages">
+      <Iris.Trigger aria-label="Open search messages">
         <TriggerChildren />
-      </VistaSheet.Trigger>
+      </Iris.Trigger>
 
-      <VistaSheet.Sheet aria-labelledby="buttons-sheet-title">
-        <VistaSheet.Close aria-label="Close" />
-        <VistaSheet.Content>
-          <VistaSheet.Item>
+      <Iris.Sheet aria-labelledby="buttons-sheet-title">
+        <Iris.Close aria-label="Close" />
+        <Iris.Content>
+          <Iris.Item>
             <h2 id="buttons-sheet-title">Search</h2>
-          </VistaSheet.Item>
-          <VistaSheet.Item>
+          </Iris.Item>
+          <Iris.Item>
             <p>Jump to a recent conversation or search across every message.</p>
-          </VistaSheet.Item>
-          <VistaSheet.Item>
+          </Iris.Item>
+          <Iris.Item>
             <ul>
               {rows.map((row) => (
                 <li key={row}>{row}</li>
               ))}
             </ul>
-          </VistaSheet.Item>
-        </VistaSheet.Content>
-      </VistaSheet.Sheet>
-    </VistaSheet.Root>
+          </Iris.Item>
+        </Iris.Content>
+      </Iris.Sheet>
+    </Iris.Root>
   );
 }
 

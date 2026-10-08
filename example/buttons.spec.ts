@@ -3,7 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * buttons.spec.ts — P3 rectangle-button geometry gate. Samplers here are
  * copied (not imported) from geometry.spec.ts and rescoped to
- * `[data-vista-sheet-root="buttons"]`, the fixture at example/buttons.html —
+ * `[data-wicket-iris-root="buttons"]`, the fixture at example/buttons.html —
  * the same "don't import test infrastructure across spec files" pattern
  * that file's own per-shape blocks already use.
  *
@@ -14,12 +14,12 @@ import { test, expect, type Page } from "@playwright/test";
  * axis of each.
  */
 
-const ROOT = '[data-vista-sheet-root="buttons"] ';
-const TRIGGER = `${ROOT}[data-vista-sheet-part="trigger"]`;
-const TRIGGER_ROOT = `${ROOT}[data-vista-sheet-part="trigger-root"]`;
-const TRIGGER_SURFACE = `${ROOT}[data-vista-sheet-part="trigger-surface"]`;
-const SHEET = `${ROOT}[data-vista-sheet-part="sheet"]`;
-const SHADOW = `${ROOT}[data-vista-sheet-part="shadow"]`;
+const ROOT = '[data-wicket-iris-root="buttons"] ';
+const TRIGGER = `${ROOT}[data-wicket-iris-part="trigger"]`;
+const TRIGGER_ROOT = `${ROOT}[data-wicket-iris-part="trigger-root"]`;
+const TRIGGER_SURFACE = `${ROOT}[data-wicket-iris-part="trigger-surface"]`;
+const SHEET = `${ROOT}[data-wicket-iris-part="sheet"]`;
+const SHADOW = `${ROOT}[data-wicket-iris-part="shadow"]`;
 
 // mirrors example/geometry.spec.ts; never loosen
 const OPEN = 8;
@@ -104,10 +104,10 @@ async function sampleShadowSurfaceBox(page: Page, durationMs: number) {
         const start = performance.now();
         function tick() {
           const surface = document.querySelector(
-            `${root}[data-vista-sheet-part="sheet"], ${root}[data-vista-sheet-part="trigger-surface"]`,
+            `${root}[data-wicket-iris-part="sheet"], ${root}[data-wicket-iris-part="trigger-surface"]`,
           );
           const shadow = document.querySelector(
-            `${root}[data-vista-sheet-part="shadow"]`,
+            `${root}[data-wicket-iris-part="shadow"]`,
           );
           if (surface && shadow) {
             const s = surface.getBoundingClientRect();
@@ -147,10 +147,10 @@ async function sampleShadowSurfaceRadiusDelta(page: Page, durationMs: number) {
         const start = performance.now();
         function tick() {
           const surface = document.querySelector(
-            `${root}[data-vista-sheet-part="sheet"], ${root}[data-vista-sheet-part="trigger-surface"]`,
+            `${root}[data-wicket-iris-part="sheet"], ${root}[data-wicket-iris-part="trigger-surface"]`,
           ) as HTMLElement | null;
           const shadow = document.querySelector(
-            `${root}[data-vista-sheet-part="shadow"]`,
+            `${root}[data-wicket-iris-part="shadow"]`,
           ) as HTMLElement | null;
           if (surface && shadow) {
             const surfaceRect = surface.getBoundingClientRect();
@@ -166,7 +166,7 @@ async function sampleShadowSurfaceRadiusDelta(page: Page, durationMs: number) {
                   (surface.offsetWidth || surfaceRect.width || 1));
             const shadowRadius = parseFloat(
               getComputedStyle(shadow).getPropertyValue(
-                "--vista-sheet-shadow-radius",
+                "--wicket-iris-shadow-radius",
               ),
             );
             const a = Math.min(
@@ -217,13 +217,13 @@ async function sampleForStrayPainter(page: Page, durationMs: number) {
         function tick() {
           if (!found) {
             const nodes = document.querySelectorAll(
-              `${root}[data-vista-sheet-part="trigger-root"], ` +
-                `${root}[data-vista-sheet-part="trigger-root"] *, ` +
-                `${root}[data-vista-sheet-part="sheet"], ` +
-                `${root}[data-vista-sheet-part="sheet"] *`,
+              `${root}[data-wicket-iris-part="trigger-root"], ` +
+                `${root}[data-wicket-iris-part="trigger-root"] *, ` +
+                `${root}[data-wicket-iris-part="sheet"], ` +
+                `${root}[data-wicket-iris-part="sheet"] *`,
             );
             outer: for (const el of Array.from(nodes)) {
-              if (el.closest(`${root}[data-vista-sheet-part="shadow"]`))
+              if (el.closest(`${root}[data-wicket-iris-part="shadow"]`))
                 continue;
               const pseudos: ("" | "::before" | "::after")[] = [
                 "",
@@ -236,7 +236,7 @@ async function sampleForStrayPainter(page: Page, durationMs: number) {
                 if (bs && bs !== "none") {
                   found = {
                     tag: el.tagName.toLowerCase(),
-                    part: el.getAttribute("data-vista-sheet-part"),
+                    part: el.getAttribute("data-wicket-iris-part"),
                     pseudo,
                     property: "box-shadow",
                     value: bs,
@@ -247,7 +247,7 @@ async function sampleForStrayPainter(page: Page, durationMs: number) {
                 if (filter && filter !== "none") {
                   found = {
                     tag: el.tagName.toLowerCase(),
-                    part: el.getAttribute("data-vista-sheet-part"),
+                    part: el.getAttribute("data-wicket-iris-part"),
                     pseudo,
                     property: "filter",
                     value: filter,
@@ -302,15 +302,15 @@ test.describe("390x844 - rectangle rest", () => {
         overflow.clientWidth + 1,
       );
 
-      expect(await trigger.getAttribute("data-vista-sheet-shape")).toBe(
+      expect(await trigger.getAttribute("data-wicket-iris-shape")).toBe(
         "rectangle",
       );
       const triggerRoot = page.locator(TRIGGER_ROOT);
-      expect(await triggerRoot.getAttribute("data-vista-sheet-shape")).toBe(
+      expect(await triggerRoot.getAttribute("data-wicket-iris-shape")).toBe(
         "rectangle",
       );
       expect(
-        await triggerRoot.getAttribute("data-vista-sheet-button-size"),
+        await triggerRoot.getAttribute("data-wicket-iris-button-size"),
       ).toBe(key);
 
       const surfaceBox = (await page.locator(TRIGGER_SURFACE).boundingBox())!;
@@ -574,7 +574,7 @@ test.describe("390x844 - trigger label reveal", () => {
             return product;
           }
           const triggerEl = document.querySelector(
-            `${root}[data-vista-sheet-part="trigger"]`,
+            `${root}[data-wicket-iris-part="trigger"]`,
           );
           let labelEl: Element | null = null;
           if (triggerEl) {
@@ -637,10 +637,10 @@ test.describe("390x844 - trigger label reveal", () => {
             const start = performance.now();
             function tick() {
               const surface = document.querySelector(
-                `${root}[data-vista-sheet-part="trigger-surface"], ${root}[data-vista-sheet-part="sheet"]`,
+                `${root}[data-wicket-iris-part="trigger-surface"], ${root}[data-wicket-iris-part="sheet"]`,
               );
               const triggerEl = document.querySelector(
-                `${root}[data-vista-sheet-part="trigger"]`,
+                `${root}[data-wicket-iris-part="trigger"]`,
               );
               if (surface && triggerEl) {
                 const h = surface.getBoundingClientRect().height;
@@ -711,7 +711,7 @@ test.describe("1280x800 - riders are not faded", () => {
     await waitForStableWidth(
       page,
       page.locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       ),
     );
     await page.keyboard.press("Escape");
@@ -723,12 +723,12 @@ test.describe("1280x800 - riders are not faded", () => {
         const start = performance.now();
         function tick() {
           const el = document.querySelector(
-            '[data-vista-sheet-root="main"] [data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]',
+            '[data-wicket-iris-root="main"] [data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]',
           );
           if (el) {
             // Ancestor opacity only — the shared element's OWN opacity is
             // expected to animate as part of its layoutId crossfade; this
-            // gate is about a `data-vista-sheet-closing` ancestor (or any
+            // gate is about a `data-wicket-iris-closing` ancestor (or any
             // other trigger wrapper) fading IT out from outside, not about
             // its own fade-in.
             let n: Element | null = el.parentElement;

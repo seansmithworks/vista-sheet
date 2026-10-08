@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { VistaSheet, type AnchorId } from "../../src/index";
+import { Iris, type AnchorId } from "../../src/index";
 import { Controls } from "./Controls";
 import { isPlayMessage } from "./messages";
 import { buildCss, printJsxFile } from "./codegen";
@@ -8,7 +8,7 @@ import { DEFAULT_STATE, type PlayState } from "./state";
 import "./shell.css";
 
 // Strawman (v0.2): 900px is the docked-panel breakpoint. Below it the
-// playground drops the 360px aside for a VistaSheet sheet (task 4).
+// playground drops the 360px aside for a Iris sheet (task 4).
 const DESKTOP_QUERY = "(min-width: 900px)";
 
 // Copied from example/main.tsx's SlidersIcon (read-only reference file;
@@ -98,13 +98,13 @@ function Shell() {
       if (e.origin !== location.origin) return;
       if (!isPlayMessage(e.data)) return;
 
-      if (e.data.type === "vista-sheet-play:ready") {
+      if (e.data.type === "wicket-iris-play:ready") {
         stageReadyRef.current = true;
         frame.contentWindow?.postMessage(
-          { type: "vista-sheet-play:state", state },
+          { type: "wicket-iris-play:state", state },
           location.origin,
         );
-      } else if (e.data.type === "vista-sheet-play:anchor") {
+      } else if (e.data.type === "wicket-iris-play:anchor") {
         const anchor = e.data.anchor;
         setState((s) => ({ ...s, anchor }));
       }
@@ -117,7 +117,7 @@ function Shell() {
   useEffect(() => {
     if (!stageReadyRef.current) return;
     iframeRef.current?.contentWindow?.postMessage(
-      { type: "vista-sheet-play:state", state },
+      { type: "wicket-iris-play:state", state },
       location.origin,
     );
   }, [state]);
@@ -125,12 +125,12 @@ function Shell() {
   // Command, not report: only the Anchor dropdown calls this. It updates
   // `state.anchor` (codegen + dropdown display) and separately posts a
   // `set-anchor` command so the stage can tell it apart from its own
-  // `vista-sheet-play:anchor` drag reports (line 107) — conflating the two
+  // `wicket-iris-play:anchor` drag reports (line 107) — conflating the two
   // is what made a drag loop forever.
   function onAnchorCommand(anchor: AnchorId) {
     setState((s) => ({ ...s, anchor }));
     iframeRef.current?.contentWindow?.postMessage(
-      { type: "vista-sheet-play:set-anchor", anchor },
+      { type: "wicket-iris-play:set-anchor", anchor },
       location.origin,
     );
   }
@@ -181,7 +181,7 @@ function Shell() {
           Playground
         </h1>
         {iframe}
-        <VistaSheet.Root
+        <Iris.Root
           key={appliedControlsAnchor}
           id="play-controls"
           defaultAnchor={appliedControlsAnchor}
@@ -195,35 +195,35 @@ function Shell() {
           zIndex={300}
           className="play-controls-theme"
         >
-          <VistaSheet.Trigger aria-label="Playground controls">
+          <Iris.Trigger aria-label="Playground controls">
             <SlidersIcon />
-          </VistaSheet.Trigger>
+          </Iris.Trigger>
 
-          <VistaSheet.Sheet aria-labelledby="play-controls-title">
-            <VistaSheet.Close aria-label="Close controls" />
+          <Iris.Sheet aria-labelledby="play-controls-title">
+            <Iris.Close aria-label="Close controls" />
 
-            <VistaSheet.Content>
+            <Iris.Content>
               <div className="play-controls-body">
-                <VistaSheet.Item>
+                <Iris.Item>
                   <h2 id="play-controls-title">Controls</h2>
                   <a href="./tune.html">Motion tuner</a>
-                </VistaSheet.Item>
+                </Iris.Item>
 
-                <VistaSheet.Item>
+                <Iris.Item>
                   <Controls
                     state={state}
                     setState={setState}
                     onAnchorCommand={onAnchorCommand}
                   />
-                </VistaSheet.Item>
+                </Iris.Item>
 
-                <VistaSheet.Item>
+                <Iris.Item>
                   <CopyBar copyStatus={copyStatus} onCopy={copy} />
-                </VistaSheet.Item>
+                </Iris.Item>
               </div>
-            </VistaSheet.Content>
-          </VistaSheet.Sheet>
-        </VistaSheet.Root>
+            </Iris.Content>
+          </Iris.Sheet>
+        </Iris.Root>
       </main>
     );
   }

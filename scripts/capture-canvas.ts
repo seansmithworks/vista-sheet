@@ -16,8 +16,8 @@
  * Mid-morph technique (from .shotfun/states/capture.mjs): Playwright's fake
  * clock drives Motion's JS animations, every WAAPI animation is paused and
  * stepped by hand in 4ms ticks, and a frame is taken the first tick the
- * package's own collapseProgress (read off <VistaSheet.Shadow>'s
- * --vista-sheet-collapse) crosses each target.
+ * package's own collapseProgress (read off <Iris.Shadow>'s
+ * --wicket-iris-collapse) crosses each target.
  *
  * Writes example/public/canvas/{posters/<tileId>.png, frames/<seq>/NN-*.png,
  * anatomy/<recipe>.png, frames.json}. PNGs are palette-quantised through ffmpeg when it's on PATH.
@@ -76,10 +76,10 @@ const POSTER_DSF: Record<CanvasViewport, number> = {
 const MARGIN = 40;
 
 const SEL = {
-  trigger: '[data-vista-sheet-part="trigger"]',
-  sheet: '[data-vista-sheet-part="sheet"]',
-  close: '[data-vista-sheet-part="sheet"] [data-vista-sheet-part="close"]',
-  shadow: '[data-vista-sheet-part="shadow"]',
+  trigger: '[data-wicket-iris-part="trigger"]',
+  sheet: '[data-wicket-iris-part="sheet"]',
+  close: '[data-wicket-iris-part="sheet"] [data-wicket-iris-part="close"]',
+  shadow: '[data-wicket-iris-part="shadow"]',
 };
 
 const HAS_FFMPEG = (() => {
@@ -147,7 +147,7 @@ async function newCtx(
   // requests keeps every frame on the same skeleton, and the run offline.
   await ctx.addInitScript(() => {
     window.addEventListener("message", (e) => {
-      if (e.data?.type === "vista-sheet-play:ready")
+      if (e.data?.type === "wicket-iris-play:ready")
         (window as { __stageReady?: boolean }).__stageReady = true;
     });
   });
@@ -173,7 +173,7 @@ async function loadTile(page: Page, tile: CanvasTile) {
     await page.evaluate(
       ([state, overrides]) =>
         window.postMessage(
-          { type: "vista-sheet-play:state", state, overrides },
+          { type: "wicket-iris-play:state", state, overrides },
           location.origin,
         ),
       [tile.state, tile.overrides ?? null] as const,
@@ -233,7 +233,7 @@ function union(
 const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
 async function waitSettled(page: Page, extra = 1200) {
-  await page.waitForSelector(`${SEL.sheet}[data-vista-sheet-settled]`, {
+  await page.waitForSelector(`${SEL.sheet}[data-wicket-iris-settled]`, {
     timeout: 15000,
   });
   await page.waitForTimeout(extra);
@@ -241,8 +241,8 @@ async function waitSettled(page: Page, extra = 1200) {
 async function waitClosed(page: Page) {
   await page.waitForFunction(
     () =>
-      !document.querySelector('[data-vista-sheet-part="sheet"]') &&
-      !document.querySelector("[data-vista-sheet-closing]"),
+      !document.querySelector('[data-wicket-iris-part="sheet"]') &&
+      !document.querySelector("[data-wicket-iris-closing]"),
     null,
     { timeout: 15000 },
   );
@@ -254,21 +254,21 @@ const readClock = (page: Page) =>
   page.evaluate(() => {
     const els = [
       ...document.querySelectorAll<HTMLElement>(
-        '[data-vista-sheet-part="shadow"]',
+        '[data-wicket-iris-part="shadow"]',
       ),
     ];
     let best: { c: number; s: number; ss: number } | null = null;
     for (const e of els) {
-      const c = parseFloat(e.style.getPropertyValue("--vista-sheet-collapse"));
+      const c = parseFloat(e.style.getPropertyValue("--wicket-iris-collapse"));
       if (Number.isNaN(c)) continue;
       const cs = getComputedStyle(e);
       const s = parseFloat(
-        e.style.getPropertyValue("--vista-sheet-shadow-opacity") ||
-          cs.getPropertyValue("--vista-sheet-shadow-opacity"),
+        e.style.getPropertyValue("--wicket-iris-shadow-opacity") ||
+          cs.getPropertyValue("--wicket-iris-shadow-opacity"),
       );
       const ss = parseFloat(
-        e.style.getPropertyValue("--vista-sheet-sheet-shadow-opacity") ||
-          cs.getPropertyValue("--vista-sheet-sheet-shadow-opacity"),
+        e.style.getPropertyValue("--wicket-iris-sheet-shadow-opacity") ||
+          cs.getPropertyValue("--wicket-iris-sheet-shadow-opacity"),
       );
       if (!best || c < best.c) best = { c, s, ss };
     }
@@ -449,7 +449,7 @@ interface SeqDef {
 }
 
 /** rest, open 20/40/60/80, settled, close 33/67, closed. With `isolateShadow`
- * every part but <VistaSheet.Shadow> is made transparent, so the strip
+ * every part but <Iris.Shadow> is made transparent, so the strip
  * shows the one painter crossfading its two looks. */
 async function morph(
   browser: Browser,
@@ -491,7 +491,7 @@ async function morph(
     if (opts.isolateShadow) {
       await page.addStyleTag({
         content:
-          '[data-vista-sheet-part]:not([data-vista-sheet-part="shadow"]){opacity:0!important}',
+          '[data-wicket-iris-part]:not([data-wicket-iris-part="shadow"]){opacity:0!important}',
       });
     }
     await page.waitForTimeout(700);
@@ -568,7 +568,7 @@ async function morph(
   }
 }
 
-/** <VistaSheet.Close>'s reveal, cropped tight, timed from the tick the open
+/** <Iris.Close>'s reveal, cropped tight, timed from the tick the open
  * crosses CLOSE_REVEAL_PROGRESS (the X's own start signal). */
 async function closeReveal(
   browser: Browser,
@@ -868,7 +868,7 @@ const SEQUENCES: Array<
     group: "shadow",
     title: "Shadow crossfade",
     description:
-      "The same progress points with every part but <VistaSheet.Shadow> made transparent: one painter crossfading the thin trigger look into the heavy sheet look.",
+      "The same progress points with every part but <Iris.Shadow> made transparent: one painter crossfading the thin trigger look into the heavy sheet look.",
     tileId: "behaviour-shadow-on",
     viewport: "desktop",
     dsf: 1,
@@ -918,7 +918,7 @@ interface AnatomyBox {
   w: number;
   h: number;
 }
-/** One recipe's measured part set: every [data-vista-sheet-part] at rest
+/** One recipe's measured part set: every [data-wicket-iris-part] at rest
  * and opened, plus the opened frame and its boxes for the variant card. */
 interface AnatomyRecipe {
   recipe: string;
@@ -933,12 +933,12 @@ interface AnatomyRecipe {
 
 const measureParts = (page: Page): Promise<AnatomyBox[]> =>
   page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>("[data-vista-sheet-part]")].map(
+    [...document.querySelectorAll<HTMLElement>("[data-wicket-iris-part]")].map(
       (el) => {
         const r = el.getBoundingClientRect();
         return {
-          part: el.dataset.vistaSheetPart!,
-          slot: el.dataset.vistaSheetSlot ?? null,
+          part: el.dataset.wicketIrisPart!,
+          slot: el.dataset.wicketIrisSlot ?? null,
           x: r.left,
           y: r.top,
           w: r.width,
@@ -1017,7 +1017,7 @@ async function posters(browser: Browser) {
     )) {
       await loadTile(page, tile);
       await page.mouse.move(0, 0);
-      // A defaultOpen mount never sets data-vista-sheet-settled (its
+      // A defaultOpen mount never sets data-wicket-iris-settled (its
       // collapseProgress stays at 1), so wait on the sheet itself.
       if (tile.kind === "play" && tile.overrides?.defaultOpen) {
         await page.waitForSelector(SEL.sheet, { state: "visible" });

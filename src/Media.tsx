@@ -10,8 +10,8 @@ import {
 import { createPortal } from "react-dom";
 import {
   TriggerSurfaceContext,
-  useVistaSheetInternal,
-  useVistaSheetSlot,
+  useIrisInternal,
+  useIrisSlot,
 } from "./context";
 import { mediaCoverBox, mediaCounterScale } from "./mediaFit";
 import type { MediaProps } from "./types";
@@ -22,9 +22,9 @@ function noopSubscribe() {
 }
 
 /**
- * <VistaSheet.Media> — the video/img cover fill for a trigger or sheet.
- * Rendered twice, like <VistaSheet.Shared>: once inside <VistaSheet.Trigger>,
- * once inside <VistaSheet.Sheet>, each a direct child (documented, not
+ * <Iris.Media> — the video/img cover fill for a trigger or sheet.
+ * Rendered twice, like <Iris.Shared>: once inside <Iris.Trigger>,
+ * once inside <Iris.Sheet>, each a direct child (documented, not
  * guarded).
  *
  * The trigger-side video never plays: it rests on its poster (frame 0) and
@@ -43,8 +43,8 @@ export function Media({
   alt,
   className,
 }: MediaProps) {
-  const ctx = useVistaSheetInternal("Media");
-  const slot = useVistaSheetSlot();
+  const ctx = useIrisInternal("Media");
+  const slot = useIrisSlot();
   const store = useContext(TriggerSurfaceContext);
 
   // WHY THIS DESIGN (DESIGN.md §4.1, "one surface, one clock"): during the
@@ -78,7 +78,7 @@ export function Media({
     if (!wrapper || !el) return;
 
     const surface = wrapper.closest<HTMLElement>(
-      '[data-vista-sheet-part="sheet"], [data-vista-sheet-part="trigger-surface"]',
+      '[data-wicket-iris-part="sheet"], [data-wicket-iris-part="trigger-surface"]',
     );
 
     // Sentinel, not NaN: `Math.abs(NaN - x)` is NaN, and NaN never compares
@@ -172,8 +172,8 @@ export function Media({
     <div
       ref={wrapperRef}
       className={`${styles.media} ${className ?? ""}`}
-      data-vista-sheet-part="media"
-      data-vista-sheet-slot={slot}
+      data-wicket-iris-part="media"
+      data-wicket-iris-slot={slot}
     >
       {src ? (
         <video

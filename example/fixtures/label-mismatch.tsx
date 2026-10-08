@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 
 // Red-proof fixture for axe.spec.ts (docs/plans/a11y-web-standards.md, P0-5):
 // the trigger's visible text is "Search" but its aria-label is "Open panel",
@@ -8,16 +8,16 @@ import { VistaSheet } from "../../src/index";
 // scan would silently pass real mismatches.
 createRoot(document.getElementById("root")!).render(
   <main className="page">
-    <VistaSheet.Root>
-      <VistaSheet.Trigger aria-label="Open panel">Search</VistaSheet.Trigger>
-      <VistaSheet.Sheet aria-labelledby="mismatch-title">
-        <VistaSheet.Close aria-label="Close" />
-        <VistaSheet.Content>
-          <VistaSheet.Item>
+    <Iris.Root>
+      <Iris.Trigger aria-label="Open panel">Search</Iris.Trigger>
+      <Iris.Sheet aria-labelledby="mismatch-title">
+        <Iris.Close aria-label="Close" />
+        <Iris.Content>
+          <Iris.Item>
             <h2 id="mismatch-title">Panel</h2>
-          </VistaSheet.Item>
-        </VistaSheet.Content>
-      </VistaSheet.Sheet>
-    </VistaSheet.Root>
+          </Iris.Item>
+        </Iris.Content>
+      </Iris.Sheet>
+    </Iris.Root>
   </main>,
 );

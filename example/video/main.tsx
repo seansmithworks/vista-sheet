@@ -1,10 +1,10 @@
 import { createRoot } from "react-dom/client";
-import { VistaSheet, type TriggerShape } from "../../src/index";
+import { Iris, type TriggerShape } from "../../src/index";
 import { ALL_ANCHORS, DEFAULT_ANCHOR, type AnchorId } from "../../src/anchors";
 import "./video.css";
 
-const CLIP = "/media/vista-sheet-portrait.mp4";
-const POSTER = "/media/vista-sheet-portrait.jpg";
+const CLIP = "/media/wicket-iris-portrait.mp4";
+const POSTER = "/media/wicket-iris-portrait.jpg";
 
 // Strawman (v0.2): tall/wide/narrow = 9:16, 16:9, 1:2 — test vocabulary for
 // media.spec.ts, not part of the public API.
@@ -40,33 +40,33 @@ const withMedia = params.get("media") !== "0";
 
 function App() {
   return (
-    <VistaSheet.Root
+    <Iris.Root
       id="video"
       className="video-theme"
       defaultAnchor={anchor}
       persistKey={false}
       shape={shape}
     >
-      <VistaSheet.Shadow />
+      <Iris.Shadow />
 
-      <VistaSheet.Trigger aria-label="Open portrait video">
+      <Iris.Trigger aria-label="Open portrait video">
         {withMedia && (
-          <VistaSheet.Media src={CLIP} poster={POSTER} aspectRatio={9 / 16} />
+          <Iris.Media src={CLIP} poster={POSTER} aspectRatio={9 / 16} />
         )}
-      </VistaSheet.Trigger>
+      </Iris.Trigger>
 
-      <VistaSheet.Sheet
+      <Iris.Sheet
         aria-label="Portrait video"
         aspectRatio={SHEET_RATIOS[ratio]}
       >
         {withMedia ? (
-          <VistaSheet.Media src={CLIP} poster={POSTER} aspectRatio={9 / 16} />
+          <Iris.Media src={CLIP} poster={POSTER} aspectRatio={9 / 16} />
         ) : (
           <div className="video-fixture-fill" />
         )}
-        <VistaSheet.Close aria-label="Close" />
-      </VistaSheet.Sheet>
-    </VistaSheet.Root>
+        <Iris.Close aria-label="Close" />
+      </Iris.Sheet>
+    </Iris.Root>
   );
 }
 

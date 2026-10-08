@@ -7,7 +7,7 @@ import { test, expect, type Page } from "@playwright/test";
  * expected to fail against the current tree until later P4 tasks build the
  * component. "media-regression:" tests pass today by design.
  *
- * All tests are scoped to `[data-vista-sheet-root="video"]` (example/video.html)
+ * All tests are scoped to `[data-wicket-iris-root="video"]` (example/video.html)
  * except the one regression test that runs against `/` (`main`).
  */
 
@@ -60,13 +60,13 @@ async function gotoVideo(
   }).toString();
   await page.goto(`/video.html?${qs}`);
   await page.waitForSelector(
-    '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger"]',
+    '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger"]',
   );
 
   if (media) {
     await expect(
       page.locator(
-        '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"] [data-vista-sheet-part="media"]',
+        '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger-surface"] [data-wicket-iris-part="media"]',
       ),
     ).toBeAttached({ timeout: 5000 });
   }
@@ -83,7 +83,7 @@ async function gotoVideo(
  * frame, so a busy machine reads as "never morphed" rather than "morphed
  * slowly". When `until` is given, the sampler instead keeps sampling every
  * rAF tick until the surface reaches the same state Sheet.tsx itself uses to
- * mark the morph finished (`data-vista-sheet-settled` for open; the sheet's
+ * mark the morph finished (`data-wicket-iris-settled` for open; the sheet's
  * removal from the DOM for close), so coverage of the actual morph window is
  * load-independent. `durationMs` still bounds the wait so a genuine stall
  * fails the test instead of hanging it.
@@ -116,27 +116,27 @@ async function sampleMediaRatio(
           if (!until) return false;
           if (until === "removed") {
             return !document.querySelector(
-              '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"]',
+              '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"]',
             );
           }
           const surface = document.querySelector(
-            '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"], ' +
-              '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"]',
+            '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"], ' +
+              '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger-surface"]',
           );
-          return !!surface?.hasAttribute("data-vista-sheet-settled");
+          return !!surface?.hasAttribute("data-wicket-iris-settled");
         }
 
         function tick() {
           const els = document.querySelectorAll(
-            '[data-vista-sheet-root="video"] [data-vista-sheet-part="media"] > video, ' +
-              '[data-vista-sheet-root="video"] [data-vista-sheet-part="media"] > img',
+            '[data-wicket-iris-root="video"] [data-wicket-iris-part="media"] > video, ' +
+              '[data-wicket-iris-root="video"] [data-wicket-iris-part="media"] > img',
           );
           for (const el of Array.from(els)) {
             const r = el.getBoundingClientRect();
             if (r.width < 2 || r.height < 2) continue;
 
             const surface = el.closest(
-              '[data-vista-sheet-part="sheet"], [data-vista-sheet-part="trigger-surface"]',
+              '[data-wicket-iris-part="sheet"], [data-wicket-iris-part="trigger-surface"]',
             ) as HTMLElement | null;
             if (!surface) continue;
             const s = surface.getBoundingClientRect();
@@ -236,10 +236,10 @@ async function sampleShadowSurfaceDeltaVideo(page: Page, durationMs: number) {
         const start = performance.now();
         function tick() {
           const surface = document.querySelector(
-            `${root}[data-vista-sheet-part="sheet"], ${root}[data-vista-sheet-part="trigger-surface"]`,
+            `${root}[data-wicket-iris-part="sheet"], ${root}[data-wicket-iris-part="trigger-surface"]`,
           );
           const shadow = document.querySelector(
-            `${root}[data-vista-sheet-part="shadow"]`,
+            `${root}[data-wicket-iris-part="shadow"]`,
           );
           if (surface && shadow) {
             const s = surface.getBoundingClientRect();
@@ -257,7 +257,7 @@ async function sampleShadowSurfaceDeltaVideo(page: Page, durationMs: number) {
         requestAnimationFrame(tick);
       });
     },
-    { duration: durationMs, root: '[data-vista-sheet-root="video"] ' },
+    { duration: durationMs, root: '[data-wicket-iris-root="video"] ' },
   );
 }
 
@@ -296,7 +296,7 @@ test.describe("media: intrinsic ratio through the morph", () => {
         await gotoVideo(page, { ratio });
 
         const triggerVideo = page.locator(
-          '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"] [data-vista-sheet-part="media"] video',
+          '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger-surface"] [data-wicket-iris-part="media"] video',
         );
         await waitForStableWidth(page, triggerVideo);
 
@@ -315,7 +315,7 @@ test.describe("media: intrinsic ratio through the morph", () => {
         expectUniform(openResult);
 
         const sheet = page.locator(
-          '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"]',
         );
         await waitForStableWidth(page, sheet);
 
@@ -340,7 +340,7 @@ test.describe("media: intrinsic ratio through the morph", () => {
 
     await page.getByRole("button", { name: "Open portrait video" }).click();
     const sheet = page.locator(
-      '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"]',
     );
     await waitForStableWidth(page, sheet);
 
@@ -361,7 +361,7 @@ test.describe("media: intrinsic ratio through the morph", () => {
 
     await page.getByRole("button", { name: "Open portrait video" }).click();
     const sheet = page.locator(
-      '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"]',
     );
     await waitForStableWidth(page, sheet);
 
@@ -399,13 +399,13 @@ test.describe("media: trigger + playback", () => {
 
       await expect(
         page.locator(
-          '[data-vista-sheet-part="trigger"] > [data-vista-sheet-part="media"]',
+          '[data-wicket-iris-part="trigger"] > [data-wicket-iris-part="media"]',
         ),
       ).toHaveCount(0);
 
       await expect(
         page.locator(
-          '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"] [data-vista-sheet-part="media"]',
+          '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger-surface"] [data-wicket-iris-part="media"]',
         ),
       ).toBeAttached();
 
@@ -424,7 +424,7 @@ test.describe("media: trigger + playback", () => {
     await gotoVideo(page);
 
     const triggerVideo = page.locator(
-      '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"] [data-vista-sheet-part="media"] video',
+      '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger-surface"] [data-wicket-iris-part="media"] video',
     );
 
     // At rest: paused on the poster, never started (nothing moves unasked).
@@ -441,7 +441,7 @@ test.describe("media: trigger + playback", () => {
     await page.getByRole("button", { name: "Open portrait video" }).click();
 
     const sheetVideo = page.locator(
-      '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"] [data-vista-sheet-part="media"] video',
+      '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"] [data-wicket-iris-part="media"] video',
     );
     await expect
       .poll(
@@ -471,11 +471,11 @@ test.describe("media: trigger + playback", () => {
     await gotoVideo(page, { reduced: true });
 
     const triggerVideo = page.locator(
-      '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"] [data-vista-sheet-part="media"] video',
+      '[data-wicket-iris-root="video"] [data-wicket-iris-part="trigger-surface"] [data-wicket-iris-part="media"] video',
     );
     expect(await triggerVideo.getAttribute("autoplay")).toBeNull();
     const poster = await triggerVideo.getAttribute("poster");
-    expect(poster?.endsWith("/media/vista-sheet-portrait.jpg")).toBe(true);
+    expect(poster?.endsWith("/media/wicket-iris-portrait.jpg")).toBe(true);
 
     await page.waitForTimeout(1200);
     expect(await triggerVideo.evaluate((v: HTMLVideoElement) => v.paused)).toBe(
@@ -491,11 +491,11 @@ test.describe("media: trigger + playback", () => {
     expect(openResult.worstErr).toBeLessThanOrEqual(RATIO_TOLERANCE);
 
     const sheetVideo = page.locator(
-      '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"] [data-vista-sheet-part="media"] video',
+      '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"] [data-wicket-iris-part="media"] video',
     );
     expect(await sheetVideo.getAttribute("autoplay")).toBeNull();
     const sheetPoster = await sheetVideo.getAttribute("poster");
-    expect(sheetPoster?.endsWith("/media/vista-sheet-portrait.jpg")).toBe(true);
+    expect(sheetPoster?.endsWith("/media/wicket-iris-portrait.jpg")).toBe(true);
     await page.waitForTimeout(1200);
     expect(await sheetVideo.evaluate((v: HTMLVideoElement) => v.paused)).toBe(
       true,
@@ -519,15 +519,15 @@ test("media: nothing inside the video root paints a box-shadow or filter through
         const start = performance.now();
         function tick() {
           const root = document.querySelector(
-            '[data-vista-sheet-root="video"]',
+            '[data-wicket-iris-root="video"]',
           );
           if (root) {
             const all = root.querySelectorAll("*");
             for (const el of Array.from(all)) {
               if (
-                (el as HTMLElement).getAttribute("data-vista-sheet-part") ===
+                (el as HTMLElement).getAttribute("data-wicket-iris-part") ===
                   "shadow" ||
-                (el as HTMLElement).closest('[data-vista-sheet-part="shadow"]')
+                (el as HTMLElement).closest('[data-wicket-iris-part="shadow"]')
               ) {
                 continue;
               }
@@ -607,7 +607,7 @@ test.describe("media-sizing: sheet contain-fits its aspect ratio", () => {
           await triggerButton.click();
 
           const sheet = page.locator(
-            '[data-vista-sheet-root="video"] [data-vista-sheet-part="sheet"]',
+            '[data-wicket-iris-root="video"] [data-wicket-iris-part="sheet"]',
           );
           await waitForStableWidth(page, sheet);
 
@@ -678,12 +678,12 @@ test("media-regression: a sheet without aspectRatio keeps its width and fit-cont
     await page.setViewportSize(viewport);
     await page.goto("/");
     await page.waitForSelector(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     await page.getByRole("button", { name: "Open example sheet" }).click();
 
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await waitForStableWidth(page, sheet);
 
@@ -705,7 +705,7 @@ test("media-regression: a sheet without aspectRatio keeps its width and fit-cont
     const normalized = inlineWidth.replace(/\s+/g, " ").trim();
     expect([
       "",
-      "min(var(--vista-sheet-sheet-max-width, 480px), calc(100vw - 32px))",
+      "min(var(--wicket-iris-sheet-max-width, 480px), calc(100vw - 32px))",
     ]).toContain(normalized);
 
     await page.keyboard.press("Escape");

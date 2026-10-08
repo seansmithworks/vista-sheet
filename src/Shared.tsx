@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useVistaSheetInternal, useVistaSheetSlot } from "./context";
+import { useIrisInternal, useIrisSlot } from "./context";
 import type { SharedProps } from "./types";
 import styles from "./styles.module.css";
 
 /**
- * <VistaSheet.Shared> — the shared-element slot. Rendered TWICE: once inside
- * <VistaSheet.Trigger>, once inside <VistaSheet.Sheet>, with the same
+ * <Iris.Shared> — the shared-element slot. Rendered TWICE: once inside
+ * <Iris.Trigger>, once inside <Iris.Sheet>, with the same
  * children. It carries its own layoutId and its own spring
  * (transition.shared), independent of the surface morph.
  *
@@ -17,23 +17,23 @@ import styles from "./styles.module.css";
  * landmine. Nesting it would make its projection inherit the surface's
  * close-morph FLIP and freeze it at the surface's transient mid-collapse box.
  *
- * `data-vista-sheet-slot="trigger" | "sheet"` (from SlotContext, provided by
+ * `data-wicket-iris-slot="trigger" | "sheet"` (from SlotContext, provided by
  * <Trigger> and <Sheet>) is the mechanism behind two review findings at
  * once: it gives the trigger-side instance its inset circular clip (M7) and
  * gives the sheet-side instance an in-flow, non-clipping layout instead of
  * the single `.shared` rule that could never serve both correctly (B2).
  */
 export function Shared({ children, className }: SharedProps) {
-  const ctx = useVistaSheetInternal("Shared");
-  const slot = useVistaSheetSlot();
+  const ctx = useIrisInternal("Shared");
+  const slot = useIrisSlot();
   return (
     <motion.div
       layoutId={ctx.reduceMotion ? undefined : `${ctx.idBase}-shared`}
       className={`${styles.shared} ${className ?? ""}`}
       transition={ctx.transition.shared}
-      data-vista-sheet-part="shared"
-      data-vista-sheet-slot={slot}
-      data-vista-sheet-shape={ctx.shape}
+      data-wicket-iris-part="shared"
+      data-wicket-iris-slot={slot}
+      data-wicket-iris-shape={ctx.shape}
     >
       {children}
     </motion.div>

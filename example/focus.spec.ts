@@ -23,7 +23,7 @@ async function openFixture(
     initialFocus ? "/fixtures/focus.html?initialFocus" : "/fixtures/focus.html",
   );
   await page.getByRole("button", { name: TRIGGER_LABEL }).click();
-  const sheet = page.locator('[data-vista-sheet-part="sheet"]');
+  const sheet = page.locator('[data-wicket-iris-part="sheet"]');
   await sheet.waitFor();
   return sheet;
 }
@@ -31,8 +31,8 @@ async function openFixture(
 async function waitForSettle(page: Page, sheet: Locator): Promise<void> {
   await sheet.waitFor();
   await page.waitForFunction(() => {
-    const el = document.querySelector('[data-vista-sheet-part="sheet"]');
-    return el?.hasAttribute("data-vista-sheet-settled") ?? false;
+    const el = document.querySelector('[data-wicket-iris-part="sheet"]');
+    return el?.hasAttribute("data-wicket-iris-settled") ?? false;
   });
 }
 
@@ -70,7 +70,7 @@ test.describe("N2 focus model", () => {
     await waitForSettle(page, sheet);
 
     const close = sheet.getByRole("button", { name: CLOSE_LABEL });
-    const content = sheet.locator('[data-vista-sheet-part="content"]');
+    const content = sheet.locator('[data-wicket-iris-part="content"]');
     const textarea = sheet.getByTestId("field-textarea");
     const select = sheet.getByTestId("field-select");
     const input = sheet.getByTestId("field-input");
@@ -127,16 +127,16 @@ test.describe("N2 focus model", () => {
   }) => {
     await page.goto("/fixtures/focus.html");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
-    const sheet = page.locator('[data-vista-sheet-part="sheet"]');
+    const sheet = page.locator('[data-wicket-iris-part="sheet"]');
     await sheet.waitFor();
 
     // This only exercises the intended race if the open hasn't already
-    // settled by the time we get here — data-vista-sheet-settled flips at
+    // settled by the time we get here — data-wicket-iris-settled flips at
     // the exact same collapseProgress threshold Close's own natural reveal
     // uses, so if it's already present the settle-triggered reveal and a
     // focus-triggered reveal are indistinguishable and this assertion
     // catches that rather than passing by accident.
-    await expect(sheet).not.toHaveAttribute("data-vista-sheet-settled", "");
+    await expect(sheet).not.toHaveAttribute("data-wicket-iris-settled", "");
 
     const close = sheet.getByRole("button", { name: CLOSE_LABEL });
     // Tab to Close immediately, before waiting for settle — the panel holds
@@ -150,7 +150,7 @@ test.describe("N2 focus model", () => {
     // pinned there waiting for the spring) — a check on inline opacity
     // rather than "eventually reaches 1", which any settle-triggered reveal
     // satisfies too and proves nothing about focus.
-    await expect(sheet).not.toHaveAttribute("data-vista-sheet-settled", "");
+    await expect(sheet).not.toHaveAttribute("data-wicket-iris-settled", "");
     await expect(async () => {
       const opacity = await close.evaluate((el) =>
         Number(getComputedStyle(el).opacity),
@@ -165,7 +165,7 @@ test.describe("N2 focus model", () => {
     const sheet = await openFixture(page);
     await waitForSettle(page, sheet);
 
-    const content = sheet.locator('[data-vista-sheet-part="content"]');
+    const content = sheet.locator('[data-wicket-iris-part="content"]');
     // From the settled panel: Tab -> close -> content.
     await page.keyboard.press("Tab"); // -> close
     await page.keyboard.press("Tab"); // -> content
@@ -220,7 +220,7 @@ test.describe("N2 focus model: search recipe (real playground path)", () => {
     await expect(page.locator("[data-play-shell]")).toBeVisible();
     const frame = page.frameLocator("iframe[data-play-stage]");
     const trigger = frame.locator(
-      '[data-vista-sheet-root="specimen"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
     );
     await expect(trigger).toBeVisible();
 
@@ -230,7 +230,7 @@ test.describe("N2 focus model: search recipe (real playground path)", () => {
       .click();
 
     const sheet = frame.locator(
-      '[data-vista-sheet-root="specimen"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
 
@@ -239,9 +239,9 @@ test.describe("N2 focus model: search recipe (real playground path)", () => {
     if (!stageFrame) return;
     await stageFrame.waitForFunction(() => {
       const el = document.querySelector(
-        '[data-vista-sheet-root="specimen"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
       );
-      return el?.hasAttribute("data-vista-sheet-settled") ?? false;
+      return el?.hasAttribute("data-wicket-iris-settled") ?? false;
     });
 
     const searchField = frame.getByPlaceholder(

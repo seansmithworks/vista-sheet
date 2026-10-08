@@ -66,9 +66,9 @@ export function createLab(
   function collapse(): number | null {
     let best: number | null = null;
     for (const e of document.querySelectorAll<HTMLElement>(
-      '[data-vista-sheet-part="shadow"]',
+      '[data-wicket-iris-part="shadow"]',
     )) {
-      const c = parseFloat(e.style.getPropertyValue("--vista-sheet-collapse"));
+      const c = parseFloat(e.style.getPropertyValue("--wicket-iris-collapse"));
       if (!Number.isNaN(c) && (best === null || c < best)) best = c;
     }
     return best;
@@ -117,12 +117,12 @@ export function createLab(
     reset(true);
     await realFrames();
     await coarse(PREROLL_MS);
-    q('[data-vista-sheet-part="trigger"]')?.click();
+    q('[data-wicket-iris-part="trigger"]')?.click();
     await realFrames();
     if (direction === "close") {
       for (
         let n = 0;
-        !q("[data-vista-sheet-settled]") && n < SETTLE_CAP_MS / COARSE_MS;
+        !q("[data-wicket-iris-settled]") && n < SETTLE_CAP_MS / COARSE_MS;
         n++
       ) {
         await clock.tick(COARSE_MS);
@@ -130,7 +130,7 @@ export function createLab(
       await coarse(CLOSE_HOLD_MS);
       await realFrames();
       q(
-        '[data-vista-sheet-part="sheet"] [data-vista-sheet-part="close"]',
+        '[data-wicket-iris-part="sheet"] [data-wicket-iris-part="close"]',
       )?.click();
       await realFrames();
     }

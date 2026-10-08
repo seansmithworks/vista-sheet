@@ -2,7 +2,7 @@
  * flagship.css — the flagship's own theming + content styling. All colors,
  * type, and trigger-at-rest treatment come from the fact sheet extracted from
  * seansmithdesign.com (docs/PACKAGE-DESIGN.md scope: consumer re-skins the
- * primitive with EXACTLY the 13 documented --vista-sheet-* tokens; nothing
+ * primitive with EXACTLY the 13 documented --wicket-iris-* tokens; nothing
  * beyond that surface is touched).
  */
 
@@ -34,20 +34,20 @@
 
 /* The 13 consumer tokens, set to the site's light palette (flagship-facts.md). */
 .flagship-theme {
-  --vista-sheet-surface: #f3eee3;
-  --vista-sheet-surface-elevated: #ede6d3;
-  --vista-sheet-surface-border: #ebe4d4;
-  --vista-sheet-text: #1a1610;
-  --vista-sheet-accent: #1a1610;
-  --vista-sheet-sheet-max-width: 480px;
-  --vista-sheet-sheet-radius: 48px;
-  --vista-sheet-trigger-radius: 9999px;
-  --vista-sheet-sheet-padding: 24px;
-  --vista-sheet-shadow:
+  --wicket-iris-surface: #f3eee3;
+  --wicket-iris-surface-elevated: #ede6d3;
+  --wicket-iris-surface-border: #ebe4d4;
+  --wicket-iris-text: #1a1610;
+  --wicket-iris-accent: #1a1610;
+  --wicket-iris-sheet-max-width: 480px;
+  --wicket-iris-sheet-radius: 48px;
+  --wicket-iris-trigger-radius: 9999px;
+  --wicket-iris-sheet-padding: 24px;
+  --wicket-iris-shadow:
     0 1px 4px rgba(26, 22, 16, 0.14), 0 6px 24px rgba(0, 0, 0, 0.15);
-  --vista-sheet-sheet-shadow:
+  --wicket-iris-sheet-shadow:
     0 8px 48px rgba(0, 0, 0, 0.24), 0 2px 8px rgba(0, 0, 0, 0.12);
-  --vista-sheet-z: 100;
+  --wicket-iris-z: 100;
 }
 
 /* Trigger at rest: paper fill, 2px paper-edge ring, dither-bloom dot grid.
@@ -58,8 +58,8 @@
   border-radius: 50%;
   position: relative;
   overflow: hidden;
-  background: var(--vista-sheet-surface);
-  border: 2px solid var(--vista-sheet-surface-border);
+  background: var(--wicket-iris-surface);
+  border: 2px solid var(--wicket-iris-surface-border);
   /* M12: press feedback — the trigger had none, and the native tap highlight
    * is deleted (src/styles.module.css:39). Scoped to THIS element only,
    * never the FLIP-projected surface or its transform ancestors (see the
@@ -67,7 +67,7 @@
   transition: transform 130ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-[data-vista-sheet-part="trigger"]:active .flagship-portrait {
+[data-wicket-iris-part="trigger"]:active .flagship-portrait {
   transform: scale(0.94);
 }
 
@@ -87,7 +87,7 @@
   pointer-events: none;
   background-image: radial-gradient(
     circle,
-    var(--vista-sheet-text) 0.6px,
+    var(--wicket-iris-text) 0.6px,
     transparent 1px
   );
   background-size: 3px 3px;
@@ -95,19 +95,19 @@
   transition: opacity 0.2s ease;
 }
 
-[data-vista-sheet-part="trigger-root"]:hover .flagship-portrait::after {
+[data-wicket-iris-part="trigger-root"]:hover .flagship-portrait::after {
   opacity: 0.22;
 }
 
 /* Sheet content */
-[data-vista-sheet-part="content"] {
+[data-wicket-iris-part="content"] {
   font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
 }
 
 /* Close.tsx ships unpositioned by design (consumer decides) — the sheet
  * itself (position: fixed) is the close button's nearest positioned
  * ancestor, so this places it top-right without touching Content's layout. */
-[data-vista-sheet-part="close"] {
+[data-wicket-iris-part="close"] {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -119,10 +119,10 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--vista-sheet-accent);
+  color: var(--wicket-iris-accent);
   /* M8: the portrait and the first line of copy touched — zero separation
    * against 24px margins everywhere else. Kept in the flagship's own
-   * selector, not on [data-vista-sheet-part="content"] (ties on specificity
+   * selector, not on [data-wicket-iris-part="content"] (ties on specificity
    * with the package's CSS-module rule, per the package's own comments). */
   margin: 20px 0 8px;
 }
@@ -141,7 +141,7 @@
    * 26px above (deliberate; the ramp was tuned for a full-page title). */
   font-size: 20px;
   letter-spacing: -0.01em;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   margin: 0 0 12px;
   line-height: 1.3;
 }
@@ -155,7 +155,7 @@
 .flagship-tagline {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   opacity: 0.75;
   margin: 0;
 }
@@ -181,7 +181,7 @@
   padding: 0 24px;
   margin: 0 -24px;
   font-size: 13px;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   text-decoration: none;
   /* M5: #ebe4d4 on #ede6d3 (the elevated sheet) was 1.02:1 — invisible. */
   border-bottom: 1px solid rgba(26, 22, 16, 0.1);
@@ -201,7 +201,7 @@
 /* M10: every link used Chrome's default blue focus ring, spanning the full
  * bleed width of each row. */
 .flagship-action:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }
 
@@ -212,7 +212,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  color: var(--vista-sheet-accent);
+  color: var(--wicket-iris-accent);
 }
 
 .flagship-action-icon svg {
@@ -244,9 +244,9 @@
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--vista-sheet-accent);
+  color: var(--wicket-iris-accent);
   text-decoration: none;
-  border: 1px solid var(--vista-sheet-accent);
+  border: 1px solid var(--wicket-iris-accent);
   border-radius: 9999px;
   /* M9: 144.3x37 — under the 44px touch-target minimum, and it's the
    * sheet's primary conversion action. */
@@ -255,11 +255,11 @@
 }
 
 .flagship-cta:hover {
-  background: var(--vista-sheet-accent);
-  color: var(--vista-sheet-surface);
+  background: var(--wicket-iris-accent);
+  color: var(--wicket-iris-surface);
 }
 
 .flagship-cta:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: 3px;
 }

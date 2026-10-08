@@ -19,7 +19,7 @@ const sheetStates = (page: import("@playwright/test").Page) =>
             f
               .querySelector("iframe")!
               .contentDocument?.querySelector(
-                '[data-vista-sheet-part="sheet"]',
+                '[data-wicket-iris-part="sheet"]',
               ),
           ),
         ]),

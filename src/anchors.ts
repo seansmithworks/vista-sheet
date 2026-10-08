@@ -330,7 +330,7 @@ function sheetMaxHeightPx(anchor: AnchorId, vpH: number): number {
 /** Default CSS width for .sheet — must equal the .sheet rule in
  * styles.module.css (enforced by the parity test in anchors.test.ts). */
 export const SHEET_DEFAULT_WIDTH =
-  "min(var(--vista-sheet-sheet-max-width, 480px), calc(100vw - 32px))";
+  "min(var(--wicket-iris-sheet-max-width, 480px), calc(100vw - 32px))";
 
 /** Default CSS height for .sheet — must equal the .sheet rule in
  * styles.module.css (enforced by the parity test in anchors.test.ts). */

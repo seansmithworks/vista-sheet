@@ -52,22 +52,22 @@ export const STATE_ROWS: StateRow[] = [
   },
   {
     name: "Open, settled",
-    surface: "data-vista-sheet-settled",
+    surface: "data-wicket-iris-settled",
     status: { kind: "captured", seq: "morph-circle", frame: 5 },
   },
   {
     name: "Closing",
-    surface: "data-vista-sheet-closing",
+    surface: "data-wicket-iris-closing",
     status: { kind: "captured", seq: "morph-circle", frame: 6 },
   },
   {
     name: "Close button reveal",
-    surface: "<VistaSheet.Close>",
+    surface: "<Iris.Close>",
     status: { kind: "captured", seq: "close-reveal", frame: 2 },
   },
   {
     name: "Shadow crossfade",
-    surface: "<VistaSheet.Shadow>",
+    surface: "<Iris.Shadow>",
     status: { kind: "captured", seq: "shadow-crossfade", frame: 4 },
   },
   // Interaction
@@ -124,12 +124,12 @@ export const STATE_ROWS: StateRow[] = [
   // Configuration
   {
     name: "Shape",
-    surface: "shape · data-vista-sheet-shape",
+    surface: "shape · data-wicket-iris-shape",
     status: { kind: "live", tileId: "shape-squircle" },
   },
   {
     name: "Button size",
-    surface: "buttonSize · data-vista-sheet-button-size",
+    surface: "buttonSize · data-wicket-iris-button-size",
     status: { kind: "live", tileId: "button-m-icon-text" },
   },
   {
@@ -216,12 +216,12 @@ export const STATE_ROWS: StateRow[] = [
   // Structure
   {
     name: "Parts",
-    surface: "children · data-vista-sheet-part",
+    surface: "children · data-wicket-iris-part",
     status: { kind: "anatomy" },
   },
   {
     name: "Slots",
-    surface: "data-vista-sheet-slot",
+    surface: "data-wicket-iris-slot",
     status: { kind: "anatomy" },
   },
   // API-only

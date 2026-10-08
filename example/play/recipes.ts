@@ -46,7 +46,7 @@ interface RecipeBase {
     sheetRadius: number;
   };
   sheetLabel?: string;
-  /** One array of children per VistaSheet.Item. */
+  /** One array of children per Iris.Item. */
   items: PlayNode[][];
   css: string;
 }
@@ -72,18 +72,18 @@ const LAYOUT = { sheetRadius: SHEET_RADIUS, sheetPadding: SHEET_RADIUS / 2 };
  * The leading icon of list, grid and nav: a 40px disc with a 24px glyph, the
  * same size in the trigger (centred in the disc) and in the sheet, so the
  * shared morph is a pure move with no scale. Sized through the package's
- * public --vista-sheet-shared-size and the data-attribute contract.
+ * public --wicket-iris-shared-size and the data-attribute contract.
  */
 function iconDiscCss(cls: string): string {
-  return `.vs-theme [data-vista-sheet-part="shared"]:has(> .${cls}) {
-  --vista-sheet-shared-size: 40px;
+  return `.vs-theme [data-wicket-iris-part="shared"]:has(> .${cls}) {
+  --wicket-iris-shared-size: 40px;
 }
 
-.vs-theme [data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]:has(> .${cls}) {
+.vs-theme [data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]:has(> .${cls}) {
   inset: 0;
   margin: auto;
-  width: var(--vista-sheet-shared-size);
-  height: var(--vista-sheet-shared-size);
+  width: var(--wicket-iris-shared-size);
+  height: var(--wicket-iris-shared-size);
 }`;
 }
 
@@ -117,7 +117,7 @@ const BASIC_RECIPE: Recipe = {
       },
     ],
   ],
-  css: ".vs-basic-art { width: 100%; height: 100%; background: var(--vista-sheet-accent); }",
+  css: ".vs-basic-art { width: 100%; height: 100%; background: var(--wicket-iris-accent); }",
 };
 
 // Strawman (v0.2): all recipe copy and glyphs below (list/grid/nav labels
@@ -183,8 +183,8 @@ const LIST_RECIPE: Recipe = {
   justify-content: center;
   background: color-mix(
     in srgb,
-    var(--vista-sheet-accent) 14%,
-    var(--vista-sheet-surface-elevated)
+    var(--wicket-iris-accent) 14%,
+    var(--wicket-iris-surface-elevated)
   );
 }
 
@@ -192,14 +192,14 @@ const LIST_RECIPE: Recipe = {
   width: 24px;
   height: 24px;
   fill: none;
-  stroke: var(--vista-sheet-accent);
+  stroke: var(--wicket-iris-accent);
   stroke-width: 2;
   stroke-linecap: round;
 }
 
 .vs-list-title {
   font-weight: 600;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
 }
 
 /* Rows bleed 12px into the gutter so their text, the title and the icon
@@ -212,18 +212,18 @@ const LIST_RECIPE: Recipe = {
   padding: 14px 12px;
   border: none;
   background: transparent;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   font-size: 15px;
   border-radius: 10px;
   cursor: pointer;
 }
 
 .vs-list-row:hover {
-  background: color-mix(in srgb, var(--vista-sheet-text) 5%, transparent);
+  background: color-mix(in srgb, var(--wicket-iris-text) 5%, transparent);
 }
 
 .vs-list-row:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }`,
 };
@@ -323,10 +323,10 @@ const GRID_RECIPE: Recipe = {
   justify-content: center;
   background: color-mix(
     in srgb,
-    var(--vista-sheet-accent) 14%,
-    var(--vista-sheet-surface-elevated)
+    var(--wicket-iris-accent) 14%,
+    var(--wicket-iris-surface-elevated)
   );
-  color: var(--vista-sheet-accent);
+  color: var(--wicket-iris-accent);
 }
 
 .vs-grid-icon svg {
@@ -336,7 +336,7 @@ const GRID_RECIPE: Recipe = {
 
 .vs-grid-title {
   font-weight: 600;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
 }
 
 .vs-grid-row {
@@ -355,22 +355,22 @@ const GRID_RECIPE: Recipe = {
   border: none;
   background: transparent;
   border-radius: 12px;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   font-size: 12px;
   cursor: pointer;
 }
 
 .vs-grid-tile:hover {
-  background: color-mix(in srgb, var(--vista-sheet-text) 5%, transparent);
+  background: color-mix(in srgb, var(--wicket-iris-text) 5%, transparent);
 }
 
 .vs-grid-tile:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }
 
 .vs-grid-label {
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   font-size: 12px;
 }
 
@@ -385,10 +385,10 @@ const GRID_RECIPE: Recipe = {
   font-size: 16px;
   background: color-mix(
     in srgb,
-    var(--vista-sheet-accent) 14%,
-    var(--vista-sheet-surface-elevated)
+    var(--wicket-iris-accent) 14%,
+    var(--wicket-iris-surface-elevated)
   );
-  color: var(--vista-sheet-accent);
+  color: var(--wicket-iris-accent);
 }`,
 };
 
@@ -467,8 +467,8 @@ const NAV_RECIPE: Recipe = {
   justify-content: center;
   background: color-mix(
     in srgb,
-    var(--vista-sheet-accent) 14%,
-    var(--vista-sheet-surface-elevated)
+    var(--wicket-iris-accent) 14%,
+    var(--wicket-iris-surface-elevated)
   );
 }
 
@@ -476,14 +476,14 @@ const NAV_RECIPE: Recipe = {
   width: 24px;
   height: 24px;
   fill: none;
-  stroke: var(--vista-sheet-accent);
+  stroke: var(--wicket-iris-accent);
   stroke-width: 2;
   stroke-linecap: round;
 }
 
 .vs-nav-title {
   font-weight: 600;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
 }
 
 /* Links bleed 12px into the gutter, like list rows. */
@@ -497,21 +497,21 @@ const NAV_RECIPE: Recipe = {
   padding: 12px;
   border-radius: 10px;
   font-size: 15px;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   text-decoration: none;
 }
 
 .vs-nav-link[aria-current="page"] {
   font-weight: 600;
-  background: color-mix(in srgb, var(--vista-sheet-text) 6%, transparent);
+  background: color-mix(in srgb, var(--wicket-iris-text) 6%, transparent);
 }
 
 .vs-nav-link:hover {
-  background: color-mix(in srgb, var(--vista-sheet-text) 5%, transparent);
+  background: color-mix(in srgb, var(--wicket-iris-text) 5%, transparent);
 }
 
 .vs-nav-link:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }`,
 };
@@ -648,13 +648,13 @@ const MEDIA_RECIPE: Recipe = {
   margin: 0 0 4px;
   font-size: 20px;
   font-weight: 700;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
 }
 
 .vs-media-subtitle {
   margin: 0;
   font-size: 14px;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   opacity: 0.6;
 }
 
@@ -667,8 +667,8 @@ const MEDIA_RECIPE: Recipe = {
   min-height: 32px;
   padding: 0 16px;
   border-radius: 9999px;
-  background: var(--vista-sheet-accent);
-  color: var(--vista-sheet-surface-elevated);
+  background: var(--wicket-iris-accent);
+  color: var(--wicket-iris-surface-elevated);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -676,7 +676,7 @@ const MEDIA_RECIPE: Recipe = {
 }
 
 .vs-media-get:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: 2px;
 }
 
@@ -684,14 +684,14 @@ const MEDIA_RECIPE: Recipe = {
   display: flex;
   margin: 20px 0 0;
   padding: 16px 0;
-  border-top: 1px solid var(--vista-sheet-surface-border);
-  border-bottom: 1px solid var(--vista-sheet-surface-border);
+  border-top: 1px solid var(--wicket-iris-surface-border);
+  border-bottom: 1px solid var(--wicket-iris-surface-border);
 }
 
 .vs-media-meta-stat {
   flex: 1;
   text-align: center;
-  border-right: 1px solid var(--vista-sheet-surface-border);
+  border-right: 1px solid var(--wicket-iris-surface-border);
 }
 
 .vs-media-meta-stat:last-child {
@@ -702,7 +702,7 @@ const MEDIA_RECIPE: Recipe = {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   opacity: 0.5;
   margin: 0 0 4px;
 }
@@ -711,14 +711,14 @@ const MEDIA_RECIPE: Recipe = {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
 }
 
 .vs-media-description {
   margin: 16px 0 0;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   opacity: 0.8;
 }`,
 };
@@ -734,12 +734,12 @@ const VIDEO_RECIPE: Recipe = {
   sheetLabel: "Portrait video",
   layout: { sheetMaxWidth: 420, ...LAYOUT },
   media: {
-    src: "/media/vista-sheet-portrait.mp4",
-    poster: "/media/vista-sheet-portrait.jpg",
+    src: "/media/wicket-iris-portrait.mp4",
+    poster: "/media/wicket-iris-portrait.jpg",
     aspectRatio: 9 / 16,
   },
   items: [],
-  css: `.vs-theme [data-vista-sheet-part="sheet"]:has([data-vista-sheet-part="media"]) [data-vista-sheet-part="close"] {
+  css: `.vs-theme [data-wicket-iris-part="sheet"]:has([data-wicket-iris-part="media"]) [data-wicket-iris-part="close"] {
   color: #ffffff;
   background: rgba(0, 0, 0, 0.32);
 }`,
@@ -821,15 +821,15 @@ const SEARCH_RECIPE: Recipe = {
   width: 100%;
   height: 44px;
   border-radius: 12px;
-  border: 1px solid var(--vista-sheet-surface-border);
-  background: var(--vista-sheet-surface);
-  color: var(--vista-sheet-text);
+  border: 1px solid var(--wicket-iris-surface-border);
+  background: var(--wicket-iris-surface);
+  color: var(--wicket-iris-text);
   font: inherit;
   padding: 0 14px;
 }
 
 .vs-search-field:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }
 
@@ -837,7 +837,7 @@ const SEARCH_RECIPE: Recipe = {
   margin: 16px 0 4px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   opacity: 0.6;
 }
 
@@ -851,18 +851,18 @@ const SEARCH_RECIPE: Recipe = {
   padding: 12px;
   border: none;
   background: transparent;
-  color: var(--vista-sheet-text);
+  color: var(--wicket-iris-text);
   font-size: 15px;
   border-radius: 10px;
   cursor: pointer;
 }
 
 .vs-search-row:hover {
-  background: color-mix(in srgb, var(--vista-sheet-text) 5%, transparent);
+  background: color-mix(in srgb, var(--wicket-iris-text) 5%, transparent);
 }
 
 .vs-search-row:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }`,
 };
@@ -973,14 +973,14 @@ const CHAT_RECIPE: Recipe = {
 
 .vs-chat-bubble-in {
   align-self: flex-start;
-  background: color-mix(in srgb, var(--vista-sheet-text) 6%, transparent);
-  color: var(--vista-sheet-text);
+  background: color-mix(in srgb, var(--wicket-iris-text) 6%, transparent);
+  color: var(--wicket-iris-text);
 }
 
 .vs-chat-bubble-out {
   align-self: flex-end;
-  background: var(--vista-sheet-accent);
-  color: var(--vista-sheet-surface);
+  background: var(--wicket-iris-accent);
+  color: var(--wicket-iris-surface);
 }
 
 .vs-chat-composer {
@@ -994,15 +994,15 @@ const CHAT_RECIPE: Recipe = {
   flex: 1;
   height: 44px;
   border-radius: 9999px;
-  border: 1px solid var(--vista-sheet-surface-border);
-  background: var(--vista-sheet-surface);
-  color: var(--vista-sheet-text);
+  border: 1px solid var(--wicket-iris-surface-border);
+  background: var(--wicket-iris-surface);
+  color: var(--wicket-iris-text);
   font: inherit;
   padding: 0 16px;
 }
 
 .vs-chat-field:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: -2px;
 }
 
@@ -1012,8 +1012,8 @@ const CHAT_RECIPE: Recipe = {
   height: 44px;
   border-radius: 9999px;
   border: none;
-  background: var(--vista-sheet-accent);
-  color: var(--vista-sheet-surface-elevated);
+  background: var(--wicket-iris-accent);
+  color: var(--wicket-iris-surface-elevated);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1021,7 +1021,7 @@ const CHAT_RECIPE: Recipe = {
 }
 
 .vs-chat-send:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent);
+  outline: 2px solid var(--wicket-iris-accent);
   outline-offset: 2px;
 }`,
 };

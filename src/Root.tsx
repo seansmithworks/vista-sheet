@@ -9,7 +9,7 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { DEFAULT_ANCHOR, PREVIEW_DEFAULT_SIZE, type AnchorId } from "./anchors";
-import { VistaSheetContext, type VistaSheetContextValue } from "./context";
+import { IrisContext, type IrisContextValue } from "./context";
 import {
   PREVIEW_TRIGGER_RADIUS_PX,
   resolveMotion,
@@ -38,7 +38,7 @@ function defaultAnchorAnnouncement(anchor: AnchorId): string {
 }
 
 /**
- * <VistaSheet.Root> — owns open state, anchor state, the LayoutGroup, the
+ * <Iris.Root> — owns open state, anchor state, the LayoutGroup, the
  * shared context, and the reduced-motion decision.
  *
  * Anchor is uncontrolled-only in v0.1 (docs/PACKAGE-DESIGN.md §8): the
@@ -70,10 +70,10 @@ export function Root({
   zIndex = 100,
   className,
 }: RootComponentProps) {
-  // A missing "use client" on the file that mounts <VistaSheet.Root> can't
+  // A missing "use client" on the file that mounts <Iris.Root> can't
   // be caught here or anywhere else in this package: index.ts exports only
-  // the `VistaSheet` namespace object, so the only public path is the
-  // property access `VistaSheet.Root`. In an RSC app that forgot the
+  // the `Iris` namespace object, so the only public path is the
+  // property access `Iris.Root`. In an RSC app that forgot the
   // directive, React/Next resolve that access to `undefined` via a
   // client-reference stub before this component's body — or any of this
   // package's own code — ever runs. Verified: a module-level probe placed
@@ -128,7 +128,7 @@ export function Root({
   // Public setAnchor: always through Trigger's snapTo, so a programmatic move
   // springs like a drag release. With no Trigger mounted there is nothing to
   // move, so the anchor is only recorded.
-  const snapToRef: VistaSheetContextValue["snapToRef"] = useRef(null);
+  const snapToRef: IrisContextValue["snapToRef"] = useRef(null);
   const anchorRef = useRef(anchor);
   anchorRef.current = anchor;
   const setAnchor = useCallback(
@@ -165,7 +165,7 @@ export function Root({
   // Scoped by idBase so several Roots can't collide; deterministic from
   // props, so server and client render byte-identical CSS.
   const sizeRule = (vpW: number) =>
-    `[data-vista-sheet-root="${idBase}"]{--vista-sheet-trigger-size:${resolveTriggerSize(triggerSizeProp, vpW)}px}`;
+    `[data-wicket-iris-root="${idBase}"]{--wicket-iris-trigger-size:${resolveTriggerSize(triggerSizeProp, vpW)}px}`;
   const triggerSizeCss = `${sizeRule(0)}@media (min-width:${MD_BREAKPOINT}px){${sizeRule(MD_BREAKPOINT)}}@media (min-width:${XL_BREAKPOINT}px){${sizeRule(XL_BREAKPOINT)}}`;
 
   const [isDragging, setIsDragging] = useState(false);
@@ -176,7 +176,7 @@ export function Root({
   // ── The morph clock ────────────────────────────────────────────────────
   // collapseProgress: 0 = fully open (sheet), 1 = fully closed (trigger).
   // Owned here so Trigger, Sheet, Shared and Shadow all read the same live
-  // value — this is the MotionValue useVistaSheet() exposes as the escape
+  // value — this is the MotionValue useIris() exposes as the escape
   // hatch (§3).
   //
   // Seeded from the mount-time `open`, and so is prevOpenRef: a Root that
@@ -371,7 +371,7 @@ export function Root({
   const triggerId = `${idBase}-trigger`;
   const sheetId = `${idBase}-sheet`;
 
-  const contextValue: VistaSheetContextValue = {
+  const contextValue: IrisContextValue = {
     open,
     setOpen,
     anchor,
@@ -422,7 +422,7 @@ export function Root({
     // A <span>, so a link inside a <p> is valid HTML. Theme vars and the
     // consumer's className live on the layer, which is where the card renders.
     return (
-      <VistaSheetContext.Provider value={contextValue}>
+      <IrisContext.Provider value={contextValue}>
         <LayoutGroup id={idBase}>
           <span>
             {children}
@@ -432,36 +432,36 @@ export function Root({
                 <div
                   ref={setLayerEl}
                   className={`${styles.previewLayer} ${className ?? ""}`}
-                  data-vista-sheet-root={idBase}
+                  data-wicket-iris-root={idBase}
                   style={{
-                    ["--vista-sheet-z" as string]: String(zIndex),
-                    ["--vista-sheet-sheet-max-width" as string]: `${sheetMaxWidth}px`,
-                    ["--vista-sheet-preview-radius" as string]: `${PREVIEW_TRIGGER_RADIUS_PX}px`,
+                    ["--wicket-iris-z" as string]: String(zIndex),
+                    ["--wicket-iris-sheet-max-width" as string]: `${sheetMaxWidth}px`,
+                    ["--wicket-iris-preview-radius" as string]: `${PREVIEW_TRIGGER_RADIUS_PX}px`,
                   }}
                 />,
                 document.body,
               )}
           </span>
         </LayoutGroup>
-      </VistaSheetContext.Provider>
+      </IrisContext.Provider>
     );
   }
 
   return (
-    <VistaSheetContext.Provider value={contextValue}>
+    <IrisContext.Provider value={contextValue}>
       <LayoutGroup id={idBase}>
         <style>{triggerSizeCss}</style>
         <div
           className={className}
-          data-vista-sheet-root={idBase}
+          data-wicket-iris-root={idBase}
           style={{
             // The one ancestor of both <Trigger> and <Sheet>, so both inherit
-            // these. --vista-sheet-trigger-size is deliberately absent: an
+            // these. --wicket-iris-trigger-size is deliberately absent: an
             // inline write would beat the scoped <style> block's @media rules.
-            ["--vista-sheet-z" as string]: String(zIndex),
-            ["--vista-sheet-sheet-max-width" as string]: `${sheetMaxWidth}px`,
+            ["--wicket-iris-z" as string]: String(zIndex),
+            ["--wicket-iris-sheet-max-width" as string]: `${sheetMaxWidth}px`,
             ...(buttonWidth !== undefined
-              ? { ["--vista-sheet-button-width" as string]: `${buttonWidth}px` }
+              ? { ["--wicket-iris-button-width" as string]: `${buttonWidth}px` }
               : {}),
           }}
         >
@@ -471,6 +471,6 @@ export function Root({
           </span>
         </div>
       </LayoutGroup>
-    </VistaSheetContext.Provider>
+    </IrisContext.Provider>
   );
 }

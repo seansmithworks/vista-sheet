@@ -1,6 +1,6 @@
 // Surface & shadow tuner model. Pure data: dial values, presets, and the
-// --vista-sheet-* vars they produce. The page writes these vars onto each
-// live specimen; <VistaSheet.Shadow> is still the only thing that paints a
+// --wicket-iris-* vars they produce. The page writes these vars onto each
+// live specimen; <Iris.Shadow> is still the only thing that paints a
 // shadow (::before = closed look, ::after = open look, DESIGN.md §3).
 
 export type Theme = "light" | "dark";
@@ -289,20 +289,20 @@ export function shadowCss(shadow: LayeredShadow): string {
   return parts.length ? parts.join(", ") : "none";
 }
 
-/** The --vista-sheet-* vars one theme's look sets. */
+/** The --wicket-iris-* vars one theme's look sets. */
 export function lookVars(look: ThemeLook): Record<string, string> {
   const c = look.closed;
   return {
-    "--vista-sheet-shadow": shadowCss(c.shadow),
-    "--vista-sheet-sheet-shadow": shadowCss(look.open.shadow),
-    "--vista-sheet-surface-border": paint(c.border),
-    "--vista-sheet-surface-border-width": px(c.borderWidth),
-    "--vista-sheet-trigger-hover-lift": px(c.hoverLift),
-    "--vista-sheet-trigger-press-scale": num(c.pressScale),
-    "--vista-sheet-trigger-highlight-color": paint(c.highlight),
-    "--vista-sheet-trigger-highlight-size": px(c.highlightSize),
-    "--vista-sheet-trigger-highlight-strength": num(c.highlightStrength),
-    "--vista-sheet-trigger-press-tint": paint(c.pressTint),
+    "--wicket-iris-shadow": shadowCss(c.shadow),
+    "--wicket-iris-sheet-shadow": shadowCss(look.open.shadow),
+    "--wicket-iris-surface-border": paint(c.border),
+    "--wicket-iris-surface-border-width": px(c.borderWidth),
+    "--wicket-iris-trigger-hover-lift": px(c.hoverLift),
+    "--wicket-iris-trigger-press-scale": num(c.pressScale),
+    "--wicket-iris-trigger-highlight-color": paint(c.highlight),
+    "--wicket-iris-trigger-highlight-size": px(c.highlightSize),
+    "--wicket-iris-trigger-highlight-strength": num(c.highlightStrength),
+    "--wicket-iris-trigger-press-tint": paint(c.pressTint),
   };
 }
 
@@ -315,7 +315,7 @@ function block(selector: string, look: ThemeLook): string {
 
 export function copyCss(state: TunerState): string {
   return (
-    `/* vista-sheet surface & shadow — light */\n${block(":root", state.light)}` +
+    `/* wicket-iris surface & shadow — light */\n${block(":root", state.light)}` +
     `\n\n/* dark — use your own dark-palette selector */\n` +
     `${block('[data-theme="dark"]', state.dark)}`
   );

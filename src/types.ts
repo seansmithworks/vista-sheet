@@ -25,7 +25,7 @@ export interface DurationSpring {
 
 export type Spring = StiffnessSpring | DurationSpring;
 
-/** Per-direction override for <VistaSheet.Shared>. Either key may be omitted;
+/** Per-direction override for <Iris.Shared>. Either key may be omitted;
  * the package default for that direction is used instead. */
 export interface SharedTransitionByDirection {
   open?: Spring | Transition;
@@ -38,7 +38,7 @@ export interface MorphTransition {
   /** Sheet to trigger. Default: { stiffness: 375, damping: 32, mass: 1 } */
   close?: Spring | Transition;
   /**
-   * The <VistaSheet.Shared> element's own morph. Direction-aware, because the
+   * The <Iris.Shared> element's own morph. Direction-aware, because the
    * two directions have different jobs: on the open the shared element only
    * has to clear the growing sheet, on the close it has to arrive home
    * together with the collapsing trigger.
@@ -82,18 +82,18 @@ export interface RootProps {
   /** Uncontrolled initial anchor. Default "bottom-center". */
   defaultAnchor?: AnchorId;
   /** Fires once per move to a new anchor: a drag release, an arrow key on
-   * the focused trigger, or useVistaSheet().setAnchor. */
+   * the focused trigger, or useIris().setAnchor. */
   onAnchorChange?: (anchor: AnchorId) => void;
   /** Default true. False renders a fixed trigger with no drag affordance. */
   draggable?: boolean;
   /**
    * localStorage key for the chosen anchor.
-   * Default "vista-sheet-anchor". Pass false to disable persistence entirely.
+   * Default "wicket-iris-anchor". Pass false to disable persistence entirely.
    */
   persistKey?: string | false;
   /**
    * The polite status text written when the trigger moves by keyboard or by
-   * useVistaSheet().setAnchor (never by a drag). Default
+   * useIris().setAnchor (never by a drag). Default
    * `Moved to bottom right.` style text. Return false to announce nothing.
    */
   anchorAnnouncement?: (anchor: AnchorId) => string | false;
@@ -108,8 +108,8 @@ export interface RootProps {
   sheetMaxWidth?: number;
   /**
    * Trigger shape. Default "circle". The surface, Shadow, both
-   * <VistaSheet.Shared> slots and the focus ring follow it;
-   * --vista-sheet-trigger-radius caps the corner radius for every shape.
+   * <Iris.Shared> slots and the focus ring follow it;
+   * --wicket-iris-trigger-radius caps the corner radius for every shape.
    * "squircle" is a true superellipse where CSS corner-shape is supported
    * and a close border-radius approximation elsewhere. "rectangle" is a
    * label-sized button trigger (plain children; Shared and Media are not
@@ -146,7 +146,7 @@ export interface RootProps {
 }
 
 /**
- * Link-preview mode: `<VistaSheet.Root preview>`. The Trigger is `asChild`
+ * Link-preview mode: `<Iris.Root preview>`. The Trigger is `asChild`
  * over the consumer's own `<a>`, the Sheet floats beside it, nothing is
  * modal. Only the props that still apply are accepted.
  */
@@ -166,7 +166,7 @@ export type PreviewRootProps = Pick<RootProps, PreviewKept> & {
   preview: true;
 } & Partial<Record<Exclude<keyof RootProps, PreviewKept | "preview">, never>>;
 
-/** What <VistaSheet.Root> accepts: the modal shape or the preview shape. */
+/** What <Iris.Root> accepts: the modal shape or the preview shape. */
 export type RootComponentProps = RootProps | PreviewRootProps;
 
 export interface TriggerProps {
@@ -185,7 +185,7 @@ export interface PreviewTriggerProps {
   "aria-label"?: never;
 }
 
-/** What <VistaSheet.Trigger> accepts. */
+/** What <Iris.Trigger> accepts. */
 export type TriggerComponentProps = TriggerProps | PreviewTriggerProps;
 
 export type Labelled =
@@ -251,14 +251,14 @@ export interface ShadowProps {
   className?: string;
   /** Render a single child in place of the default shadow div, merging the
    * fixed positioning, z-index, aria-hidden, pointer-events, data-* attributes
-   * and --vista-sheet-shadow-* custom properties onto it. */
+   * and --wicket-iris-shadow-* custom properties onto it. */
   asChild?: boolean;
   children?: ReactNode;
 }
 
 /** The trigger button's live viewport box.
  * Strawman (v0.2): half extents replace radius so a non-square trigger has
- * a true silhouette; breaking for useVistaSheet().triggerRect readers, free
+ * a true silhouette; breaking for useIris().triggerRect readers, free
  * pre-publish. */
 export interface Rect {
   cx: number;
@@ -267,8 +267,8 @@ export interface Rect {
   halfHeight: number;
 }
 
-/** Public state + escape hatch returned by useVistaSheet(). */
-export interface VistaSheetState {
+/** Public state + escape hatch returned by useIris(). */
+export interface IrisState {
   open: boolean;
   setOpen: (open: boolean) => void;
   anchor: AnchorId;

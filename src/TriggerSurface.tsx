@@ -3,13 +3,13 @@
 import { motion } from "motion/react";
 import type { MotionValue } from "motion/react";
 import type { Ref } from "react";
-import { useVistaSheetInternal } from "./context";
+import { useIrisInternal } from "./context";
 
 type TriggerSurfaceProps = {
   /** The trigger's own resting corner radius. */
   restRadius: MotionValue<number>;
   className: string;
-  "data-vista-sheet-shape"?: string;
+  "data-wicket-iris-shape"?: string;
   "aria-hidden"?: "true";
 } & (
   | { as: "div"; ref: Ref<HTMLDivElement> }
@@ -30,15 +30,15 @@ export function TriggerSurface(props: TriggerSurfaceProps) {
     startMorphClock,
     sheetRect,
     collapseRadius,
-  } = useVistaSheetInternal("Trigger");
+  } = useIrisInternal("Trigger");
 
   const shared = {
     layoutId: reduceMotion ? undefined : `${idBase}-surface`,
     className: props.className,
     transition: transition.close,
     onLayoutAnimationStart: () => startMorphClock("trigger"),
-    "data-vista-sheet-part": "trigger-surface",
-    "data-vista-sheet-shape": props["data-vista-sheet-shape"],
+    "data-wicket-iris-part": "trigger-surface",
+    "data-wicket-iris-shape": props["data-wicket-iris-shape"],
     "aria-hidden": props["aria-hidden"],
     // Bound as a MotionValue: Motion's radius correction ignores CSS rules
     // and var() strings, and React would clobber an imperative write on

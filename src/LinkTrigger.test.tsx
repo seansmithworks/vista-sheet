@@ -3,7 +3,7 @@ import { StrictMode, act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { VistaSheet } from "./index";
+import { Iris } from "./index";
 
 /**
  * Preview mode renders inline in prose, so it must be valid HTML there: a
@@ -15,15 +15,15 @@ function Prose() {
   return (
     <p>
       See{" "}
-      <VistaSheet.Root preview id="lp">
-        <VistaSheet.Shadow />
-        <VistaSheet.Trigger asChild>
+      <Iris.Root preview id="lp">
+        <Iris.Shadow />
+        <Iris.Trigger asChild>
           <a href="/x">the thing</a>
-        </VistaSheet.Trigger>
-        <VistaSheet.Sheet aria-label="Preview of the thing">
-          <VistaSheet.Content>card</VistaSheet.Content>
-        </VistaSheet.Sheet>
-      </VistaSheet.Root>{" "}
+        </Iris.Trigger>
+        <Iris.Sheet aria-label="Preview of the thing">
+          <Iris.Content>card</Iris.Content>
+        </Iris.Sheet>
+      </Iris.Root>{" "}
       now.
     </p>
   );
@@ -55,14 +55,14 @@ describe("preview Root in prose", () => {
       );
     });
     expect(container.querySelector("p > span > a")).not.toBeNull();
-    expect(document.querySelector("[data-vista-sheet-root]")).toBeNull();
+    expect(document.querySelector("[data-wicket-iris-root]")).toBeNull();
     expect(errors).not.toHaveBeenCalled();
     container.remove();
   });
 });
 
 describe("preview Root lifecycle", () => {
-  const layer = () => document.querySelector("[data-vista-sheet-root]");
+  const layer = () => document.querySelector("[data-wicket-iris-root]");
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
   let errors: ReturnType<typeof vi.spyOn>;
@@ -116,7 +116,7 @@ describe("preview Root lifecycle", () => {
     await mount();
     await hover();
     await act(async () => void vi.advanceTimersByTime(200));
-    expect(document.querySelector('[data-vista-sheet-part="sheet"]')).not.toBeNull();
+    expect(document.querySelector('[data-wicket-iris-part="sheet"]')).not.toBeNull();
     await act(async () => root.unmount());
     expect(layer()).toBeNull();
     expect(vi.getTimerCount()).toBe(0);

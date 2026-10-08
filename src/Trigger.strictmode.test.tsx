@@ -2,8 +2,8 @@
 import { StrictMode, act, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import { VistaSheet } from "./index";
-import { useVistaSheet } from "./context";
+import { Iris } from "./index";
+import { useIris } from "./context";
 
 /**
  * StrictMode regression: Trigger.tsx's rect-reporting effect (~257-322)
@@ -35,10 +35,10 @@ describe("Trigger rect reporting under StrictMode", () => {
   });
 
   it("reports a non-null triggerRect after a StrictMode double mount", async () => {
-    const captured: Array<ReturnType<typeof useVistaSheet>["triggerRect"]> = [];
+    const captured: Array<ReturnType<typeof useIris>["triggerRect"]> = [];
 
     function Probe() {
-      const { triggerRect } = useVistaSheet();
+      const { triggerRect } = useIris();
       useEffect(() => {
         captured.push(triggerRect);
       });
@@ -49,12 +49,12 @@ describe("Trigger rect reporting under StrictMode", () => {
     await act(async () => {
       root.render(
         <StrictMode>
-          <VistaSheet.Root>
-            <VistaSheet.Trigger aria-label="Open">
+          <Iris.Root>
+            <Iris.Trigger aria-label="Open">
               <span>trigger</span>
-            </VistaSheet.Trigger>
+            </Iris.Trigger>
             <Probe />
-          </VistaSheet.Root>
+          </Iris.Root>
         </StrictMode>,
       );
     });

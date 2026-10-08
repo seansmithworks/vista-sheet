@@ -5,7 +5,7 @@
  *
  * Route `/` stays the verbatim README snippet (it is the test of the
  * documented install path). This route is the instrument: the same
- * VistaSheet markup, driven by a dialkit panel, with the two numbers you
+ * Iris markup, driven by a dialkit panel, with the two numbers you
  * cannot dial this pair blind without.
  *
  * CLOSE PATH ONLY, by construction. `transition.open` is never passed, so the
@@ -14,15 +14,15 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { VistaSheet } from "@seansmithworks/vista-sheet";
-import type { MotionPreset } from "@seansmithworks/vista-sheet";
+import { Iris } from "@wicket/iris";
+import type { MotionPreset } from "@wicket/iris";
 import { DialRoot, DialStore, useDialKitController } from "dialkit";
 import type { TransitionConfig } from "dialkit";
 import "dialkit/styles.css";
 import styles from "./tune.module.css";
 
 /** Stable panel id. dialkit persists under `dialkit:${id}` in localStorage.
- * This key predates the VistaSheet rename — changing it orphans Sean's saved
+ * This key predates the package renames — changing it orphans Sean's saved
  * dial history, so it stays "morph-sheet-close" on purpose. */
 const PANEL_ID = "morph-sheet-close";
 const PHASE_4_PRESET = "Phase 4 (77f6d9b)";
@@ -106,8 +106,8 @@ function toPresetSpring(spring: MotionSpring): {
 
 // ── Measurement ────────────────────────────────────────────────────────────
 // Two elements, sampled per frame from the Close click until both are quiet:
-//   box    = [data-vista-sheet-part="trigger-surface"]      the collapsing shell
-//   avatar = the trigger-side <VistaSheet.Shared>           inset: 2px inside it
+//   box    = [data-wicket-iris-part="trigger-surface"]      the collapsing shell
+//   avatar = the trigger-side <Iris.Shared>           inset: 2px inside it
 //
 // ARRIVAL GAP  = avatarArrival - boxArrival, ms. Negative = the avatar gets
 //                home first (leads). Positive = it is still moving after the
@@ -277,10 +277,10 @@ export default function TunePage() {
 
     const tick = (now: number) => {
       const boxEl = document.querySelector(
-        '[data-vista-sheet-part="trigger-surface"]',
+        '[data-wicket-iris-part="trigger-surface"]',
       );
       const avEl = document.querySelector(
-        '[data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]',
+        '[data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]',
       );
       if (!boxEl || !avEl) {
         rafRef.current = requestAnimationFrame(tick);
@@ -354,7 +354,7 @@ export default function TunePage() {
   // Read-out hook for the measurement harness; the numbers on screen and the
   // numbers in the report are the same numbers.
   useEffect(() => {
-    (window as unknown as Record<string, unknown>).__vistaSheetTune = {
+    (window as unknown as Record<string, unknown>).__wicketIrisTune = {
       runs,
       summary,
       values: { discShell: shellSpring, avatar: avatarSpring, leadDelay },
@@ -385,41 +385,41 @@ export default function TunePage() {
 
   return (
     <main className={styles.stage}>
-      <VistaSheet.Root
+      <Iris.Root
         transition={transition}
         preset={leadDelayPreset}
         onOpenChange={handleOpenChange}
       >
-        <VistaSheet.Shadow />
+        <Iris.Shadow />
 
-        <VistaSheet.Trigger aria-label="Open contact">
-          <VistaSheet.Shared>
+        <Iris.Trigger aria-label="Open contact">
+          <Iris.Shared>
             <div
               className={styles.avatar}
               style={{ "--avatar-fill": avatarFill } as React.CSSProperties}
             />
-          </VistaSheet.Shared>
-        </VistaSheet.Trigger>
+          </Iris.Shared>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet aria-labelledby="sheet-title">
-          <VistaSheet.Shared>
+        <Iris.Sheet aria-labelledby="sheet-title">
+          <Iris.Shared>
             <div
               className={styles.avatar}
               style={{ "--avatar-fill": avatarFill } as React.CSSProperties}
             />
-          </VistaSheet.Shared>
+          </Iris.Shared>
 
-          <VistaSheet.Content>
-            <VistaSheet.Close aria-label="Close" />
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Close aria-label="Close" />
+            <Iris.Item>
               <h2 id="sheet-title">Sean Smith</h2>
-            </VistaSheet.Item>
-            <VistaSheet.Item>
+            </Iris.Item>
+            <Iris.Item>
               <p>Links, etc.</p>
-            </VistaSheet.Item>
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
-      </VistaSheet.Root>
+            </Iris.Item>
+          </Iris.Content>
+        </Iris.Sheet>
+      </Iris.Root>
 
       <aside
         className={styles.dock}

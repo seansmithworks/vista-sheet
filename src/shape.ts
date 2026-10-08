@@ -71,7 +71,7 @@ export function supportsCornerShape(): boolean {
 
 /**
  * The trigger's resting corner radius in px. `token` is
- * --vista-sheet-trigger-radius and caps every shape (defaults to today's
+ * --wicket-iris-trigger-radius and caps every shape (defaults to today's
  * 9999px CSS fallback). `triggerSize` means the trigger's shorter side —
  * callers with a non-square trigger (rectangle) pass
  * min(width, height). Exhaustive switch — a shape added to TRIGGER_SHAPES
@@ -101,7 +101,7 @@ export function resolveTriggerCornerRadius({
       return 0;
     // Strawman (v0.2): a rectangle's corners follow the circle rule on its
     // shorter side (callers pass min(width, height)) - a pill by default,
-    // capped by --vista-sheet-trigger-radius.
+    // capped by --wicket-iris-trigger-radius.
     case "rectangle":
       return Math.min(token, triggerSize / 2);
     default: {
@@ -113,7 +113,7 @@ export function resolveTriggerCornerRadius({
 
 /**
  * First-render seed for the trigger's resting radius, before the
- * --vista-sheet-trigger-radius token can be read from the DOM.
+ * --wicket-iris-trigger-radius token can be read from the DOM.
  *
  * Strawman (v0.2): squircle seeds 9999 so Chromium's first frame is the
  * exact squircle; Safari shows one frame of circle at load.

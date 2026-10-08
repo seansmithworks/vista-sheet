@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 import "./list.css";
 
 function MenuIcon() {
@@ -20,44 +20,44 @@ const rows = [
   { label: "Delete" },
 ];
 
-// Plain: "I could use this for a menu." Each row is its own <VistaSheet.Item>
+// Plain: "I could use this for a menu." Each row is its own <Iris.Item>
 // so the open stagger is visible per-row, not on the list as a block.
 function App() {
   return (
     <div className="list-page">
-      <VistaSheet.Root className="list-theme">
-        <VistaSheet.Shadow />
+      <Iris.Root className="list-theme">
+        <Iris.Shadow />
 
-        <VistaSheet.Trigger aria-label="Open quick actions">
-          <VistaSheet.Shared>
+        <Iris.Trigger aria-label="Open quick actions">
+          <Iris.Shared>
             <MenuIcon />
-          </VistaSheet.Shared>
-        </VistaSheet.Trigger>
+          </Iris.Shared>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet aria-labelledby="list-sheet-title">
-          <VistaSheet.Shared>
+        <Iris.Sheet aria-labelledby="list-sheet-title">
+          <Iris.Shared>
             <MenuIcon />
-          </VistaSheet.Shared>
+          </Iris.Shared>
 
-          <VistaSheet.Close aria-label="Close" />
+          <Iris.Close aria-label="Close" />
 
-          <VistaSheet.Content>
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Item>
               <h2 id="list-sheet-title" className="list-title">
                 Quick actions
               </h2>
-            </VistaSheet.Item>
+            </Iris.Item>
 
             {rows.map((row) => (
-              <VistaSheet.Item key={row.label}>
+              <Iris.Item key={row.label}>
                 <button type="button" className="list-row">
                   {row.label}
                 </button>
-              </VistaSheet.Item>
+              </Iris.Item>
             ))}
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
-      </VistaSheet.Root>
+          </Iris.Content>
+        </Iris.Sheet>
+      </Iris.Root>
     </div>
   );
 }

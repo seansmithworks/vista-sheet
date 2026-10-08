@@ -1,5 +1,5 @@
 /*
- * example.css — content styling for the vista-sheet example app only. The
+ * example.css — content styling for the wicket-iris example app only. The
  * package itself ships zero typography/spacing decisions for <Item> content
  * (docs/PACKAGE-DESIGN.md §1: "No props beyond that" — those are the
  * consumer's to make). This file is that consumer decision, made once here
@@ -9,11 +9,11 @@
 
 /* Neutral palette for this page — matches the package's own neutral defaults. */
 :root {
-  --vista-sheet-surface: #fafafa;
-  --vista-sheet-surface-elevated: #ffffff;
-  --vista-sheet-surface-border: rgba(229, 229, 229, 0.6);
-  --vista-sheet-text: #1d1d1f;
-  --vista-sheet-accent: #1d1d1f;
+  --wicket-iris-surface: #fafafa;
+  --wicket-iris-surface-elevated: #ffffff;
+  --wicket-iris-surface-border: rgba(229, 229, 229, 0.6);
+  --wicket-iris-text: #1d1d1f;
+  --wicket-iris-accent: #1d1d1f;
   /* Example-only token: muted body copy on both the sheet surface (content
    * p) and the page ground (p.sub in index.html). Dark mode overrides it
    * below so both stay ≥4.5:1 rather than each carrying its own literal. */
@@ -23,21 +23,21 @@
 /* M13: Close.tsx ships unpositioned by design (consumer decides) — without
  * this, it rendered as a 430x44 bar floating between the circle and the
  * heading, the first thing a first-time visitor to this page sees open. */
-[data-vista-sheet-part="close"] {
+[data-wicket-iris-part="close"] {
   position: absolute;
   top: 16px;
   right: 16px;
 }
 
-[data-vista-sheet-part="item"] {
+[data-wicket-iris-part="item"] {
   padding-top: 16px;
 }
 
-[data-vista-sheet-part="item"]:first-of-type {
+[data-wicket-iris-part="item"]:first-of-type {
   padding-top: 24px;
 }
 
-[data-vista-sheet-part="content"] h2 {
+[data-wicket-iris-part="content"] h2 {
   font-size: 20px;
   line-height: 1.3;
   margin: 0;
@@ -47,26 +47,26 @@
  * gives them separate beats) but must keep the same 8px gap they had as
  * margin when they shared one Item — the default 16px item gap would widen
  * it. */
-[data-vista-sheet-part="item"]:has(h2) + [data-vista-sheet-part="item"] {
+[data-wicket-iris-part="item"]:has(h2) + [data-wicket-iris-part="item"] {
   padding-top: 8px;
 }
 
-[data-vista-sheet-part="content"] p {
+[data-wicket-iris-part="content"] p {
   margin: 0;
   line-height: 1.5;
   color: var(--demo-text-muted);
 }
 
-[data-vista-sheet-part="content"] nav a {
-  color: var(--vista-sheet-text);
+[data-wicket-iris-part="content"] nav a {
+  color: var(--wicket-iris-text);
   text-decoration: underline;
 }
 
 /* Dark mode (Design settings sheet, renamed from "Dark ground"). Toggled via
  * document.body.dataset in main.tsx. Besides the page ground, it now also
- * overrides the --vista-sheet-* consumer tokens on this ancestor, so both
- * VistaSheet.Root instances (main + settings) read dark chrome rather than
- * a white sheet on a black page — every VistaSheet.Root's own wrapper div
+ * overrides the --wicket-iris-* consumer tokens on this ancestor, so both
+ * Iris.Root instances (main + settings) read dark chrome rather than
+ * a white sheet on a black page — every Iris.Root's own wrapper div
  * inherits these custom properties from body. Hue-consistent dark neutrals:
  * surface near #1c1c1e, elevated near #2c2c2e, a translucent white hairline
  * border. Shadows, highlight and tint are Sean's dark dial (2026-10-07,
@@ -75,18 +75,18 @@
 body[data-dark-mode="true"] {
   background: #0b0b0c;
   color: #f5f5f7;
-  --vista-sheet-surface: #1c1c1e;
-  --vista-sheet-surface-elevated: #2c2c2e;
-  --vista-sheet-surface-border: rgba(255, 255, 255, 0.1);
-  --vista-sheet-text: #f5f5f7;
-  --vista-sheet-accent: #f5f5f7;
-  --vista-sheet-shadow:
+  --wicket-iris-surface: #1c1c1e;
+  --wicket-iris-surface-elevated: #2c2c2e;
+  --wicket-iris-surface-border: rgba(255, 255, 255, 0.1);
+  --wicket-iris-text: #f5f5f7;
+  --wicket-iris-accent: #f5f5f7;
+  --wicket-iris-shadow:
     0 2px 4px -2px rgba(255, 255, 255, 0.14),
     0 8px 12px rgba(255, 255, 255, 0.15);
-  --vista-sheet-trigger-highlight-color: rgba(255, 255, 255, 0.1);
-  --vista-sheet-trigger-highlight-strength: 1;
-  --vista-sheet-trigger-press-tint: rgba(255, 255, 255, 0.15);
-  --vista-sheet-sheet-shadow:
+  --wicket-iris-trigger-highlight-color: rgba(255, 255, 255, 0.1);
+  --wicket-iris-trigger-highlight-strength: 1;
+  --wicket-iris-trigger-press-tint: rgba(255, 255, 255, 0.15);
+  --wicket-iris-sheet-shadow:
     0 4px 20px rgba(255, 255, 255, 0.1),
     0 16px 28px -8px rgba(255, 255, 255, 0.15);
   --demo-text-muted: #a1a1a6;
@@ -101,11 +101,11 @@ body[data-dark-mode="true"] {
  * default, the neutral dark cell above, and the warm dark cell below —
  * with no inline override able to outrank any of them. */
 body[data-surface="warm"] {
-  --vista-sheet-surface: #faf7f2;
-  --vista-sheet-surface-elevated: #f4f0e8;
-  --vista-sheet-surface-border: #e6dfd2;
-  --vista-sheet-text: #1a1610;
-  --vista-sheet-accent: #1a1610;
+  --wicket-iris-surface: #faf7f2;
+  --wicket-iris-surface-elevated: #f4f0e8;
+  --wicket-iris-surface-border: #e6dfd2;
+  --wicket-iris-text: #1a1610;
+  --wicket-iris-accent: #1a1610;
 }
 
 /* Warm + Dark mode — chosen 2026-09-13. Same warm hue family as the light
@@ -113,18 +113,18 @@ body[data-surface="warm"] {
  * neutral palette. Higher specificity than either single attribute selector
  * above, so it wins whenever both attributes are set. */
 body[data-dark-mode="true"][data-surface="warm"] {
-  --vista-sheet-surface: #1f1b17;
-  --vista-sheet-surface-elevated: #29241f;
-  --vista-sheet-surface-border: #3a332b;
-  --vista-sheet-text: #f2ece3;
-  --vista-sheet-accent: #f2ece3;
-  --vista-sheet-shadow:
+  --wicket-iris-surface: #1f1b17;
+  --wicket-iris-surface-elevated: #29241f;
+  --wicket-iris-surface-border: #3a332b;
+  --wicket-iris-text: #f2ece3;
+  --wicket-iris-accent: #f2ece3;
+  --wicket-iris-shadow:
     0 2px 4px -2px rgba(255, 255, 255, 0.14),
     0 8px 12px rgba(255, 255, 255, 0.15);
-  --vista-sheet-trigger-highlight-color: rgba(255, 255, 255, 0.1);
-  --vista-sheet-trigger-highlight-strength: 1;
-  --vista-sheet-trigger-press-tint: rgba(255, 255, 255, 0.15);
-  --vista-sheet-sheet-shadow:
+  --wicket-iris-trigger-highlight-color: rgba(255, 255, 255, 0.1);
+  --wicket-iris-trigger-highlight-strength: 1;
+  --wicket-iris-trigger-press-tint: rgba(255, 255, 255, 0.15);
+  --wicket-iris-sheet-shadow:
     0 4px 20px rgba(255, 255, 255, 0.1),
     0 16px 28px -8px rgba(255, 255, 255, 0.15);
   --demo-text-muted: #c9beae;
@@ -132,10 +132,10 @@ body[data-dark-mode="true"][data-surface="warm"] {
 
 /* Settings trigger: <button> elements don't inherit `color` from the page
  * (UA stylesheets set it directly on form controls), so body's dark-mode
- * override of --vista-sheet-text never reached the SlidersIcon's
+ * override of --wicket-iris-text never reached the SlidersIcon's
  * currentColor — the icon stayed black on the now-dark trigger surface. */
-[data-vista-sheet-root="settings"] [data-vista-sheet-part="trigger"] {
-  color: var(--vista-sheet-text);
+[data-wicket-iris-root="settings"] [data-wicket-iris-part="trigger"] {
+  color: var(--wicket-iris-text);
 }
 
 /* Design settings sheet: one label + one control per row. */
@@ -159,10 +159,10 @@ body[data-dark-mode="true"][data-surface="warm"] {
     -apple-system,
     sans-serif;
   padding: 6px 10px;
-  border: 1px solid var(--vista-sheet-surface-border);
+  border: 1px solid var(--wicket-iris-surface-border);
   border-radius: 8px;
-  background: var(--vista-sheet-surface-elevated);
-  color: var(--vista-sheet-text);
+  background: var(--wicket-iris-surface-elevated);
+  color: var(--wicket-iris-text);
 }
 
 .settings-select:disabled {
@@ -211,7 +211,7 @@ body[data-dark-mode="true"][data-surface="warm"] {
 
 /* Iridescent shadow: a slowly turning conic gradient, blurred into a long
  * soft falloff around the silhouette. Its opacity follows
- * --vista-sheet-collapse (0 open, 1 closed), so it blooms with the open and
+ * --wicket-iris-collapse (0 open, 1 closed), so it blooms with the open and
  * is gone at the trigger. The plain box-shadow stays underneath.
  *
  * --iri-angle is driven by a rAF loop in main.tsx rather than a CSS
@@ -230,7 +230,7 @@ body[data-dark-mode="true"][data-surface="warm"] {
 }
 
 .iri-shadow {
-  border-radius: var(--vista-sheet-shadow-radius);
+  border-radius: var(--wicket-iris-shadow-radius);
   box-shadow:
     0 1px 4px rgba(26, 22, 16, 0.14),
     0 6px 24px rgba(0, 0, 0, 0.15);
@@ -242,7 +242,7 @@ body[data-dark-mode="true"][data-surface="warm"] {
   position: absolute;
   inset: calc(var(--iri-length, 56px) * -1);
   border-radius: calc(
-    var(--vista-sheet-shadow-radius) + var(--iri-length, 56px)
+    var(--wicket-iris-shadow-radius) + var(--iri-length, 56px)
   );
   background: conic-gradient(
     from var(--iri-angle),
@@ -258,5 +258,5 @@ body[data-dark-mode="true"][data-surface="warm"] {
     )
   );
   filter: blur(var(--iri-blur, 40px)) saturate(var(--iri-saturation, 1.15));
-  opacity: calc((1 - var(--vista-sheet-collapse, 1)) * var(--iri-opacity, 0.5));
+  opacity: calc((1 - var(--wicket-iris-collapse, 1)) * var(--iri-opacity, 0.5));
 }

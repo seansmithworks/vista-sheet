@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { useVistaSheetInternal } from "./context";
+import { useIrisInternal } from "./context";
 import {
   CONTENT_FADE_OUT_MS,
   ITEM_STAGGER_INTERVAL_SEC,
@@ -12,7 +12,7 @@ import type { ContentProps } from "./types";
 import styles from "./styles.module.css";
 
 /**
- * <VistaSheet.Content> — holds sheet content at opacity 0 through the bloom
+ * <Iris.Content> — holds sheet content at opacity 0 through the bloom
  * and reveals it after, then fades it out first on close. Owns the scroll
  * region: applies overflow-y:auto to itself and reports its scroll element
  * into context so Sheet's swipe-to-close handler can gate on scrollTop
@@ -20,7 +20,7 @@ import styles from "./styles.module.css";
  * extraction).
  */
 export function Content({ children, className }: ContentProps) {
-  const ctx = useVistaSheetInternal("Content");
+  const ctx = useIrisInternal("Content");
   const { reduceMotion, contentScrollElRef } = ctx;
 
   // When the content is taller than the scroll region, the region itself
@@ -76,7 +76,7 @@ export function Content({ children, className }: ContentProps) {
     <motion.div
       ref={contentScrollElRef}
       className={`${styles.content} ${className ?? ""}`}
-      data-vista-sheet-part="content"
+      data-wicket-iris-part="content"
       tabIndex={tabbable ? 0 : undefined}
       variants={variants}
       initial="hidden"

@@ -3,7 +3,7 @@
  *
  * One attribute, absent until the first interaction, written imperatively
  * on both painters of the resting trigger: the trigger button (its surface,
- * Shared and label take the transform) and <VistaSheet.Shadow>'s element. Both read the same CSS vars,
+ * Shared and label take the transform) and <Iris.Shadow>'s element. Both read the same CSS vars,
  * so the shadow and the surface never disagree (DESIGN.md §4.1).
  *
  * - "hover" / "pressed": the lift or the press scale, transitioned.
@@ -15,7 +15,7 @@
  */
 export type TriggerFeedback = "hover" | "pressed" | "rest" | "none";
 
-const ATTR = "data-vista-sheet-feedback";
+const ATTR = "data-wicket-iris-feedback";
 
 export function writeTriggerFeedback(
   els: ReadonlyArray<HTMLElement | null>,

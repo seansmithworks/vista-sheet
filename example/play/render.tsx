@@ -1,5 +1,5 @@
 import { createElement, type ReactNode, type RefObject } from "react";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 import { INITIAL_FOCUS_PROP, type PlayNode } from "./recipes";
 
 type PropValue = string | number | boolean;
@@ -10,7 +10,7 @@ function isText(node: PlayNode): node is { text: string } {
 }
 
 /** True if `node` or any descendant carries INITIAL_FOCUS_PROP — computed
- * once per render so the ancestor <VistaSheet.Sheet> knows to wire
+ * once per render so the ancestor <Iris.Sheet> knows to wire
  * `initialFocus` before the marked descendant is even reached. */
 function hasInitialFocusMarker(node: PlayNode): boolean {
   if (isText(node)) return false;
@@ -19,10 +19,10 @@ function hasInitialFocusMarker(node: PlayNode): boolean {
 }
 
 function resolveComponent(type: string): unknown {
-  const prefix = "VistaSheet.";
+  const prefix = "Iris.";
   if (type.startsWith(prefix)) {
-    const name = type.slice(prefix.length) as keyof typeof VistaSheet;
-    return VistaSheet[name];
+    const name = type.slice(prefix.length) as keyof typeof Iris;
+    return Iris[name];
   }
   return type;
 }
@@ -39,7 +39,7 @@ function propsToObject(
  * Renders the same `PlayNode` tree the codegen printer serialises to JSX —
  * one model drives both the specimen and the copy output (Strawman (v0.2)),
  * so drift between what's shown and what's copied is structurally
- * impossible. `rootOverrides` merge onto the outermost `VistaSheet.Root`
+ * impossible. `rootOverrides` merge onto the outermost `Iris.Root`
  * only (the playground's own render-time wiring — id, persistKey,
  * onAnchorChange — which the printer never emits). `rendererChildren` are
  * appended after the root's codegen children (e.g. `AnchorSync`) — a
@@ -50,7 +50,7 @@ export function renderPlayTree(
   rootOverrides: RootOverrides = {},
   rendererChildren: ReactNode[] = [],
   /** Wired onto the marked recipe field (INITIAL_FOCUS_PROP) as its DOM ref,
-   * and onto the ancestor <VistaSheet.Sheet> as `initialFocus` — Search and
+   * and onto the ancestor <Iris.Sheet> as `initialFocus` — Search and
    * Chat's recipes are the only ones that mark a field; every other recipe
    * renders exactly as it did before (the panel keeps focus at settle). */
   initialFocusRef?: RefObject<HTMLElement | null>,
@@ -93,7 +93,7 @@ function renderNode(
   if (isRoot) Object.assign(props, rootOverrides);
   if (marked && initialFocusRef) props.ref = initialFocusRef;
   if (
-    node.type === "VistaSheet.Sheet" &&
+    node.type === "Iris.Sheet" &&
     needsInitialFocus &&
     initialFocusRef
   ) {

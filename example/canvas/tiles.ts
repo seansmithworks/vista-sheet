@@ -413,7 +413,7 @@ const GEOMETRY_TILES: CanvasTile[] = [
     id: "geometry-radius-16",
     section: "geometry",
     label: "Radius 16",
-    caption: "--vista-sheet-sheet-radius: 16px",
+    caption: "--wicket-iris-sheet-radius: 16px",
     state: spec("basic", "neutral", { sheetRadius: 16 }),
     overrides: { defaultOpen: true },
   }),
@@ -424,7 +424,7 @@ const GEOMETRY_TILES: CanvasTile[] = [
     // sheetPadding pads Content (its sides and bottom) only. The Shared
     // circle keeps its own 24px margin, so it doesn't move.
     caption:
-      "--vista-sheet-sheet-padding: 48px · text moves in; the circle keeps its 24px margin",
+      "--wicket-iris-sheet-padding: 48px · text moves in; the circle keeps its 24px margin",
     state: spec("basic", "neutral", { sheetPadding: 48 }),
     overrides: { defaultOpen: true },
   }),
@@ -445,7 +445,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     id: "behaviour-shadow-on",
     section: "behaviour",
     label: "Shadow on",
-    caption: "<VistaSheet.Shadow />",
+    caption: "<Iris.Shadow />",
     autoplay: "morph",
     state: spec("basic", "neutral", { shadow: true }),
   }),
@@ -453,7 +453,7 @@ const BEHAVIOUR_TILES: CanvasTile[] = [
     id: "behaviour-shadow-off",
     section: "behaviour",
     label: "Shadow off",
-    caption: "no <VistaSheet.Shadow />",
+    caption: "no <Iris.Shadow />",
     autoplay: "morph",
     state: spec("basic", "neutral", { shadow: false }),
   }),
