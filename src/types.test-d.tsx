@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { VistaSheet, useVistaSheet } from "./index";
-import type { AnchorId, RootProps, TriggerProps } from "./index";
+import type { AnchorId, RootProps, SheetProps, TriggerProps } from "./index";
 
 // Modal prop types stay extendable interfaces.
 export interface MyRootProps extends RootProps {
@@ -20,13 +20,19 @@ export const good: ReactElement = <VistaSheet.Trigger aria-label="Open" />;
 // separate components that meet through context, so no prop type on Trigger
 // can know which Root it sits under. The runtime check lives in Trigger.tsx.
 
-// F4: Sheet accepts aria-describedby. Labelled only constrains the name
-// (aria-label xor aria-labelledby); it never closed over describedby.
+// F4: guards against Labelled being tightened to reject aria-describedby.
+// It does not prove Sheet supports the attribute: TS accepts any hyphenated
+// JSX attribute, and SheetProps does not declare it (asserted below).
 export const described: ReactElement = (
   <VistaSheet.Sheet aria-labelledby="t" aria-describedby="d">
     <p id="d">Body</p>
   </VistaSheet.Sheet>
 );
+
+// F4 current state: SheetProps does not declare aria-describedby. M3
+// (Title/Description parts) replaces this assertion.
+type _DescribedByNotDeclared = "aria-describedby" extends keyof SheetProps ? never : true;
+export const _f4: _DescribedByNotDeclared = true;
 
 // P0-3 public API: setAnchor takes an AnchorId.
 export function useSetAnchor(): void {
