@@ -2,7 +2,7 @@
 
 Browser and platform issues, plus the known limits scattered across README, DESIGN.md and the backlog. Status values: **open**, **parked** (decided not to fix now), **by design**, **test-only** (the component is fine; a spec assumes Chromium).
 
-Last cross-browser run: 2026-10-07, Playwright 1.62, `npm run test:browsers`, run in a separate worktree at `8090664`, before the motion 12-14 change (`46cf886`) and this file (`391e836`). Chromium 313/313, WebKit 303/314, iOS-emulated WebKit 295/314, Pixel-emulated Chromium 311/313. Firefox did not run (see below). Logs: `/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/browsers/` (session scratch, not in the repo).
+Last cross-browser run: 2026-10-07, Playwright 1.62, `npm run test:browsers`, run in a separate worktree at `8090664`, before the motion 12-14 change (`46cf886`) and this file (`391e836`). Chromium 313/313, WebKit 303/314, iOS-emulated WebKit 295/314, Pixel-emulated Chromium 311/313. Firefox did not run (see below).
 
 ## How to run the browser matrix
 
@@ -35,8 +35,8 @@ All headless. A full project takes about 9 minutes. Playwright's WebKit is the S
 | Shared / Media inside a rectangle trigger | All | Unsupported in v0.2 | Use plain children | open |
 | Dia toolbar picks up the glow colour | Dia | With the sheet anchored top and the demo glow on, the toolbar tints. Mechanism inferred: top-edge colour sampling when no `theme-color` is set | Add `<meta name="theme-color">` | parked (demo only) |
 | Dia corner mismatch | Dia | Shadow tighter than the sheet; not reproducible in Chrome 154 | None | parked, needs a console check in Dia |
-| `motion` 12, 13 and 14 supported | All | Peer range is `^12 \|\| ^13 \|\| ^14`. `geometry.spec.ts` passed 137/137 on 12.43.0, 13.5.1 and 14.0.0 (`/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/packaging/m12.geometry.log`, `m13.geometry.log`, `m14.geometry.log`). Perf gate: passed on 12.43.0 and 14.0.0 (`m12.perf.log`, `m14.perf.log`); the saved 13.5.1 log is a FAIL under heavy load (load1=110), and the passing rerun was an agent report, log not retained | None | resolved |
-| iOS home-page disc offset | iOS Simulator (iPhone 18 Pro, iOS 27) | The bottom-centre disc on `/` sits about 170px above the bottom edge, over the floating toolbar. Evidence: `/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/browsers/ios-index-rest.png`. Cause not investigated | None | open |
+| `motion` 12, 13 and 14 supported | All | Peer range is `^12 \|\| ^13 \|\| ^14`. `geometry.spec.ts` passed 137/137 on 12.43.0, 13.5.1 and 14.0.0 (2026-10-07). `npm run perf` passed on 12.43.0 and 14.0.0; on 13.5.1 the first run failed under heavy load (raster 97.0ms vs 93.3ms limit, load average ~110), then passed 3 of 3 sequential reruns on a quiet machine (raster median 70.0 / 38.9 / 62.7ms, dropped frames median 1 / 1 / 1, longest interval 16.7ms each) | None | resolved |
+| iOS home-page disc offset | iOS Simulator (iPhone 18 Pro, iOS 27) | The bottom-centre disc on `/` sits about 170px above the bottom edge, over the floating toolbar. Evidence: [docs/known-issues/ios-disc-offset.png](known-issues/ios-disc-offset.png). Cause not investigated | None | open |
 | Nothing consumes the package yet | n/a | Gate-tested, not battle-tested | n/a | open |
 
 ## Tests that assume Chromium
@@ -62,4 +62,4 @@ Carried over from earlier runs (agent report; logs not retained). Pass on rerun;
 - `media.spec.ts:289`
 - `media.spec.ts:606` (1.72px vs 1px)
 
-None of the four failed in the 2026-10-07 Chromium run (`/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/browsers/chromium.log`: 313 passed).
+None of the four failed in the 2026-10-07 Chromium run (313 passed).
