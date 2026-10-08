@@ -169,10 +169,6 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
         "--vista-sheet-sheet-shadow-opacity",
         String(sheetShadowOpacity),
       );
-      el.style.setProperty("--vista-sheet-shadow-x", `${cx}px`);
-      el.style.setProperty("--vista-sheet-shadow-y", `${cy}px`);
-      el.style.setProperty("--vista-sheet-shadow-w", `${halfW}px`);
-      el.style.setProperty("--vista-sheet-shadow-h", `${halfH}px`);
       el.style.setProperty("--vista-sheet-shadow-radius", `${radius}px`);
       el.style.width = `${halfW * 2}px`;
       el.style.height = `${halfH * 2}px`;

@@ -277,8 +277,6 @@ export interface Rect {
   halfHeight: number;
 }
 
-export type SheetRect = Rect;
-
 /** Public state + escape hatch returned by useVistaSheet(). */
 export interface VistaSheetState {
   open: boolean;
@@ -294,5 +292,5 @@ export interface VistaSheetState {
   collapseProgress: MotionValue<number>;
   /** Live viewport rects, null before first measure. */
   triggerRect: Rect | null;
-  sheetRect: SheetRect | null;
+  sheetRect: Rect | null;
 }

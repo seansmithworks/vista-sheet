@@ -5,7 +5,6 @@ import type { AnchorId } from "./anchors";
 import type {
   VistaSheetState,
   Rect,
-  SheetRect,
   TriggerShape,
   ButtonSize,
 } from "./types";
@@ -60,7 +59,7 @@ export interface VistaSheetContextValue extends VistaSheetState {
    * <Shadow> positions from this, never from the React state, so it moves
    * in the frame the trigger does. */
   triggerRectLive: MotionValue<Rect | null>;
-  setSheetRect: (rect: SheetRect | null) => void;
+  setSheetRect: (rect: Rect | null) => void;
   /** A stable numeric-px border-radius MotionValue, owned by Root, that
    * Sheet.tsx relays its own useCollapseRadius() output into every tick so
    * Trigger.tsx's `.triggerSurface` can bind to the same painted values

@@ -506,9 +506,9 @@ Hover lift (`1px`), press scale (`0.97`), highlight size (`96px`) and ring
 width (`1px`) are the same as the light defaults.
 
 The package writes `--vista-sheet-trigger-size`, `--vista-sheet-button-width`,
-`--vista-sheet-trigger-x/-y`, `--vista-sheet-trigger-highlight-x/-y`,
+`--vista-sheet-trigger-highlight-x/-y`,
 `--vista-sheet-sheet-left`, `--vista-sheet-collapse`,
-`--vista-sheet-shadow-x/-y/-w/-h/-radius`, and
+`--vista-sheet-shadow-radius`, and
 `--vista-sheet-shadow-opacity`/`--vista-sheet-sheet-shadow-opacity` (the live
 crossfade values, in [0, 1]); read these, don't set them.
 

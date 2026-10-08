@@ -25,7 +25,7 @@ import {
 import { useCollapseRadius } from "./useCollapseRadius";
 import { Layer } from "./Layer";
 import { useDialogBehavior } from "./useDialogBehavior";
-import type { SheetProps, SheetRect } from "./types";
+import type { Rect, SheetProps } from "./types";
 import styles from "./styles.module.css";
 
 // `process` is not declared in a Vite consumer's tsconfig (`types` is an
@@ -158,7 +158,7 @@ export function Sheet({
   // for the callers that must publish a rect even if it matches the last one
   // (the open below, after sheetRect has been released to null on the
   // previous exit-complete).
-  const lastSheetRectRef = useRef<SheetRect | null>(null);
+  const lastSheetRectRef = useRef<Rect | null>(null);
   const measureSheetRect = useCallback(
     (force: boolean) => {
       const el = sheetRef.current;

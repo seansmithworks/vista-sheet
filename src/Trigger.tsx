@@ -282,10 +282,7 @@ function ButtonTrigger({
   ]);
 
   // Report the trigger's live rect for the escape hatch (useVistaSheet().triggerRect)
-  // and for Sheet's shadow-mask morph. Also writes --vista-sheet-trigger-x/-y
-  // — documented as package-written/consumer-readable — directly on the
-  // wrapper without a React re-render, mirroring the source site's bloom-
-  // tracking pattern.
+  // and for Sheet's shadow-mask morph.
   //
   // The rect is computed, not measured: x/y plus the button's layout box
   // inside the wrapper (the wrapper is fixed at the viewport origin and
@@ -297,8 +294,7 @@ function ButtonTrigger({
   //
   // setTriggerRect is React state on Root, so calling it synchronously here
   // would re-render the whole Root subtree on every pointer-move frame of a
-  // drag. The imperative --vista-sheet-trigger-x/-y writes stay per-frame;
-  // the React commit is rAF-coalesced to at most once per frame and skipped
+  // drag. The React commit is rAF-coalesced to at most once per frame and skipped
   // entirely when the rect hasn't moved by more than half a pixel.
   //
   // A layout effect so the first live rect is published before <Shadow>'s
@@ -326,14 +322,6 @@ function ButtonTrigger({
           ),
         );
       }
-      wrapperRef.current?.style.setProperty(
-        "--vista-sheet-trigger-x",
-        `${x.get()}px`,
-      );
-      wrapperRef.current?.style.setProperty(
-        "--vista-sheet-trigger-y",
-        `${y.get()}px`,
-      );
       if (rafRef.current == null) {
         rafRef.current = requestAnimationFrame(commit);
       }

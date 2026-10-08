@@ -383,10 +383,9 @@ Those offsets reproduce the shipped stack exactly (99 / 100 / 201 / 202) at the 
 | Variable | On | Meaning |
 | --- | --- | --- |
 | `--vista-sheet-trigger-size` | trigger root | resolved diameter in px |
-| `--vista-sheet-trigger-x`, `--vista-sheet-trigger-y` | trigger root | live top-left in viewport px |
 | `--vista-sheet-sheet-left`, `--vista-sheet-sheet-top` | sheet | resolved placement in px |
 | `--vista-sheet-collapse` | shadow layer | `0..1`, the live morph progress |
-| `--vista-sheet-shadow-x/-y/-w/-h/-radius` | shadow layer | the interpolated silhouette |
+| `--vista-sheet-shadow-radius` | shadow layer | the interpolated corner radius |
 
 ### One fix taken during extraction
 
@@ -493,8 +492,6 @@ data-vista-sheet-part="shadow"
 data-state="closed" | "open" | "dragging"
 style:
   --vista-sheet-collapse: 0..1
-  --vista-sheet-shadow-x / -y      viewport px, silhouette center
-  --vista-sheet-shadow-w / -h      half-extents in px
   --vista-sheet-shadow-radius      px
 ```
 

@@ -22,7 +22,7 @@ import {
 } from "./shape";
 import type { TriggerBox } from "./shape";
 import type { Transition } from "motion/react";
-import type { Rect, RootComponentProps, SheetRect } from "./types";
+import type { Rect, RootComponentProps } from "./types";
 import {
   MD_BREAKPOINT,
   resolveTriggerSize,
@@ -337,7 +337,7 @@ export function Root({
     },
     [triggerRectLive],
   );
-  const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
+  const [sheetRect, setSheetRect] = useState<Rect | null>(null);
 
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
 
