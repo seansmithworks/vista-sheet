@@ -317,14 +317,16 @@ function ButtonTrigger({
     const update = () => {
       const el = triggerRef.current;
       if (el) {
-        triggerRectLive.set(
-          rectFromBox(
-            x.get() + el.offsetLeft,
-            y.get() + el.offsetTop,
-            el.offsetWidth,
-            el.offsetHeight,
-          ),
+        const next = rectFromBox(
+          x.get() + el.offsetLeft,
+          y.get() + el.offsetTop,
+          el.offsetWidth,
+          el.offsetHeight,
         );
+        const prev = triggerRectLive.get();
+        // A no-op event (a resize or ResizeObserver tick that moved
+        // nothing) must not make <Shadow> re-apply.
+        if (!prev || !rectsNear(prev, next, 0.01)) triggerRectLive.set(next);
       }
       wrapperRef.current?.style.setProperty(
         "--vista-sheet-trigger-x",
@@ -362,6 +364,8 @@ function ButtonTrigger({
       unsubY();
       window.removeEventListener("resize", update);
       resizeObserver?.disconnect();
+      // No trigger, no live rect: <Shadow> falls back to the sheet's rect.
+      triggerRectLive.set(null);
       if (rafRef.current != null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
