@@ -496,7 +496,7 @@ palette uses a faint white glow instead:
 --vista-sheet-shadow: 0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15);
 --vista-sheet-sheet-shadow: 0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15);
 --vista-sheet-surface-border: rgba(255,255,255,.1);
---vista-sheet-accent: #f5f5f7; /* focus ring: the default is invisible on dark */
+--vista-sheet-accent: #f5f5f7; /* focus ring; matches the canvas page's dark accent (--cv-accent). The default #1d1d1f is invisible on dark */
 --vista-sheet-trigger-highlight-color: rgba(255,255,255,.1);
 --vista-sheet-trigger-highlight-strength: 1;
 --vista-sheet-trigger-press-tint: rgba(255,255,255,.15);
@@ -727,9 +727,11 @@ An open sheet is a real modal, not just a labelled dialog.
 
 - **The page is inert.** While the sheet is open, everything outside it gets
   `inert`: no pointer, no focus, no assistive-technology access. The panel,
-  its backdrop and any `[aria-live]` or `role="status|alert|log"` region
-  already on the page are kept live, so a toast still announces and stays
-  clickable. The page, trigger included, is released the moment a close is
+  its backdrop and any `[aria-live]` (other than `aria-live="off"`) or
+  `role="status|alert|log"` region already on the page when the sheet opens
+  are kept live, so a toast still announces and stays clickable. A live
+  region that wraps the sheet is not kept, since that would keep the whole
+  page. The page, trigger included, is released the moment a close is
   requested, not when the animation ends, so the trigger is tappable from the
   first close frame and a reopen can interrupt the close.
 - **Focus guards.** Tab is never intercepted. Two `tabindex="0"` guard

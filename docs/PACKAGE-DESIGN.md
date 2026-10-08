@@ -181,7 +181,7 @@ Every modal-only prop (`open`, `defaultOpen`, `defaultAnchor`, `draggable`, `per
 
 1. **The Trigger switch.** `asChild` selects `LinkTrigger` (hover intent, focus intent, touch long-press, one pinned line box) over the button trigger.
 2. **The placement function.** `previewSheetPlacement` (built on the pure `previewPlacement` in `anchors.ts`) replaces `sheetPlacement`: above the hovered line if the whole card fits there, otherwise the side with more room (above wins a tie), shrunk to fit; 8px gap, 16px viewport clamp, a 240px minimum height (currently; `PREVIEW_MIN_HEIGHT_PX`). Computed once at open.
-3. **`useDialogBehavior({ modal })`.** `modal: false` skips scroll lock, background `aria-hidden`, focus move and the Tab trap, and adds light dismiss (outside press, scroll, resize). Escape closes in both modes.
+3. **`useDialogBehavior({ modal })`.** `modal: false` skips scroll lock, the inert page, focus move and the focus guards, and adds light dismiss (outside press, scroll, resize). Escape closes in both modes.
 
 Root also owns one `display: contents` layer on `<body>` that Sheet and Shadow both portal into, so `Shadow` still finds its sheet through `[data-vista-sheet-root]`. The layer exists only while a card is armed, open or closing, and carries the theme vars and the consumer's `className`. Content and Shadow carry no preview branches.
 
@@ -325,7 +325,7 @@ Throws outside `<VistaSheet.Root>`. This hook is the escape hatch for §3 and th
 | The anchor region map thresholds (thirds each axis) | Changing them makes "nearest anchor" not mean nearest. |
 | Swipe-to-close thresholds (96px offset, 400px/s velocity) | Platform convention values. |
 | Individual layer z-indices | One `zIndex` base, derived offsets. §2. |
-| The focus-trap selector string | Widening it is how you trap focus on a hidden element. |
+| Focus-guard routing | Guards send focus to the first or last live tab stop; consumers cannot widen what counts as tabbable, because that is how focus lands on a hidden element. |
 | `topPx` / `bottomPx` sheet placement | Derived from the anchor and the viewport, never passed. The consumer choosing these independently is how the sheet ends up off-screen. |
 | A `tuning` object mirroring `BloomTuning` | The shortest path and the wrong one. See §7C. |
 
@@ -561,7 +561,7 @@ vista-sheet/
     ├── motion.ts             ~75    default springs, internal choreography constants, transition merge
     ├── useTriggerSize.ts     ~45    resolve the ramp to a number, write --vista-sheet-trigger-size, resize handling
     ├── usePersistedAnchor.ts ~50    localStorage read + validate + write
-    ├── useDialogBehavior.ts  ~95    scroll lock, focus trap, Escape, focus restore on exit-complete
+    ├── useDialogBehavior.ts  ~95    scroll lock, inert page, focus guards, Escape via dismissLayers, focus restore on exit-complete
     ├── readVarPx.ts          ~35    read a px custom property (radius tokens)
     ├── types.ts              ~60    AnchorId, Spring, MorphTransition, prop interfaces
     ├── styles.module.css    ~380    all package CSS, --vista-sheet-* vars with fallbacks
@@ -614,7 +614,7 @@ Do not carry over:
 - On close, focus returns to the trigger at **exit-complete**, not at state change (`ContactSheet.tsx:1094-1096`). Restoring focus while the surface is still animating out causes a visible scroll jump.
 - Tab is never intercepted. Two focus guards (`<span tabIndex={0} aria-hidden data-vista-sheet-focus-guard>`), rendered as siblings just outside the panel while a modal sheet is present, catch focus leaving either edge and route on `relatedTarget`: from inside the panel means Tab ran off that edge, so wrap to the opposite end; from anywhere else means focus is entering, so land on the near end. Tab order inside is the browser's own. Focus coming back out of an iframe is handled with a blur fallback.
 
-**Inert page.** While the sheet is open, every sibling off the path from the panel, guards and backdrop to `<body>` gets `inert` (keep-path walking, React Aria's model). Live regions present at open (`[aria-live]`, `role=status|alert|log`) stay live. Elements the page already made inert are left alone, and elements inerted by stacked sheets are owner-counted. The inert window is `open`, not `isPresent`: it is released at the close request, in the commit the backdrop unmounts in, so the trigger is tappable from the first close frame and reopen-mid-close works. Guards and scroll lock key on `isPresent` and last until exit-complete, so Tab mid-close stays in the panel. There is no `aria-hidden` on the page; `inert` does that job.
+**Inert page.** While the sheet is open, every sibling off the path from the panel, guards and backdrop to `<body>` gets `inert` (keep-path walking, React Aria's model). Live regions present at open (`[aria-live]` other than `aria-live="off"`, `role=status|alert|log`) stay live; one that wraps the sheet is not kept, since that would keep the whole page. Elements the page already made inert are left alone, and elements inerted by stacked sheets are owner-counted. The inert window is `open`, not `isPresent`: it is released at the close request, in the commit the backdrop unmounts in, so the trigger is tappable from the first close frame and reopen-mid-close works. Guards and scroll lock key on `isPresent` and last until exit-complete, so Tab mid-close stays in the panel. There is no `aria-hidden` on the page; `inert` does that job.
 
 **Dismiss layers.** Open modal sheets and preview cards register in `src/dismissLayers.ts` in the order they open. One document keydown listener in the bubble phase sends Escape to the top layer only. It is ignored when `defaultPrevented` (a listbox or combobox claimed it), `isComposing` or `keyCode === 229` (IME). So a preview card in a sheet takes one Escape and the sheet a second.
 
@@ -693,9 +693,9 @@ Ship this: `Root`, `Trigger`, `Sheet`, `Shared`, `Content`, `Item`, `Close`, `Sh
 | --- | --- |
 | **The entrance choreography** (WAAPI arrival stroke, impact ripple, velocity coupling) | Already out of scope per the extraction map; reconfirming it. Near-zero cost to the package. Real cost to the site: the trigger simply appears. The site keeps its own arrival animation on a wrapper, driven off `useVistaSheet().triggerRect`. Say this out loud in the migration plan so nobody discovers it during cutover. |
 | **`<VistaSheet.Backdrop>`** | Site default is already no scrim. Dismissal behavior still ships. A consumer who wants a dim scrim writes six lines of their own fixed div. Low. |
-| **Controlled `anchor` + `onAnchorChange` as a controlled pair** | Ship uncontrolled and persisted only; keep `onAnchorChange` as a read-only notification. Cost: an app that wants to move the trigger programmatically (get out of the way of another modal) cannot. Real use case, not v0.1's. Low-medium. |
+| **Controlled `anchor` + `onAnchorChange` as a controlled pair** | Ship uncontrolled and persisted only; keep `onAnchorChange` as a read-only notification. Cost: the anchor itself is not a controlled prop. Programmatic moves shipped in P0-3 as public `useVistaSheet().setAnchor`; only the controlled `anchor` prop remains cut. Low. |
 | **The `anchors` subset prop and `edgeMargin`** | All six anchors at 16px. Cost: low, and it is additive later. |
-| **Arrow-key repositioning between anchors** | Roughly 20 lines and a genuine accessibility and delight win, but it does not exist in the shipped component and extraction is the wrong time to add behavior. Cost: a documented a11y gap that stays documented. |
+| **Arrow-key repositioning between anchors** | Roughly 20 lines and a genuine accessibility and delight win, but it did not exist in the shipped component and extraction was the wrong time to add behavior. Shipped in P0-3 (a11y/p0): arrow keys move the focused trigger, sharing `snapTo` with the drag release. |
 | **The trailing-paper close mask** (`surfaceCloseMask` and its triangular envelope) | **The expensive one, and it doubles as the design's own test.** See below. |
 
 ### On cutting the close mask

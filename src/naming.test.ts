@@ -19,17 +19,21 @@ const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), "..");
 
 const NAME_RE = /morph[-_ ]?sheet/i;
 
-// path -> line numbers where a hit is EXPECTED and allowed to stay.
-const ALLOWLIST: Record<string, number[]> = {
+// path -> frozen tokens that are EXPECTED and allowed to stay. Entries are
+// content, not line numbers, so editing a doc above a hit can't break the
+// guard. A line passes if nothing matches the old name once its allowed
+// tokens are removed. null = the whole file is history.
+const FILE_JSON = "dialkit-morph-sheet-close.json";
+const ALLOWLIST: Record<string, string[] | null> = {
   // Frozen dialkit panel/preset ids — renaming these orphans Sean's saved
   // dial history (see the comments at each site).
-  "tuner/page.tsx": [26, 27],
-  "example/main.tsx": [390, 419, 485, 608],
+  "tuner/page.tsx": ["morph-sheet-close"],
+  "example/main.tsx": ["morph-sheet-iridescent", "morph-sheet-shadow-crossfade"],
   // The one committed tuning snapshot these ids persist under, and every
   // live reference to its filename.
-  "docs/tuning/dialkit-morph-sheet-close.json": [1],
-  "docs/PACKAGE-DESIGN.md": [401],
-  "src/motion.ts": [28],
+  "docs/tuning/dialkit-morph-sheet-close.json": null,
+  "docs/PACKAGE-DESIGN.md": [FILE_JSON],
+  "src/motion.ts": [FILE_JSON],
   // History: files that record what was true then, not rewritten.
   "BACKLOG.md": null,
   "BACKLOG-archive.md": null,
@@ -40,6 +44,9 @@ const ALLOWLIST: Record<string, number[]> = {
   // This guard file itself.
   "src/naming.test.ts": null,
 };
+
+const strip = (line: string, tokens: string[]) =>
+  tokens.reduce((l, t) => l.split(t).join(""), line);
 
 function gitFiles(): string[] {
   return execFileSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" })
@@ -53,53 +60,33 @@ describe("morph-sheet -> VistaSheet rename", () => {
     const violations: string[] = [];
 
     for (const file of files) {
-      if (file === "docs/tuning/dialkit-morph-sheet-close.json") {
-        // Filename-only allowlist entry — its content isn't scanned.
-        continue;
-      }
+      const tokens = ALLOWLIST[file];
+      if (tokens === null) continue; // whole file is history / frozen
       let text: string;
       try {
         text = readFileSync(path.join(ROOT, file), "utf8");
       } catch {
         continue; // binary or unreadable — not a naming target
       }
-      const lines = text.split("\n");
-      const allowedLines = ALLOWLIST[file];
-      if (allowedLines === undefined) {
-        lines.forEach((line, i) => {
-          if (NAME_RE.test(line)) {
-            violations.push(`${file}:${i + 1}: ${line.trim()}`);
-          }
-        });
-      } else if (allowedLines !== null) {
-        lines.forEach((line, i) => {
-          const lineNo = i + 1;
-          if (NAME_RE.test(line) && !allowedLines.includes(lineNo)) {
-            violations.push(`${file}:${lineNo}: ${line.trim()}`);
-          }
-        });
-      }
-      // allowedLines === null: whole file is allowlisted (history), skip.
+      text.split("\n").forEach((line, i) => {
+        if (NAME_RE.test(strip(line, tokens ?? []))) {
+          violations.push(`${file}:${i + 1}: ${line.trim()}`);
+        }
+      });
     }
 
     expect(violations).toEqual([]);
   });
 
-  it("fails if an allowlisted line no longer contains the old name", () => {
+  it("fails if an allowlisted token no longer appears in its file", () => {
     const stale: string[] = [];
 
-    for (const [file, lineNos] of Object.entries(ALLOWLIST)) {
-      if (!lineNos || file === "docs/tuning/dialkit-morph-sheet-close.json") {
-        continue;
-      }
+    for (const [file, tokens] of Object.entries(ALLOWLIST)) {
+      if (!tokens) continue;
       const text = readFileSync(path.join(ROOT, file), "utf8");
-      const lines = text.split("\n");
-      for (const lineNo of lineNos) {
-        const line = lines[lineNo - 1] ?? "";
-        if (!NAME_RE.test(line)) {
-          stale.push(
-            `${file}:${lineNo} no longer matches — update the allowlist`,
-          );
+      for (const token of tokens) {
+        if (!text.includes(token)) {
+          stale.push(`${file}: "${token}" no longer appears — update the allowlist`);
         }
       }
     }

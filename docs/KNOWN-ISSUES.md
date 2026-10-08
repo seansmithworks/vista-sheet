@@ -27,7 +27,7 @@ All headless. A full project takes about 9 minutes. Playwright's WebKit is the S
 | Canvas dissection never reports ready | WebKit, iOS WebKit | `data-exploded-ready` is never set, so the exploded z-stack does not finish (30s timeout) | None known | open (canvas page, not the package) |
 | Autoplay moves focus into a canvas iframe | WebKit, iOS WebKit | `document.activeElement` becomes an `IFRAME` while the canvas autoplays; the canvas's own focus should stay on `BODY` | None known | open (canvas page, not the package) |
 | No `inert` on background content | All | Was open. The page is now `inert` while a modal sheet is open | n/a | resolved (a11y/p0 P0-1, `b0d06fa`; README Accessibility) |
-| Focus trap does not see into shadow DOM or iframes | All | Was by design. Focus guards plus `inert` now cover them: shadow-aware tab stops, and an iframe blur fallback | n/a | resolved (a11y/p0 P0-1, `b0d06fa`) |
+| Focus trap does not see into shadow DOM or iframes | All | Was by design. Focus guards plus `inert` now cover them: shadow-aware tab stops (open shadow roots only), and an iframe blur fallback | n/a | resolved (a11y/p0 P0-1, `b0d06fa`) |
 | No keyboard repositioning of the trigger | All | Was by design. Arrow keys and public `setAnchor` now move it | A consumer "Move" control is still needed for strict WCAG 2.5.7 (README) | resolved (a11y/p0 P0-3, `e843b31`) |
 | Resize mid-close transient | All | Resizing the viewport while closing desyncs shadow and surface by about 300-370px (position only; gated at 450px) | None | open, bounded |
 | First open after page load stalls ~50ms | Chromium on Sean's GPU | One dropped frame on the very first open | Open once at load if a cold open must be recorded | open, bounded |
