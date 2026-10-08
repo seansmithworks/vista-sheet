@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>vista-sheet accessibility plan</title>
+    <link rel="stylesheet" href="http://localhost:4849/assets/plan.css" />
+    <style>
+      :root {
+        --a-bg: #f6f6f7;
+        --a-line: #d4d4d8;
+        --a-ok: #15803d;
+        --a-no: #b91c1c;
+        --a-mut: #52525b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --a-bg: #1f1f23;
+          --a-line: #3f3f46;
+          --a-ok: #4ade80;
+          --a-no: #f87171;
+          --a-mut: #a1a1aa;
+        }
+      }
+      .card {
+        border: 1px solid var(--a-line);
+        background: var(--a-bg);
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        margin: 1rem 0;
+      }
+      .card h3 {
+        margin-top: 0;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+      @media (max-width: 640px) {
+        .pair {
+          grid-template-columns: 1fr;
+        }
+      }
+      .pair > div {
+        border: 1px solid var(--a-line);
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem;
+      }
+      .tag {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .ok {
+        color: var(--a-ok);
+      }
+      .no {
+        color: var(--a-no);
+      }
+      .impact {
+        font-weight: 600;
+      }
+      .item {
+        border-top: 1px solid var(--a-line);
+        padding: 0.7rem 0;
+      }
+      .mut {
+        color: var(--a-mut);
+      }
+      table.ledger td:first-child,
+      table.ledger th:first-child {
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 data-anchor-id="title">vista-sheet accessibility plan</h1>
+    <div class="doc-meta" data-anchor-id="meta">
+      <span>Project: vista-sheet</span>
+      <span>2026-10-07</span>
+      <span class="badge badge--draft">Revised, awaiting your 3 calls</span>
+    </div>
+
+    <div class="summary" data-anchor-id="answer">
+      <strong>Answer</strong>
+      <p>
+        Seven fixes block the final publish. They close the last two WCAG Level
+        A failures (keyboard-only move, autoplaying video) and make the sheet a
+        true modal. Eight more fixes and six polish items ship after.
+      </p>
+      <p>
+        An independent critique found 29 problems in the first draft. All 29 are
+        accepted, and one fix (the page-behind-the-sheet lock) is deliberately
+        different from the critic's.
+      </p>
+    </div>
+
+    <h2 id="decisions" data-anchor-id="decisions">Decisions for you</h2>
+
+    <div class="card" data-anchor-id="decision-1">
+      <h3>1. How a mouse or touch user moves the trigger without dragging</h3>
+      <p>
+        Drag stays on by default either way: it is the product tagline, and it
+        is how someone clears a disc that covers content.
+      </p>
+      <div class="pair">
+        <div>
+          <span class="tag ok">Applied (A)</span>
+          <p>
+            Keyboard arrow moves plus a public <code>setAnchor</code>. README
+            ships a copy-paste "Move" menu recipe. Strict conformance depends on
+            the site rendering that menu.
+          </p>
+        </div>
+        <div>
+          <span class="tag">Alternative (B)</span>
+          <p>
+            The package ships its own tap-to-move: long-press the trigger and
+            the 7 anchor spots appear as tap targets. Conformant out of the box,
+            but new UI for you to design.
+          </p>
+        </div>
+      </div>
+      <p>
+        <strong>Recommendation:</strong> A now, B goes to BACKLOG as a design
+        brief.
+      </p>
+    </div>
+
+    <div class="card" data-anchor-id="decision-2">
+      <h3>2. Pause control for the sheet's video</h3>
+      <p>
+        Your accepted fork has the poster at rest and the video playing while
+        the sheet is open.
+      </p>
+      <div class="pair">
+        <div>
+          <span class="tag ok">Applied</span>
+          <p>
+            No pause button. Close and Escape count as the "hide" in WCAG 2.2.2
+            for content the user chose to open. A pause/play recipe goes in the
+            README.
+          </p>
+        </div>
+        <div>
+          <span class="tag">Alternative</span>
+          <p>A built-in pause control part. New UI, so your call.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-anchor-id="decision-3">
+      <h3>3. High-contrast border colour</h3>
+      <p>
+        With the OS "increase contrast" setting on, the sheet and trigger edge
+        is about 1.1:1 against the page.
+      </p>
+      <div class="pair">
+        <div>
+          <span class="tag ok">Applied</span>
+          <p>
+            An opaque mid-grey border (<code>#8e8e93</code> class), only under
+            <code>prefers-contrast: more</code>.
+          </p>
+        </div>
+        <div>
+          <span class="tag">Alternative</span>
+          <p>A different value. You dial the exact colour on the canvas.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="release-gate" data-anchor-id="release-gate">Release gate</h2>
+    <ul data-anchor-id="release-gate-list">
+      <li>
+        <strong>P0 must land before the final publish</strong> (0.2). 7 items.
+        0.1.1 stays as BACKLOG 35 defines it.
+      </li>
+      <li><strong>P1 (8) and P2 (6) ship after.</strong></li>
+      <li>
+        <strong>Blockers cleared by P0:</strong> keyboard-only move (WCAG 2.1.1,
+        Level A) and autoplaying video (2.2.2, Level A).
+      </li>
+      <li>
+        <strong>One deliberate deviation from the critic:</strong> the page
+        behind the sheet is released at the close request, not when the exit
+        animation finishes. Otherwise page clicks would be swallowed for about
+        640ms, which is worse than today.
+      </li>
+    </ul>
+
+    <h2 id="p0" data-anchor-id="p0">P0: blocks the final publish (7)</h2>
+
+    <div class="item" data-anchor-id="p0-1">
+      <p class="impact">
+        1. The sheet behaves like a real modal: the page behind it can't be
+        clicked or tabbed into, and reopen-mid-close keeps working.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            <strong>Inert while open.</strong> Walk up from each kept node
+            (panel, two focus guards, backdrop, live regions like toasts) to
+            <code>body</code>. Everything else gets <code>inert</code>.
+          </li>
+          <li>
+            <strong>Released at the close request.</strong> The trigger is
+            tappable from the first close frame, as six existing specs require.
+          </li>
+          <li>
+            <strong>Focus guards</strong> are siblings outside the panel and
+            route on <code>relatedTarget</code>. One Tab from the panel still
+            reaches Close.
+          </li>
+          <li>
+            <strong>Guards and scroll lock</strong> run until exit-complete, so
+            Tab mid-close stays in the panel.
+          </li>
+          <li>
+            <strong>Focus restore</strong> only if focus is on the body or
+            inside the panel, so a page control clicked mid-close keeps focus.
+          </li>
+          <li>
+            <strong>Rewrites</strong> <code>useDialogBehavior.ts</code>; deletes
+            per-press Tab ownership (lines 246-272).
+          </li>
+          <li>
+            <strong>Gate:</strong> existing geometry (l), (n), (n-shape), (p3),
+            <code>buttons:537</code>, <code>media:335</code>, all of
+            <code>focus.spec.ts</code>. New: page click blocked with
+            <code>dismissOnBackdrop={false}</code>, iframe can't steal focus,
+            native Tab order in radio groups, <code>&lt;details&gt;</code> and
+            shadow roots, toast stays live.
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="item" data-anchor-id="p0-2">
+      <p class="impact">
+        2. Escape closes only the top-most layer and never interrupts typing.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            New <code>src/dismissLayers.ts</code>: modal and preview Roots push
+            to it; one document keydown listener in
+            <strong>bubble</strong> phase.
+          </li>
+          <li>
+            Ignored when <code>defaultPrevented</code>,
+            <code>isComposing</code> or <code>keyCode === 229</code>.
+          </li>
+          <li>
+            <strong>Gate:</strong> preview inside a sheet takes two Escapes;
+            composition Escape doesn't close; a listbox that prevents Escape
+            keeps the sheet open.
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="item" data-anchor-id="p0-3">
+      <p class="impact">
+        3. Keyboard users can move the trigger with arrow keys, and the move
+        animates exactly like a drag.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            Extract <code>snapTo(anchor)</code> from
+            <code>handleDragEnd</code> (<code>Trigger.tsx:543-551</code>);
+            reduced motion seats directly.
+          </li>
+          <li>
+            Pure <code>adjacentAnchor(anchor, key)</code> in
+            <code>anchors.ts</code>. Arrows are physical, so RTL is identical.
+          </li>
+          <li>Works when <code>draggable &amp;&amp; !open</code>.</li>
+          <li>
+            <code>useVistaSheet().setAnchor</code> becomes public (additive),
+            routed through <code>snapTo</code>.
+          </li>
+          <li>
+            Hidden <code>role="status"</code> announces "Moved to bottom right."
+            Translatable via new <code>anchorAnnouncement</code> prop.
+          </li>
+          <li>
+            <strong>Gate:</strong> Playwright over all 7 anchors: anchor value,
+            <code>onAnchorChange</code>, live text, and wrapper/surface/Shadow
+            centres agree during the move.
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="item" data-anchor-id="p0-4">
+      <p class="impact">
+        4. The trigger's video shows its poster until the sheet opens, then
+        plays.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            Implements your accepted fork (BACKLOG.md:14). In
+            <code>Media.tsx</code> the trigger video drops
+            <code>autoPlay</code>/<code>loop</code>, uses
+            <code>preload="none"</code>, stays on <code>poster</code>. The sheet
+            side keeps autoplay.
+          </li>
+          <li>
+            Rewrite <code>media.spec.ts:419-440</code>; check
+            <code>canvas-autoplay.spec.ts</code> for the same assumption.
+          </li>
+          <li>
+            <strong>Known seam:</strong> on close, the sheet's current frame
+            morphs into the poster (frame 0). This is the existing "no playback
+            handoff" strawman.
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="item" data-anchor-id="p0-5">
+      <p class="impact">
+        5. An accessibility scanner (axe, free) runs before every publish and
+        fails on any violation.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            <code>@axe-core/playwright</code> plus
+            <code>example/axe.spec.ts</code>, inside
+            <code>test:geometry</code> (already in <code>prepublishOnly</code>).
+          </li>
+          <li>
+            <strong>Pages:</strong> index, contact, buttons, list, media-card,
+            video, link-preview, flagship. Not canvas, play, tune, surface.
+          </li>
+          <li>
+            <strong>States:</strong> closed, open-settled, preview-open, each in
+            default and reduced motion.
+          </li>
+          <li>
+            Two passes (tags, then a separate
+            <code>label-content-name-mismatch</code> builder) because the last
+            <code>runOnly</code> wins.
+          </li>
+          <li>
+            <strong>Red-proof fixture:</strong> a trigger whose label omits its
+            visible text must fail pass 2, or the gate is not trusted.
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="item" data-anchor-id="p0-6">
+      <p class="impact">
+        6. Public type mistakes get caught before publish, not by consumers.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            New <code>tsconfig.types.json</code> (src plus
+            <code>src/types.test-d.tsx</code>, no test files) and a
+            <code>typecheck</code> script run first in
+            <code>prepublishOnly</code>.
+          </li>
+          <li>
+            <code>@ts-expect-error</code> cases: Trigger
+            <code>aria-label</code> still required;
+            <code>aria-describedby</code> accepted on Sheet.
+          </li>
+          <li>
+            Bare <code>tsc</code> stays broken per L145 and is out of scope.
+          </li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="item" data-anchor-id="p0-7">
+      <p class="impact">
+        7. The README stops claiming things the code doesn't do, and documents
+        what it now does.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <ul>
+          <li>
+            Rewrite the "Known gap" at <code>README.md:724-726</code>; add
+            browser floor, arrow keys, the "Move" menu recipe.
+          </li>
+          <li>
+            Add <code>--vista-sheet-accent</code> to the dark recipe; the
+            <code>scroll-padding-bottom</code> plus bottom-padding recipe; the
+            "label must contain visible text" rule; the Android back-gesture
+            line.
+          </li>
+          <li>Tick BACKLOG 13's reposition/video items when they land.</li>
+        </ul>
+      </details>
+    </div>
+
+    <h2 id="p1" data-anchor-id="p1">P1: after the final publish (8)</h2>
+
+    <div class="item" data-anchor-id="p1-1">
+      <p class="impact">
+        1. Screen readers hear a title and description automatically.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          New <code>&lt;VistaSheet.Title&gt;</code> (h2) and
+          <code>&lt;VistaSheet.Description&gt;</code> (p) register ids; Sheet
+          sets <code>aria-labelledby</code>/<code>aria-describedby</code>. Dev
+          error if a sheet opens with no name. <code>Labelled</code> gains a
+          third arm, <code>{}</code> (additive).
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-2">
+      <p class="impact">
+        2. Focus can return to whatever opened the sheet, not just the trigger.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          Sheet <code>finalFocus?: RefObject&lt;HTMLElement|null&gt;</code>,
+          additive. Default stays the trigger.
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-3">
+      <p class="impact">
+        3. Sites can learn why the sheet is closing and veto it.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          <code>onOpenChange(open, { reason, event?, cancel() })</code>.
+          Reasons:
+          <code
+            >trigger-press | close-press | escape-key | outside-press | swipe |
+            imperative</code
+          >.
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-4">
+      <p class="impact">
+        4. The page doesn't scroll or shift under the sheet on more sites.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          Inline in the existing effect: lock <code>html</code> as well as
+          <code>body</code>; skip padding when
+          <code>scrollbar-gutter: stable</code>. iOS: verify on device first;
+          add the <code>position:fixed</code> path only if that fails.
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-5">
+      <p class="impact">5. Close is named "Close" by default.</p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          <code>CloseProps['aria-label']</code> becomes optional, default
+          "Close" (additive). Trigger keeps its required label.
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-6">
+      <p class="impact">
+        6. Wrong <code>asChild</code> use fails loudly instead of silently.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          Dev error on mode mismatch; the child renders unwrapped. Never a link
+          inside a button.
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-7">
+      <p class="impact">7. Long sheets are always keyboard-scrollable.</p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>
+          <code>&lt;VistaSheet.Content&gt;</code> uses a ResizeObserver instead
+          of window resize, and gets <code>role="region"</code> labelled by the
+          Title.
+        </p>
+      </details>
+    </div>
+    <div class="item" data-anchor-id="p1-8">
+      <p class="impact">
+        8. The preview card closes when you Tab away, and warns if it contains
+        links.
+      </p>
+      <details>
+        <summary>Technical detail</summary>
+        <p>Findings m3 and m13 in the draft.</p>
+      </details>
+    </div>
+
+    <h2 id="p2" data-anchor-id="p2">P2: polish, after the final publish (6)</h2>
+    <ul data-anchor-id="p2-list">
+      <li>
+        <strong>Windows High Contrast keeps every edge visible.</strong>
+        Forced-colors block: <code>1px solid CanvasText</code> borders plus
+        <code>Highlight</code> focus rings.
+      </li>
+      <li>
+        <strong>"Increase contrast" gets a stronger border.</strong> Decision 3.
+      </li>
+      <li>
+        <strong>Valid HTML inside the trigger button.</strong> Spans instead of
+        divs on the trigger side.
+      </li>
+      <li>
+        <strong>Small correctness fixes.</strong> Unconditional
+        <code>useId()</code> at <code>Root.tsx:78</code>; dev warning when
+        <code>reduceMotion={false}</code> overrides the OS.
+      </li>
+      <li>
+        <strong
+          >Rectangle labels with <code>buttonWidth</code> don't clip under
+          text-spacing overrides.</strong
+        >
+        Strawman: ellipsis.
+      </li>
+      <li>
+        <strong
+          >The iOS keyboard doesn't cover an input in a bottom sheet.</strong
+        >
+        <code>visualViewport</code> reposition. Also the video pause/play recipe
+        (Decision 2).
+      </li>
+    </ul>
+    <p class="mut">
+      Not planned: <code>&lt;style&gt;</code> hoisting goes to BACKLOG (risks
+      the first-paint fix). Native <code>&lt;dialog&gt;</code> is a no for v1:
+      it would lock the trigger for the whole close and break reopen-mid-close.
+    </p>
+
+    <h2 id="browser-floor" data-anchor-id="browser-floor">
+      Browser floor (stated in README)
+    </h2>
+    <ul data-anchor-id="browser-floor-list">
+      <li>
+        <strong>Supported:</strong> Safari and iOS Safari 16.2+, Chrome and Edge
+        111+, Firefox 113+.
+      </li>
+      <li>
+        <strong>Why:</strong> the shipped CSS already uses
+        <code>color-mix()</code> (<code>styles.module.css:168</code>), so this
+        floor exists today. <code>inert</code> fits under it.
+      </li>
+      <li>
+        <strong>Correction:</strong> the draft's "React 19 implies the floor"
+        was wrong.
+      </li>
+      <li><code>corner-shape</code> stays progressive.</li>
+    </ul>
+
+    <h2 id="manual-checks" data-anchor-id="manual-checks">
+      Manual check before the final publish
+    </h2>
+    <ul data-anchor-id="manual-checks-list">
+      <li>
+        VoiceOver on Safari (macOS and iOS): can't swipe out of the dialog,
+        Close is reachable, the move announcement is heard.
+      </li>
+      <li>
+        Tests are headless Chromium only; the cross-browser branch owns WebKit
+        and Firefox.
+      </li>
+    </ul>
+
+    <h2 id="how-checked" data-anchor-id="how-checked">
+      How this plan was checked
+    </h2>
+    <p data-anchor-id="how-checked-intro">
+      An independent critic attacked the first draft. Verdict was "revise": the
+      core fix would have broken reopen-mid-close in six existing specs. Every
+      finding was accepted except one sub-point.
+    </p>
+    <ul data-anchor-id="how-checked-links">
+      <li>
+        Original:
+        <a
+          href="a11y-web-standards-draft.md"
+          ><code>docs/plans/a11y-web-standards-draft.md</code></a
+        >
+      </li>
+      <li>
+        Critique:
+        <a
+          href="a11y-web-standards-refutation.md"
+          ><code>docs/plans/a11y-web-standards-refutation.md</code></a
+        >
+      </li>
+      <li>
+        Revised source: <code>docs/plans/a11y-web-standards.md</code>
+      </li>
+    </ul>
+
+    <details data-anchor-id="ledger">
+      <summary>
+        Findings ledger F1 to F29: 28 accepted, 1 partly rejected
+      </summary>
+      <table class="ledger">
+        <thead>
+          <tr>
+            <th>F</th>
+            <th>Verdict</th>
+            <th>Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-anchor-id="f1">
+            <td>F1</td>
+            <td>Accepted</td>
+            <td>
+              Page lock keys on <code>open</code>, released at the close
+              request. Six reopen-mid-close specs are the gate.
+            </td>
+          </tr>
+          <tr data-anchor-id="f2">
+            <td>F2</td>
+            <td>Accepted</td>
+            <td>Backdrop is never inerted, so click-to-dismiss works.</td>
+          </tr>
+          <tr data-anchor-id="f3">
+            <td>F3</td>
+            <td>Accepted, different fix</td>
+            <td>
+              Focus guards are siblings outside the panel, routed on
+              <code>relatedTarget</code>. No keydown branch.
+            </td>
+          </tr>
+          <tr data-anchor-id="f4">
+            <td>F4</td>
+            <td>Accepted</td>
+            <td>
+              Title/Description only. Dropped loosening
+              <code>Labelled</code> for <code>aria-describedby</code>.
+            </td>
+          </tr>
+          <tr data-anchor-id="f5">
+            <td>F5</td>
+            <td>Accepted</td>
+            <td>
+              Label-in-Name becomes a major (P1). Close defaults to "Close".
+              README gets the rule.
+            </td>
+          </tr>
+          <tr data-anchor-id="f6">
+            <td>F6</td>
+            <td>Accepted</td>
+            <td>
+              Dropped the <code>textContent</code> mount check. The axe rule
+              covers it.
+            </td>
+          </tr>
+          <tr data-anchor-id="f7">
+            <td>F7</td>
+            <td>Accepted</td>
+            <td>
+              Minor. Mode mismatch is a dev error and renders the child
+              unwrapped.
+            </td>
+          </tr>
+          <tr data-anchor-id="f8">
+            <td>F8</td>
+            <td>Accepted</td>
+            <td>
+              Implements your accepted poster-at-rest fork. 5s-cap strawman
+              gone.
+            </td>
+          </tr>
+          <tr data-anchor-id="f9">
+            <td>F9</td>
+            <td>Accepted</td>
+            <td>
+              Modal fix is a major, still in the gate. "Known gap" README text
+              rewritten.
+            </td>
+          </tr>
+          <tr data-anchor-id="f10">
+            <td>F10</td>
+            <td>Accepted</td>
+            <td>
+              Native <code>&lt;dialog&gt;</code> rationale now leads with the
+              reopen-mid-close reason.
+            </td>
+          </tr>
+          <tr data-anchor-id="f11">
+            <td>F11</td>
+            <td>Accepted</td>
+            <td>Keep-path walking from each kept node, so toasts stay live.</td>
+          </tr>
+          <tr data-anchor-id="f12">
+            <td>F12</td>
+            <td>Accepted</td>
+            <td>
+              Extract <code>snapTo</code>; <code>setAnchor</code> routes through
+              it; geometry assertion added.
+            </td>
+          </tr>
+          <tr data-anchor-id="f13">
+            <td>F13</td>
+            <td>Accepted</td>
+            <td>
+              No <code>draggable=false</code> recommendation. Now Decision 1.
+            </td>
+          </tr>
+          <tr data-anchor-id="f14">
+            <td>F14</td>
+            <td>Accepted</td>
+            <td>
+              Dropped default focus-return change. Added explicit
+              <code>finalFocus</code> prop (P1).
+            </td>
+          </tr>
+          <tr data-anchor-id="f15">
+            <td>F15</td>
+            <td>Accepted</td>
+            <td>Two axe passes plus a red-proof fixture.</td>
+          </tr>
+          <tr data-anchor-id="f16">
+            <td>F16</td>
+            <td>Accepted</td>
+            <td>"Release gate" means the final publish, not 0.1.1.</td>
+          </tr>
+          <tr data-anchor-id="f17">
+            <td>F17</td>
+            <td>Accepted</td>
+            <td>No WebKit project here; the cross-browser branch owns it.</td>
+          </tr>
+          <tr data-anchor-id="f18">
+            <td>F18</td>
+            <td>Accepted</td>
+            <td>Scoped type gate added (P0-6).</td>
+          </tr>
+          <tr data-anchor-id="f19">
+            <td>F19</td>
+            <td>(a)(c)(d)(e) accepted, (b) rejected</td>
+            <td>
+              Escape in bubble phase; scroll-padding plus page padding recipe;
+              Android back line; idempotent restore. Rejected:
+              <code>aria-keyshortcuts</code> is for activating keys, not moving
+              ones. Arrow keys go in README instead.
+            </td>
+          </tr>
+          <tr data-anchor-id="f20">
+            <td>F20</td>
+            <td>Accepted</td>
+            <td>Keep today's <code>dismissOnBackdrop</code> gating.</td>
+          </tr>
+          <tr data-anchor-id="f21">
+            <td>F21</td>
+            <td>Accepted</td>
+            <td><code>MediaToggle</code> and registry cut. Recipe in P2.</td>
+          </tr>
+          <tr data-anchor-id="f22">
+            <td>F22</td>
+            <td>Accepted</td>
+            <td>Scroll-lock fixes inline. No module, no ref count.</td>
+          </tr>
+          <tr data-anchor-id="f23">
+            <td>F23</td>
+            <td>Accepted</td>
+            <td>axe on shipping pages only, default plus reduced motion.</td>
+          </tr>
+          <tr data-anchor-id="f24">
+            <td>F24</td>
+            <td>Accepted</td>
+            <td>
+              <code>&lt;style&gt;</code> hoisting to BACKLOG. Popover spike cut.
+            </td>
+          </tr>
+          <tr data-anchor-id="f25">
+            <td>F25</td>
+            <td>Agreed</td>
+            <td><code>dismissLayers.ts</code> stays.</td>
+          </tr>
+          <tr data-anchor-id="f26">
+            <td>F26</td>
+            <td>Accepted</td>
+            <td>BACKLOG refs re-cited against the current 104-line file.</td>
+          </tr>
+          <tr data-anchor-id="f27">
+            <td>F27</td>
+            <td>Accepted</td>
+            <td>
+              Browser floor stated explicitly; claims backed by specs, not
+              paint-order reasoning.
+            </td>
+          </tr>
+          <tr data-anchor-id="f28">
+            <td>F28</td>
+            <td>Accepted</td>
+            <td>
+              No RTL dependency. Units match <code>LinkTrigger.test.tsx</code>.
+            </td>
+          </tr>
+          <tr data-anchor-id="f29">
+            <td>F29</td>
+            <td>Accepted</td>
+            <td>
+              Guard placement justified by our own spec
+              (<code>focus.spec.ts:142</code>), not a library citation.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details data-anchor-id="assumptions">
+      <summary>Assumptions</summary>
+      <ul>
+        <li>
+          <strong>A1.</strong> You accept the browser floor (already de facto
+          via <code>color-mix</code>).
+        </li>
+        <li>
+          <strong>A2.</strong> Releasing the page at the close request beats
+          holding it through the close.
+        </li>
+        <li>
+          <strong>A3.</strong> iOS 16.2+ honours
+          <code>overflow:hidden</code> for touch scroll. Unverified on device.
+        </li>
+        <li>
+          <strong>A4.</strong> Repositioning counts as "functionality" under
+          2.1.1 and 2.5.7 (the conservative reading).
+        </li>
+      </ul>
+    </details>
+
+    <p class="mut" data-anchor-id="cut-note">
+      Demoted below the fold: per-item technical detail, the findings ledger,
+      assumptions.
+    </p>
+  </body>
+</html>
