@@ -12,11 +12,11 @@ function AppIcon() {
   return (
     <div className="media-icon">
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="9" width="2.4" height="6" rx="1.2" />
-        <rect x="7.4" y="5" width="2.4" height="14" rx="1.2" />
-        <rect x="11.8" y="2.5" width="2.4" height="19" rx="1.2" />
-        <rect x="16.2" y="6.5" width="2.4" height="11" rx="1.2" />
-        <rect x="20.6" y="10" width="2.4" height="4" rx="1.2" />
+        <rect x="2" y="9" width="2.4" height="6" rx="1.2" />
+        <rect x="6.4" y="5" width="2.4" height="14" rx="1.2" />
+        <rect x="10.8" y="2.5" width="2.4" height="19" rx="1.2" />
+        <rect x="15.2" y="6.5" width="2.4" height="11" rx="1.2" />
+        <rect x="19.6" y="10" width="2.4" height="4" rx="1.2" />
       </svg>
     </div>
   );

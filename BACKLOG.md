@@ -22,6 +22,7 @@ Plan approved by Sean 2026-10-08 (strawmen accepted: keyboard + setAnchor move w
 - [ ] **NEW.** dismissLayers: a `defaultOpen` preview inside a `defaultOpen` sheet registers first, so Escape closes the sheet before the preview (P0-2 review). Non-blocking.
 - [ ] **NEW.** Shadow followed `triggerRect` via React state; fixed in P0-3 — if any other consumer of `triggerRect` needs frame-accurate position, read `triggerRectLive`. Non-blocking.
 - [ ] **NEW.** media.spec: lock `preload=none` / `loop=false` on the trigger video (P0-4 review). Non-blocking.
+- [ ] **NEW.** Hover flash: when a keyboard or `setAnchor` snap slides the trigger under a resting cursor, it briefly shows hover lift/highlight. Known fix: ignore pointer while a programmatic snap is in flight. Sean 2026-10-09: couldn't see it at normal speed; not fixing now.
 
 ## Packaging & compatibility
 
