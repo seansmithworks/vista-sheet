@@ -7,7 +7,7 @@ Standing bar (Sean, 2026-08-31): "It all needs to be buttery smooth."
 ## Release blockers
 
 - [x] **34.** DONE (a11y/p0, 2026-10-08). Remove the four unused API leftovers before the final publish: `--vista-sheet-trigger-x/-y`, `--vista-sheet-shadow-x/-y/-w/-h`, the `SheetRect` alias, and `surfaceCloseLeadDelayMs` becoming preset-only. "Remove the four unused API leftovers (BACKLOG 34) before the final publish" — Sean 2026-10-07. Removed: trigger-x/-y and shadow-x/-y/-w/-h vars, `SheetRect`, and the `surfaceCloseLeadDelayMs` Root prop (preset field only; tuner migrated to `preset={...}`).
-- [ ] **35.** npm publish 0.1.1 (Sean: "tbd, maybe 0.1.1"). npm has only 0.1.0 (verified 2026-10-07); package.json is 0.1.1. Gate: PR #2 merged and 34 landed (removals ship in the same release). Needs Sean's go.
+- [ ] **35.** npm publish 0.1.1 (Sean: "tbd, maybe 0.1.1"). npm has only 0.1.0 (verified 2026-10-07); package.json is 0.1.1. Gate: PR #2 merged and 34 landed (removals ship in the same release). Needs Sean's go. **2026-10-09:** gate met (PRs #4-#6 merged, `cabb705`); now publishes as `@wicket/iris` — blocked on `npm org create wicket`, then deprecate `@seansmithworks/vista-sheet@0.1.0`. Release-note text lives in PR #4's body (no CHANGELOG; decide where it goes).
 - [x] **36.** DONE: PR #2 merged `1bf11ff`, 2026-10-08. Merge PR #2 https://github.com/seansmithworks/vista-sheet/pull/2 (state OPEN, verified 2026-10-07). Sean's nod only.
 - [x] **58.** DONE: canvas PR #3 merged `e88c938`, 2026-10-08. DECIDE: `canvas` branch to PR against main, or fold into PR #2. Carries canvas page, motion lab, html-review wiring, recipe changes, defaultOpen fix (`src/Root.tsx`, `Sheet.tsx`, `Close.tsx`) and the defaults merge. Merge is Sean's nod only.
 - [ ] **14.** Code audit remainder (B1/M2/M3 landed: `eb73f1e`, `af272b6`, `ad24c04`): B2 SSR trigger renders top-left until hydrate and open-on-load is sized for 1440x900 (verified in the audit); M1 per-frame whole-tree re-render on drag (inferred); N3 Shadow should read live position; N6 `@property` token defaults. Accepted forks (Sean 2026-09-14): hover 1.02 lift, no drag lift, video poster at rest and plays while open.
@@ -26,7 +26,7 @@ Plan approved by Sean 2026-10-08 (strawmen accepted: keyboard + setAnchor move w
 
 ## Packaging & compatibility
 
-- [x] **NEW.** DONE (`391e836`); Firefox run pending (Sean started it 2026-10-08). Multi-browser testing: firefox / webkit / mobile emulation; iOS Simulator spot checks. **IN PROGRESS (other agent).**
+- [x] **NEW.** DONE (`391e836`); Firefox run 2026-10-08 never launched (agent sandbox; see docs/KNOWN-ISSUES.md) — rerun outside the sandbox: `npx playwright test -c example/playwright.config.ts --project=firefox`. Multi-browser testing: firefox / webkit / mobile emulation; iOS Simulator spot checks. **IN PROGRESS (other agent).**
 - [ ] **32.** Test against motion 14. Peer range is `>=12 <14` (green on 12.43.0 and 13.1.1, `4fa3929`). Run `test:geometry` and `perf` with motion@14 as devDep; widen `peerDependencies` only if green.
 - [ ] **L145.** `npx tsc --noEmit` fails (re-verified 2026-10-07): `example/flagship/main.tsx:5` has no `*.jpg` module declaration, `src/naming.test.ts:34-40` assigns null to `number[]`, `tuner/page.tsx:17-18` cannot resolve `@seansmithworks/vista-sheet`. No suite runs bare tsc.
 - [ ] **L148.** dialkit's stylesheet `@import`s Geist Mono from Google Fonts (still true on dialkit 2.0.2, `node_modules/dialkit/dist/styles.css:1`); external request on every tuner/demo page.
@@ -45,6 +45,11 @@ Plan approved by Sean 2026-10-08 (strawmen accepted: keyboard + setAnchor move w
 
 ## Design calls (Sean's)
 
+- [ ] **NEW (carried, 2026-10-09).** Rename leftovers for Sean: rename the GitHub repo (strawman `wicket-ui`), then drop the repo-URL allowlist entries in `src/naming.test.ts` and update `package.json`/README install line; `CLAUDE.md` heading still `disc-sheet (package: @seansmithworks/vista-sheet)`; `VISTA_BROWSERS` env var (package.json, example/playwright.config.ts) not renamed.
+- [ ] **NEW (carried, 2026-10-09).** DECIDE: canonical dark accent. README dark recipe uses `#f5f5f7` (matches canvas `--cv-accent`); DESIGN.md has no dark accent row.
+- [ ] **NEW (parked, 2026-10-09, naming thread).** README "What it is" claims "Nobody has standardized trigger morphs into surface" — disproved (Material container transform; motion-primitives MorphingDialog/MorphingPopover). Strawman: pitch the combination (draggable anchored launcher + modal morph + live-iframe link preview).
+- [ ] **NEW (parked, 2026-10-09, naming thread).** DECIDE OR KILL: Wicket slot name for surface-fx (backgrounds/textures). "fx" too brief; candidates texture / surface ("surface" collides with the docs' word for the sheet). Criteria: memory feedback-naming.md.
+- [ ] **NEW (parked, 2026-10-09).** Re-record the media-card squircle morph as an `agent-browser` mp4 for PR #6 / docs (frame grid was captured with ad-hoc Playwright).
 - [ ] **L474 (follows 43-45).** Apply-or-redline the strawmen live in code: squircle sheet corners = squircle (`9da07db`), circle shadow mid-morph = surface curve (`c298df5`), flagship 36 to 48 inside the radius change, dials rounded square 25% and squircle fallback 27.16% (`src/shape.ts`).
 - [ ] **60.** DECIDE: "The corner radius here is probably too much, maybe we need to set some ratio depending on the width or height. Or a class depending on the content. or both." (surface tuner, open sheet)
 - [ ] **46.** DECIDE: text-only button height consistency. Sean expects one min-height per size with padding on four sides. Measure s/m/l text vs icon+text heights first.
