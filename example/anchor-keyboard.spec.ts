@@ -140,6 +140,13 @@ async function load(
 
 const trigger = (page: Page) =>
   page.getByRole("button", { name: TRIGGER_LABEL });
+// Activate a set-<anchor> button without a synthetic pointer. On a bare html page
+// with no vista-sheet code, a Playwright mouse.click() whose handler changes a text
+// node stalls the next frame 25-50ms (Chromium's post-layout hover check); el.click()
+// does not. Chromium/Playwright artifact, not the package.
+const setAnchorBtn = (page: Page, testId: string) =>
+  page.getByTestId(testId).evaluate((el) => (el as HTMLElement).click());
+
 const readout = (page: Page) => page.getByTestId("anchor-readout");
 const changes = (page: Page) => page.evaluate(() => window.__anchorChanges);
 const statusText = (page: Page) =>
@@ -433,7 +440,7 @@ test.describe("P0-3 live announcement", () => {
   }) => {
     await load(page, { anchor: "bottom-center" });
     for (const to of ALL_ANCHORS.filter((a) => a !== "bottom-center")) {
-      await page.getByTestId(`set-${to}`).click();
+      await setAnchorBtn(page, `set-${to}`);
       await expect(page.locator(STATUS)).toHaveText(announcement(to));
     }
   });
@@ -463,7 +470,7 @@ test.describe("P0-3 live announcement", () => {
     await expect(page.locator(STATUS)).toHaveText(
       "Trigger now at bottom-right",
     );
-    await page.getByTestId("set-top-left").click();
+    await setAnchorBtn(page, "set-top-left");
     await expect(page.locator(STATUS)).toHaveText("Trigger now at top-left");
   });
 
@@ -474,7 +481,7 @@ test.describe("P0-3 live announcement", () => {
     await trigger(page).focus();
     await page.keyboard.press("ArrowRight");
     await expect(readout(page)).toHaveText("bottom-right");
-    await page.getByTestId("set-top-left").click();
+    await setAnchorBtn(page, "set-top-left");
     await expect(readout(page)).toHaveText("top-left");
     await page.waitForTimeout(300);
     expect(await statusText(page)).toBe("");
@@ -487,7 +494,7 @@ test.describe("P0-3 setAnchor (public)", () => {
     page,
   }) => {
     await load(page, { anchor: "bottom-center" });
-    await page.getByTestId("set-top-right").click();
+    await setAnchorBtn(page, "set-top-right");
     await expect(readout(page)).toHaveText("top-right");
     await expectSeated(page, "top-right");
     expect(await changes(page)).toEqual(["top-right"]);
@@ -521,7 +528,7 @@ test.describe("P0-3 motion and geometry through the move", () => {
       name: "setAnchor(top-left)",
       to: "top-left",
       run: async (page) => {
-        await page.getByTestId("set-top-left").click();
+        await setAnchorBtn(page, "set-top-left");
       },
     },
   ];
@@ -565,7 +572,7 @@ test.describe("P0-3 motion and geometry through the move", () => {
     await page.keyboard.press("ArrowRight");
     await expect(readout(page)).toHaveText("bottom-right");
     await page.waitForTimeout(300);
-    await page.getByTestId("set-top-left").click();
+    await setAnchorBtn(page, "set-top-left");
     await expect(readout(page)).toHaveText("top-left");
     await page.waitForTimeout(600);
     const frames = await stopSampling(page);
