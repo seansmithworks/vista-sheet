@@ -1,4 +1,4 @@
-# vista-sheet — Brand layer
+# Wicket Iris — Brand layer
 
 `ANNOTIE.md` is the brand layer this product owns (schema: `~/Code/annotie/docs/annotie-schema.md`).
 It locks **identity** and leaves **angle and camera** free — it is not a shot list.
@@ -12,10 +12,10 @@ hex/px value. See `DESIGN.md` for the actual numbers.
 
 ```yaml
 ---
-product: vista-sheet
+product: Wicket Iris
 design_tokens: ../DESIGN.md
 sell: >
-  vista-sheet is a flexible component that expands simplified content into a larger
+  Wicket Iris is a flexible component that expands simplified content into a larger
   view — avatar to menu, app icon to App Store card, mini video to full player — and it
   morphs smoothly from state to state while ADOPTING YOUR STYLES: different radii,
   elevations, colors. The video has to show the component wearing several strong,
@@ -43,7 +43,7 @@ motion_rules:
   - "Exit is faster than enter: close is stiffer than open, content fades out fast (motion.contentFadeOutMs)"
   - "No decorative color or gradient; the morph itself is the only event on screen"
 sound_motif:
-  key: "none — vista-sheet ships silent; any score is source music laid under a cut, not a product sound"
+  key: "none — Wicket Iris ships silent; any score is source music laid under a cut, not a product sound"
   register: "quiet, minimal, never masking the morph as the visual lead"
   loudness_target_lufs: -14
 standard_intro:
@@ -51,14 +51,14 @@ standard_intro:
   duration_s: 1.2
 standard_outro:
   template: kit/endcard/endcard.html
-  wordmark: vista-sheet
+  wordmark: Wicket Iris
   tagline: "A persistent trigger that morphs into a modal sheet."
-  footer: "npm install @seansmithworks/vista-sheet · MIT"
+  footer: "npm install @wicket/iris · MIT"
 approved_claims:
   - "A draggable trigger that morphs into a modal sheet via a layoutId FLIP transition"
-  - "Compound-component API: nine components plus useVistaSheet()"
+  - "Compound-component API: nine components plus useIris()"
   - "Ships compiled ESM + .d.ts; no build-step config needed on install"
-  - "Copy-in option via npx @seansmithworks/vista-sheet add, no package dependency"
+  - "Copy-in option via npx @wicket/iris add, no package dependency"
   - "React >=19, react-dom >=19, motion >=12 <14 as peer dependencies"
   - "Seven anchor points; drag to re-anchor"
   - "Shapes: circle, squircle, rounded-square, square, rectangle"
@@ -80,7 +80,7 @@ banned:
   background/camera/type staging around the component), which is free per cut, and it
   does not apply to a cut whose whole point is showing the component wearing other
   consumers' skins (the `sell` above). A style-exploration or adaptability cut may swap
-  `--vista-sheet-*` custom properties (radius, elevation, palette — README's public
+  `--wicket-iris-*` custom properties (radius, elevation, palette — README's public
   theming table) per shot on purpose; that's the product's own documented API, not a
   departure from identity. What still can't change across any cut: the wordmark
   treatment and the end card (below).
@@ -88,7 +88,7 @@ banned:
   lock story, pacing, or shot choice — that's the Director's job per run (P1).
 - `standard_intro` / `standard_outro` point at the kit's slot templates, filled with this
   product's values above.
-- `banned` mirrors brag-slim's "no generic SaaS language" rule, extended with vista-sheet's
+- `banned` mirrors brag-slim's "no generic SaaS language" rule, extended with Wicket Iris's
   own known-status caveats from README.md's "Known issues / status" section.
 
 ## Demo mode

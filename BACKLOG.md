@@ -1,4 +1,4 @@
-# vista-sheet BACKLOG
+# Wicket Iris BACKLOG
 
 Open items only, cleaned 2026-10-07 against the tree at `8090664`. Done, obsolete and merged items live in `BACKLOG-archive.md` (append-only, with reason and evidence). Numbers are the original item numbers; unnumbered items carry `L<n>`, their line in the pre-cleanup file (`git show 8090664:BACKLOG.md`).
 

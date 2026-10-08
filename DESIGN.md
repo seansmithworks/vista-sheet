@@ -1,9 +1,9 @@
 ---
 version: alpha
-name: "vista-sheet — Design System"
+name: "Wicket Iris — Design System"
 preset: refined-minimal
 colors:
-  # Package defaults (README theming table; consumers override via --vista-sheet-* vars)
+  # Package defaults (README theming table; consumers override via --wicket-iris-* vars)
   surface: "#fafafa"
   surfaceElevated: "#ffffff"
   border: "rgba(229,229,229,.6)"
@@ -70,7 +70,7 @@ motion:
   triggerLabelRevealStart: 0.85
 ---
 
-# Design System: vista-sheet
+# Design System: Wicket Iris
 
 Preset `refined-minimal`, with motion governed by §4 below instead of the preset's Motion section. Package tokens live in `README.md`'s theming table and are machine-checked by `npm run audit:vars`; this file explains the choices and holds the rules that table cannot.
 
@@ -93,28 +93,28 @@ A bare disc that becomes a sheet. Everything else on screen is quiet so the morp
 | Accent (focus ring only) | `#1d1d1f` | `#1d1d1f` | `#1a1610` |
 | Page background | consumer's | `#f5f5f7` | consumer's |
 
-Consumers override with `--vista-sheet-*` custom properties. Never add a hex to `src/styles.module.css` that is not a `var()` fallback.
+Consumers override with `--wicket-iris-*` custom properties. Never add a hex to `src/styles.module.css` that is not a `var()` fallback.
 
 ## 3. Shape and Depth
 
-- **Trigger:** `shape` on Root, default circle (`--vista-sheet-trigger-radius: 9999px`). Squircle is a true superellipse via `corner-shape` (Chromium; 27.16% radius elsewhere) and gives the sheet squircle corners too; rounded square is 25% of trigger size; square is 0. Surface, silhouette shadow, Shared clip and focus ring all follow the shape, and the shadow's corner uses the surface's own radius curve. It rests at its shape after every close path (geometry tests (o) and (o-shape)).
-- **Sheet:** `--vista-sheet-sheet-radius: 48px`. During the morph the radius is a pure function of `collapseProgress`, never its own spring.
-- **Two shadow looks, one painter.** `<VistaSheet.Shadow>` paints both the thin disc shadow and the sheet's heavier resting shadow on its own silhouette, crossfaded by opacity as `collapseProgress` moves (2026-09-11). Nothing else paints a shadow.
-- **Trigger shadow:** soft and low-contrast, dialled by Sean 2026-10-07: `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` on light. The dark example palettes use a faint white glow instead (`0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15)`), because a dark shadow does not read on a dark ground. The 1px `--vista-sheet-surface-border` ring (60% `#e5e5e5` on light, 10% white on dark) carries the edge; the shadow only lifts it off the page.
+- **Trigger:** `shape` on Root, default circle (`--wicket-iris-trigger-radius: 9999px`). Squircle is a true superellipse via `corner-shape` (Chromium; 27.16% radius elsewhere) and gives the sheet squircle corners too; rounded square is 25% of trigger size; square is 0. Surface, silhouette shadow, Shared clip and focus ring all follow the shape, and the shadow's corner uses the surface's own radius curve. It rests at its shape after every close path (geometry tests (o) and (o-shape)).
+- **Sheet:** `--wicket-iris-sheet-radius: 48px`. During the morph the radius is a pure function of `collapseProgress`, never its own spring.
+- **Two shadow looks, one painter.** `<Iris.Shadow>` paints both the thin disc shadow and the sheet's heavier resting shadow on its own silhouette, crossfaded by opacity as `collapseProgress` moves (2026-09-11). Nothing else paints a shadow.
+- **Trigger shadow:** soft and low-contrast, dialled by Sean 2026-10-07: `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` on light. The dark example palettes use a faint white glow instead (`0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15)`), because a dark shadow does not read on a dark ground. The 1px `--wicket-iris-surface-border` ring (60% `#e5e5e5` on light, 10% white on dark) carries the edge; the shadow only lifts it off the page.
 - **Sheet shadow:** `0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)` on light; `0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15)` on the dark example palettes (2026-10-07).
-- **Ring width is one token.** `--vista-sheet-surface-border-width` (1px) sets the trigger ring, and Shared's inset, its size fallback and its rounded-square radius all derive from it, so the Shared clip stays concentric with the ring at any width. Never hard-code the ring width anywhere else. The sheet's border stays 1px.
-- **Trigger hover and press:** at rest only, the trigger rises 1px on mouse hover and scales to 0.97 while pressed, 150ms strong ease-out, with `<VistaSheet.Shadow>` moving identically so the two never disagree (lift and press dialled 2026-10-07). Never while the sheet is mounted, never under reduced motion, and any open drops it instantly before the morph measures its start.
-- **Trigger highlight:** a soft radial spot inside the trigger surface follows the mouse on hover; on press it tightens to 0.6 and the surface takes a slight tint, `rgba(0,0,0,.06)` on light and `rgba(255,255,255,.15)` on the dark example palettes. It is 7% of the text colour at strength 0.75 by default (dark example palettes: `rgba(255,255,255,.1)` at strength 1), 96px, dialled 2026-10-07. Touch, keyboard and reduced motion get it centred and static, fade only. It lives inside the surface, so it never changes a measured box, never paints on the sheet, and is gone before any open. `--vista-sheet-trigger-highlight-strength: 0` turns it off.
+- **Ring width is one token.** `--wicket-iris-surface-border-width` (1px) sets the trigger ring, and Shared's inset, its size fallback and its rounded-square radius all derive from it, so the Shared clip stays concentric with the ring at any width. Never hard-code the ring width anywhere else. The sheet's border stays 1px.
+- **Trigger hover and press:** at rest only, the trigger rises 1px on mouse hover and scales to 0.97 while pressed, 150ms strong ease-out, with `<Iris.Shadow>` moving identically so the two never disagree (lift and press dialled 2026-10-07). Never while the sheet is mounted, never under reduced motion, and any open drops it instantly before the morph measures its start.
+- **Trigger highlight:** a soft radial spot inside the trigger surface follows the mouse on hover; on press it tightens to 0.6 and the surface takes a slight tint, `rgba(0,0,0,.06)` on light and `rgba(255,255,255,.15)` on the dark example palettes. It is 7% of the text colour at strength 0.75 by default (dark example palettes: `rgba(255,255,255,.1)` at strength 1), 96px, dialled 2026-10-07. Touch, keyboard and reduced motion get it centred and static, fade only. It lives inside the surface, so it never changes a measured box, never paints on the sheet, and is gone before any open. `--wicket-iris-trigger-highlight-strength: 0` turns it off.
 - **Tap target:** every trigger has an invisible hit area of at least 48px on each axis (rectangle s/m, small discs). The visual and every measured box keep their size.
 - **Close button:** 44px hit area, transparent, circular focus ring.
-- **Media sheet:** `<VistaSheet.Sheet aspectRatio>` contain-fits the media ratio; `<VistaSheet.Media>` covers the surface, centred, clipped by the surface shape (Strawman (v0.2): centred crop, no focal point).
-- **Rectangle trigger:** `shape="rectangle"` with `buttonSize` s/m/l → height 36/44/52px, inline padding 14/18/22px, gap 6/8/10px. Width sizes to the label by default, or a fixed `buttonWidth`. Corners are a pill, `min(--vista-sheet-trigger-radius, height / 2)` (Strawman (v0.2), awaiting dial). Shared and Media are not supported inside it in v0.2.
+- **Media sheet:** `<Iris.Sheet aspectRatio>` contain-fits the media ratio; `<Iris.Media>` covers the surface, centred, clipped by the surface shape (Strawman (v0.2): centred crop, no focal point).
+- **Rectangle trigger:** `shape="rectangle"` with `buttonSize` s/m/l → height 36/44/52px, inline padding 14/18/22px, gap 6/8/10px. Width sizes to the label by default, or a fixed `buttonWidth`. Corners are a pill, `min(--wicket-iris-trigger-radius, height / 2)` (Strawman (v0.2), awaiting dial). Shared and Media are not supported inside it in v0.2.
 
 ## 4. Motion Principles
 
 The morph is the product, so it gets the budget a modal normally does not. Everything else obeys Emil Kowalski's standards (`~/.claude/skills/review-animations/STANDARDS.md`).
 
-1. **One surface, one clock.** Surface box, silhouette shadow, corner radius and close mask all derive from `collapseProgress`. Nothing has its own spring. A frame where the shadow and the surface disagree is a bug, not a tuning question. The shadow is painted by `<VistaSheet.Shadow>` and nowhere else: a second copy on any surface makes the shadow change intensity the frame that surface mounts or unmounts. *(Fixed 2026-09-11: `.triggerSurface` carried a duplicate, so the resting disc painted two shadows and the open's first frame halved them. Also fixed 2026-09-11: the sheet's own resting shadow, painted separately via `data-vista-sheet-settled`, was a second painter/second clock — `<VistaSheet.Shadow>` now paints that look too, crossfaded on `collapseProgress`.)* `<VistaSheet.Media>` has no clock either: it reads the surface's rendered scale on each of Motion's own style writes and counter-scales to a uniform cover, so the video can never squash (P4, 2026-09-13).
+1. **One surface, one clock.** Surface box, silhouette shadow, corner radius and close mask all derive from `collapseProgress`. Nothing has its own spring. A frame where the shadow and the surface disagree is a bug, not a tuning question. The shadow is painted by `<Iris.Shadow>` and nowhere else: a second copy on any surface makes the shadow change intensity the frame that surface mounts or unmounts. *(Fixed 2026-09-11: `.triggerSurface` carried a duplicate, so the resting disc painted two shadows and the open's first frame halved them. Also fixed 2026-09-11: the sheet's own resting shadow, painted separately via `data-wicket-iris-settled`, was a second painter/second clock — `<Iris.Shadow>` now paints that look too, crossfaded on `collapseProgress`.)* `<Iris.Media>` has no clock either: it reads the surface's rendered scale on each of Motion's own style writes and counter-scales to a uniform cover, so the video can never squash (P4, 2026-09-13).
 2. **Nothing appears from nothing.** The sheet must never paint at a size the disc did not grow into. A stall that skips the first 30% of the morph is a defect even if every frame after it is perfect. *(Known, bounded: the first open after page load stalls ~50ms on Sean's GPU — one dropped frame of morph; every later open runs with no frame over 20ms. Measured 2026-09-11. Open only if a cold first open ever needs to be the recorded one.)*
 3. **Transform and opacity only while the clock runs.** No filter, blur, box-shadow, width or height animates during a morph. The silhouette shadow resizes per frame today; moving it to a transform is the durable fix.
 4. **Springs, dialled, never typed.** Open 375/42.5/1.75 · close 375/32/1 · shared.open 500/45 · shared.close 340/30/1 · lead delay 35 · snap 700/52/1. A change to any of these goes through the tuner (`/tune`) with a measured before/after, never a hand edit.
