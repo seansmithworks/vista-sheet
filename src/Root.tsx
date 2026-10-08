@@ -84,6 +84,9 @@ export function Root({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const open = isControlled ? controlledOpen : uncontrolledOpen;
 
+  const triggerElRef = useRef<HTMLElement | null>(null);
+  const shadowElRef = useRef<HTMLElement | null>(null);
+
   const setOpen = useCallback(
     (next: boolean) => {
       if (!isControlled) setUncontrolledOpen(next);
@@ -138,8 +141,13 @@ export function Root({
   // Owned here so Trigger, Sheet, Shared and Shadow all read the same live
   // value — this is the MotionValue useVistaSheet() exposes as the escape
   // hatch (§3).
-  const collapseProgress = useMotionValue(1);
-  const prevOpenRef = useRef<boolean | null>(null);
+  //
+  // Seeded from the mount-time `open`, and so is prevOpenRef: a Root that
+  // mounts open (defaultOpen, or controlled open) renders already settled,
+  // with no morph. There is no edge at mount, so nothing for the clock to
+  // start and nothing a re-render during mount could strand.
+  const collapseProgress = useMotionValue(open ? 0 : 1);
+  const prevOpenRef = useRef(open);
 
   // Sheet's drag="y" gesture writes into this directly (bound as its motion
   // `y` style) so Shadow can read the live drag offset without re-measuring
@@ -196,7 +204,6 @@ export function Root({
     transition: Transition;
     started: boolean;
   } | null>(null);
-  const morphFallbackRafRef = useRef<number | null>(null);
 
   const startMorphClock = useCallback(
     (from: "trigger" | "sheet") => {
@@ -207,10 +214,6 @@ export function Root({
       // idle trigger/sheet, not a morph to re-time.
       if (morph.started && collapseProgress.get() === morph.to) return;
       morph.started = true;
-      if (morphFallbackRafRef.current !== null) {
-        cancelAnimationFrame(morphFallbackRafRef.current);
-        morphFallbackRafRef.current = null;
-      }
       // velocity: 0 because Motion's layout-projection spring always restarts
       // at 0; inheriting the in-flight velocity would let the two clocks
       // settle apart on a reversal or mid-morph relayout. The cast: animate()
@@ -235,52 +238,49 @@ export function Root({
   // on React 19 too, but only by scheduling accident; the ordering the fix
   // depends on should be the one React actually contracts.
   useLayoutEffect(() => {
-    const wasOpen = prevOpenRef.current === true;
+    const wasOpen = prevOpenRef.current;
     prevOpenRef.current = open;
     const isOpening = open && !wasOpen;
     const isClosing = !open && wasOpen;
-    if (!isOpening && !isClosing) return;
 
-    if (reduceMotion) {
-      morphRef.current = null;
-      collapseProgress.jump(open ? 0 : 1);
-      return;
-    }
-
-    // A reopen during a running close must reverse from the in-flight value,
-    // as the surface does; forcing 1 would snap the shadow to closed.
-    if (isOpening && !collapseProgress.isAnimating()) {
-      collapseProgress.set(1);
-    }
-    morphRef.current = {
-      to: isOpening ? 0 : 1,
-      transition: isOpening ? openTransition : closeTransition,
-      started: false,
-    };
-    // Fallback for the morphs Motion never reports a layout animation for:
-    // a <Root defaultOpen> mount (nothing to FLIP from), or a layout that
-    // measured unchanged. Cannot preempt the real trigger — Motion creates
-    // the layout animation in a microtask after this commit, and a rAF
-    // scheduled here cannot run until after that microtask has drained.
-    if (morphFallbackRafRef.current !== null) {
-      cancelAnimationFrame(morphFallbackRafRef.current);
-    }
-    const fallbackFrom = isOpening ? "sheet" : "trigger";
-    morphFallbackRafRef.current = requestAnimationFrame(() => {
-      morphFallbackRafRef.current = null;
-      if (!morphRef.current?.started) startMorphClock(fallbackFrom);
-    });
-
-    // If Root unmounts between this commit and the next paint (e.g. a
-    // consumer's route change removes it right after a toggle), the
-    // scheduled rAF above would otherwise fire after unmount and call
-    // animate() on a dead tree — cancel it on cleanup.
-    return () => {
-      if (morphFallbackRafRef.current !== null) {
-        cancelAnimationFrame(morphFallbackRafRef.current);
-        morphFallbackRafRef.current = null;
+    if (isOpening || isClosing) {
+      if (reduceMotion) {
+        morphRef.current = null;
+        collapseProgress.jump(open ? 0 : 1);
+      } else {
+        // A reopen during a running close must reverse from the in-flight
+        // value, as the surface does; forcing 1 would snap the shadow to
+        // closed.
+        if (isOpening && !collapseProgress.isAnimating()) {
+          collapseProgress.set(1);
+        }
+        morphRef.current = {
+          to: isOpening ? 0 : 1,
+          transition: isOpening ? openTransition : closeTransition,
+          started: false,
+        };
       }
-    };
+    }
+
+    // Fallback for a morph Motion never reports a layout animation for (a
+    // layout that measured unchanged). Owned by the ARMED MORPH, not by the
+    // edge: every run of this effect, whatever re-ran it, re-schedules the
+    // rAF while the morph is armed and unstarted, and its cleanup cancels
+    // only this run's frame. Scheduling it on the edge run alone let the
+    // next re-render (Sheet's own setSheetRect lands right after the open
+    // commit) cancel it with nothing left to re-arm it. Cannot preempt the
+    // real trigger — Motion creates the layout animation in a microtask
+    // after the commit, and a rAF scheduled here cannot run before that
+    // microtask has drained. Cleanup also covers an unmount before the
+    // next paint, so animate() never runs on a dead tree.
+    const morph = morphRef.current;
+    if (!morph || morph.started) return;
+    const raf = requestAnimationFrame(() => {
+      if (morphRef.current === morph && !morph.started) {
+        startMorphClock(morph.to === 0 ? "sheet" : "trigger");
+      }
+    });
+    return () => cancelAnimationFrame(raf);
   }, [
     open,
     collapseProgress,
@@ -293,7 +293,6 @@ export function Root({
   const [triggerRect, setTriggerRect] = useState<Rect | null>(null);
   const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
 
-  const triggerElRef = useRef<HTMLElement | null>(null);
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
 
   // The single numeric-px border-radius MotionValue both crossfade
@@ -364,6 +363,7 @@ export function Root({
     registerClose,
     hasRegisteredClose,
     triggerElRef,
+    shadowElRef,
     preview,
     layerEl,
     setLayerArmed,

@@ -71,6 +71,9 @@ export interface VistaSheetContextValue extends VistaSheetState {
   hasRegisteredClose: () => boolean;
   /** The trigger button element — Sheet focuses it back on exit-complete. */
   triggerElRef: MutableRefObject<HTMLElement | null>;
+  /** <VistaSheet.Shadow>'s element — the trigger writes its hover/pressed
+   * feedback attribute here too (triggerFeedback.ts). */
+  shadowElRef: MutableRefObject<HTMLElement | null>;
   /** Link-preview mode (Root `preview`). Fixed for the Root's lifetime. */
   preview: boolean;
   /** Preview only: the element Sheet and Shadow portal into; null when no

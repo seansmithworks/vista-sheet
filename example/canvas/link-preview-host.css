@@ -1,0 +1,24 @@
+/*
+ * Larger type for the canvas link-preview tiles only. Sizes follow the
+ * iframe's width, so a phone-width canvas still fits the prose in the frame.
+ * Selectors are one step more specific than link-preview.css, so order of
+ * injection doesn't matter.
+ */
+/* The larger heading pushes the first line down; the top padding gives
+ * that back, keeping the full card's room above it (520 card + 8 gap + 16
+ * gutter) while the last line clears the 760px frame. */
+body .lp-page {
+  max-width: 640px;
+  padding-top: 472px;
+}
+
+body .lp-page h1 {
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.2;
+}
+
+body .lp-page p,
+body .lp-corner {
+  font-size: clamp(19px, 2.6vw, 28px);
+  line-height: 1.5;
+}

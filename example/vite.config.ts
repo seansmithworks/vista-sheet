@@ -2,7 +2,27 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+// Dev only: html-review (:4849) serves its widget and API same-origin. The
+// canvas and surface pages pull both through this proxy; its guard rejects any Origin other
+// than localhost:4849, so the header is dropped on the way through.
+const htmlReview = {
+  target: "http://localhost:4849",
+  changeOrigin: true,
+  configure: (proxy: {
+    on: (
+      ev: "proxyReq",
+      cb: (req: { removeHeader: (n: string) => void }) => void,
+    ) => void;
+  }) => {
+    proxy.on("proxyReq", (proxyReq) => proxyReq.removeHeader("origin"));
+  },
+};
+
 export default defineConfig({
+  define: {
+    // review.ts resolves each page's own .html against this root.
+    __REVIEW_EXAMPLE_ROOT__: JSON.stringify(__dirname),
+  },
   plugins: [react()],
   root: "./example",
   resolve: {
@@ -13,6 +33,9 @@ export default defineConfig({
       // file also run here against live local source.
       "@seansmithworks/vista-sheet": resolve(__dirname, "../src/index.ts"),
     },
+  },
+  server: {
+    proxy: { "/widget": htmlReview, "/api": htmlReview },
   },
   build: {
     outDir: "dist",
@@ -25,9 +48,12 @@ export default defineConfig({
         list: resolve(__dirname, "list.html"),
         contact: resolve(__dirname, "contact.html"),
         play: resolve(__dirname, "play.html"),
+        canvas: resolve(__dirname, "canvas.html"),
         video: resolve(__dirname, "video.html"),
         buttons: resolve(__dirname, "buttons.html"),
         linkPreview: resolve(__dirname, "link-preview.html"),
+        linkPreviewHost: resolve(__dirname, "canvas/link-preview-host.html"),
+        surface: resolve(__dirname, "surface.html"),
         focus: resolve(__dirname, "fixtures/focus.html"),
       },
     },

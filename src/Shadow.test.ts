@@ -86,6 +86,7 @@ function renderShadowAsChild(
     zIndex: 100,
     isDragging: false,
     open: false,
+    shadowElRef: { current: null },
   } as unknown as VistaSheetContextValue;
 
   const captured: { el: CapturedShadowChild | null } = { el: null };

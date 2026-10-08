@@ -54,6 +54,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Invisible 48px minimum hit area (rectangle s/m, small discs): extends
+ * only the axes under 48px, centred on the button. Absolutely positioned,
+ * so layout and every measured box (the trigger rect, the morph's FLIP
+ * source) are unchanged. Below the surface (z -1), so hit-testing inside
+ * the visual still reaches the surface and an icon in the label. */
+.triggerButton::before {
+  content: "";
+  position: absolute;
+  inset-block: min(0px, calc((100% - 48px) / 2));
+  inset-inline: min(0px, calc((100% - 48px) / 2));
+  z-index: -2;
+}
+
 .triggerButton:focus-visible {
   outline: 2px solid var(--vista-sheet-accent, #1d1d1f);
   outline-offset: 5px;
@@ -78,15 +91,117 @@
   z-index: -1;
   border-radius: var(--vista-sheet-trigger-radius, 9999px);
   background: var(--vista-sheet-surface, #fafafa);
-  /* 2px, not 1px — .shared[data-vista-sheet-slot="trigger"]'s inset:2px exists to
-   * expose exactly this ring; the two must agree or the ring reads as
-   * lopsided. */
-  border: 2px solid var(--vista-sheet-surface-border, #e5e5e5);
+  /* The ring width is one token: .shared[data-vista-sheet-slot="trigger"]'s
+   * inset, the .shared size fallback and the rounded-square Shared radius all
+   * derive from --vista-sheet-surface-border-width, so the ring stays even
+   * and concentric at any width. */
+  border: var(--vista-sheet-surface-border-width, 1px) solid
+    var(--vista-sheet-surface-border, rgba(229, 229, 229, 0.6));
   /* No box-shadow here: <VistaSheet.Shadow> paints the silhouette shadow
    * (docs/PACKAGE-DESIGN.md §4). This surface used to carry the same shadow
    * too, so the resting disc painted it twice and the first frame of every
    * open — when this element unmounts — halved the shadow in one step. */
   overflow: hidden;
+}
+
+/* Trigger feedback: hover lift and press scale (Trigger.tsx,
+ * triggerFeedback.ts). Written at rest only, on the trigger button and on
+ * <VistaSheet.Shadow>'s element together, so the shadow moves with the
+ * surface. Individual translate/scale, never transform: Motion owns the
+ * surface's and Shared's inline transform. Every target is centred on the
+ * button, so each scales about the same point. Off under reduced motion
+ * (the shadow never gets the attribute then). 1px lift and 0.97 press
+ * dialled by Sean 2026-10-07; 150ms strong ease-out. */
+.triggerButton[data-vista-sheet-feedback]:not([data-vista-sheet-reduce-motion])
+  > :is(.triggerSurface, .shared, .triggerLabel),
+[data-vista-sheet-part="shadow"][data-vista-sheet-feedback] {
+  transition:
+    translate 150ms cubic-bezier(0.23, 1, 0.32, 1),
+    scale 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.triggerButton[data-vista-sheet-feedback="hover"]:not(
+    [data-vista-sheet-reduce-motion]
+  )
+  > :is(.triggerSurface, .shared, .triggerLabel),
+[data-vista-sheet-part="shadow"][data-vista-sheet-feedback="hover"] {
+  translate: 0 calc(var(--vista-sheet-trigger-hover-lift, 1px) * -1);
+}
+
+.triggerButton[data-vista-sheet-feedback="pressed"]:not(
+    [data-vista-sheet-reduce-motion]
+  )
+  > :is(.triggerSurface, .shared, .triggerLabel),
+[data-vista-sheet-part="shadow"][data-vista-sheet-feedback="pressed"] {
+  scale: var(--vista-sheet-trigger-press-scale, 0.97);
+}
+
+/* Pointer highlight and press tint: two layers inside the trigger surface,
+ * clipped by its own shape. They ride the surface's lift and scale and
+ * never change its box, so the morph measures nothing new. The highlight
+ * is a soft radial spot centred on --vista-sheet-trigger-highlight-x/-y
+ * (written per frame by Trigger.tsx; centred for touch, keyboard and
+ * reduced motion). Default colour: 7% of the text colour, so a light
+ * palette gets a faint tint and a dark one a faint glow. Strength 0 turns
+ * both layers off. Dialled by Sean 2026-10-07: 96px spot at strength 0.75,
+ * tightens to 0.6 on press, tint rgba(0,0,0,.06). */
+.triggerSurface::before,
+.triggerSurface::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.triggerSurface::before {
+  left: var(--vista-sheet-trigger-highlight-x, 50%);
+  top: var(--vista-sheet-trigger-highlight-y, 50%);
+  width: var(--vista-sheet-trigger-highlight-size, 96px);
+  height: var(--vista-sheet-trigger-highlight-size, 96px);
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(
+      --vista-sheet-trigger-highlight-color,
+      color-mix(in srgb, var(--vista-sheet-text, #1d1d1f) 7%, transparent)
+    ),
+    transparent
+  );
+  transition:
+    opacity 150ms ease-out,
+    scale 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.triggerSurface::after {
+  inset: 0;
+  background: var(--vista-sheet-trigger-press-tint, rgba(0, 0, 0, 0.06));
+}
+
+.triggerButton[data-vista-sheet-feedback="hover"] > .triggerSurface::before,
+.triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::before,
+.triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::after {
+  opacity: var(--vista-sheet-trigger-highlight-strength, 0.75);
+}
+
+.triggerButton[data-vista-sheet-feedback="pressed"]:not(
+    [data-vista-sheet-reduce-motion]
+  ):not([data-vista-sheet-highlight="static"])
+  > .triggerSurface::before {
+  scale: 0.6;
+}
+
+/* Before an open: rest instantly, so the morph never measures a transform
+ * that is still transitioning out and no highlight rides into the morph. */
+.triggerButton[data-vista-sheet-feedback="none"]:not(
+    [data-vista-sheet-reduce-motion]
+  )
+  > :is(.triggerSurface, .shared, .triggerLabel),
+.triggerButton[data-vista-sheet-feedback="none"] > .triggerSurface::before,
+.triggerButton[data-vista-sheet-feedback="none"] > .triggerSurface::after,
+[data-vista-sheet-part="shadow"][data-vista-sheet-feedback="none"] {
+  transition: none;
 }
 
 /* Plain children of Trigger (its label), faded by triggerLabelOpacity. No
@@ -118,20 +233,27 @@
  */
 .shared {
   position: relative;
-  /* The fallback is trigger-size MINUS the trigger-side slot's 2px inset on
-   * each edge (4px total), not the raw trigger-size: the trigger-side
-   * instance below is inset:2px inside a triggerSize-square parent, so its
-   * EFFECTIVE rendered box is triggerSize-4. Both instances must resolve to
+  /* The fallback is trigger-size MINUS the trigger-side slot's ring inset
+   * (--vista-sheet-surface-border-width) on each edge, not the raw
+   * trigger-size: the trigger-side instance below is inset by the ring width
+   * inside a triggerSize-square parent, so its EFFECTIVE rendered box is
+   * triggerSize - 2 * ring. Both instances must resolve to
    * the same effective size — that equality is what a zero-scale FLIP (B1)
    * requires — so this base rule (which the sheet-side slot inherits
    * unmodified) has to match it. */
   width: var(
     --vista-sheet-shared-size,
-    calc(var(--vista-sheet-trigger-size, 96px) - 4px)
+    calc(
+      var(--vista-sheet-trigger-size, 96px) -
+        2 * var(--vista-sheet-surface-border-width, 1px)
+    )
   );
   height: var(
     --vista-sheet-shared-size,
-    calc(var(--vista-sheet-trigger-size, 96px) - 4px)
+    calc(
+      var(--vista-sheet-trigger-size, 96px) -
+        2 * var(--vista-sheet-surface-border-width, 1px)
+    )
   );
   pointer-events: none;
 }
@@ -139,7 +261,7 @@
 /* Trigger-side: inset in the surface ring, clipped to a circle, centered. */
 .shared[data-vista-sheet-slot="trigger"] {
   position: absolute;
-  inset: 2px;
+  inset: var(--vista-sheet-surface-border-width, 1px);
   z-index: 1;
   width: auto;
   height: auto;
@@ -183,7 +305,7 @@
   display: flex;
   flex-direction: column;
   background: var(--vista-sheet-surface-elevated, #ffffff);
-  border: 1px solid var(--vista-sheet-surface-border, #e5e5e5);
+  border: 1px solid var(--vista-sheet-surface-border, rgba(229, 229, 229, 0.6));
   /* Motion's inline borderRadius MotionValue (Sheet.tsx) wins during the
    * morph; this supplies the resting shape AND the reduced-motion shape,
    * which never gets an inline value at all (its render branch passes no
@@ -273,8 +395,8 @@
 .shadow::before {
   box-shadow: var(
     --vista-sheet-shadow,
-    0 1px 4px rgba(26, 22, 16, 0.14),
-    0 6px 24px rgba(0, 0, 0, 0.15)
+    0 2px 16px -4px rgba(0, 0, 0, 0.03),
+    0 6px 20px -4px rgba(0, 0, 0, 0.08)
   );
   opacity: var(--vista-sheet-shadow-opacity, 1);
 }
@@ -282,8 +404,8 @@
 .shadow::after {
   box-shadow: var(
     --vista-sheet-sheet-shadow,
-    0 8px 48px rgba(0, 0, 0, 0.24),
-    0 2px 8px rgba(0, 0, 0, 0.12)
+    0 12px 16px -12px rgba(0, 0, 0, 0.12),
+    0 8px 22px -4px rgba(0, 0, 0, 0.12)
   );
   opacity: var(--vista-sheet-sheet-shadow-opacity, 0);
 }
@@ -304,7 +426,7 @@
   );
 }
 
-/* Minus 2px: concentric with the surface's 2px ring. The sheet-side slot
+/* Minus the ring width: concentric with the surface's ring. The sheet-side slot
  * uses this same value so the Shared FLIP has no radius pop. */
 .shared[data-vista-sheet-slot][data-vista-sheet-shape="rounded-square"] {
   border-radius: max(
@@ -314,7 +436,7 @@
           var(--vista-sheet-trigger-radius, 9999px),
           calc(var(--vista-sheet-trigger-size, 96px) * 0.25)
         ) -
-        2px
+        var(--vista-sheet-surface-border-width, 1px)
     )
   );
 }

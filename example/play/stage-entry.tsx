@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import type { AnchorId } from "../../src/index";
+import { presets, type AnchorId } from "../../src/index";
 import { useVistaSheetInternal } from "../../src/context";
-import { isPlayMessage } from "./messages";
+import { isPlayMessage, type PlayStageOverrides } from "./messages";
 import { renderPlayTree } from "./render";
+import { createLab, type Lab } from "./clock-lab";
+import { CLOCK_ENABLED } from "./virtual-clock";
 import { buildCss, buildSpecimenTree } from "./codegen";
 import { groundFor, type PlayState } from "./state";
 import "./stage.css";
@@ -51,6 +53,7 @@ function AnchorCommand({
 
 function Stage() {
   const [state, setState] = useState<PlayState | null>(null);
+  const [overrides, setOverrides] = useState<PlayStageOverrides>({});
   const [pendingAnchor, setPendingAnchor] = useState<AnchorId | null>(null);
   const applyingCommandRef = useRef(false);
   // Stable across every re-render (state messages arrive per drag frame) —
@@ -58,6 +61,13 @@ function Stage() {
   // INITIAL_FOCUS_PROP (Search, Chat) and onto <VistaSheet.Sheet>'s
   // `initialFocus`; recipes with no marked field just never populate it.
   const initialFocusRef = useRef<HTMLElement | null>(null);
+  // Bumped by a `reset` (or the Motion Lab re-arming): remounts the
+  // specimen at rest. Renderer-only; never part of PlayState.
+  const [specimen, setSpecimen] = useState(0);
+  // The Motion Lab unmounts the specimen for a while before remounting it,
+  // so whatever the last scene left running drains first.
+  const [unmounted, setUnmounted] = useState(false);
+  const labRef = useRef<Lab | null>(null);
 
   useEffect(() => {
     window.parent.postMessage({ type: "vista-sheet-play:ready" }, "*");
@@ -67,8 +77,13 @@ function Stage() {
       if (!isPlayMessage(e.data)) return;
       if (e.data.type === "vista-sheet-play:state") {
         setState(e.data.state);
+        setOverrides(e.data.overrides ?? {});
       } else if (e.data.type === "vista-sheet-play:set-anchor") {
         setPendingAnchor(e.data.anchor);
+      } else if (e.data.type === "vista-sheet-play:reset") {
+        setSpecimen((n) => n + 1);
+      } else if (e.data.type === "vista-sheet-play:clock") {
+        labRef.current?.command(e.data.command);
       }
     }
     window.addEventListener("message", onMessage);
@@ -76,10 +91,29 @@ function Stage() {
   }, []);
 
   useEffect(() => {
+    const clock = window.__vistaClock;
+    if (!CLOCK_ENABLED || !clock) return;
+    const lab = createLab(
+      clock,
+      (mounted) => {
+        setUnmounted(!mounted);
+        if (mounted) setSpecimen((n) => n + 1);
+      },
+      (s) =>
+        window.parent.postMessage(
+          { type: "vista-sheet-play:clock-state", state: s },
+          location.origin,
+        ),
+    );
+    labRef.current = lab;
+    window.__vistaLab = lab;
+  }, []);
+
+  useEffect(() => {
     if (state) document.body.style.background = groundFor(state);
   }, [state]);
 
-  if (!state) return null;
+  if (!state || unmounted) return null;
 
   function onAnchorChange(anchor: AnchorId) {
     // A report, not a command: skip the one call a command's own setAnchor
@@ -103,13 +137,23 @@ function Stage() {
       {renderPlayTree(
         buildSpecimenTree(state),
         {
-          key: "specimen",
+          key: `specimen-${specimen}`,
           id: "specimen",
           // Strawman (v0.2), renderer-only, never emitted by the printer: keeps
           // the playground's specimen out of the geometry page's own
           // 'vista-sheet-anchor' localStorage key.
           persistKey: false,
           onAnchorChange,
+          // Embedder-only (the canvas page); play's shell never sends these.
+          ...(overrides.defaultOpen !== undefined && {
+            defaultOpen: overrides.defaultOpen,
+          }),
+          ...(overrides.reduceMotion !== undefined && {
+            reduceMotion: overrides.reduceMotion,
+          }),
+          ...(overrides.preset !== undefined && {
+            preset: presets[overrides.preset],
+          }),
         },
         [
           <AnchorCommand

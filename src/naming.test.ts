@@ -32,6 +32,7 @@ const ALLOWLIST: Record<string, number[]> = {
   "src/motion.ts": [28],
   // History: files that record what was true then, not rewritten.
   "BACKLOG.md": null,
+  "BACKLOG-archive.md": null,
   "docs/plans/morph-sheet-delivery.html": null,
   "docs/plans/motion-craft-audit.html": null,
   "docs/solutions/ui-bugs/shadow-pop-two-painters-velocity-inferred-mask.md":

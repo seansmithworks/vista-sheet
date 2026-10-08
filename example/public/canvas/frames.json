@@ -1,0 +1,1688 @@
+{
+  "capturedAt": "2026-10-07T23:00:23.604Z",
+  "gitHead": "9c3b41a",
+  "sequences": [
+    {
+      "id": "morph-circle",
+      "group": "morph",
+      "title": "Circle · basic",
+      "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed.",
+      "tileId": "shape-circle",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/morph-circle/00-rest.png",
+          "width": 562,
+          "height": 331,
+          "label": "rest",
+          "collapse": 1
+        },
+        {
+          "file": "canvas/frames/morph-circle/01-open-20.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 20%",
+          "collapse": 0.7633688564824715,
+          "ms": 60
+        },
+        {
+          "file": "canvas/frames/morph-circle/02-open-40.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 40%",
+          "collapse": 0.5709825755240434,
+          "ms": 92
+        },
+        {
+          "file": "canvas/frames/morph-circle/03-open-60.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 60%",
+          "collapse": 0.3970011441662333,
+          "ms": 124
+        },
+        {
+          "file": "canvas/frames/morph-circle/04-open-80.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 80%",
+          "collapse": 0.15485165565308154,
+          "ms": 188
+        },
+        {
+          "file": "canvas/frames/morph-circle/05-settled.png",
+          "width": 562,
+          "height": 331,
+          "label": "settled",
+          "collapse": 0
+        },
+        {
+          "file": "canvas/frames/morph-circle/06-close-33.png",
+          "width": 562,
+          "height": 331,
+          "label": "close 33%",
+          "collapse": 0.3862590989744932,
+          "ms": 100
+        },
+        {
+          "file": "canvas/frames/morph-circle/07-close-67.png",
+          "width": 562,
+          "height": 331,
+          "label": "close 67%",
+          "collapse": 0.7133582864969097,
+          "ms": 148
+        },
+        {
+          "file": "canvas/frames/morph-circle/08-closed.png",
+          "width": 562,
+          "height": 331,
+          "label": "closed",
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-circle/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "morph-squircle",
+      "group": "morph",
+      "title": "Squircle",
+      "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed.",
+      "tileId": "shape-squircle",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/morph-squircle/00-rest.png",
+          "width": 562,
+          "height": 331,
+          "label": "rest",
+          "collapse": 1
+        },
+        {
+          "file": "canvas/frames/morph-squircle/01-open-20.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 20%",
+          "collapse": 0.7152351613190461,
+          "ms": 68
+        },
+        {
+          "file": "canvas/frames/morph-squircle/02-open-40.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 40%",
+          "collapse": 0.5248066023870597,
+          "ms": 100
+        },
+        {
+          "file": "canvas/frames/morph-squircle/03-open-60.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 60%",
+          "collapse": 0.3586427256924125,
+          "ms": 132
+        },
+        {
+          "file": "canvas/frames/morph-squircle/04-open-80.png",
+          "width": 562,
+          "height": 331,
+          "label": "open 80%",
+          "collapse": 0.17725711493433868,
+          "ms": 180
+        },
+        {
+          "file": "canvas/frames/morph-squircle/05-settled.png",
+          "width": 562,
+          "height": 331,
+          "label": "settled",
+          "collapse": 0
+        },
+        {
+          "file": "canvas/frames/morph-squircle/06-close-33.png",
+          "width": 562,
+          "height": 331,
+          "label": "close 33%",
+          "collapse": 0.37034177233503607,
+          "ms": 100
+        },
+        {
+          "file": "canvas/frames/morph-squircle/07-close-67.png",
+          "width": 562,
+          "height": 331,
+          "label": "close 67%",
+          "collapse": 0.7024634498630604,
+          "ms": 148
+        },
+        {
+          "file": "canvas/frames/morph-squircle/08-closed.png",
+          "width": 562,
+          "height": 331,
+          "label": "closed",
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-squircle/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "morph-rectangle",
+      "group": "morph",
+      "title": "Rectangle · search",
+      "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed.",
+      "tileId": "shape-rectangle",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/morph-rectangle/00-rest.png",
+          "width": 562,
+          "height": 426,
+          "label": "rest",
+          "collapse": 1
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/01-open-20.png",
+          "width": 562,
+          "height": 426,
+          "label": "open 20%",
+          "collapse": 0.7693181157790063,
+          "ms": 60
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/02-open-40.png",
+          "width": 562,
+          "height": 426,
+          "label": "open 40%",
+          "collapse": 0.5768519645541793,
+          "ms": 92
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/03-open-60.png",
+          "width": 562,
+          "height": 426,
+          "label": "open 60%",
+          "collapse": 0.32697068905092297,
+          "ms": 140
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/04-open-80.png",
+          "width": 562,
+          "height": 426,
+          "label": "open 80%",
+          "collapse": 0.1575393460728737,
+          "ms": 188
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/05-settled.png",
+          "width": 562,
+          "height": 426,
+          "label": "settled",
+          "collapse": 0
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/06-close-33.png",
+          "width": 562,
+          "height": 426,
+          "label": "close 33%",
+          "collapse": 0.3862590989744932,
+          "ms": 100
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/07-close-67.png",
+          "width": 562,
+          "height": 426,
+          "label": "close 67%",
+          "collapse": 0.7133582864969097,
+          "ms": 148
+        },
+        {
+          "file": "canvas/frames/morph-rectangle/08-closed.png",
+          "width": 562,
+          "height": 426,
+          "label": "closed",
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-rectangle/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "morph-dark",
+      "group": "morph",
+      "title": "List · neutral dark",
+      "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed.",
+      "tileId": "theme-neutral-dark",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/morph-dark/00-rest.png",
+          "width": 442,
+          "height": 518,
+          "label": "rest",
+          "collapse": 1
+        },
+        {
+          "file": "canvas/frames/morph-dark/01-open-20.png",
+          "width": 442,
+          "height": 518,
+          "label": "open 20%",
+          "collapse": 0.7987186902756147,
+          "ms": 56
+        },
+        {
+          "file": "canvas/frames/morph-dark/02-open-40.png",
+          "width": 442,
+          "height": 518,
+          "label": "open 40%",
+          "collapse": 0.5135038864801249,
+          "ms": 104
+        },
+        {
+          "file": "canvas/frames/morph-dark/03-open-60.png",
+          "width": 442,
+          "height": 518,
+          "label": "open 60%",
+          "collapse": 0.34941146156065717,
+          "ms": 136
+        },
+        {
+          "file": "canvas/frames/morph-dark/04-open-80.png",
+          "width": 442,
+          "height": 518,
+          "label": "open 80%",
+          "collapse": 0.1714601578676766,
+          "ms": 184
+        },
+        {
+          "file": "canvas/frames/morph-dark/05-settled.png",
+          "width": 442,
+          "height": 518,
+          "label": "settled",
+          "collapse": 0
+        },
+        {
+          "file": "canvas/frames/morph-dark/06-close-33.png",
+          "width": 442,
+          "height": 518,
+          "label": "close 33%",
+          "collapse": 0.3862590989744932,
+          "ms": 100
+        },
+        {
+          "file": "canvas/frames/morph-dark/07-close-67.png",
+          "width": 442,
+          "height": 518,
+          "label": "close 67%",
+          "collapse": 0.7133582864969097,
+          "ms": 148
+        },
+        {
+          "file": "canvas/frames/morph-dark/08-closed.png",
+          "width": 442,
+          "height": 518,
+          "label": "closed",
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-dark/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "morph-phone",
+      "group": "morph",
+      "title": "Media · phone 390×844, touch",
+      "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed.",
+      "tileId": "content-media",
+      "viewport": "phone",
+      "deviceScaleFactor": 1.5,
+      "frames": [
+        {
+          "file": "canvas/frames/morph-phone/00-rest.png",
+          "width": 585,
+          "height": 729,
+          "label": "rest",
+          "collapse": 1
+        },
+        {
+          "file": "canvas/frames/morph-phone/01-open-20.png",
+          "width": 585,
+          "height": 729,
+          "label": "open 20%",
+          "collapse": 0.7394001516259557,
+          "ms": 64
+        },
+        {
+          "file": "canvas/frames/morph-phone/02-open-40.png",
+          "width": 585,
+          "height": 729,
+          "label": "open 40%",
+          "collapse": 0.547711982676271,
+          "ms": 96
+        },
+        {
+          "file": "canvas/frames/morph-phone/03-open-60.png",
+          "width": 585,
+          "height": 729,
+          "label": "open 60%",
+          "collapse": 0.3775376193681761,
+          "ms": 128
+        },
+        {
+          "file": "canvas/frames/morph-phone/04-open-80.png",
+          "width": 585,
+          "height": 729,
+          "label": "open 80%",
+          "collapse": 0.18925096112274556,
+          "ms": 176
+        },
+        {
+          "file": "canvas/frames/morph-phone/05-settled.png",
+          "width": 585,
+          "height": 729,
+          "label": "settled",
+          "collapse": 0
+        },
+        {
+          "file": "canvas/frames/morph-phone/06-close-33.png",
+          "width": 585,
+          "height": 729,
+          "label": "close 33%",
+          "collapse": 0.39418318370918437,
+          "ms": 100
+        },
+        {
+          "file": "canvas/frames/morph-phone/07-close-67.png",
+          "width": 585,
+          "height": 729,
+          "label": "close 67%",
+          "collapse": 0.7187085559682169,
+          "ms": 148
+        },
+        {
+          "file": "canvas/frames/morph-phone/08-closed.png",
+          "width": 585,
+          "height": 729,
+          "label": "closed",
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-phone/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "morph-link-preview",
+      "group": "morph",
+      "title": "Link preview · hover",
+      "description": "rest, open at 20/40/60/80% of collapseProgress, settled, close at 33/67%, closed. Opens on hover intent, closes on pointer-out after the grace period. The previewed page is held on its skeleton so frames compare.",
+      "tileId": "link-preview",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/morph-link-preview/00-rest.png",
+          "width": 441,
+          "height": 642,
+          "label": "rest",
+          "collapse": 1
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/01-open-20.png",
+          "width": 441,
+          "height": 642,
+          "label": "open 20%",
+          "collapse": 0.7693181157790063,
+          "ms": 212
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/02-open-40.png",
+          "width": 441,
+          "height": 642,
+          "label": "open 40%",
+          "collapse": 0.5768519645541793,
+          "ms": 244
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/03-open-60.png",
+          "width": 441,
+          "height": 642,
+          "label": "open 60%",
+          "collapse": 0.32697068905092297,
+          "ms": 292
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/04-open-80.png",
+          "width": 441,
+          "height": 642,
+          "label": "open 80%",
+          "collapse": 0.1575393460728737,
+          "ms": 340
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/05-settled.png",
+          "width": 441,
+          "height": 642,
+          "label": "settled",
+          "collapse": 0
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/06-close-33.png",
+          "width": 441,
+          "height": 642,
+          "label": "close 33%",
+          "collapse": 0.4020812898141496,
+          "ms": 356
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/07-close-67.png",
+          "width": 441,
+          "height": 642,
+          "label": "close 67%",
+          "collapse": 0.7239941383253669,
+          "ms": 404
+        },
+        {
+          "file": "canvas/frames/morph-link-preview/08-closed.png",
+          "width": 441,
+          "height": 642,
+          "label": "closed",
+          "collapse": 1,
+          "identicalTo": "canvas/frames/morph-link-preview/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "close-reveal",
+      "group": "close-reveal",
+      "title": "Close button reveal",
+      "description": "Timed from the tick collapseProgress reaches CLOSE_REVEAL_PROGRESS: fade, scale from 0 and a -90° turn on two springs.",
+      "tileId": "shape-circle",
+      "viewport": "desktop",
+      "deviceScaleFactor": 3,
+      "frames": [
+        {
+          "file": "canvas/frames/close-reveal/00-t0.png",
+          "width": 300,
+          "height": 300,
+          "label": "+0ms",
+          "collapse": 0.005404438830131082,
+          "ms": 0,
+          "detail": "opacity 0.00 · scale 0.00 · rotate 0°"
+        },
+        {
+          "file": "canvas/frames/close-reveal/01-t40.png",
+          "width": 300,
+          "height": 300,
+          "label": "+40ms",
+          "collapse": -0.004828571162382776,
+          "ms": 40,
+          "detail": "opacity 0.00 · scale 0.14 · rotate -73°"
+        },
+        {
+          "file": "canvas/frames/close-reveal/02-t80.png",
+          "width": 300,
+          "height": 300,
+          "label": "+80ms",
+          "collapse": -0.009366214627831002,
+          "ms": 80,
+          "detail": "opacity 0.00 · scale 0.56 · rotate -21°"
+        },
+        {
+          "file": "canvas/frames/close-reveal/03-t150.png",
+          "width": 300,
+          "height": 300,
+          "label": "+150ms",
+          "collapse": -0.007308808775829069,
+          "ms": 150,
+          "detail": "opacity 0.53 · scale 0.93 · rotate 14°"
+        },
+        {
+          "file": "canvas/frames/close-reveal/04-t250.png",
+          "width": 300,
+          "height": 300,
+          "label": "+250ms",
+          "collapse": -0.002504597804739804,
+          "ms": 250,
+          "detail": "opacity 1.00 · scale 1.03 · rotate 3°"
+        },
+        {
+          "file": "canvas/frames/close-reveal/05-t400.png",
+          "width": 300,
+          "height": 300,
+          "label": "+400ms",
+          "collapse": 0,
+          "ms": 400,
+          "detail": "opacity 1.00 · scale 1.00 · rotate -0°"
+        },
+        {
+          "file": "canvas/frames/close-reveal/06-t600.png",
+          "width": 300,
+          "height": 300,
+          "label": "+600ms",
+          "collapse": 0,
+          "ms": 600,
+          "detail": "opacity 1.00 · scale 1.00 · rotate 0°"
+        }
+      ]
+    },
+    {
+      "id": "shadow-crossfade",
+      "group": "shadow",
+      "title": "Shadow crossfade",
+      "description": "The same progress points with every part but <VistaSheet.Shadow> made transparent: one painter crossfading the thin trigger look into the heavy sheet look.",
+      "tileId": "behaviour-shadow-on",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/shadow-crossfade/00-rest.png",
+          "width": 562,
+          "height": 363,
+          "label": "rest",
+          "collapse": 1,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/01-open-20.png",
+          "width": 562,
+          "height": 363,
+          "label": "open 20%",
+          "collapse": 0.7693181157790063,
+          "ms": 60,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/02-open-40.png",
+          "width": 562,
+          "height": 363,
+          "label": "open 40%",
+          "collapse": 0.5768519645541793,
+          "ms": 92,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/03-open-60.png",
+          "width": 562,
+          "height": 363,
+          "label": "open 60%",
+          "collapse": 0.32697068905092297,
+          "ms": 140,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/04-open-80.png",
+          "width": 562,
+          "height": 363,
+          "label": "open 80%",
+          "collapse": 0.1575393460728737,
+          "ms": 188,
+          "shadowOpacity": 0.6301573842914948,
+          "sheetShadowOpacity": 0.3698426157085052
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/05-settled.png",
+          "width": 562,
+          "height": 363,
+          "label": "settled",
+          "collapse": 0,
+          "shadowOpacity": 0,
+          "sheetShadowOpacity": 1
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/06-close-33.png",
+          "width": 562,
+          "height": 363,
+          "label": "close 33%",
+          "collapse": 0.354347675645996,
+          "ms": 96,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/07-close-67.png",
+          "width": 562,
+          "height": 363,
+          "label": "close 67%",
+          "collapse": 0.6913093859317017,
+          "ms": 144,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0
+        },
+        {
+          "file": "canvas/frames/shadow-crossfade/08-closed.png",
+          "width": 562,
+          "height": 363,
+          "label": "closed",
+          "collapse": 1,
+          "shadowOpacity": 1,
+          "sheetShadowOpacity": 0,
+          "identicalTo": "canvas/frames/shadow-crossfade/00-rest.png"
+        }
+      ]
+    },
+    {
+      "id": "trigger-states-disc",
+      "group": "trigger-states",
+      "title": "Disc trigger · interaction states",
+      "description": "Rest, hover, keyboard focus and pressed on a circle trigger.",
+      "tileId": "shape-circle",
+      "viewport": "phone",
+      "deviceScaleFactor": 3,
+      "frames": [
+        {
+          "file": "canvas/frames/trigger-states-disc/00-rest.png",
+          "width": 432,
+          "height": 408,
+          "label": "rest",
+          "collapse": null
+        },
+        {
+          "file": "canvas/frames/trigger-states-disc/01-hover.png",
+          "width": 432,
+          "height": 408,
+          "label": "hover",
+          "collapse": null,
+          "detail": "pointer over the trigger"
+        },
+        {
+          "file": "canvas/frames/trigger-states-disc/02-focus-visible.png",
+          "width": 432,
+          "height": 408,
+          "label": "focus-visible",
+          "collapse": null,
+          "detail": "keyboard Tab"
+        },
+        {
+          "file": "canvas/frames/trigger-states-disc/03-pressed.png",
+          "width": 432,
+          "height": 408,
+          "label": "pressed",
+          "collapse": null,
+          "detail": "pointer down, held"
+        }
+      ]
+    },
+    {
+      "id": "trigger-states-button",
+      "group": "trigger-states",
+      "title": "Button trigger · interaction states",
+      "description": "Rest, hover, keyboard focus and pressed on a rectangle button.",
+      "tileId": "button-m-icon-text",
+      "viewport": "phone",
+      "deviceScaleFactor": 3,
+      "frames": [
+        {
+          "file": "canvas/frames/trigger-states-button/00-rest.png",
+          "width": 480,
+          "height": 252,
+          "label": "rest",
+          "collapse": null
+        },
+        {
+          "file": "canvas/frames/trigger-states-button/01-hover.png",
+          "width": 480,
+          "height": 252,
+          "label": "hover",
+          "collapse": null,
+          "detail": "pointer over the trigger"
+        },
+        {
+          "file": "canvas/frames/trigger-states-button/02-focus-visible.png",
+          "width": 480,
+          "height": 252,
+          "label": "focus-visible",
+          "collapse": null,
+          "detail": "keyboard Tab"
+        },
+        {
+          "file": "canvas/frames/trigger-states-button/03-pressed.png",
+          "width": 480,
+          "height": 252,
+          "label": "pressed",
+          "collapse": null,
+          "detail": "pointer down, held"
+        }
+      ]
+    },
+    {
+      "id": "reduced-motion",
+      "group": "reduced-motion",
+      "title": "Reduced motion · open",
+      "description": "No morph: the sheet fades in over 200ms, timed from the click.",
+      "tileId": "reduced-motion-basic",
+      "viewport": "desktop",
+      "deviceScaleFactor": 1,
+      "frames": [
+        {
+          "file": "canvas/frames/reduced-motion/00-rest.png",
+          "width": 560,
+          "height": 362,
+          "label": "rest",
+          "collapse": null
+        },
+        {
+          "file": "canvas/frames/reduced-motion/01-t50.png",
+          "width": 560,
+          "height": 362,
+          "label": "+50ms",
+          "collapse": null,
+          "ms": 50,
+          "detail": "sheet opacity 0.61"
+        },
+        {
+          "file": "canvas/frames/reduced-motion/02-t100.png",
+          "width": 560,
+          "height": 362,
+          "label": "+100ms",
+          "collapse": null,
+          "ms": 100,
+          "detail": "sheet opacity 0.85"
+        },
+        {
+          "file": "canvas/frames/reduced-motion/03-t150.png",
+          "width": 560,
+          "height": 362,
+          "label": "+150ms",
+          "collapse": null,
+          "ms": 150,
+          "detail": "sheet opacity 0.99"
+        },
+        {
+          "file": "canvas/frames/reduced-motion/04-settled.png",
+          "width": 560,
+          "height": 362,
+          "label": "settled",
+          "collapse": null,
+          "detail": "sheet opacity 1.00"
+        }
+      ]
+    }
+  ],
+  "anatomy": [
+    {
+      "recipe": "basic",
+      "tileId": "content-basic",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/basic.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 554,
+          "w": 358,
+          "h": 274
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 554,
+          "w": 358,
+          "h": 274
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 579,
+          "w": 94,
+          "h": 94
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 581,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 673,
+          "w": 356,
+          "h": 154
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 673,
+          "w": 308,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 723,
+          "w": 308,
+          "h": 56
+        }
+      ]
+    },
+    {
+      "recipe": "list",
+      "tileId": "content-list",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/list.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 367,
+          "w": 358,
+          "h": 461
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 367,
+          "w": 358,
+          "h": 461
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 392,
+          "w": 40,
+          "h": 40
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 394,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 432,
+          "w": 356,
+          "h": 395
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 432,
+          "w": 308,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 482,
+          "w": 308,
+          "h": 53
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 535,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 596,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 657,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 718,
+          "w": 308,
+          "h": 61
+        }
+      ]
+    },
+    {
+      "recipe": "grid",
+      "tileId": "content-grid",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/grid.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 372,
+          "w": 358,
+          "h": 456
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 372,
+          "w": 358,
+          "h": 456
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 397,
+          "w": 40,
+          "h": 40
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 399,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 437,
+          "w": 356,
+          "h": 390
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 437,
+          "w": 308,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 487,
+          "w": 308,
+          "h": 92
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 579,
+          "w": 308,
+          "h": 100
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 679,
+          "w": 308,
+          "h": 100
+        }
+      ]
+    },
+    {
+      "recipe": "nav",
+      "tileId": "content-nav",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/nav.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 35,
+          "y": 446,
+          "w": 320,
+          "h": 382
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 35,
+          "y": 446,
+          "w": 320,
+          "h": 382
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 60,
+          "y": 471,
+          "w": 40,
+          "h": 40
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 284,
+          "y": 473,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 36,
+          "y": 511,
+          "w": 318,
+          "h": 316
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 60,
+          "y": 511,
+          "w": 270,
+          "h": 50
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 60,
+          "y": 561,
+          "w": 270,
+          "h": 218
+        }
+      ]
+    },
+    {
+      "recipe": "media",
+      "tileId": "content-media",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "shared:sheet",
+        "shared:trigger",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/media.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 398,
+          "w": 358,
+          "h": 430
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 398,
+          "w": 358,
+          "h": 430
+        },
+        {
+          "part": "shared",
+          "slot": "sheet",
+          "x": 41,
+          "y": 423,
+          "w": 94,
+          "h": 94
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 425,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 517,
+          "w": 356,
+          "h": 310
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 517,
+          "w": 308,
+          "h": 87
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 604,
+          "w": 308,
+          "h": 96
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 700,
+          "w": 308,
+          "h": 79
+        }
+      ]
+    },
+    {
+      "recipe": "video",
+      "tileId": "content-video",
+      "parts": [
+        "backdrop",
+        "close",
+        "media:sheet",
+        "media:trigger",
+        "shadow",
+        "sheet",
+        "trigger",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/video.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 192,
+          "w": 358,
+          "h": 636
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 147,
+          "y": 732,
+          "w": 96,
+          "h": 96
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 191.5625,
+          "w": 358,
+          "h": 636.4375
+        },
+        {
+          "part": "media",
+          "slot": "sheet",
+          "x": 17,
+          "y": 192.5625,
+          "w": 356,
+          "h": 634.4375
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 218.5625,
+          "w": 44,
+          "h": 44
+        }
+      ]
+    },
+    {
+      "recipe": "search",
+      "tileId": "content-search",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "sheet",
+        "trigger",
+        "trigger-label",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/search.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 459,
+          "w": 358,
+          "h": 370
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 139.5,
+          "y": 784,
+          "w": 110.890625,
+          "h": 44
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 139.5,
+          "y": 784,
+          "w": 110.890625,
+          "h": 44
+        },
+        {
+          "part": "trigger-label",
+          "slot": null,
+          "x": 157.5,
+          "y": 797,
+          "w": 74.890625,
+          "h": 18
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 458.5,
+          "w": 358,
+          "h": 369.5
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 485.5,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 459.5,
+          "w": 356,
+          "h": 367.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 459.5,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 520.5,
+          "w": 308,
+          "h": 52
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 572.5,
+          "w": 308,
+          "h": 35.5
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 608,
+          "w": 308,
+          "h": 57
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 665,
+          "w": 308,
+          "h": 57
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 722,
+          "w": 308,
+          "h": 57
+        }
+      ]
+    },
+    {
+      "recipe": "chat",
+      "tileId": "content-chat",
+      "parts": [
+        "backdrop",
+        "close",
+        "content",
+        "item",
+        "shadow",
+        "sheet",
+        "trigger",
+        "trigger-label",
+        "trigger-root",
+        "trigger-surface"
+      ],
+      "file": "canvas/anatomy/chat.png",
+      "width": 390,
+      "height": 844,
+      "boxes": [
+        {
+          "part": "shadow",
+          "slot": null,
+          "x": 16,
+          "y": 522,
+          "w": 358,
+          "h": 306
+        },
+        {
+          "part": "trigger-root",
+          "slot": null,
+          "x": 118.5,
+          "y": 784,
+          "w": 152.5625,
+          "h": 44
+        },
+        {
+          "part": "trigger",
+          "slot": null,
+          "x": 118.5,
+          "y": 784,
+          "w": 152.5625,
+          "h": 44
+        },
+        {
+          "part": "trigger-label",
+          "slot": null,
+          "x": 136.5,
+          "y": 797,
+          "w": 116.5625,
+          "h": 18
+        },
+        {
+          "part": "backdrop",
+          "slot": null,
+          "x": 0,
+          "y": 0,
+          "w": 390,
+          "h": 844
+        },
+        {
+          "part": "sheet",
+          "slot": null,
+          "x": 16,
+          "y": 522,
+          "w": 358,
+          "h": 306
+        },
+        {
+          "part": "close",
+          "slot": null,
+          "x": 303,
+          "y": 549,
+          "w": 44,
+          "h": 44
+        },
+        {
+          "part": "content",
+          "slot": null,
+          "x": 17,
+          "y": 523,
+          "w": 356,
+          "h": 304
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 523,
+          "w": 308,
+          "h": 61
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 584,
+          "w": 308,
+          "h": 119
+        },
+        {
+          "part": "item",
+          "slot": null,
+          "x": 41,
+          "y": 703,
+          "w": 308,
+          "h": 76
+        }
+      ]
+    }
+  ]
+}

@@ -17,11 +17,13 @@ of a persistent trigger. Nobody has standardized "trigger morphs into
 surface," so `vista-sheet` / `VistaSheet` names the shape directly rather than
 reaching for an existing term.
 
+Browser and platform limits: [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
+
 ## Install
 
 ```bash
 npm install @seansmithworks/vista-sheet
-npm install react react-dom motion@13
+npm install react react-dom motion@14
 ```
 
 The second line installs the [peer dependencies](#peer-dependencies); skip
@@ -44,7 +46,7 @@ To test an unreleased branch, install straight from GitHub. Add `#<branch>`
 ```bash
 npm install github:seansmithworks/vista-sheet
 npm install github:seansmithworks/vista-sheet#explore/link-preview
-npm install react react-dom motion@13
+npm install react react-dom motion@14
 ```
 
 It builds itself on install: npm installs the package's dev dependencies
@@ -83,7 +85,7 @@ everything) or diff your copy against a fresh `add` in a scratch directory.
 Peer dependencies aren't copied and still need installing:
 
 ```bash
-npm install react react-dom motion@13
+npm install react react-dom motion@14
 ```
 
 ### Live-tuning panel
@@ -117,7 +119,7 @@ hand-translation. This repo runs the same file live at
 
 - `react` >=19
 - `react-dom` >=19
-- `motion` >=12 <14 (full suite run green against both 12.43.0 and 13.1.1)
+- `motion` ^12 || ^13 || ^14 (geometry suite run green against 12.43.0, 13.5.1 and 14.0.0; see [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md) for the perf-gate detail)
 
 None are bundled. Install them yourself if your app doesn't already have
 them.
@@ -184,6 +186,8 @@ morph it into the sheet shown above.
 Ten exports total: nine components (`Root`, `Trigger`, `Sheet`, `Shared`,
 `Media`, `Content`, `Item`, `Close`, `Shadow`) plus the `useVistaSheet()`
 hook. That is the whole surface area.
+
+A Root that mounts open (`defaultOpen`, or `open` already `true`) renders the sheet at rest, with no morph and no entrance on its content or close button; every later close and open animates.
 
 **In a Next.js App Router app, `"use client"` has to be the first line of
 the file where you mount `VistaSheet`**, as it is in the snippet above.
@@ -430,7 +434,8 @@ package renders correctly out of the box:
 | --- | --- |
 | `--vista-sheet-surface` | `#fafafa` |
 | `--vista-sheet-surface-elevated` | `#ffffff` |
-| `--vista-sheet-surface-border` | `#e5e5e5` |
+| `--vista-sheet-surface-border` | `rgba(229,229,229,.6)` |
+| `--vista-sheet-surface-border-width` | `1px` |
 | `--vista-sheet-text` | `#1d1d1f` |
 | `--vista-sheet-accent` | `#1d1d1f` |
 | `--vista-sheet-sheet-max-width` | `480px` |
@@ -438,11 +443,17 @@ package renders correctly out of the box:
 | `--vista-sheet-sheet-radius` | `48px` |
 | `--vista-sheet-trigger-radius` | `9999px` |
 | `--vista-sheet-sheet-padding` | `24px` |
-| `--vista-sheet-shadow` | `0 1px 4px rgba(26,22,16,.14), 0 6px 24px rgba(0,0,0,.15)` |
-| `--vista-sheet-sheet-shadow` | `0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)` |
+| `--vista-sheet-shadow` | `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` |
+| `--vista-sheet-sheet-shadow` | `0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)` |
 | `--vista-sheet-sheet-shadow-fade-start` | `0` |
 | `--vista-sheet-sheet-shadow-fade-end` | `0.25` |
 | `--vista-sheet-z` | `100` |
+| `--vista-sheet-trigger-hover-lift` | `1px` |
+| `--vista-sheet-trigger-press-scale` | `0.97` |
+| `--vista-sheet-trigger-highlight-color` | 7% of `--vista-sheet-text` |
+| `--vista-sheet-trigger-highlight-size` | `96px` |
+| `--vista-sheet-trigger-highlight-strength` | `0.75` |
+| `--vista-sheet-trigger-press-tint` | `rgba(0,0,0,.06)` |
 
 `--vista-sheet-sheet-shadow-fade-start`/`-fade-end` are unitless
 `collapseProgress` fractions (0 = open at rest, 1 = closed at rest) marking
@@ -450,8 +461,49 @@ where `<VistaSheet.Shadow>` crossfades from the heavy `--vista-sheet-sheet-shado
 look to the thin `--vista-sheet-shadow` look — see "Two shadows, one painter"
 below.
 
+`--vista-sheet-surface-border-width` is the width of the trigger surface's
+`--vista-sheet-surface-border` ring. `<VistaSheet.Shared>` sits inset by the
+same width, so its clip stays concentric with the ring at any width. The
+sheet's own border stays 1px.
+
+`--vista-sheet-trigger-hover-lift` (how far the resting trigger rises on
+mouse hover) and `--vista-sheet-trigger-press-scale` (its scale while
+pressed, by pointer or Space) drive the disc and button triggers' hover and
+pressed states. The trigger and its `<VistaSheet.Shadow>` move together, over
+150ms. Set `0px` / `1` to turn either off. Neither applies under reduced
+motion, while the sheet is open or closing, or to a link preview; any open
+drops them instantly so the morph starts from the trigger at rest. Every
+trigger also has an invisible hit area of at least 48px on each axis (a
+rectangle `s`/`m` button, or a disc under 48px) without changing its visual
+size or layout.
+
+The trigger surface also shows a soft radial highlight that follows the mouse
+on hover (`--vista-sheet-trigger-highlight-color`, `-size`). On press the
+highlight tightens and the surface darkens by `--vista-sheet-trigger-press-tint`.
+For touch, keyboard and reduced motion the highlight is centred and only fades.
+The default colour is 7% of `--vista-sheet-text`, so a light palette gets a
+faint tint and a dark palette a faint glow. Set
+`--vista-sheet-trigger-highlight-strength: 0` to turn the highlight and the
+press tint off. Both layers sit inside the trigger surface: they never paint
+on the sheet and are gone before any open.
+
+A dark shadow barely reads on a dark ground, so the example pages' dark
+palette uses a faint white glow instead:
+
+```css
+--vista-sheet-shadow: 0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15);
+--vista-sheet-sheet-shadow: 0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15);
+--vista-sheet-surface-border: rgba(255,255,255,.1);
+--vista-sheet-trigger-highlight-color: rgba(255,255,255,.1);
+--vista-sheet-trigger-highlight-strength: 1;
+--vista-sheet-trigger-press-tint: rgba(255,255,255,.15);
+```
+
+Hover lift (`1px`), press scale (`0.97`), highlight size (`96px`) and ring
+width (`1px`) are the same as the light defaults.
+
 The package writes `--vista-sheet-trigger-size`, `--vista-sheet-button-width`,
-`--vista-sheet-trigger-x/-y`,
+`--vista-sheet-trigger-x/-y`, `--vista-sheet-trigger-highlight-x/-y`,
 `--vista-sheet-sheet-left`, `--vista-sheet-collapse`,
 `--vista-sheet-shadow-x/-y/-w/-h/-radius`, and
 `--vista-sheet-shadow-opacity`/`--vista-sheet-sheet-shadow-opacity` (the live
@@ -573,7 +625,7 @@ damping by `k`, with `k = Ts / (Ts + D)`); Sean's later hand-dial pass moved
 or `surfaceCloseLeadDelayMs` and re-dial `shared.close` to match on the
 `/tune` panel — do not recompute it — or the shared element stops arriving
 with the box: too fast and it parks early, too slow and it trails, and a
-trailing shared element spills past the round trigger's 2px border.
+trailing shared element spills past the round trigger's border ring.
 
 ### Presets
 

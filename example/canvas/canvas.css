@@ -1,0 +1,535 @@
+/*
+ * Canvas chrome: a quiet specimen sheet. Neutral example palette
+ * (DESIGN.md "Example pages" column); the specimens are the only event.
+ * This file never styles [data-vista-sheet-*]: specimens live in iframes
+ * and carry their own CSS.
+ */
+:root {
+  --cv-ground: #f5f5f7;
+  --cv-surface: #ffffff;
+  --cv-border: #e5e5e5;
+  --cv-text: #1d1d1f;
+  --cv-text-2: #6e6e73;
+  --cv-accent: #1d1d1f;
+  --cv-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --cv-topbar-h: 56px;
+  --cv-review-top: 0px;
+  --cv-glass: rgba(245, 245, 247, 0.86);
+  --cv-fill: rgba(118, 118, 128, 0.12);
+  --cv-hover: rgba(0, 0, 0, 0.04);
+  color-scheme: light;
+}
+
+/* Appearance: Dark. The neutral-dark palette's values (play/state.ts,
+ * example.css body[data-dark-mode]), so the chrome matches the tiles. */
+html[data-appearance="dark"] {
+  --cv-ground: #0b0b0c;
+  --cv-surface: #2c2c2e;
+  --cv-border: rgba(255, 255, 255, 0.1);
+  --cv-text: #f5f5f7;
+  --cv-text-2: #a1a1a6;
+  --cv-accent: #f5f5f7;
+  --cv-glass: rgba(11, 11, 12, 0.86);
+  --cv-fill: rgba(118, 118, 128, 0.24);
+  --cv-hover: rgba(255, 255, 255, 0.06);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--cv-ground);
+  color: var(--cv-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cv-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Top bar ---- */
+.cv-topbar {
+  position: sticky;
+  top: var(--cv-review-top);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--cv-topbar-h);
+  padding: 0 24px;
+  background: var(--cv-glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--cv-border);
+}
+
+.cv-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cv-title h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cv-title span {
+  font-size: 13px;
+  color: var(--cv-text-2);
+}
+
+.cv-switch {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--cv-fill);
+}
+
+.cv-switch button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.cv-switch button[aria-selected="true"],
+.cv-switch button[aria-checked="true"] {
+  background: var(--cv-surface);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  font-weight: 500;
+}
+
+/* Autoplay: a switch, drawn as a small track and thumb before the label. */
+.cv-autoplay {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  border: 0;
+  background: none;
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cv-autoplay::before {
+  content: "";
+  width: 26px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--cv-fill);
+  box-shadow: inset 0 0 0 1px var(--cv-border);
+  background-image: radial-gradient(
+    circle at 8px 50%,
+    var(--cv-surface) 5px,
+    transparent 5.5px
+  );
+}
+
+.cv-autoplay[aria-checked="true"]::before {
+  background-color: var(--cv-text);
+  background-image: radial-gradient(
+    circle at 18px 50%,
+    var(--cv-ground) 5px,
+    transparent 5.5px
+  );
+}
+
+.cv-meta {
+  margin-left: auto;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+/* ---- Layout ---- */
+.cv-layout {
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px 32px 120px;
+}
+
+.cv-index {
+  position: sticky;
+  top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 40px);
+  align-self: start;
+}
+
+.cv-index ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.cv-index a {
+  display: block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--cv-text-2);
+  text-decoration: none;
+}
+
+.cv-index a:hover {
+  color: var(--cv-text);
+  background: var(--cv-hover);
+}
+
+/* The section in view (scroll-spy). */
+.cv-index a[aria-current] {
+  color: var(--cv-text);
+  background: var(--cv-fill);
+  font-weight: 500;
+}
+
+.cv-sections {
+  display: grid;
+  gap: 72px;
+  min-width: 0;
+}
+
+.cv-section > header {
+  margin-bottom: 20px;
+}
+
+.cv-section h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.cv-section > header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--cv-text-2);
+}
+
+.cv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 32px 20px;
+  align-items: start;
+}
+
+@media (min-width: 720px) {
+  .cv-tile[data-viewport="desktop"] {
+    grid-column: span 2;
+  }
+}
+
+.cv-tile[data-viewport="fluid"] {
+  grid-column: 1 / -1;
+}
+
+/* ---- Tile ---- */
+/* Caption, frame and hint are rows of the section grid (subgrid), so a
+ * caption that wraps further pushes every frame in its row down with it:
+ * frames in a row always share a top edge. */
+.cv-tile {
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  align-content: start;
+}
+
+.cv-tile figcaption {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  margin-bottom: 10px;
+}
+
+.cv-tile-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cv-tile-caption {
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+.cv-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--cv-border);
+  isolation: isolate;
+}
+
+.cv-tile[data-active] .cv-frame {
+  box-shadow:
+    0 0 0 1px var(--cv-border),
+    0 0 0 3px var(--cv-accent);
+}
+
+.cv-poster,
+.cv-poster-empty {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cv-poster {
+  object-fit: cover;
+}
+
+/* A fluid frame is wider or narrower than its poster: pin the poster to
+ * the page's top-left, where a 1:1 page starts. */
+.cv-tile[data-viewport="fluid"] .cv-poster {
+  object-position: left top;
+}
+
+.cv-tile-see {
+  justify-self: start;
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+/* ---- Section defaults (Sheet geometry) ---- */
+.cv-defaults {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px 24px;
+  margin: 12px 0 0;
+}
+
+.cv-defaults div {
+  display: grid;
+  gap: 1px;
+}
+
+.cv-defaults dt {
+  font-size: 12px;
+  color: var(--cv-text-2);
+}
+
+.cv-defaults dd {
+  margin: 0;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.cv-poster-empty {
+  display: grid;
+  place-items: center;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+  text-transform: lowercase;
+  opacity: 0.6;
+}
+
+.cv-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  display: block;
+  transform-origin: 0 0;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.cv-iframe[data-shown] {
+  opacity: 1;
+}
+
+.cv-activate {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.cv-activate > span:first-child {
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(29, 29, 31, 0.72);
+  padding: 4px 10px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+.cv-activate:hover > span:first-child,
+.cv-activate:focus-visible > span:first-child {
+  opacity: 1;
+  transform: none;
+}
+
+.cv-activate:focus-visible {
+  outline-offset: -2px;
+  border-radius: 12px;
+}
+
+@media (hover: none) {
+  .cv-activate > span:first-child {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cv-tile-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+.cv-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Phone ---- */
+@media (max-width: 719px) {
+  html {
+    /* Top bar plus the sticky section index. */
+    scroll-padding-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 60px);
+  }
+
+  :root {
+    /* Two rows: title and appearance, then the view switch. */
+    --cv-topbar-h: 96px;
+  }
+
+  .cv-topbar {
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 8px 12px;
+    padding: 0 16px;
+  }
+
+  .cv-title h1 {
+    white-space: nowrap;
+  }
+
+  .cv-meta {
+    display: none;
+  }
+
+  .cv-appearance {
+    margin-left: auto;
+  }
+
+  .cv-switch[role="tablist"] {
+    order: 1;
+    flex: 1 1 60%;
+  }
+
+  /* Shares the second row with the view tabs. */
+  .cv-autoplay {
+    order: 2;
+  }
+
+  .cv-switch[role="tablist"] button {
+    flex: 1;
+  }
+
+  .cv-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0 16px 80px;
+  }
+
+  .cv-index {
+    top: calc(var(--cv-review-top) + var(--cv-topbar-h));
+    z-index: 5;
+    margin: 0 -16px 24px;
+    padding: 8px 16px;
+    background: var(--cv-glass);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--cv-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .cv-index ol {
+    grid-auto-flow: column;
+    width: max-content;
+  }
+
+  .cv-sections {
+    gap: 56px;
+  }
+
+  .cv-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* A full-width phone frame is taller than the screen; this keeps one
+   * whole specimen visible at a time. */
+  .cv-tile[data-viewport="phone"] .cv-frame {
+    max-width: 260px;
+  }
+}
+
+/* html-review comment mode (dev): let clicks reach the poster and frame
+   instead of activating a tile or entering its iframe. */
+body.hw-comment-mode .cv-activate,
+body.hw-comment-mode .cv-iframe {
+  pointer-events: none;
+}
+
+/* html-review's fixed 44px top bar sits over the sticky canvas bar; push the
+   canvas's sticky chrome below it (class set by review.ts). */
+html.cv-review {
+  --cv-review-top: 44px;
+}

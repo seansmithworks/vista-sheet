@@ -1,0 +1,735 @@
+/*
+ * Dissection view. Same quiet specimen sheet as the Interactive view
+ * (canvas.css tokens); captions in mono. Never styles [data-vista-sheet-*]
+ * itself: specimens live in iframes, captures are images.
+ */
+
+[data-dissection] code {
+  font-family: var(--cv-mono);
+  font-size: 11px;
+}
+
+.dx-note,
+.dx-sub {
+  font-size: 12px;
+  color: var(--cv-text-2);
+}
+
+.dx-sub {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--cv-mono);
+  font-size: 10.5px;
+}
+
+.dx-h3,
+.dx-seq h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dx-h3 {
+  margin: 28px 0 10px;
+}
+
+/* ---- Anatomy ---- */
+.dx-anatomy {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 32px 20px;
+  align-items: start;
+}
+
+.dx-specimen {
+  margin: 0;
+  min-width: 0;
+}
+
+.dx-specimen figcaption {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.dx-anatomy-frame .cv-iframe {
+  pointer-events: none;
+}
+
+.dx-callouts {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.dx-box {
+  position: absolute;
+  outline: 1px dashed rgba(29, 29, 31, 0.55);
+  outline-offset: -0.5px;
+  border-radius: 2px;
+}
+
+.dx-box[data-part="backdrop"] {
+  outline-color: rgba(29, 29, 31, 0.18);
+}
+
+.dx-badge {
+  position: absolute;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--cv-text);
+  color: #fff;
+  font-family: var(--cv-mono);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 0 1.5px var(--cv-ground);
+}
+
+/* Variant cards: only the parts a recipe adds are outlined; the
+ * foundation's boxes stay faint for reference. */
+.dx-variant .dx-box {
+  outline-color: rgba(29, 29, 31, 0.12);
+}
+
+.dx-variant .dx-box[data-added] {
+  outline: 1.5px solid var(--cv-text);
+  outline-offset: 0;
+}
+
+.dx-variant-legend li {
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+}
+
+.dx-h3-first {
+  margin-top: 0;
+}
+
+.dx-anatomy-note {
+  margin: 4px 0 14px;
+}
+
+.dx-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-2);
+}
+
+.dx-legend {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--cv-border);
+}
+
+.dx-legend li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--cv-border);
+  font-size: 12px;
+}
+
+.dx-legend-n {
+  font-family: var(--cv-mono);
+  font-size: 10px;
+  color: var(--cv-text-2);
+}
+
+.dx-legend-desc {
+  display: block;
+  color: var(--cv-text-2);
+  line-height: 1.35;
+}
+
+.dx-slot {
+  color: var(--cv-text-2);
+}
+
+.dx-legend-size {
+  color: var(--cv-text-2);
+}
+
+/* ---- Exploded z-stack ---- */
+.dx-exploded {
+  margin: 40px 0 0;
+}
+
+.dx-exploded figcaption {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.dx-exploded-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(200px, 1fr);
+  column-gap: 28px;
+  align-items: start;
+}
+
+.dx-exploded-frame .cv-iframe {
+  pointer-events: none;
+}
+
+.dx-exploded-badges {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.dx-exploded-badges .dx-badge[data-hover] {
+  box-shadow:
+    0 0 0 1.5px var(--cv-ground),
+    0 0 0 3px var(--cv-text);
+}
+
+.dx-exploded-leaders {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dx-exploded-leaders polyline {
+  fill: none;
+  stroke: var(--cv-text-2);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.dx-exploded-leaders polyline[data-hover] {
+  stroke: var(--cv-text);
+  opacity: 1;
+}
+
+.dx-exploded-labels {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dx-exploded-labels li {
+  position: absolute;
+  left: 0;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  height: 22px;
+  line-height: 22px;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.dx-exploded-labels li[data-hover] code:first-of-type {
+  text-decoration: underline;
+}
+
+.dx-exploded-labels .dx-legend-n {
+  min-width: 14px;
+  text-align: right;
+}
+
+.dx-z-val {
+  color: var(--cv-text-2);
+}
+
+/* Trigger layers that are empty while open: dimmed, with a note saying why.
+ * The note stays at full strength so it reads at phone width. */
+.dx-exploded-labels li[data-parked] > :not(.dx-parked-note),
+.dx-exploded-badges .dx-badge[data-parked]:not([data-hover]) {
+  opacity: 0.4;
+}
+
+.dx-exploded-leaders polyline[data-parked]:not([data-hover]) {
+  opacity: 0.25;
+}
+
+.dx-parked-note {
+  font-family: var(--cv-mono);
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--cv-text-2);
+}
+
+.dx-exploded-gap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 12px;
+  max-width: 360px;
+  font-size: 12px;
+}
+
+.dx-exploded-gap input {
+  flex: 1;
+  accent-color: var(--cv-text);
+}
+
+.dx-exploded-gap code {
+  min-width: 36px;
+  color: var(--cv-text-2);
+}
+
+/* ---- Motion Lab ---- */
+.dx-lab {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  margin-bottom: 44px;
+  scroll-margin-top: calc(var(--cv-review-top) + var(--cv-topbar-h) + 16px);
+}
+
+.dx-lab-frame .cv-iframe {
+  pointer-events: none;
+}
+
+.dx-lab-controls {
+  min-width: 0;
+}
+
+.dx-lab-transport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.dx-lab-transport > button {
+  appearance: none;
+  min-width: 36px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--cv-fill);
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dx-lab-transport > button:hover {
+  background: var(--cv-hover);
+}
+
+.dx-lab-transport > button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dx-lab-play {
+  min-width: 68px;
+  font-weight: 500;
+}
+
+.dx-lab-pick select {
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--cv-fill);
+  color: var(--cv-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.dx-lab-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 14px 0 16px;
+}
+
+.dx-lab-readout code {
+  color: var(--cv-text-2);
+}
+
+.dx-lab-readout code[data-lab-t] {
+  color: var(--cv-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.dx-timeline[data-scrubber] .dx-timeline-rows {
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+.dx-tl-playhead {
+  stroke: var(--cv-text);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A captured frame that seeks the lab. */
+.dx-frame-seek {
+  appearance: none;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.dx-frame-seek:hover img {
+  box-shadow:
+    0 0 0 1px var(--cv-border),
+    0 0 0 3px var(--cv-text-2);
+}
+
+/* ---- Strips ---- */
+.dx-strips {
+  display: grid;
+  gap: 40px;
+}
+
+.dx-seq {
+  min-width: 0;
+}
+
+.dx-seq > header {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.dx-seq > header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cv-text-2);
+  max-width: 72ch;
+}
+
+/* The strip scrolls; the page never does. */
+.dx-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+}
+
+.dx-frame {
+  flex: none;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.dx-frame img {
+  display: block;
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--cv-border);
+  background: var(--cv-surface);
+}
+
+.dx-frame figcaption {
+  display: grid;
+  gap: 1px;
+  margin-top: 6px;
+  max-width: 100%;
+}
+
+.dx-frame-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dx-frame figcaption code {
+  color: var(--cv-text-2);
+  font-size: 10.5px;
+}
+
+.dx-frame figcaption .dx-same {
+  color: var(--cv-text);
+}
+
+.dx-frame:target img {
+  box-shadow:
+    0 0 0 1px var(--cv-border),
+    0 0 0 3px var(--cv-accent);
+}
+
+/* ---- Timeline ---- */
+.dx-timeline {
+  margin: 0 0 32px;
+}
+
+.dx-timeline > figcaption {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dx-tl-row {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid var(--cv-border);
+}
+
+.dx-tl-label {
+  display: grid;
+  padding: 5px 0;
+  font-size: 12px;
+}
+
+.dx-tl-label code {
+  color: var(--cv-text-2);
+  font-size: 10.5px;
+}
+
+.dx-tl-svg {
+  display: block;
+  width: 100%;
+  height: 34px;
+}
+
+.dx-tl-grid {
+  stroke: var(--cv-border);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.dx-tl-bar {
+  fill: var(--cv-text);
+  opacity: 0.85;
+}
+
+.dx-tl-tick {
+  fill: var(--cv-text);
+}
+
+.dx-tl-mark {
+  fill: var(--cv-ground);
+  stroke: var(--cv-text);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.dx-tl-axis {
+  border-bottom: 0;
+}
+
+.dx-tl-axis-labels {
+  position: relative;
+  height: 18px;
+}
+
+.dx-tl-axis-labels code {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  color: var(--cv-text-2);
+  font-size: 10px;
+}
+
+.dx-tl-axis-labels code:first-child {
+  transform: none;
+}
+
+/* ---- Tables ---- */
+.dx-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--cv-border);
+}
+
+.dx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.dx-table th,
+.dx-table td {
+  padding: 9px 16px 9px 0;
+  border-bottom: 1px solid var(--cv-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.dx-table thead th {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cv-text-2);
+  white-space: nowrap;
+}
+
+.dx-table tbody th {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dx-tokens td,
+.dx-tokens th {
+  white-space: nowrap;
+}
+
+.dx-tokens .dx-default {
+  white-space: normal;
+  min-width: 180px;
+  max-width: 280px;
+}
+
+.dx-swatch-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dx-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.dx-swatch-ground {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.dx-swatch-shadow {
+  width: 20px;
+  height: 14px;
+  box-shadow: none;
+}
+
+.dx-internal {
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.dx-internal summary {
+  cursor: pointer;
+  color: var(--cv-text-2);
+}
+
+.dx-internal ul {
+  columns: 2 220px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.dx-where {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.dx-where a {
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text);
+}
+
+.dx-status {
+  display: inline-block;
+  min-width: 64px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.dx-status[data-status="api"] {
+  color: var(--cv-text-2);
+}
+
+.dx-provenance {
+  margin: 0;
+  font-size: 12px;
+  color: var(--cv-text-2);
+}
+
+/* ---- Phone ---- */
+@media (max-width: 719px) {
+  .dx-anatomy {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 12px;
+  }
+
+  .dx-legend li {
+    grid-template-columns: 18px minmax(0, 1fr);
+  }
+
+  .dx-legend-size {
+    grid-column: 2;
+  }
+
+  .dx-strip img {
+    height: 168px;
+  }
+
+  .dx-tl-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .dx-tl-label {
+    padding-bottom: 0;
+  }
+
+  .dx-lab {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .dx-lab-specimen {
+    width: min(100%, 240px);
+    margin: 0 auto;
+  }
+
+  /* No room for a leader-line column: the labels become a plain list. */
+  .dx-exploded-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dx-exploded-leaders {
+    display: none;
+  }
+
+  .dx-exploded-labels {
+    height: auto !important;
+    margin-top: 12px;
+    border-top: 1px solid var(--cv-border);
+  }
+
+  .dx-exploded-labels li {
+    position: static;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    height: auto;
+    line-height: 1.5;
+    padding: 3px 0;
+    white-space: normal;
+    border-bottom: 1px solid var(--cv-border);
+  }
+}
+
+/* Grid items default to min-width:auto, which lets a wide table or strip
+ * widen the page; scrolling belongs to the table/strip itself. */
+[data-dissection] .cv-section {
+  min-width: 0;
+}

@@ -295,6 +295,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       ...sharedProps,
       ref: mergeRefs(childRef, (node) => {
         elRef.current = node;
+        ctx.shadowElRef.current = node;
       }),
       style: {
         position: "fixed",
@@ -308,6 +309,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       <div
         ref={(node) => {
           elRef.current = node;
+          ctx.shadowElRef.current = node;
         }}
         className={`${styles.shadow} ${className ?? ""}`}
         style={{ position: "fixed", zIndex: zIndex - 1, pointerEvents: "none" }}
