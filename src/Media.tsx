@@ -27,9 +27,11 @@ function noopSubscribe() {
  * once inside <VistaSheet.Sheet>, each a direct child (documented, not
  * guarded).
  *
- * Strawman (v0.2): no playback-time handoff between the trigger and sheet
- * instances — both start at 0, and the poster is frame 0, so there's no
- * visible seam either way. Deferred to BACKLOG.
+ * The trigger-side video never plays: it rests on its poster (frame 0) and
+ * the sheet-side video plays while the sheet is open (WCAG 2.2.2: nothing
+ * moves at rest without a pause control). There's no playback-time handoff,
+ * so on close the sheet's frame N morphs into the trigger's poster — a known,
+ * accepted seam (BACKLOG 14).
  *
  * Strawman (v0.2): decorative (aria-hidden) by default; pass `alt` to make it
  * meaningful content instead.
@@ -153,17 +155,18 @@ export function Media({
     // React re-renders would clobber these imperative writes.
   }, [aspectRatio, portalTarget, ctx.reduceMotion, src]);
 
-  // Strawman (v0.2): no playback-time handoff — both instances start at 0.
+  // The trigger-side video stays paused on its poster; only the sheet plays.
+  const playing = slot !== "trigger" && !ctx.reduceMotion;
   useEffect(() => {
     const el = elementRef.current;
     if (!el || !(el instanceof HTMLVideoElement)) return;
     el.muted = true;
-    if (!ctx.reduceMotion) {
+    if (playing) {
       el.play().catch(() => {});
     } else {
       el.pause();
     }
-  }, [ctx.reduceMotion, src]);
+  }, [playing, src]);
 
   const node = (
     <div
@@ -181,10 +184,10 @@ export function Media({
           src={src}
           poster={poster}
           muted
-          loop
+          loop={playing}
           playsInline
-          autoPlay={!ctx.reduceMotion}
-          preload="auto"
+          autoPlay={playing}
+          preload={slot === "trigger" ? "none" : "auto"}
           disablePictureInPicture
           aria-hidden={alt ? undefined : true}
           aria-label={alt || undefined}

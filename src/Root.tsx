@@ -22,7 +22,7 @@ import {
 } from "./shape";
 import type { TriggerBox } from "./shape";
 import type { Transition } from "motion/react";
-import type { Rect, RootComponentProps, SheetRect } from "./types";
+import type { Rect, RootComponentProps } from "./types";
 import {
   MD_BREAKPOINT,
   resolveTriggerSize,
@@ -31,6 +31,11 @@ import {
 } from "./useTriggerSize";
 import { usePersistedAnchor } from "./usePersistedAnchor";
 import styles from "./styles.module.css";
+
+/** "bottom-right" -> "Moved to bottom right." */
+function defaultAnchorAnnouncement(anchor: AnchorId): string {
+  return `Moved to ${anchor.replace("-", " ")}.`;
+}
 
 /**
  * <VistaSheet.Root> — owns open state, anchor state, the LayoutGroup, the
@@ -47,6 +52,7 @@ export function Root({
   onOpenChange,
   defaultAnchor = DEFAULT_ANCHOR,
   onAnchorChange,
+  anchorAnnouncement,
   draggable = true,
   persistKey,
   triggerSize: triggerSizeProp,
@@ -59,7 +65,6 @@ export function Root({
   buttonWidth,
   preset,
   transition,
-  surfaceCloseLeadDelayMs: surfaceCloseLeadDelayMsProp,
   reduceMotion: reduceMotionProp,
   id,
   zIndex = 100,
@@ -99,12 +104,44 @@ export function Root({
     defaultAnchor,
     persistKey,
   );
-  const setAnchor = useCallback(
+  const commitAnchor = useCallback(
     (next: AnchorId) => {
       setAnchorState(next);
       onAnchorChange?.(next);
     },
     [setAnchorState, onAnchorChange],
+  );
+
+  // The single role="status" region below. Written on keyboard and
+  // programmatic moves only (Trigger's snapTo decides); a drag is its own
+  // feedback, so it never announces. Empty until the first such move.
+  const [anchorStatus, setAnchorStatus] = useState("");
+  const anchorAnnouncementRef = useRef(anchorAnnouncement);
+  anchorAnnouncementRef.current = anchorAnnouncement;
+  const announceAnchor = useCallback((next: AnchorId) => {
+    const text = (anchorAnnouncementRef.current ?? defaultAnchorAnnouncement)(
+      next,
+    );
+    if (text !== false) setAnchorStatus(text);
+  }, []);
+
+  // Public setAnchor: always through Trigger's snapTo, so a programmatic move
+  // springs like a drag release. With no Trigger mounted there is nothing to
+  // move, so the anchor is only recorded.
+  const snapToRef: VistaSheetContextValue["snapToRef"] = useRef(null);
+  const anchorRef = useRef(anchor);
+  anchorRef.current = anchor;
+  const setAnchor = useCallback(
+    (next: AnchorId) => {
+      if (snapToRef.current) {
+        snapToRef.current(next, { announce: true });
+      } else if (next !== anchorRef.current) {
+        anchorRef.current = next;
+        commitAnchor(next);
+        announceAnchor(next);
+      }
+    },
+    [commitAnchor, announceAnchor],
   );
 
   const triggerSize = useTriggerSize(triggerSizeProp);
@@ -156,14 +193,12 @@ export function Root({
   // never see a drag on its own).
   const sheetDragY = useMotionValue(0);
 
-  // Per-field precedence: an explicit prop wins over the same field on
+  // Per-field precedence: an explicit `transition` wins over the same field on
   // `preset`, field by field — not a whole-object override. This is what
   // lets `preset={presets.snappy} transition={{ open: mySpring }}` keep
   // snappy's close/shared and take only the caller's open.
   const surfaceCloseLeadDelayMs =
-    surfaceCloseLeadDelayMsProp ??
-    preset?.surfaceCloseLeadDelayMs ??
-    SURFACE_CLOSE_LEAD_DELAY_MS;
+    preset?.surfaceCloseLeadDelayMs ?? SURFACE_CLOSE_LEAD_DELAY_MS;
 
   // The shared element's transition is DIRECTION-AWARE. On the open it only
   // has to clear the growing sheet; on the close it has to arrive home
@@ -290,8 +325,16 @@ export function Root({
     startMorphClock,
   ]);
 
-  const [triggerRect, setTriggerRect] = useState<Rect | null>(null);
-  const [sheetRect, setSheetRect] = useState<SheetRect | null>(null);
+  const [triggerRect, setTriggerRectState] = useState<Rect | null>(null);
+  const triggerRectLive = useMotionValue<Rect | null>(null);
+  const setTriggerRect = useCallback(
+    (rect: Rect | null) => {
+      triggerRectLive.set(rect);
+      setTriggerRectState(rect);
+    },
+    [triggerRectLive],
+  );
+  const [sheetRect, setSheetRect] = useState<Rect | null>(null);
 
   const contentScrollElRef = useRef<HTMLDivElement | null>(null);
 
@@ -333,6 +376,9 @@ export function Root({
     setOpen,
     anchor,
     setAnchor,
+    commitAnchor,
+    announceAnchor,
+    snapToRef,
     isDragging,
     setIsDragging,
     draggable,
@@ -351,6 +397,7 @@ export function Root({
     collapseRadius,
     triggerRect,
     setTriggerRect,
+    triggerRectLive,
     sheetRect,
     setSheetRect,
     sheetDragY,
@@ -419,6 +466,9 @@ export function Root({
           }}
         >
           {children}
+          <span role="status" className={styles.visuallyHidden}>
+            {anchorStatus}
+          </span>
         </div>
       </LayoutGroup>
     </VistaSheetContext.Provider>

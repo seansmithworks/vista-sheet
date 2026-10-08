@@ -5,7 +5,6 @@ import type { AnchorId } from "./anchors";
 import type {
   VistaSheetState,
   Rect,
-  SheetRect,
   TriggerShape,
   ButtonSize,
 } from "./types";
@@ -18,7 +17,18 @@ import type { TriggerBox } from "./shape";
  * widening useVistaSheet() later is additive, not a breaking change.
  */
 export interface VistaSheetContextValue extends VistaSheetState {
-  setAnchor: (anchor: AnchorId) => void;
+  /** Internal only — record a new anchor (state, persistence,
+   * onAnchorChange) without moving the trigger. Trigger's snapTo is the
+   * mover; this is what it commits through. */
+  commitAnchor: (anchor: AnchorId) => void;
+  /** Internal only — write the anchor's announcement into Root's
+   * role="status" region (anchorAnnouncement, or the default text). */
+  announceAnchor: (anchor: AnchorId) => void;
+  /** Internal only — Trigger registers its snapTo here so the public
+   * setAnchor animates exactly like a drag release. */
+  snapToRef: MutableRefObject<
+    ((anchor: AnchorId, opts: { announce: boolean }) => void) | null
+  >;
   setIsDragging: (dragging: boolean) => void;
   draggable: boolean;
   sheetMaxWidth: number;
@@ -41,8 +51,15 @@ export interface VistaSheetContextValue extends VistaSheetState {
     close: Transition;
     shared: Transition;
   };
+  /** Publishes a rect to both triggerRect (React state) and
+   * triggerRectLive. */
   setTriggerRect: (rect: Rect | null) => void;
-  setSheetRect: (rect: SheetRect | null) => void;
+  /** Internal only — the trigger's rect, written in the same task as every
+   * x/y change (ButtonTrigger) or alongside setTriggerRect (LinkTrigger).
+   * <Shadow> positions from this, never from the React state, so it moves
+   * in the frame the trigger does. */
+  triggerRectLive: MotionValue<Rect | null>;
+  setSheetRect: (rect: Rect | null) => void;
   /** A stable numeric-px border-radius MotionValue, owned by Root, that
    * Sheet.tsx relays its own useCollapseRadius() output into every tick so
    * Trigger.tsx's `.triggerSurface` can bind to the same painted values
@@ -161,6 +178,7 @@ export function useVistaSheet(): VistaSheetState {
     open,
     setOpen,
     anchor,
+    setAnchor,
     isDragging,
     triggerSize,
     collapseProgress,
@@ -171,6 +189,7 @@ export function useVistaSheet(): VistaSheetState {
     open,
     setOpen,
     anchor,
+    setAnchor,
     isDragging,
     triggerSize,
     collapseProgress,

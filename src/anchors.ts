@@ -101,6 +101,46 @@ function axesToAnchor(
   return AXES_TO_ANCHOR.get(`${vertical}:${horizontal}`) ?? DEFAULT_ANCHOR;
 }
 
+/** The four keys that move a focused trigger between anchors. */
+export type ArrowKey = "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown";
+
+const VERTICAL_ORDER: AnchorVertical[] = ["top", "middle", "bottom"];
+const HORIZONTAL_ORDER: AnchorHorizontal[] = ["left", "center", "right"];
+
+/**
+ * The anchor one arrow-key step away, or null when there is none in that
+ * direction. Physical, not logical: RTL moves the same way.
+ *
+ * Left/Right step one column within the same row; a row with no neighbour
+ * that side (the center anchor's middle row has no siblings) stays put.
+ * Up/Down step to the next row that has an anchor in the same column, so
+ * corners skip the empty middle row (top-left <-> bottom-left) while the
+ * centre column walks top-center <-> center <-> bottom-center.
+ */
+export function adjacentAnchor(
+  anchor: AnchorId,
+  key: ArrowKey,
+): AnchorId | null {
+  const { vertical, horizontal } = ANCHOR_AXES[anchor];
+  if (key === "ArrowLeft" || key === "ArrowRight") {
+    const h =
+      HORIZONTAL_ORDER[
+        HORIZONTAL_ORDER.indexOf(horizontal) + (key === "ArrowRight" ? 1 : -1)
+      ];
+    return h ? (AXES_TO_ANCHOR.get(`${vertical}:${h}`) ?? null) : null;
+  }
+  const step = key === "ArrowDown" ? 1 : -1;
+  for (
+    let i = VERTICAL_ORDER.indexOf(vertical) + step;
+    i >= 0 && i < VERTICAL_ORDER.length;
+    i += step
+  ) {
+    const next = AXES_TO_ANCHOR.get(`${VERTICAL_ORDER[i]}:${horizontal}`);
+    if (next) return next;
+  }
+  return null;
+}
+
 /**
  * Derive which anchor a drag-released trigger center belongs to.
  *
@@ -414,7 +454,10 @@ export function previewPlacement(
       ? line.top - PREVIEW_GAP_PX - height
       : line.bottom + PREVIEW_GAP_PX;
   const maxTop = Math.max(EDGE_MARGIN, viewport.height - EDGE_MARGIN - height);
-  const maxLeft = Math.max(EDGE_MARGIN, viewport.width - EDGE_MARGIN - sheet.width);
+  const maxLeft = Math.max(
+    EDGE_MARGIN,
+    viewport.width - EDGE_MARGIN - sheet.width,
+  );
   return {
     left: Math.min(Math.max(pointer.x - sheet.width / 2, EDGE_MARGIN), maxLeft),
     top: Math.min(Math.max(rawTop, EDGE_MARGIN), maxTop),

@@ -1,0 +1,147 @@
+Firefox matrix run, started 2026-10-08, did not complete.
+Command: npm run test:browsers -- --project=firefox (313 tests, 4 workers, --reporter=line)
+
+
+> @seansmithworks/vista-sheet@0.1.1 test:browsers
+> VISTA_BROWSERS=all playwright test -c example/playwright.config.ts --project=firefox --reporter=line
+
+
+Running 313 tests using 4 workers
+
+[1/313] [firefox] › example/canvas-autoplay.spec.ts:29:1 › autoplay cycles live tiles without touching the canvas's focus or scroll
+[2/313] [firefox] › example/a11y.spec.ts:14:3 › §6 accessibility contract › trigger: real button, aria-haspopup, aria-expanded, aria-controls
+[3/313] [firefox] › example/canvas-exploded.spec.ts:42:1 › exploded z-stack: one slab per measured part, labelled by part, flat at gap 0
+[4/313] [firefox] › example/buttons.spec.ts:279:5 › 390x844 - rectangle rest › (btn-rest) size=s: rests at its height and padding, label-sized, pill corners
+  1) [firefox] › example/canvas-exploded.spec.ts:42:1 › exploded z-stack: one slab per measured part, labelled by part, flat at gap 0 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/seansmith/Library/Caches/ms-playwright/firefox-1538/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/zs/yhxq72hs72j96q_s879rhgm80000gn/T/playwright_firefoxdev_profile-v67PA4 -juggler-pipe -silent
+      - <launched> pid=47812
+      - [pid=47812][err] *** You are running in headless mode.
+      - [pid=47812][err] sandbox_extension_issue_file_to_process failed for /Users/seansmith/Library/Caches/ms-playwright/firefox-1538/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+      - [pid=47812][out] Crash Annotation GraphicsCriticalError: |[0][GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt (t=6.83382) [GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+
+
+    Error Context: test-results/canvas-exploded-exploded-z-0a9ba-elled-by-part-flat-at-gap-0-firefox/error-context.md
+
+Numbered failures, one line each (header => error type):
+1) [firefox] › example/canvas-exploded.spec.ts:42:1 › exploded z-stack: one slab per measured part, labelled by part, flat at gap 0 => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+2) [firefox] › example/a11y.spec.ts:14:3 › §6 accessibility contract › trigger: real button, aria-haspopup, aria-expanded, aria-controls => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+3) [firefox] › example/canvas-autoplay.spec.ts:29:1 › autoplay cycles live tiles without touching the canvas's focus or scroll => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+4) [firefox] › example/buttons.spec.ts:279:5 › 390x844 - rectangle rest › (btn-rest) size=s: rests at its height and padding, label-sized, pill corners => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+5) [firefox] › example/canvas-lab.spec.ts:20:1 › Motion Lab: scrub, play, and strip frames seek it => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+6) [firefox] › example/buttons.spec.ts:279:5 › 390x844 - rectangle rest › (btn-rest) size=m: rests at its height and padding, label-sized, pill corners => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+7) [firefox] › example/a11y.spec.ts:41:3 › §6 accessibility contract › dialog semantics: role, aria-modal, tabIndex, matching labelledby id => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+8) [firefox] › example/canvas-autoplay.spec.ts:88:1 › autoplay starts off under prefers-reduced-motion => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+9) [firefox] › example/a11y.spec.ts:59:3 › §6 accessibility contract › focus: lands on the panel (not the first control) on open => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+10) [firefox] › example/canvas.spec.ts:62:1 › every play tile renders the state it declares ────── => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+11) [firefox] › example/canvas-lab.spec.ts:87:1 › Motion Lab keys keep the canvas's focus and scroll through re-arms => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+12) [firefox] › example/buttons.spec.ts:279:5 › 390x844 - rectangle rest › (btn-rest) size=l: rests at its height and padding, label-sized, pill corners => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+13) [firefox] › example/a11y.spec.ts:76:3 › §6 accessibility contract › focus: restores to the trigger on exit-complete => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+14) [firefox] › example/canvas.spec.ts:172:1 › link-preview page tiles load their host page ────── => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+15) [firefox] › example/clock.spec.ts:157:1 › same virtual time, same frame: slow play == forward seek == backward seek => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+16) [firefox] › example/buttons.spec.ts:330:3 › 390x844 - rectangle rest › (btn-rest) width=240: a fixed buttonWidth sets the width exactly => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+17) [firefox] › example/canvas.spec.ts:221:1 › motion overrides are observable: presets, reduced motion, Esc => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+18) [firefox] › example/buttons.spec.ts:371:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=s: drop-left snaps to bottom-left => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+19) [firefox] › example/clock.spec.ts:176:1 › a sheet that resizes mid-morph: same frame on every path, and the Shadow follows it => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+20) [firefox] › example/a11y.spec.ts:102:3 › §6 accessibility contract › Escape closes the sheet unconditionally => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+21) [firefox] › example/canvas.spec.ts:251:1 › dissection renders every captured sequence with no broken image => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+22) [firefox] › example/clock.spec.ts:252:1 › exit completion lands on its own tick: what reacts to the unmount sees the same time on every path => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+23) [firefox] › example/a11y.spec.ts:118:3 › §6 accessibility contract › Tab/Shift+Tab cycle within the panel => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+24) [firefox] › example/buttons.spec.ts:385:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=s: drop-right snaps to bottom-right => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+25) [firefox] › example/a11y.spec.ts:156:3 › §6 accessibility contract › body scroll lock: overflow hidden while open, restored on close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+26) [firefox] › example/buttons.spec.ts:399:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=s: drop-centre snaps to bottom-center => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+27) [firefox] › example/canvas.spec.ts:293:1 › every tile has a poster, and a dark twin unless it's a Theme tile => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+28) [firefox] › example/clock.spec.ts:277:1 › paused is frozen, and 0.1x runs a tenth of real time => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+29) [firefox] › example/canvas.spec.ts:302:1 › Appearance: Dark repaints following tiles neutral-dark, never Theme tiles => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+30) [firefox] › example/a11y.spec.ts:187:3 › §6 accessibility contract › Labelled union: sheet always exposes exactly one accessible name source => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+31) [firefox] › example/buttons.spec.ts:371:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=m: drop-left snaps to bottom-left => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+32) [firefox] › example/clock.spec.ts:317:1 › Close reveal: opacity 0 one tick before the CLOSE_REVEAL marker, >0 one tick after => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+33) [firefox] › example/buttons.spec.ts:385:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=m: drop-right snaps to bottom-right => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+34) [firefox] › example/default-open.spec.ts:67:1 › defaultOpen renders settled: marker, Close, sheet shadow, initialFocus => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+35) [firefox] › example/a11y.spec.ts:200:3 › §6 accessibility contract › visible close control is rendered => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+36) [firefox] › example/canvas.spec.ts:344:1 › the section index marks the section in view ─────── => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+37) [firefox] › example/buttons.spec.ts:399:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=m: drop-centre snaps to bottom-center => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+38) [firefox] › example/default-open.spec.ts:83:1 › defaultOpen sheet closes to the trigger and reopens => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+39) [firefox] › example/a11y.spec.ts:215:3 › §6 accessibility contract › close control is transparent mid-open and fades in once the open finishes => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+40) [firefox] › example/canvas.spec.ts:360:1 › list, grid and nav open tiles: the shared icon is a 40px disc with a 24px glyph => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+41) [firefox] › example/buttons.spec.ts:371:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=l: drop-left snaps to bottom-left => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+42) [firefox] › example/focus.spec.ts:40:3 › N2 focus model › initial focus: without an initialFocus prop, the panel keeps focus at settle, not any control => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+43) [firefox] › example/a11y.spec.ts:234:3 › §6 accessibility contract › reduced motion: layoutId dropped everywhere (0 data-projection-id nodes) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+44) [firefox] › example/geometry.spec.ts:220:7 › 375x812 — normal › (a) trigger-side and sheet-side Shared boxes are equal => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+45) [firefox] › example/buttons.spec.ts:385:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=l: drop-right snaps to bottom-right => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+46) [firefox] › example/focus.spec.ts:53:3 › N2 focus model › initialFocus prop: a sheet with the prop settles focus on that target control, not the first one => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+47) [firefox] › example/a11y.spec.ts:249:3 › §6 accessibility contract › console: zero errors through open -> close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+48) [firefox] › example/geometry.spec.ts:260:7 › 375x812 — normal › (b) sheet border-radius is greater than 0 => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+49) [firefox] › example/buttons.spec.ts:399:7 › 390x844 - rectangle snap › (btn-snap) 390x844 size=l: drop-centre snaps to bottom-center => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+50) [firefox] › example/focus.spec.ts:66:3 › N2 focus model › Tab and Shift+Tab visit every visible enabled control in DOM order and wrap, never leaving the panel => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+51) [firefox] › example/a11y.spec.ts:284:3 › Design settings sheet accessibility › opens as a dialog with accessible name "Design" => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+52) [firefox] › example/geometry.spec.ts:279:7 › 375x812 — normal › (c) content's box sits inside the sheet's padding box => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+53) [firefox] › example/buttons.spec.ts:371:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=s: drop-left snaps to bottom-left => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+54) [firefox] › example/focus.spec.ts:125:3 › N2 focus model › Close reveals immediately on keyboard focus, even before the open spring settles => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+55) [firefox] › example/a11y.spec.ts:303:3 › Design settings sheet accessibility › Escape closes it => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+56) [firefox] › example/geometry.spec.ts:316:7 › 375x812 — normal › (d) --vista-sheet-z and --vista-sheet-sheet-max-width respond to props => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+57) [firefox] › example/buttons.spec.ts:385:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=s: drop-right snaps to bottom-right => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+58) [firefox] › example/a11y.spec.ts:316:3 › Design settings sheet accessibility › focus returns to the settings trigger on exit-complete => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+59) [firefox] › example/focus.spec.ts:162:3 › N2 focus model › PageDown scrolls the content region once it holds focus => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+60) [firefox] › example/geometry.spec.ts:366:7 › 375x812 — normal › (l) a click over the trigger's resting position reaches the trigger, not the backdrop, 300ms into a close  => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+61) [firefox] › example/buttons.spec.ts:399:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=s: drop-centre snaps to bottom-center => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+62) [firefox] › example/link-preview.spec.ts:165:5 › link preview (desktop) › (a) opens after hover intent and grows from the hovered line: single-line link => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+63) [firefox] › example/focus.spec.ts:184:3 › N2 focus model › a Tab pressed mid-close stays inside the panel => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+64) [firefox] › example/geometry.spec.ts:420:7 › 375x812 — normal › (o) the trigger surface rests as a circle after every close path (#8) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+65) [firefox] › example/buttons.spec.ts:371:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=m: drop-left snaps to bottom-left => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+66) [firefox] › example/link-preview.spec.ts:165:5 › link preview (desktop) › (a) opens after hover intent and grows from the hovered line: wrapped link, first line => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+67) [firefox] › example/focus.spec.ts:200:3 › N2 focus model › focus restores to the trigger once the close animation actually completes => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+68) [firefox] › example/geometry.spec.ts:508:9 › 375x812 — normal › (e) shadow tracks the surface box through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+69) [firefox] › example/buttons.spec.ts:385:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=m: drop-right snaps to bottom-right => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+70) [firefox] › example/link-preview.spec.ts:165:5 › link preview (desktop) › (a) opens after hover intent and grows from the hovered line: wrapped link, second line => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+71) [firefox] › example/focus.spec.ts:215:3 › N2 focus model: search recipe (real playground path) › Search's field is focused after settle => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+72) [firefox] › example/geometry.spec.ts:551:9 › 375x812 — normal › (m) shadow tracks the flagship example's surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+73) [firefox] › example/buttons.spec.ts:399:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=m: drop-centre snaps to bottom-center => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+74) [firefox] › example/link-preview.spec.ts:165:5 › link preview (desktop) › (a) opens after hover intent and grows from the hovered line: wrapped link on a page scrolled 80 => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+75) [firefox] › example/media.spec.ts:289:7 › media: intrinsic ratio through the morph › media: video box keeps its intrinsic ratio through open and Escape close (375x812, ta => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+76) [firefox] › example/geometry.spec.ts:600:9 › 375x812 — normal › (f) shadow tracks the sheet through a swipe-to-dismiss drag (D1) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+77) [firefox] › example/buttons.spec.ts:371:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=l: drop-left snaps to bottom-left => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+78) [firefox] › example/link-preview.spec.ts:165:5 › link preview (desktop) › (a) opens after hover intent and grows from the hovered line: wrapped link, second line, scrolle => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+79) [firefox] › example/media.spec.ts:289:7 › media: intrinsic ratio through the morph › media: video box keeps its intrinsic ratio through open and Escape close (375x812, wi => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+80) [firefox] › example/geometry.spec.ts:673:9 › 375x812 — normal › (g) shadow tracks a reversed morph — Escape fired mid-open => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+81) [firefox] › example/buttons.spec.ts:385:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=l: drop-right snaps to bottom-right => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+82) [firefox] › example/link-preview.spec.ts:204:3 › link preview (desktop) › (a) hover that leaves before the intent delay opens nothing => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+83) [firefox] › example/media.spec.ts:289:7 › media: intrinsic ratio through the morph › media: video box keeps its intrinsic ratio through open and Escape close (1280x800, t => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+84) [firefox] › example/geometry.spec.ts:734:9 › 375x812 — normal › (n) shadow does not snap when the trigger reopens a still-closing sheet => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+85) [firefox] › example/buttons.spec.ts:399:7 › 1440x900 - rectangle snap › (btn-snap) 1440x900 size=l: drop-centre snaps to bottom-center => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+86) [firefox] › example/link-preview.spec.ts:216:3 › link preview (desktop) › (a) hover intent opens between 130ms and 400ms after the pointer enters => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+87) [firefox] › example/media.spec.ts:289:7 › media: intrinsic ratio through the morph › media: video box keeps its intrinsic ratio through open and Escape close (1280x800, w => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+88) [firefox] › example/geometry.spec.ts:771:9 › 375x812 — normal › (h) shadow tracks a rapid open/close toggle (3 cycles) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+89) [firefox] › example/buttons.spec.ts:422:5 › 390x844 - rectangle morph › (btn-morph) size=s: shadow tracks the rectangle surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+90) [firefox] › example/link-preview.spec.ts:238:3 › link preview (desktop) › (b) placement: the card never shrinks below the 240px floor => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+91) [firefox] › example/media.spec.ts:335:3 › media: intrinsic ratio through the morph › media: ratio holds when a close is interrupted by a reopen => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+92) [firefox] › example/geometry.spec.ts:807:9 › 375x812 — normal › (i) shadow tracks the sheet through a resize mid-close (D2) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+93) [firefox] › example/buttons.spec.ts:454:5 › 390x844 - rectangle morph › (btn-rt) size=s: shadow corner radius tracks the rectangle surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+94) [firefox] › example/link-preview.spec.ts:252:3 › link preview (desktop) › (b) placement: below when there is no room above, above when there is, centred on the pointer => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+95) [firefox] › example/media.spec.ts:358:3 › media: intrinsic ratio through the morph › media: ratio holds through a swipe-to-dismiss => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+96) [firefox] › example/geometry.spec.ts:885:9 › 375x812 — normal › (j) cold first open does not FLIP from a stale trigger-size snapshot (D3) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+97) [firefox] › example/buttons.spec.ts:422:5 › 390x844 - rectangle morph › (btn-morph) size=m: shadow tracks the rectangle surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+98) [firefox] › example/link-preview.spec.ts:294:3 › link preview (desktop) › (b) placement: clamps to a 16px gutter at the right edge => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+99) [firefox] › example/media.spec.ts:394:5 › media: trigger + playback › media: the trigger shows the media inside its surface, covering it (375x812) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+100) [firefox] › example/geometry.spec.ts:926:9 › 375x812 — normal › (k) close-morph border-radius never balloons into an ellipse while the box is still sheet-sized (M1) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+101) [firefox] › example/buttons.spec.ts:454:5 › 390x844 - rectangle morph › (btn-rt) size=m: shadow corner radius tracks the rectangle surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+102) [firefox] › example/link-preview.spec.ts:305:3 › link preview (desktop) › (b) placement: a mid-viewport link never has its line covered, and the card shrinks to fit => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+103) [firefox] › example/media.spec.ts:394:5 › media: trigger + playback › media: the trigger shows the media inside its surface, covering it (1280x800) => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+104) [firefox] › example/geometry.spec.ts:220:7 › 375x812 — reduced-motion › (a) trigger-side and sheet-side Shared boxes are equal => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+105) [firefox] › example/buttons.spec.ts:422:5 › 390x844 - rectangle morph › (btn-morph) size=l: shadow tracks the rectangle surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+106) [firefox] › example/link-preview.spec.ts:327:3 › link preview (desktop) › (c) at most one iframe at any time while sweeping across links; none after close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+107) [firefox] › example/media.spec.ts:420:3 › media: trigger + playback › media: video autoplays muted, looped and inline => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+108) [firefox] › example/geometry.spec.ts:260:7 › 375x812 — reduced-motion › (b) sheet border-radius is greater than 0 => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+109) [firefox] › example/buttons.spec.ts:454:5 › 390x844 - rectangle morph › (btn-rt) size=l: shadow corner radius tracks the rectangle surface through open AND close => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+110) [firefox] › example/link-preview.spec.ts:350:3 › link preview (desktop) › (d) non-modal: focus does not move, nothing aria-hidden, no scroll lock => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+111) [firefox] › example/media.spec.ts:475:3 › media: trigger + playback › media: reduced motion shows the poster, paused, and never scales => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+112) [firefox] › example/geometry.spec.ts:279:7 › 375x812 — reduced-motion › (c) content's box sits inside the sheet's padding box => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+113) [firefox] › example/buttons.spec.ts:474:3 › 390x844 - rectangle painter and rest paths › (btn-p2) size=m: no element inside the trigger or sheet paints a box-shadow or fi => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+114) [firefox] › example/link-preview.spec.ts:386:3 › link preview (desktop) › (e) Escape closes ─ => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+115) [firefox] › example/media.spec.ts:517:1 › media: nothing inside the video root paints a box-shadow or filter through a morph => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+116) [firefox] › example/geometry.spec.ts:316:7 › 375x812 — reduced-motion › (d) --vista-sheet-z and --vista-sheet-sheet-max-width respond to props => TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+
+Totals derived from the list above: 116 numbered failures; 116 are 'browserType.launch: Timeout 180000ms exceeded'; 0 are anything else (assertion failures).
+Progress counter in the log ended at [120/313]; the other 4 tests were in flight when the output stops.

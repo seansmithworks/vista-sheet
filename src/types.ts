@@ -56,8 +56,8 @@ export interface MorphTransition {
  * A named feel, carrying exactly the two fields the tuner can actually
  * export ({@link MorphTransition} and the surface close lead delay —
  * `triggerSize` is a separate geometry prop, not part of a feel). Explicit
- * `transition`/`surfaceCloseLeadDelayMs` props on Root win over a preset,
- * field by field — see RootProps.preset.
+ * `transition` prop on Root wins over a preset's `transition`, field by
+ * field — see RootProps.preset. `surfaceCloseLeadDelayMs` is preset-only.
  */
 export interface MotionPreset {
   transition?: MorphTransition;
@@ -81,7 +81,8 @@ export interface RootProps {
   // Position
   /** Uncontrolled initial anchor. Default "bottom-center". */
   defaultAnchor?: AnchorId;
-  /** Fires after a drag settles on a new anchor. */
+  /** Fires once per move to a new anchor: a drag release, an arrow key on
+   * the focused trigger, or useVistaSheet().setAnchor. */
   onAnchorChange?: (anchor: AnchorId) => void;
   /** Default true. False renders a fixed trigger with no drag affordance. */
   draggable?: boolean;
@@ -90,6 +91,12 @@ export interface RootProps {
    * Default "vista-sheet-anchor". Pass false to disable persistence entirely.
    */
   persistKey?: string | false;
+  /**
+   * The polite status text written when the trigger moves by keyboard or by
+   * useVistaSheet().setAnchor (never by a drag). Default
+   * `Moved to bottom right.` style text. Return false to announce nothing.
+   */
+  anchorAnnouncement?: (anchor: AnchorId) => string | false;
 
   // Geometry
   /**
@@ -122,20 +129,11 @@ export interface RootProps {
   // Motion
   /**
    * A named feel from `presets` (or a hand-built {@link MotionPreset}).
-   * `transition` and `surfaceCloseLeadDelayMs` below win over it field by
-   * field — pass `preset={presets.snappy} transition={{ open: mySpring }}`
-   * to take snappy's close/shared and override only open.
+   * `transition` below wins over its `transition` field by field — pass
+   * `preset={presets.snappy} transition={{ open: mySpring }}` to take snappy's close/shared and override only open.
    */
   preset?: MotionPreset;
   transition?: MorphTransition;
-  /**
-   * Delay (ms) before the surface box begins its close FLIP, so the shared
-   * element visibly leads the shrink instead of scaling in lockstep. Default
-   * 35. Ignored under reduced motion. Coupled by feel to
-   * `transition.shared.close`: change this and re-dial that on /tune, or the
-   * shared element trails the box and spills past the trigger's border.
-   */
-  surfaceCloseLeadDelayMs?: number;
   /** Force reduced-motion behavior. Default: the media query. */
   reduceMotion?: boolean;
 
@@ -158,7 +156,6 @@ type PreviewKept =
   | "sheetMaxWidth"
   | "preset"
   | "transition"
-  | "surfaceCloseLeadDelayMs"
   | "reduceMotion"
   | "id"
   | "zIndex"
@@ -270,18 +267,20 @@ export interface Rect {
   halfHeight: number;
 }
 
-export type SheetRect = Rect;
-
 /** Public state + escape hatch returned by useVistaSheet(). */
 export interface VistaSheetState {
   open: boolean;
   setOpen: (open: boolean) => void;
   anchor: AnchorId;
+  /** Move the trigger to `anchor` with the same spring as a drag release
+   * (seated directly under reduced motion). Fires onAnchorChange and the
+   * status announcement when the anchor actually changes. */
+  setAnchor: (anchor: AnchorId) => void;
   isDragging: boolean;
   triggerSize: number;
   /** 0 = fully open (sheet), 1 = fully closed (trigger). Live MotionValue. */
   collapseProgress: MotionValue<number>;
   /** Live viewport rects, null before first measure. */
   triggerRect: Rect | null;
-  sheetRect: SheetRect | null;
+  sheetRect: Rect | null;
 }

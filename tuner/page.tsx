@@ -239,6 +239,12 @@ export default function TunePage() {
     [shellSpring, avatarSpring],
   );
 
+  // Lead delay is preset-only; Root merges it field by field with `transition`.
+  const leadDelayPreset = useMemo<MotionPreset>(
+    () => ({ surfaceCloseLeadDelayMs: leadDelay }),
+    [leadDelay],
+  );
+
   // Seed the A/B preset once. "Version 1" already is the shipped default
   // (it is this config's default), so only Phase 4 needs adding.
   useEffect(() => {
@@ -381,7 +387,7 @@ export default function TunePage() {
     <main className={styles.stage}>
       <VistaSheet.Root
         transition={transition}
-        surfaceCloseLeadDelayMs={leadDelay}
+        preset={leadDelayPreset}
         onOpenChange={handleOpenChange}
       >
         <VistaSheet.Shadow />

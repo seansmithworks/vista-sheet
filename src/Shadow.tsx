@@ -2,6 +2,7 @@
 
 import { cloneElement, isValidElement, useEffect, useRef } from "react";
 import type { CSSProperties, ReactElement, Ref } from "react";
+import { cancelFrame, frame } from "motion/react";
 import { useVistaSheetInternal } from "./context";
 import { Layer } from "./Layer";
 import { mergeRefs } from "./mergeRefs";
@@ -48,7 +49,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
   const ctx = useVistaSheetInternal("Shadow");
   const {
     collapseProgress,
-    triggerRect,
+    triggerRectLive,
     sheetRect,
     sheetDragY,
     zIndex,
@@ -61,7 +62,9 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
   // "change", the DOM-read branch below keeps sampling the surface instead
   // of falling back to the analytic curve. See the note at its read site.
   const SURFACE_READ_GRACE_MS = 300;
-  const lastActiveAtRef = useRef(0);
+  // -Infinity, not 0: no tick has happened yet, so a page under 300ms old
+  // is not "within grace" and the first apply uses the analytic radius.
+  const lastActiveAtRef = useRef(-Infinity);
   const NEAR_REST_EPS = 0.02;
   const isInFlight = (p: number) => p > NEAR_REST_EPS && p < 1 - NEAR_REST_EPS;
 
@@ -70,6 +73,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const el = elRef.current;
       if (!el) return;
       const p = collapseProgress.get();
+      const triggerRect = triggerRectLive.get();
       const m = sheetRect
         ? Math.min(sheetRect.halfWidth, sheetRect.halfHeight)
         : 0;
@@ -165,10 +169,6 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
         "--vista-sheet-sheet-shadow-opacity",
         String(sheetShadowOpacity),
       );
-      el.style.setProperty("--vista-sheet-shadow-x", `${cx}px`);
-      el.style.setProperty("--vista-sheet-shadow-y", `${cy}px`);
-      el.style.setProperty("--vista-sheet-shadow-w", `${halfW}px`);
-      el.style.setProperty("--vista-sheet-shadow-h", `${halfH}px`);
       el.style.setProperty("--vista-sheet-shadow-radius", `${radius}px`);
       el.style.width = `${halfW * 2}px`;
       el.style.height = `${halfH * 2}px`;
@@ -176,7 +176,10 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       el.style.top = `${cy - halfH}px`;
     };
 
-    apply();
+    // In Motion's render step, like the trigger-position path below, so an
+    // effect re-run and a trigger move before the same paint (the mount
+    // re-seat when triggerSize promotes) coalesce into one write.
+    frame.render(apply);
 
     // collapseProgress's "change" fires before Motion writes the surface's
     // radius for the frame, so apply() is deferred to a microtask: after
@@ -269,13 +272,32 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       scheduleApply();
     });
 
+    // The trigger's position: applied in Motion's render step, the step
+    // that writes the trigger's x/y transform, so the shadow moves in the
+    // same frame as the trigger. The render step, not postRender: Motion's
+    // layout projection also flushes update + render synchronously after a
+    // React commit, ticking x/y outside the frame, and only a render-step
+    // callback is flushed with it.
+    const unsubscribeTrigger = triggerRectLive.on("change", () => {
+      frame.render(apply);
+    });
+
     return () => {
       unsubscribeProgress();
       unsubscribeDrag();
+      unsubscribeTrigger();
+      cancelFrame(apply);
       if (armRafId !== null) cancelAnimationFrame(armRafId);
       disarmObserver();
     };
-  }, [collapseProgress, triggerRect, sheetRect, sheetDragY, shape, layerEl]);
+  }, [
+    collapseProgress,
+    triggerRectLive,
+    sheetRect,
+    sheetDragY,
+    shape,
+    layerEl,
+  ]);
 
   const dataState = isDragging ? "dragging" : ctx.open ? "open" : "closed";
 

@@ -63,7 +63,6 @@ export type {
   SharedProps,
   SharedTransitionByDirection,
   SheetProps,
-  SheetRect,
   ShadowProps,
   Spring,
   StiffnessSpring,

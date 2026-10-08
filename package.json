@@ -60,6 +60,7 @@
     "react-dom": ">=19"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.49.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
@@ -81,13 +82,14 @@
     "build:example": "vite build example",
     "build:lib": "vite build -c vite.lib.config.ts",
     "prepare": "npm run build:lib",
+    "typecheck": "tsc -p tsconfig.types.json",
     "test": "vitest run",
     "test:geometry": "playwright test -c example/playwright.config.ts",
     "test:browsers": "VISTA_BROWSERS=all playwright test -c example/playwright.config.ts",
     "audit:vars": "node scripts/audit-css-vars.mjs",
     "perf": "node scripts/perf-morph.mjs",
     "assert:client-banner": "node -e \"if (require('fs').readFileSync('dist/index.js','utf8').split('\\n')[0] !== '\\\"use client\\\";') { console.error('dist/index.js is missing the \\\"use client\\\" banner on line 1'); process.exit(1); }\"",
-    "prepublishOnly": "npm test && npm run audit:vars && npm run build:lib && npm run assert:client-banner && npm run test:geometry",
+    "prepublishOnly": "npm run typecheck && npm test && npm run audit:vars && npm run build:lib && npm run assert:client-banner && npm run test:geometry",
     "capture:canvas": "vite-node scripts/capture-canvas.ts"
   }
 }

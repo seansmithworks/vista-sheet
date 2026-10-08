@@ -6,20 +6,26 @@ Standing bar (Sean, 2026-08-31): "It all needs to be buttery smooth."
 
 ## Release blockers
 
-- [ ] **34.** Remove the four unused API leftovers before the final publish: `--vista-sheet-trigger-x/-y`, `--vista-sheet-shadow-x/-y/-w/-h`, the `SheetRect` alias, and `surfaceCloseLeadDelayMs` becoming preset-only. "Remove the four unused API leftovers (BACKLOG 34) before the final publish" — Sean 2026-10-07. **IN PROGRESS (other agent).** Still present: `src/Trigger.tsx:266`, `src/types.ts:273`.
+- [x] **34.** DONE (a11y/p0, 2026-10-08). Remove the four unused API leftovers before the final publish: `--vista-sheet-trigger-x/-y`, `--vista-sheet-shadow-x/-y/-w/-h`, the `SheetRect` alias, and `surfaceCloseLeadDelayMs` becoming preset-only. "Remove the four unused API leftovers (BACKLOG 34) before the final publish" — Sean 2026-10-07. Removed: trigger-x/-y and shadow-x/-y/-w/-h vars, `SheetRect`, and the `surfaceCloseLeadDelayMs` Root prop (preset field only; tuner migrated to `preset={...}`).
 - [ ] **35.** npm publish 0.1.1 (Sean: "tbd, maybe 0.1.1"). npm has only 0.1.0 (verified 2026-10-07); package.json is 0.1.1. Gate: PR #2 merged and 34 landed (removals ship in the same release). Needs Sean's go.
-- [ ] **36.** Merge PR #2 https://github.com/seansmithworks/vista-sheet/pull/2 (state OPEN, verified 2026-10-07). Sean's nod only.
-- [ ] **58.** DECIDE: `canvas` branch to PR against main, or fold into PR #2. Carries canvas page, motion lab, html-review wiring, recipe changes, defaultOpen fix (`src/Root.tsx`, `Sheet.tsx`, `Close.tsx`) and the defaults merge. Merge is Sean's nod only.
+- [x] **36.** DONE: PR #2 merged `1bf11ff`, 2026-10-08. Merge PR #2 https://github.com/seansmithworks/vista-sheet/pull/2 (state OPEN, verified 2026-10-07). Sean's nod only.
+- [x] **58.** DONE: canvas PR #3 merged `e88c938`, 2026-10-08. DECIDE: `canvas` branch to PR against main, or fold into PR #2. Carries canvas page, motion lab, html-review wiring, recipe changes, defaultOpen fix (`src/Root.tsx`, `Sheet.tsx`, `Close.tsx`) and the defaults merge. Merge is Sean's nod only.
 - [ ] **14.** Code audit remainder (B1/M2/M3 landed: `eb73f1e`, `af272b6`, `ad24c04`): B2 SSR trigger renders top-left until hydrate and open-on-load is sized for 1440x900 (verified in the audit); M1 per-frame whole-tree re-render on drag (inferred); N3 Shadow should read live position; N6 `@property` token defaults. Accepted forks (Sean 2026-09-14): hover 1.02 lift, no drag lift, video poster at rest and plays while open.
 
 ## Accessibility & web standards
 
+Plan approved by Sean 2026-10-08 (strawmen accepted: keyboard + setAnchor move with README recipe; no built-in video pause, Close/Escape = hide; increased-contrast opaque border). Plan: docs/plans/a11y-web-standards.md. P0 (7 items) in progress on branch a11y/p0.
+
 - [ ] **NEW.** A11y & web-standards plan vs shadcn / Radix / Base UI / React Aria / vaul. **IN PROGRESS (other agent).**
-- [ ] **13.** A11y audit remainder (blockers and the drag-eats-activation major are fixed: `ad24c04`, `af272b6`): no non-drag way to reposition (`setAnchor` is in `src/context.ts:21` but not a public prop); looping trigger video has no pause control (fork: poster at rest vs pause control, poster-at-rest accepted in 14); 11 minors from the 2026-09-14 audit (scratchpad, likely gone).
+- [ ] **13.** A11y audit remainder (blockers and the drag-eats-activation major are fixed: `ad24c04`, `af272b6`): ~~no non-drag way to reposition~~ DONE (P0-3, a11y/p0: arrow keys and public `setAnchor`); ~~looping trigger video has no pause control~~ DONE (P0-4, a11y/p0: poster at rest, plays while open); 11 minors from the 2026-09-14 audit (scratchpad, likely gone).
+- [ ] **NEW.** getTabbables (src/useDialogBehavior.ts): positive tabindex not sorted; `closest('[inert],[hidden]')` doesn't cross shadow boundaries. From P0-1 review, non-blocking.
+- [ ] **NEW.** dismissLayers: a `defaultOpen` preview inside a `defaultOpen` sheet registers first, so Escape closes the sheet before the preview (P0-2 review). Non-blocking.
+- [ ] **NEW.** Shadow followed `triggerRect` via React state; fixed in P0-3 — if any other consumer of `triggerRect` needs frame-accurate position, read `triggerRectLive`. Non-blocking.
+- [ ] **NEW.** media.spec: lock `preload=none` / `loop=false` on the trigger video (P0-4 review). Non-blocking.
 
 ## Packaging & compatibility
 
-- [ ] **NEW.** Multi-browser testing: firefox / webkit / mobile emulation; iOS Simulator spot checks. **IN PROGRESS (other agent).**
+- [x] **NEW.** DONE (`391e836`); Firefox run pending (Sean started it 2026-10-08). Multi-browser testing: firefox / webkit / mobile emulation; iOS Simulator spot checks. **IN PROGRESS (other agent).**
 - [ ] **32.** Test against motion 14. Peer range is `>=12 <14` (green on 12.43.0 and 13.1.1, `4fa3929`). Run `test:geometry` and `perf` with motion@14 as devDep; widen `peerDependencies` only if green.
 - [ ] **L145.** `npx tsc --noEmit` fails (re-verified 2026-10-07): `example/flagship/main.tsx:5` has no `*.jpg` module declaration, `src/naming.test.ts:34-40` assigns null to `number[]`, `tuner/page.tsx:17-18` cannot resolve `@seansmithworks/vista-sheet`. No suite runs bare tsc.
 - [ ] **L148.** dialkit's stylesheet `@import`s Geist Mono from Google Fonts (still true on dialkit 2.0.2, `node_modules/dialkit/dist/styles.css:1`); external request on every tuner/demo page.

@@ -33,7 +33,7 @@ function AnchorCommand({
   onApplied: () => void;
   applyingRef: { current: boolean };
 }) {
-  const { open, setAnchor } = useVistaSheetInternal("Root");
+  const { open, commitAnchor: setAnchor } = useVistaSheetInternal("Root");
   useEffect(() => {
     if (pending === null || open) return;
     // Root's setAnchor calls onAnchorChange synchronously (src/Root.tsx),

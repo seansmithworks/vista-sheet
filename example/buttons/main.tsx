@@ -97,7 +97,7 @@ function App() {
     >
       <VistaSheet.Shadow />
 
-      <VistaSheet.Trigger aria-label="Open search">
+      <VistaSheet.Trigger aria-label="Open search messages">
         <TriggerChildren />
       </VistaSheet.Trigger>
 

@@ -55,7 +55,7 @@ export const PART_CONTRACT: PartRow[] = readmeTable("DOM contract").map(
   ([part, element]) => ({ part, element }),
 );
 
-/** `--vista-sheet-shadow-x/-y` → `--vista-sheet-shadow-x`, `--vista-sheet-shadow-y`. */
+/** `--vista-sheet-shadow-opacity/-radius` → `--vista-sheet-shadow-opacity`, `--vista-sheet-shadow-radius`. */
 function expand(spec: string): string[] {
   const [first, ...rest] = spec.split("/");
   const base = first.replace(/-[a-z]+$/, "");
