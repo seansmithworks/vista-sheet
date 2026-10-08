@@ -21,7 +21,11 @@ reaching for an existing term.
 
 ```bash
 npm install @seansmithworks/vista-sheet
+npm install react react-dom motion@13
 ```
+
+The second line installs the [peer dependencies](#peer-dependencies); skip
+any your app already has.
 
 `dist/` ships compiled ESM + `.d.ts` declarations, so the default import
 needs no build-step config on the consumer's side — no `transpilePackages`,
@@ -34,27 +38,22 @@ non-JS build step) — most consumers never need it.
 
 ### Installing from source
 
-For a git-dependency install (e.g. testing an unreleased branch), the
-package still ships raw TypeScript source in `src/`, but a source install
-needs a build step on your side. Point Next.js at it via
-`transpilePackages` in `next.config.ts`:
-
-```ts
-const nextConfig = {
-  transpilePackages: ["@seansmithworks/vista-sheet"],
-};
-```
+To test an unreleased branch, install straight from GitHub. Add `#<branch>`
+(or a tag or commit) to pick the ref; without it you get the default branch:
 
 ```bash
-npm install @seansmithworks/vista-sheet@github:seansmithworks/vista-sheet
+npm install github:seansmithworks/vista-sheet
+npm install github:seansmithworks/vista-sheet#explore/link-preview
+npm install react react-dom motion@13
 ```
 
-This mirrors how `@seansmithworks/device-frame` is consumed. Vite consumers
-work with no config, but because a source install's `src/` isn't
-precompiled, your own `tsc -b` typechecks it directly as part of `npm run
-build` — so an unusually strict or `types`-restricted consumer
-`tsconfig.json` typechecks our source too, not just yours. None of this
-applies to the default npm install above, which ships compiled output.
+It builds itself on install: npm installs the package's dev dependencies
+and runs its `prepare` script, which compiles the same `dist/` the npm
+release ships. After that it behaves exactly like the default install
+above, with no `transpilePackages` or other config on your side. The
+install takes longer than a registry install because of that build. npm 11
+may warn that the package's `prepare` script isn't covered by
+`allowScripts`; the build has already run by then, and the install works.
 
 ### npx copy-in
 
@@ -73,13 +72,18 @@ the target). It skips the test file and, if your project already has a
 already declares it — a duplicate `declare module` block is a TS error). It
 refuses to overwrite existing files unless you pass `--force`.
 
+After copy-in, the Usage and Link preview snippets below import from the
+copied folder, not the package: use the import path the CLI prints after
+copying (by default `"./src/vista-sheet"`, relative to where you ran it)
+instead of `"@seansmithworks/vista-sheet"`.
+
 The tradeoff: you own the copy from that point on. There's no update
 channel — to pick up changes, re-run with `--force` (which overwrites
 everything) or diff your copy against a fresh `add` in a scratch directory.
 Peer dependencies aren't copied and still need installing:
 
 ```bash
-npm install react react-dom motion
+npm install react react-dom motion@13
 ```
 
 ### Live-tuning panel
@@ -121,7 +125,8 @@ them.
 ## Usage
 
 Paste this into `app/page.tsx` (or wherever you mount it) in a Next.js App
-Router app:
+Router app, or into `App.tsx` in Vite (the `"use client"` line is harmless
+there):
 
 ```tsx
 "use client";
@@ -325,6 +330,91 @@ function usePKG() {
   // { open, setOpen, anchor, isDragging, triggerSize, collapseProgress, triggerRect, sheetRect }
 }
 ```
+
+### Link preview
+
+`<VistaSheet.Root preview>` turns a text link into a hover card: the link
+morphs into a floating card holding a live iframe of the page it points at.
+It is for previewing pages on sites you own. Only one iframe is ever alive:
+mount it while the card is open and drop it the instant a close starts.
+
+```tsx
+// LinkPreview.tsx
+"use client";
+
+import { VistaSheet, useVistaSheet } from "@seansmithworks/vista-sheet";
+
+export function LinkPreview({ href, children }: { href: string; children: string }) {
+  return (
+    <VistaSheet.Root preview>
+      <VistaSheet.Shadow />
+      <VistaSheet.Trigger asChild>
+        <a href={href}>{children}</a>
+      </VistaSheet.Trigger>
+      <VistaSheet.Sheet aria-label={`Preview of ${children}`} aspectRatio={360 / 520}>
+        <VistaSheet.Content>
+          <PreviewFrame href={href} />
+        </VistaSheet.Content>
+      </VistaSheet.Sheet>
+    </VistaSheet.Root>
+  );
+}
+
+function PreviewFrame({ href }: { href: string }) {
+  const { open } = useVistaSheet();
+  if (!open) return null;
+  return <iframe src={href} title={`Preview of ${href}`} tabIndex={-1} />;
+}
+```
+
+Use it anywhere a link goes. In Next.js, render it from any page; the
+component file carries `"use client"`. The preview iframes the target, so
+`href` should be a page on a site you own that allows framing.
+
+```tsx
+<p>Read the <LinkPreview href="/">home page</LinkPreview> first.</p>
+```
+
+Keep the `"use client"` line at the top of the file that defines
+`LinkPreview`. A Next.js Server Component can then import and render
+`<LinkPreview>` directly; without the directive, that import fails.
+
+The `<a>` stays an ordinary link. `<VistaSheet.Trigger asChild>` takes it as
+the trigger and adds the preview behavior; your `onPointerEnter`, `onClick`
+and the rest still run first. `example/link-preview/main.tsx` is the working
+version, with a loading skeleton and an "Open" link inside the card.
+
+- **Hover intent and a hoverable card.** The pointer must rest on the link
+  for 150ms (currently; `PREVIEW_HOVER_INTENT_MS`) before a card opens, so sweeping across a paragraph opens
+  nothing. Keyboard focus (`:focus-visible` only) uses the same delay. Once
+  open, the card stays while the pointer is on the link or on the card, and
+  closes 250ms (currently; `PREVIEW_CLOSE_GRACE_MS`) after it leaves both, so you can cross the gap to the card.
+  Escape, a press outside, scrolling and a window resize also close it.
+- **Placement.** The card opens above the hovered line if the whole card
+  fits there. If not, it opens on whichever side has more room (above wins a
+  tie) and shrinks to fit. The unread lines below stay hoverable. It sits
+  8px from the line, is centred on the pointer, and is clamped 16px inside
+  the viewport. A link that wraps is several line boxes: the card pins to the
+  one under the pointer, and a close lands on that line.
+- **240px minimum.** The card shrinks to the room on its side of the link,
+  down to 240px tall (currently; `PREVIEW_MIN_HEIGHT_PX`). Below that it overlaps the link rather than shrinking
+  further.
+- **Touch.** Press and hold for 400ms (currently; `PREVIEW_LONG_PRESS_MS`) opens the card; lifting the finger
+  keeps it open and does not follow the link. A short tap follows the link as
+  normal, and moving more than 10px (currently; `PREVIEW_LONG_PRESS_SLOP_PX`) cancels the press.
+- **Defaults.** The card is 360px wide at `aspectRatio={360 / 520}` unless
+  you pass `sheetMaxWidth` or an `aspectRatio` of your own.
+- **One card at a time**, across every preview Root on the page.
+- **Props.** A preview Root accepts only `children`, `onOpenChange`,
+  `sheetMaxWidth`, `preset`, `transition`, `surfaceCloseLeadDelayMs`,
+  `reduceMotion`, `id`, `zIndex` and `className`. Modal-only props (`open`,
+  `defaultOpen`, `shape`, `triggerSize`, `defaultAnchor`, `draggable` and the
+  rest) are type errors. `preview` is fixed for the Root's lifetime.
+- **Theming.** The card renders in a layer on `<body>`, outside your link's
+  DOM. Theme it through the Root's `className`, not an ancestor of the link.
+  The preview timings live in `src/motion.ts` (`PREVIEW_*`).
+- **`useVistaSheet().triggerRect`** is the hovered line box, measured at
+  open; it is not live.
 
 ## Theming
 
@@ -575,6 +665,11 @@ the type checker, as the guard.
   `<VistaSheet.Content>` gets its own tab stop while it overflows.
 - `<VistaSheet.Close>` is required in practice; Root logs a dev-only warning
   if the sheet opens with none registered.
+- Link preview cards are non-modal and `aria-hidden`: nothing moves focus,
+  locks scroll or traps Tab. The card is a visual duplicate for pointer and
+  touch users, so never put focusable content inside it; the link remains the
+  accessible element. Keyboard focus on the link opens it after the intent
+  delay, and blur closes it.
 
 **Known gap:** no `inert` on background content. `aria-modal="true"` covers
 modern assistive tech; screen readers that ignore it can still navigate out
@@ -594,6 +689,9 @@ of the dialog.
   fixed teardown bug.
 - **The dither shadow is deliberately not included.** `<Shadow asChild>` is
   the layering point; the visual treatment is the consumer's.
+- **Link preview long-press is untested on a real iPhone.** Only a synthetic
+  CDP touch is covered; iOS's own long-press callout and text selection have
+  not been verified.
 
 ## What v0.1 cuts
 

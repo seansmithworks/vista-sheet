@@ -448,3 +448,31 @@
   transform-origin: 50% 50%;
   pointer-events: none;
 }
+
+/* Link preview (Root `preview`). The consumer's <a> is the trigger.
+ * touch-callout: iOS's own link callout must not take the long-press.
+ * relative: containing block for the morph surface. */
+.previewTrigger {
+  position: relative;
+  -webkit-touch-callout: none;
+}
+
+/* Transparent morph surface; left/top/width/height are written inline,
+ * pinned to one line box of the link (LinkTrigger.tsx). */
+.previewSurface {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Root's body-level layer for Sheet and Shadow: no box, no stacking context. */
+.previewLayer {
+  display: contents;
+}
+
+/* Preview defaults at zero specificity, so Root's className wins. No resting
+ * shadow: there is no disc under a text link. */
+:where(.previewLayer) {
+  --vista-sheet-sheet-radius: 16px;
+  --vista-sheet-trigger-radius: var(--vista-sheet-preview-radius);
+  --vista-sheet-shadow: none;
+}

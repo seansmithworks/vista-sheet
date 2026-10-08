@@ -69,7 +69,6 @@ export function useTriggerSize(
   const [size, setSize] = useState<number>(initial);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const update = () =>
       setSize(resolveTriggerSize(triggerSize, window.innerWidth));
     update();

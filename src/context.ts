@@ -15,11 +15,10 @@ import type { TriggerBox } from "./shape";
  * Internal context value — everything Trigger, Sheet, Shared, Content, Close
  * and Shadow need to coordinate, plus the subset re-exported publicly by
  * useVistaSheet(). Keeping the internal shape richer than the public one means
- * widening usePKG() later (if ever needed) is additive, not a breaking change.
+ * widening useVistaSheet() later is additive, not a breaking change.
  */
 export interface VistaSheetContextValue extends VistaSheetState {
   setAnchor: (anchor: AnchorId) => void;
-  onAnchorChange?: (anchor: AnchorId) => void;
   setIsDragging: (dragging: boolean) => void;
   draggable: boolean;
   sheetMaxWidth: number;
@@ -71,7 +70,16 @@ export interface VistaSheetContextValue extends VistaSheetState {
   registerClose: () => () => void;
   hasRegisteredClose: () => boolean;
   /** The trigger button element — Sheet focuses it back on exit-complete. */
-  triggerElRef: MutableRefObject<HTMLButtonElement | null>;
+  triggerElRef: MutableRefObject<HTMLElement | null>;
+  /** Link-preview mode (Root `preview`). Fixed for the Root's lifetime. */
+  preview: boolean;
+  /** Preview only: the element Sheet and Shadow portal into; null when no
+   * card is armed, open or morphing. */
+  layerEl: HTMLElement | null;
+  /** Preview only: ask for the layer ahead of the open. */
+  setLayerArmed: (armed: boolean) => void;
+  /** Preview only: where the card is placed from, set just before open. */
+  previewPointerRef: MutableRefObject<{ x: number; y: number }>;
   /** The Content scroll region element — Sheet's swipe-to-close must not fire
    * while this is mid-scroll (docs/PACKAGE-DESIGN.md §1, Content). */
   contentScrollElRef: MutableRefObject<HTMLDivElement | null>;
@@ -98,16 +106,11 @@ export function useVistaSheetSlot(): VistaSheetSlot | undefined {
 }
 
 /**
- * TriggerSurfaceStore — publishes the trigger surface's DOM node
- * (`.triggerSurface`, `data-vista-sheet-part="trigger-surface"`) so
- * <VistaSheet.Media> can portal its trigger-side instance INSIDE that
- * element rather than in place. The trigger surface is the entering element
- * on close (Trigger.tsx's `{!open && ...}` gating), so it FLIPs from the
- * sheet's box and fades in above it; a Media instance living outside that
- * surface would pop in at the trigger's resting spot from the first close
- * frame instead of riding the FLIP. A small pub/sub rather than a plain ref
- * so <Media> (a descendant of the surface's own children, mounted after it)
- * can re-render/re-portal if the surface node is ever recreated.
+ * TriggerSurfaceStore — publishes the trigger surface's DOM node so
+ * <VistaSheet.Media> can portal its trigger-side instance inside it and ride
+ * the close FLIP, instead of popping in at the trigger's resting spot. A
+ * pub/sub, not useState or a ref: <Media> must re-portal when the surface
+ * node is recreated, without re-rendering the Trigger.
  */
 export interface TriggerSurfaceStore {
   get(): HTMLDivElement | null;
@@ -139,7 +142,7 @@ export const TriggerSurfaceContext = createContext<TriggerSurfaceStore | null>(
 /**
  * useVistaSheet — the public escape hatch. Throws outside <VistaSheet.Root>.
  *
- * usePKG().collapseProgress is the raw MotionValue the package's own radius,
+ * useVistaSheet().collapseProgress is the raw MotionValue the package's own radius,
  * mask and opacity transforms read (0 = fully open, 1 = fully closed).
  * Combined with triggerRect/sheetRect, it is enough to rebuild any of the
  * internal choreography externally — see example/CloseMask.tsx.

@@ -36,10 +36,55 @@
         color: var(--demo-text-muted, #6e6e73);
         margin: 0 0 32px;
       }
+      /* Sits under .page's intro, same 720px column and 24px gutters. */
+      .demos {
+        max-width: 720px;
+        margin: -40px auto 0;
+        padding: 0 24px 72px;
+      }
+      .demos ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid var(--vista-sheet-surface-border, #e5e5e5);
+      }
+      .demos li {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px 16px;
+        align-items: baseline;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--vista-sheet-surface-border, #e5e5e5);
+      }
+      .demos a {
+        flex: 0 0 120px;
+        color: inherit;
+        font-weight: 500;
+      }
+      .demos span {
+        flex: 1 1 240px;
+        color: var(--demo-text-muted, #6e6e73);
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
+    <!-- Static on purpose: example/main.tsx has line-number-keyed entries in
+         src/naming.test.ts, so the demo list lives here, not in the app.
+         Hrefs match vite.config.ts inputs (fixtures/focus is a test page). -->
+    <nav class="demos" aria-label="Demos">
+      <ul>
+        <li><a href="/link-preview.html">Link preview</a><span>New. A hover card on a text link; press and hold on touch.</span></li>
+        <li><a href="/flagship.html">Flagship</a><span>A portrait that morphs into a contact card.</span></li>
+        <li><a href="/media-card.html">Media card</a><span>The tapped icon grows into the card's own icon.</span></li>
+        <li><a href="/list.html">List</a><span>A menu: each row staggers in on its own.</span></li>
+        <li><a href="/contact.html">Contact form</a><span>A real form inside the sheet, with focus kept in.</span></li>
+        <li><a href="/video.html">Video</a><span>A video that plays inside the morph.</span></li>
+        <li><a href="/buttons.html">Buttons</a><span>Rectangle triggers in set sizes, like a search button.</span></li>
+        <li><a href="/tune.html">Tuner</a><span>Tool: adjust the motion and copy out the values.</span></li>
+        <li><a href="/play.html">Playground</a><span>Tool: set up a sheet and copy the code.</span></li>
+      </ul>
+    </nav>
     <script type="module" src="./main.tsx"></script>
   </body>
 </html>

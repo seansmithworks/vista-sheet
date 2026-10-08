@@ -1,6 +1,6 @@
 /**
- * anchors — the seven-anchor model: nearestAnchor, restingLeft/Top, anchorCenter,
- * sheetPlacement.
+ * anchors — the seven-anchor model: nearestAnchor, restingLeft/Top,
+ * sheetPlacement, plus the Rect helpers rectFromBox/rectsNear.
  *
  * Two axes per anchor — vertical (top | middle | bottom) and horizontal
  * (left | center | right) — each mapped to an alignment number (0 / 0.5 / 1).
@@ -22,6 +22,8 @@
  * generic replacement for bloomFromAnchor scoped to what Sheet.tsx needs:
  * left-edge px + which edge(s) the sheet pins to.
  */
+
+import type { Rect } from "./types";
 
 export type AnchorId =
   | "top-left"
@@ -194,20 +196,29 @@ export function restingTop(
   return EDGE_MARGIN + (vpH - triggerHeight - 2 * EDGE_MARGIN) * alignment;
 }
 
-/**
- * Trigger center position (viewport px) for a given anchor.
- */
-export function anchorCenter(
-  anchor: AnchorId,
-  vpW: number,
-  vpH: number,
-  triggerWidth: number,
-  triggerHeight: number,
-): { x: number; y: number } {
+/** A center/half-extent Rect from a left/top/width/height box. */
+export function rectFromBox(
+  left: number,
+  top: number,
+  width: number,
+  height: number,
+): Rect {
   return {
-    x: restingLeft(anchor, vpW, triggerWidth) + triggerWidth / 2,
-    y: restingTop(anchor, vpH, triggerHeight) + triggerHeight / 2,
+    cx: left + width / 2,
+    cy: top + height / 2,
+    halfWidth: width / 2,
+    halfHeight: height / 2,
   };
+}
+
+/** True when every field of `a` and `b` differs by less than `eps` px. */
+export function rectsNear(a: Rect, b: Rect, eps: number): boolean {
+  return (
+    Math.abs(a.cx - b.cx) < eps &&
+    Math.abs(a.cy - b.cy) < eps &&
+    Math.abs(a.halfWidth - b.halfWidth) < eps &&
+    Math.abs(a.halfHeight - b.halfHeight) < eps
+  );
 }
 
 /** Resolved sheet placement derived from an AnchorId. */
@@ -306,7 +317,6 @@ export function sheetPlacement(
   sheetMaxWidth: number,
   aspectRatio?: number,
 ): SheetPlacement {
-  const SHEET_MARGIN = 16;
   const centerX = restingLeft(anchor, vpW, triggerWidth) + triggerWidth / 2;
 
   const hasValidRatio =
@@ -319,7 +329,7 @@ export function sheetPlacement(
   let height: string;
   if (hasValidRatio) {
     const resolvedWidth = Math.min(
-      Math.min(sheetMaxWidth, vpW - 32),
+      Math.min(sheetMaxWidth, vpW - EDGE_MARGIN * 2),
       sheetMaxHeightPx(anchor, vpH) * aspectRatio,
     );
     const resolvedHeight = resolvedWidth / aspectRatio;
@@ -328,24 +338,23 @@ export function sheetPlacement(
     width = `${resolvedWidth}px`;
     height = `${resolvedHeight}px`;
   } else {
-    sheetHalfWidth = Math.min(sheetMaxWidth, vpW - 32) / 2;
+    sheetHalfWidth = Math.min(sheetMaxWidth, vpW - EDGE_MARGIN * 2) / 2;
     width = SHEET_DEFAULT_WIDTH;
     height = SHEET_DEFAULT_HEIGHT;
   }
 
   const clampedSheetCenterX = Math.min(
-    Math.max(centerX, sheetHalfWidth + SHEET_MARGIN),
-    vpW - sheetHalfWidth - SHEET_MARGIN,
+    Math.max(centerX, sheetHalfWidth + EDGE_MARGIN),
+    vpW - sheetHalfWidth - EDGE_MARGIN,
   );
   const clampedAnchorX = Math.max(
-    SHEET_MARGIN,
+    EDGE_MARGIN,
     clampedSheetCenterX - sheetHalfWidth,
   );
 
   const verticalAlignment = VERTICAL_ALIGNMENT[ANCHOR_AXES[anchor].vertical];
-  const topPx =
-    verticalAlignment < 1 ? Math.max(SHEET_MARGIN, EDGE_MARGIN) : undefined;
-  const bottomPx = verticalAlignment > 0 ? SHEET_MARGIN : undefined;
+  const topPx = verticalAlignment < 1 ? EDGE_MARGIN : undefined;
+  const bottomPx = verticalAlignment > 0 ? EDGE_MARGIN : undefined;
 
   return {
     anchorX: clampedAnchorX,
@@ -354,5 +363,96 @@ export function sheetPlacement(
     maxHeight: sheetMaxHeight(anchor),
     width,
     height,
+  };
+}
+
+/** Gap between a link line and its preview card. */
+export const PREVIEW_GAP_PX = 8;
+
+/** The side of the link line a preview card prefers: "above" covers text the
+ * reader has already read, "below" is the Wikipedia/GitHub convention. Sean's
+ * dial. */
+export const PREVIEW_PREFERRED_SIDE: "above" | "below" = "above";
+
+/** Shortest a preview card may shrink to before it overlaps its link line
+ * instead. Strawman: Sean's to dial. */
+export const PREVIEW_MIN_HEIGHT_PX = 240;
+
+/** Preview card size when Root and <Sheet> give none. */
+export const PREVIEW_DEFAULT_SIZE = { width: 360, height: 520 };
+
+/**
+ * previewPlacement — where a link-preview card goes. Pure; computed once at
+ * open. Horizontally centred on the pointer, clamped to the viewport gutter.
+ * Vertically on PREVIEW_PREFERRED_SIDE of the link line (PREVIEW_GAP_PX
+ * away) when the whole card fits there, else on the side with more room.
+ * The card shrinks to the room on its side, down to PREVIEW_MIN_HEIGHT_PX;
+ * only below that does it overlap the link, clamped into the viewport.
+ */
+export function previewPlacement(
+  pointer: { x: number; y: number },
+  line: { top: number; bottom: number },
+  sheet: { width: number; height: number },
+  viewport: { width: number; height: number },
+): { left: number; top: number; height: number; side: "above" | "below" } {
+  const room = {
+    above: line.top - PREVIEW_GAP_PX - EDGE_MARGIN,
+    below: viewport.height - EDGE_MARGIN - line.bottom - PREVIEW_GAP_PX,
+  };
+  const side =
+    room[PREVIEW_PREFERRED_SIDE] >= sheet.height
+      ? PREVIEW_PREFERRED_SIDE
+      : room.above >= room.below
+        ? "above"
+        : "below";
+  const height = Math.min(
+    sheet.height,
+    Math.max(room[side], PREVIEW_MIN_HEIGHT_PX),
+  );
+  const rawTop =
+    side === "above"
+      ? line.top - PREVIEW_GAP_PX - height
+      : line.bottom + PREVIEW_GAP_PX;
+  const maxTop = Math.max(EDGE_MARGIN, viewport.height - EDGE_MARGIN - height);
+  const maxLeft = Math.max(EDGE_MARGIN, viewport.width - EDGE_MARGIN - sheet.width);
+  return {
+    left: Math.min(Math.max(pointer.x - sheet.width / 2, EDGE_MARGIN), maxLeft),
+    top: Math.min(Math.max(rawTop, EDGE_MARGIN), maxTop),
+    height,
+    side,
+  };
+}
+
+/**
+ * previewPlacement as the SheetPlacement <Sheet> writes inline. The card
+ * contain-fits sheetMaxWidth, the viewport minus gutter and the aspect ratio,
+ * so its size is known before it mounts.
+ */
+export function previewSheetPlacement(
+  pointer: { x: number; y: number },
+  line: { cy: number; halfHeight: number },
+  vpW: number,
+  vpH: number,
+  sheetMaxWidth: number,
+  aspectRatio = PREVIEW_DEFAULT_SIZE.width / PREVIEW_DEFAULT_SIZE.height,
+): SheetPlacement {
+  const width = Math.min(
+    sheetMaxWidth,
+    vpW - EDGE_MARGIN * 2,
+    (vpH - EDGE_MARGIN * 2) * aspectRatio,
+  );
+  const { left, top, height } = previewPlacement(
+    pointer,
+    { top: line.cy - line.halfHeight, bottom: line.cy + line.halfHeight },
+    { width, height: width / aspectRatio },
+    { width: vpW, height: vpH },
+  );
+  return {
+    anchorX: left,
+    topPx: top,
+    bottomPx: undefined,
+    maxHeight: `calc(100dvh - ${EDGE_MARGIN * 2}px)`,
+    width: `${width}px`,
+    height: `${height}px`,
   };
 }

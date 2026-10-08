@@ -116,6 +116,8 @@ export function useDialogBehavior({
   collapseProgress,
   onClose,
   initialFocus,
+  modal = true,
+  triggerRef,
 }: {
   isOpen: boolean;
   /** True from the open commit until AnimatePresence's onExitComplete —
@@ -126,9 +128,14 @@ export function useDialogBehavior({
   onClose: () => void;
   /** Opt-in target focused at settle; see types.ts SheetProps.initialFocus. */
   initialFocus?: RefObject<HTMLElement | null>;
+  /** False for a preview card: no scroll lock, aria-hiding, focus move or
+   * Tab trap; light-dismiss instead. Escape closes in both modes. */
+  modal?: boolean;
+  /** Preview light-dismiss: a press on it does not close. */
+  triggerRef: RefObject<HTMLElement | null>;
 }): void {
   useEffect(() => {
-    if (!isPresent || typeof document === "undefined") return;
+    if (!modal || !isPresent) return;
     const { body } = document;
     const prevOverflow = body.style.overflow;
     const prevPaddingRight = body.style.paddingRight;
@@ -149,19 +156,19 @@ export function useDialogBehavior({
       body.style.overflow = prevOverflow;
       body.style.paddingRight = prevPaddingRight;
     };
-  }, [isPresent]);
+  }, [modal, isPresent]);
 
   // Hide everything outside the dialog from assistive tech. aria-modal is a
   // hint browsers don't act on — a screen reader will otherwise read the
   // whole page behind the open sheet.
   useEffect(() => {
-    if (!isPresent || typeof document === "undefined") return;
+    if (!modal || !isPresent) return;
     const panel = panelRef.current;
     if (!panel) return;
-    // Hide from the WIDGET's root, not the dialog panel node itself. The
-    // panel, the trigger and the shadow are all siblings inside the
-    // same <VistaSheet.Root> wrapper (this package never portals — see
-    // docs/PACKAGE-DESIGN.md), and the trigger is contractually required to
+    // Hide from the WIDGET's root, not the dialog panel node itself. In modal
+    // mode the panel, the trigger and the shadow all render inside the same
+    // <VistaSheet.Root> wrapper (only preview mode portals, and it never
+    // reaches this effect), and the trigger is contractually required to
     // keep reflecting aria-expanded/aria-controls to assistive tech while
     // the dialog is open (§6). Hiding from the panel's own siblings would
     // aria-hide the trigger along with everything else. Hiding from the
@@ -171,10 +178,10 @@ export function useDialogBehavior({
     // portal root.
     const root = panel.closest("[data-vista-sheet-root]") ?? panel;
     return hideOutsideSiblings(root);
-  }, [isPresent, panelRef]);
+  }, [modal, isPresent, panelRef]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!modal || !isOpen) return;
     const panel = panelRef.current;
     if (!panel) return;
 
@@ -202,7 +209,30 @@ export function useDialogBehavior({
     return collapseProgress.on("change", (v) => {
       if (v <= CLOSE_REVEAL_PROGRESS) focusInitialTarget();
     });
-  }, [isOpen, panelRef, collapseProgress, initialFocus]);
+  }, [modal, isOpen, panelRef, collapseProgress, initialFocus]);
+
+  // Non-modal light dismiss. Keys on pointerdown, so the finger that
+  // long-pressed to open the card can lift without closing it.
+  useEffect(() => {
+    if (modal || !isOpen) return;
+    const inPanel = (t: EventTarget | null) =>
+      t instanceof Node && panelRef.current?.contains(t) === true;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!inPanel(e.target) && !triggerRef.current?.contains(e.target as Node))
+        onClose();
+    };
+    const onScroll = (e: Event) => {
+      if (!inPanel(e.target)) onClose();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onClose);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onClose);
+    };
+  }, [modal, isOpen, onClose, panelRef, triggerRef]);
 
   useEffect(() => {
     if (!isPresent) return;
@@ -213,7 +243,7 @@ export function useDialogBehavior({
         onClose();
         return;
       }
-      if (e.key !== "Tab" || !panelRef.current) return;
+      if (e.key !== "Tab" || !modal || !panelRef.current) return;
       const panel = panelRef.current;
       const items = getTabbables(panel);
       // No focusable descendant: the panel itself (tabIndex=-1, focused
@@ -243,5 +273,5 @@ export function useDialogBehavior({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isPresent, isOpen, onClose, panelRef]);
+  }, [modal, isPresent, isOpen, onClose, panelRef]);
 }

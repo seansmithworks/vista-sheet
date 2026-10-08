@@ -44,6 +44,8 @@
   "files": [
     "dist",
     "src",
+    "!src/**/*.test.*",
+    "!src/**/*.test-d.*",
     "bin",
     "tuner",
     "README.md",
@@ -78,6 +80,7 @@
     "dev": "vite example",
     "build:example": "vite build example",
     "build:lib": "vite build -c vite.lib.config.ts",
+    "prepare": "npm run build:lib",
     "test": "vitest run",
     "test:geometry": "playwright test -c example/playwright.config.ts",
     "audit:vars": "node scripts/audit-css-vars.mjs",

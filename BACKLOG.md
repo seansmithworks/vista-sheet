@@ -41,7 +41,7 @@ Plan gate CLOSED: /adversarial-plan ran (Opus refuter, 14 findings, verdict revi
 
 ## Parked (off-objective, noticed tonight)
 
-- example/ `evidence/` dir + untracked test-results/ hygiene beyond gitignore
+- example/ `evidence/` dir + untracked test-results/ hygiene beyond gitignore — evidence/ deleted 2026-10-06
 - Site-side cutover (seansmithdesign.com consuming the package) — wave 5's other half, separate run
 
 ## v0.2 candidates (Sean, 2026-08-31 morning review)
@@ -538,3 +538,23 @@ Root cause: two painters (`<MorphSheet.Shadow>` + `.sheet[data-morph-sheet-settl
 - [ ] 21. **Decide or kill — one demo or two.** Render is current (`ebff8dc`); Vercel is stale (`2dfe523`, orange) and needs Sean's CLI paste every time. Nothing in the repo or the GitHub page links to either (checked 2026-09-15). Strawman: retire Vercel — pause the project (reversible) and set https://vista-sheet.onrender.com as the GitHub repo homepage; Render is also the platform Sean is interviewing with. Alternative: keep both, Vercel redeployed by paste at each Render deploy. Sean asked "or maybe both" 10:17 — unanswered.
 - [ ] 22. Confirm the note-9 reversal read Sean's intent: "corner setting" was taken to mean dialkit's floating panel, so the `/` Design panel stays a VistaSheet (`3cdbafc`) and glow length (10) is re-cut into that sheet. If he meant a different control, T6 needs re-planning again.
 - [ ] 23. Local branch `wip/t3-red-test` (`2b5701e`) is superseded by `af272b6` — delete on Sean's nod.
+
+## 2026-10-04 — link-preview (`explore/link-preview` @ 25e7b02)
+- [x] `<VistaSheet.Root preview>` hover card built; two independent reviews APPROVE. Gates: vitest 311 · link-preview spec 26 · geometry 292 · tsc 6 baseline · build:lib + banner · perf PASS. Non-test src net +636 vs b38a84c (cut from +901).
+- [x] 24. carried — Decide: preview placement (strawman ABOVE-first, `anchors.ts` constant; Sean's original spec was below-first) and 240px min height (`PREVIEW_MIN_HEIGHT_PX`). Decided: above-first and 240px confirmed by Sean 2026-10-04.
+- [x] 25. carried — Decide: merge `explore/link-preview` to main / open PR / keep exploring. Strawman: PR after 26–27. Decided: open a PR after items 26 and 27, no merge yet (Sean, 2026-10-04).
+- [x] 26. carried — Write README + docs/PACKAGE-DESIGN.md sections for preview mode (types: RootComponentProps/PreviewRootProps; card is aria-hidden — no focusables inside).
+- [x] 27. carried — Real-iPhone long-press check (only synthetic CDP touch tested). Done: Sean tested on a real iPhone via Vercel preview 2026-10-05, "works well enough for right now".
+- [x] 28. carried — Demo fixtures preview as near-blank pages; swap in content-rich owned pages.
+- [ ] 29. parked — "Simplify later" list in the link-preview plan (Shadow radius machinery, audit-history comment blocks, modal reveal/backdrop).
+- [ ] 30. parked — Dia corner mismatch (shadow tighter than sheet); not reproducible in Chrome 154. Needs Sean's console check in Dia.
+- [ ] 31. parked — New flake candidate `media.spec.ts:606` (1.72px vs 1px, passes on rerun).
+- [ ] 32. Test against motion 14 (peer range is >=12 <14; README pins motion@13). Run test:geometry + perf with motion@14 as devDep; widen peerDependencies only if green.
+
+## 2026-10-06 — tester-release prep (PR #2 open, branch @ 36bb711)
+- [ ] 33. carried — Demo/download site: map visualization-STRUCTURE options from real captures (state matrix · configurator · in-context use cases · morph walkthrough) → Sean picks → only then redo visual treatment. Shotfun A–D (2026-10-05) REJECTED: drew a generic sheet, not the real component. Real captures partial in `.shotfun/states/` (01-morph, 02-shapes, 03-buttons; `capture.mjs` re-runs groups).
+- [ ] 34. carried — DECIDE OR KILL: breaking API cleanup (unused `--vista-sheet-trigger-x/-y`, `--vista-sheet-shadow-x/-y/-w/-h`, `SheetRect` alias; `surfaceCloseLeadDelayMs` → preset-only). Strawman: remove all four. Options page: https://claude.ai/artifact/NZevgDusw6AyA5d7dunsDA
+- [ ] 35. carried — npm publish 0.1.1 (Sean: "tbd, maybe 0.1.1"). Gate: PR #2 merged + item 34 decided (removals ship in same release). Tester can use git install meanwhile (verified working).
+- [ ] 36. carried — Merge PR #2 (https://github.com/seansmithworks/vista-sheet/pull/2) on Sean's nod; Macroscope check was pending.
+- [ ] 37. parked — Demo gaps found by capture: no shape control in settings sheet (only `?shape=`/playground); dark/warm only on index + playground; no presets switcher; tuner Close renders mid-sheet; mobile link-preview card covers heading.
+- [ ] 38. parked — Launch video (/brag-slim) demo made for someone else; parked at `~/Code/_experiments/vista-sheet/brag-2026-10-06/`. Revisit brag options after npm release (outro install line needs a release with link preview).

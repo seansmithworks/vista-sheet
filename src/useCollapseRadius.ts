@@ -13,21 +13,11 @@ import {
 import type { TriggerShape } from "./shape";
 
 /**
- * useCollapseRadius — the hold-then-round border-radius curve (docs/
- * PACKAGE-DESIGN.md audit M1) as a numeric-px MotionValue, extracted from
- * Sheet.tsx so it can be reused.
- *
- * Called from Sheet.tsx, at the same position in Sheet's own hook order it
- * always occupied — Sheet.tsx relays this hook's output into a separate
- * stable MotionValue Root owns (`ctx.collapseRadius`), which Trigger.tsx
- * binds to (see Sheet.tsx and context.ts). Trigger.tsx's own comment
- * documents a known, measured, unavoidable cost of that binding against
- * geometry.spec.ts's close-tracking gate — read it before touching how
- * Trigger.tsx consumes this value.
- *
- * Reads the shape tokens (--vista-sheet-sheet-radius / --vista-sheet-
- * trigger-radius) off `varsElRef` — the caller decides which element to
- * read them from; Sheet.tsx passes its own `sheetRef`.
+ * useCollapseRadius — the hold-then-round border-radius curve as a numeric-px
+ * MotionValue. Called from Sheet.tsx, which relays it into Root's stable
+ * `ctx.collapseRadius` for Trigger.tsx to bind on close; keep the call where
+ * it is, since moving it shifts effect order and costs the close-tracking
+ * gate px. Reads the shape tokens off `varsElRef` (Sheet passes `sheetRef`).
  */
 export function useCollapseRadius({
   collapseProgress,
@@ -67,33 +57,10 @@ export function useCollapseRadius({
     };
   }, [open, varsElRef]);
 
-  // A pure function of collapseProgress — no wall-clock gate. There used to
-  // be a second, TIME-based hold on top of the progress hold below
-  // (RADIUS_CLOSE_DELAY_SEC: freeze at sheetRadius for 1.5s from the moment
-  // `open` flips false). Two things were wrong with it, both measured on
-  // every close path of both example pages:
-  //
-  //   * 1.5s is longer than a close takes (~1.15s including
-  //     SURFACE_CLOSE_LEAD_DELAY_MS), so the gate never opened while a close
-  //     was running and the progress hold below never executed at all on the
-  //     close direction. The trigger surface painted the SHEET's corner
-  //     radius for the entire collapse, down to and including the final
-  //     trigger-sized frame.
-  //   * That made the value bound to Trigger.tsx's `.triggerSurface` equal
-  //     sheetRadius at the instant Motion's layout animation finished and
-  //     wrote its final keyframe — an inline `border-radius: 32px` (36px on
-  //     the flagship) on a 128px box, i.e. a squircle, which then outlived
-  //     the morph (see Trigger.tsx) and was still there at rest. The
-  //     progress hold is the mechanism doing the real work — it's tied to
-  //     how far the BOX has contracted, not how long a close spring runs.
-  //
-  // The curve itself (collapseRadiusAt, src/shape.ts) is shared verbatim with
-  // Shadow.tsx (task 3, DESIGN.md §4.1 "one surface, one clock") — the two
-  // used to disagree (Shadow ran its own linear interpolation), which
-  // (rt) now catches. `shape` is read live from the closure: Motion's
-  // useCombineMotionValues re-runs this transformer's latest closure on every
-  // render (verified in framer-motion's use-combine-values.mjs), the same way
-  // `triggerSize` already was before this change.
+  // A pure function of collapseProgress, never wall-clock time, so the hold
+  // tracks how far the box has contracted however long the close spring
+  // runs. The curve (collapseRadiusAt) is shared with Shadow.tsx. `shape` and
+  // `triggerSize` are read live: Motion re-runs the latest closure each render.
   return useTransform(collapseProgress, (p: number) => {
     const { sheetRadius, triggerRadius } = radiusVarsRef.current;
     return collapseRadiusAt(

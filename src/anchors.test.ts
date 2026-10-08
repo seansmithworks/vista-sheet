@@ -3,13 +3,62 @@ import { describe, expect, it } from "vitest";
 import {
   ALL_ANCHORS,
   EDGE_MARGIN,
+  PREVIEW_GAP_PX,
+  PREVIEW_MIN_HEIGHT_PX,
+  PREVIEW_PREFERRED_SIDE,
   type AnchorId,
-  anchorCenter,
   nearestAnchor,
+  previewPlacement,
+  previewSheetPlacement,
+  rectFromBox,
+  rectsNear,
   restingLeft,
   restingTop,
   sheetPlacement,
 } from "./anchors";
+
+/** Trigger center position (viewport px) for a given anchor. */
+function anchorCenter(
+  anchor: AnchorId,
+  vpW: number,
+  vpH: number,
+  triggerWidth: number,
+  triggerHeight: number,
+): { x: number; y: number } {
+  return {
+    x: restingLeft(anchor, vpW, triggerWidth) + triggerWidth / 2,
+    y: restingTop(anchor, vpH, triggerHeight) + triggerHeight / 2,
+  };
+}
+
+describe("rectFromBox / rectsNear", () => {
+  it("builds a center/half-extent rect from a box", () => {
+    expect(rectFromBox(10, 20, 100, 50)).toEqual({
+      cx: 60,
+      cy: 45,
+      halfWidth: 50,
+      halfHeight: 25,
+    });
+  });
+
+  it("treats a difference under eps on every field as near", () => {
+    const a = rectFromBox(0, 0, 100, 100);
+    expect(rectsNear(a, rectFromBox(0.1, 0.1, 100.1, 100.1), 0.25)).toBe(true);
+    expect(rectsNear(a, a, 0.25)).toBe(true);
+  });
+
+  it("is not near when any one field reaches eps", () => {
+    const a = rectFromBox(0, 0, 100, 100);
+    expect(rectsNear(a, { ...a, cx: a.cx + 0.5 }, 0.5)).toBe(false);
+    expect(rectsNear(a, { ...a, cy: a.cy - 0.5 }, 0.5)).toBe(false);
+    expect(rectsNear(a, { ...a, halfWidth: a.halfWidth + 1 }, 0.5)).toBe(false);
+    expect(rectsNear(a, { ...a, halfHeight: a.halfHeight + 1 }, 0.5)).toBe(
+      false,
+    );
+    expect(rectsNear(a, { ...a, cx: a.cx + 0.3 }, 0.25)).toBe(false);
+    expect(rectsNear(a, { ...a, cx: a.cx + 0.3 }, 0.5)).toBe(true);
+  });
+});
 
 describe("nearestAnchor", () => {
   // Changed from the pre-center suite: (720, 450) in a 1440x900 viewport is
@@ -541,5 +590,100 @@ describe("restingLeft / restingTop / anchorCenter - non-square trigger (P3)", ()
     expect(sheetPlacement("bottom-right", 1440, 900, 320, 360).anchorX).toBe(
       1064,
     );
+  });
+});
+
+describe("previewPlacement", () => {
+  const sheet = { width: 360, height: 520 };
+  const vp = { width: 1280, height: 800 };
+  const at = (x: number, top: number, bottom = top + 20) =>
+    previewPlacement({ x, y: top + 10 }, { top, bottom }, sheet, vp);
+
+  it("prefers the configured side with an 8px gap, above", () => {
+    // Needs top - 8 - 520 >= 16, i.e. a link at y >= 544.
+    const p = at(600, 640);
+    expect(PREVIEW_PREFERRED_SIDE).toBe("above");
+    expect(p.side).toBe("above");
+    expect(p.top).toBe(640 - PREVIEW_GAP_PX - 520);
+  });
+
+  it("flips below when there is no room above", () => {
+    const p = at(600, 120);
+    expect(p.side).toBe("below");
+    expect(p.top).toBe(140 + PREVIEW_GAP_PX);
+  });
+
+  it("centres on the pointer x", () => {
+    expect(at(600, 640).left).toBe(600 - 180);
+  });
+
+  it("clamps to a 16px gutter at both viewport edges", () => {
+    expect(at(1270, 640).left).toBe(1280 - 16 - 360);
+    expect(at(4, 640).left).toBe(16);
+  });
+
+  it("keeps the full height when the preferred side has room", () => {
+    expect(at(600, 640).height).toBe(520);
+  });
+
+  it("dead band: takes the roomier side and shrinks to its room, never covering the link", () => {
+    // 1280x800: neither side holds 520 for a link at y 256..544.
+    for (let top = 260; top <= 540; top += 20) {
+      const p = at(600, top);
+      expect(p.height).toBeGreaterThanOrEqual(PREVIEW_MIN_HEIGHT_PX);
+      expect(p.height).toBeLessThan(520);
+      if (p.side === "above") {
+        expect(p.top + p.height).toBe(top - PREVIEW_GAP_PX);
+      } else {
+        expect(p.top).toBe(top + 20 + PREVIEW_GAP_PX);
+        expect(p.top + p.height).toBeLessThanOrEqual(800 - 16);
+      }
+      expect(p.top).toBeGreaterThanOrEqual(16);
+    }
+    // y 300: above has 276, below has 456.
+    const mid = at(600, 300);
+    expect(mid.side).toBe("below");
+    expect(mid.height).toBe(800 - 16 - 320 - PREVIEW_GAP_PX);
+  });
+
+  it("only below the minimum height may the card overlap its link", () => {
+    const short = { width: 1280, height: 400 };
+    const p = previewPlacement(
+      { x: 600, y: 210 },
+      { top: 200, bottom: 220 },
+      sheet,
+      short,
+    );
+    // Neither side has 240: the card is exactly the minimum, inside the gutter.
+    expect(p.height).toBe(PREVIEW_MIN_HEIGHT_PX);
+    expect(p.top).toBeGreaterThanOrEqual(16);
+    expect(p.top + p.height).toBeLessThanOrEqual(400 - 16);
+  });
+
+  it("keeps the card inside a viewport narrower than the card", () => {
+    const narrow = { width: 300, height: 800 };
+    const p = previewPlacement(
+      { x: 150, y: 400 },
+      { top: 390, bottom: 410 },
+      { width: 268, height: 520 },
+      narrow,
+    );
+    expect(p.left).toBe(16);
+  });
+});
+
+describe("previewSheetPlacement", () => {
+  it("contain-fits the card inside the viewport minus the gutter", () => {
+    const p = previewSheetPlacement(
+      { x: 195, y: 400 },
+      { cy: 400, halfHeight: 10 },
+      390,
+      844,
+      360,
+      360 / 520,
+    );
+    expect(p.width).toBe(`${390 - 32}px`);
+    expect(p.bottomPx).toBeUndefined();
+    expect(p.anchorX).toBe(16);
   });
 });
