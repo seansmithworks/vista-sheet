@@ -55,6 +55,7 @@ export default defineConfig({
         linkPreviewHost: resolve(__dirname, "canvas/link-preview-host.html"),
         surface: resolve(__dirname, "surface.html"),
         focus: resolve(__dirname, "fixtures/focus.html"),
+        modal: resolve(__dirname, "fixtures/modal.html"),
       },
     },
   },

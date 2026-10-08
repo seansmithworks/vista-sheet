@@ -78,29 +78,33 @@ export function Sheet({
   const modal = !preview;
 
   const sheetRef = useRef<HTMLDivElement | null>(null);
+  const backdropRef = useRef<HTMLDivElement | null>(null);
 
   // Outlives `open` through the whole close animation: `open` flips false
   // the instant a close is REQUESTED, but AnimatePresence keeps the panel
   // mounted and interactive until onExitComplete below. useDialogBehavior's
-  // scroll lock, background aria-hiding and Tab trap key on this, not on
-  // `open`, so they stay live for exactly as long as the panel is actually
-  // on screen. Seeded from `open` so a defaultOpen mount doesn't need a
-  // first render + effect round trip to become present.
+  // scroll lock and the focus guards key on this, not on `open`, so they
+  // stay live for exactly as long as the panel is actually on screen (the
+  // inert page keys on `open`; see useDialogBehavior). Seeded from `open`
+  // so a defaultOpen mount doesn't need a first render + effect round trip
+  // to become present.
   const [isPresent, setIsPresent] = useState(open);
   useEffect(() => {
     if (open) setIsPresent(true);
   }, [open]);
 
-  useDialogBehavior({
-    isOpen: open,
-    isPresent,
-    panelRef: sheetRef,
-    collapseProgress,
-    onClose: () => setOpen(false),
-    initialFocus,
-    modal,
-    triggerRef: triggerElRef,
-  });
+  const { startGuardRef, endGuardRef, onStartGuardFocus, onEndGuardFocus } =
+    useDialogBehavior({
+      isOpen: open,
+      isPresent,
+      panelRef: sheetRef,
+      backdropRef,
+      collapseProgress,
+      onClose: () => setOpen(false),
+      initialFocus,
+      modal,
+      triggerRef: triggerElRef,
+    });
 
   // Reset the drag offset on every open — a value left over from the
   // previous open's drag (or its dismiss) must not leak into a fresh mount;
@@ -296,6 +300,23 @@ export function Sheet({
     }
   }
 
+  // `open ||`: isPresent only catches up an effect after the open commit,
+  // and the guards must exist in that commit so the inert walk keeps them.
+  const focusGuard = (
+    ref: typeof startGuardRef,
+    onFocus: typeof onStartGuardFocus,
+  ) =>
+    modal && (open || isPresent) ? (
+      <span
+        ref={ref}
+        tabIndex={0}
+        aria-hidden="true"
+        data-vista-sheet-focus-guard=""
+        style={{ position: "fixed", width: 1, height: 1, overflow: "hidden" }}
+        onFocus={onFocus}
+      />
+    ) : null;
+
   return (
     <Layer>
       {/* Invisible click-catcher for outside-click dismissal, not a scrim.
@@ -304,23 +325,36 @@ export function Sheet({
           close interruptible) from the first frame. */}
       {open && modal && dismissOnBackdrop && (
         <div
+          ref={backdropRef}
           aria-hidden="true"
           data-vista-sheet-part="backdrop"
           style={{ position: "fixed", inset: 0, zIndex: zIndex + 101 }}
           onClick={() => setOpen(false)}
         />
       )}
+      {focusGuard(startGuardRef, onStartGuardFocus)}
       {/* initial={false}: a sheet already open when this first renders (a
           Root mounted open) is at rest — its content, items and Close skip
           their entrance. Later opens are unaffected. */}
       <AnimatePresence
         initial={false}
         onExitComplete={() => {
-          if (modal) triggerElRef.current?.focus();
+          // Only reclaim focus that the close left stranded (on the body, or
+          // still in the leaving panel). The page is live from the close
+          // request, so a control the user clicked mid-close keeps focus.
+          const active = document.activeElement;
+          if (
+            modal &&
+            (!active ||
+              active === document.body ||
+              sheetRef.current?.contains(active))
+          ) {
+            triggerElRef.current?.focus();
+          }
           // Exit-complete is when the close morph is actually done — the
           // correct moment to drop sheetRect (see the measure effect above)
-          // and to release the scroll lock / aria-hiding / Tab trap that
-          // isPresent keeps alive through the animation.
+          // and to release the scroll lock / focus guards that isPresent
+          // keeps alive through the animation.
           setSheetRect(null);
           setIsPresent(false);
         }}
@@ -371,6 +405,7 @@ export function Sheet({
           </motion.div>
         )}
       </AnimatePresence>
+      {focusGuard(endGuardRef, onEndGuardFocus)}
     </Layer>
   );
 }

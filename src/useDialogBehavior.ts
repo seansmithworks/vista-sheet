@@ -1,18 +1,16 @@
-import { useEffect } from "react";
-import type { RefObject } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import type { FocusEvent as ReactFocusEvent, RefObject } from "react";
 import type { MotionValue } from "motion/react";
 import { CLOSE_REVEAL_PROGRESS } from "./motion";
 
 /**
- * Live-DOM tab order (docs/PACKAGE-DESIGN.md §6, code M3/a11y B1 fix). A
- * TreeWalker over every element under `root`, not a fixed selector list —
- * inputs, selects, textareas and contenteditable hosts all get a native
- * tabIndex of 0 without an explicit [tabindex] attribute, so `tabIndex >= 0`
- * alone covers them; a hand-written selector (the previous shape here) has
- * to enumerate every tag and silently misses whichever one the author
- * forgot. `checkVisibility()` is not used — Safari only ships it from 17.4
- * (wave.md "Push back"); `getClientRects().length` plus computed visibility
- * is the portable substitute.
+ * Live-DOM tab stops, used ONLY to pick where a focus guard sends focus (the
+ * first or last stop in the panel). Tab itself is never intercepted: the
+ * browser walks the panel in its own native order (radio groups, <details>,
+ * shadow roots, positive tabindex), and the guards catch it at the edges.
+ * `checkVisibility()` is not used — Safari only ships it from 17.4;
+ * `getClientRects().length` plus computed visibility is the portable
+ * substitute.
  */
 function isTabbable(el: HTMLElement): boolean {
   if (el.tabIndex < 0) return false;
@@ -31,70 +29,109 @@ function isTabbable(el: HTMLElement): boolean {
   if (style.visibility === "hidden" || style.visibility === "collapse") {
     return false;
   }
+  // A radio group is one tab stop: the checked radio, or (none checked) any
+  // of them — the browser picks the first or last by direction, and either
+  // edge is right for a guard.
+  if (el instanceof HTMLInputElement && el.type === "radio" && el.name) {
+    if (el.checked) return true;
+    const scope = el.form ?? el.getRootNode();
+    const group = Array.from(
+      (scope as ParentNode).querySelectorAll<HTMLInputElement>(
+        `input[type="radio"]`,
+      ),
+    ).filter((r) => r.name === el.name);
+    return !group.some((r) => r.checked);
+  }
   return true;
 }
 
-function getTabbables(root: HTMLElement): HTMLElement[] {
-  const results: HTMLElement[] = [];
+function collectTabbables(root: Node, results: HTMLElement[]): void {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
   let node = walker.nextNode();
   while (node) {
     const el = node as HTMLElement;
     if (isTabbable(el)) results.push(el);
+    // Open shadow roots take part in the native tab order at the host.
+    if (el.shadowRoot) collectTabbables(el.shadowRoot, results);
     node = walker.nextNode();
   }
+}
+
+function getTabbables(root: HTMLElement): HTMLElement[] {
+  const results: HTMLElement[] = [];
+  collectTabbables(root, results);
   return results;
 }
 
 /**
- * Sets aria-hidden="true" on every element that is a sibling of `target` at
- * every level from `target` up to (not including) `document.body`, so
- * assistive tech sees only the dialog subtree while it's open — the same
- * technique Radix, Base UI, Headless UI and Vaul use (not the `inert`
- * attribute, whose support is uneven). Returns a restore function that puts
- * back each element's PRE-EXISTING aria-hidden value (or removes the
- * attribute if there wasn't one), rather than blindly stripping it — a
- * sibling may have been legitimately aria-hidden before the dialog opened.
+ * Makes everything outside the keep nodes `inert`: walks up from each keep
+ * node to <body> and inerts every sibling that isn't itself on a keep path
+ * (React Aria's keep-path model). `inert` inherits and can't be undone below,
+ * so a toast region nested deep in the app tree only stays live because it is
+ * its own keep path, not because a sibling filter skipped it.
+ *
+ * Elements already inert are left alone, so restore never strips an inert
+ * the page set itself. The returned restore is idempotent.
  */
-function hideOutsideSiblings(target: Element): () => void {
-  const restores: Array<() => void> = [];
-  let node: Element | null = target;
-  while (node && node !== document.body) {
-    const parent: Element | null = node.parentElement;
-    if (parent) {
-      for (const sibling of Array.from(parent.children)) {
-        if (sibling === node) continue;
-        const prev = sibling.getAttribute("aria-hidden");
-        sibling.setAttribute("aria-hidden", "true");
-        restores.push(() => {
-          if (prev === null) sibling.removeAttribute("aria-hidden");
-          else sibling.setAttribute("aria-hidden", prev);
-        });
-      }
+function inertOutside(keep: Element[]): () => void {
+  // A keep node inside another keep node is already covered, and walking up
+  // from it would inert the outer node's own children.
+  const roots = keep.filter(
+    (node) => !keep.some((other) => other !== node && other.contains(node)),
+  );
+  const onPath = new Set<Element>();
+  for (const node of roots) {
+    let n: Element | null = node;
+    while (n && n !== document.body) {
+      onPath.add(n);
+      n = n.parentElement;
     }
-    node = parent;
   }
+  const keepSet = new Set<Element>(roots);
+  const inerted: Element[] = [];
+  const visit = (parent: Element) => {
+    for (const child of Array.from(parent.children)) {
+      if (keepSet.has(child)) continue;
+      if (onPath.has(child)) {
+        visit(child);
+        continue;
+      }
+      if (child.hasAttribute("inert")) continue;
+      child.setAttribute("inert", "");
+      inerted.push(child);
+    }
+  };
+  visit(document.body);
+
+  let released = false;
   return () => {
-    // Restore in reverse so a nested restore never fights an outer one.
-    for (let i = restores.length - 1; i >= 0; i--) restores[i]();
+    if (released) return;
+    released = true;
+    for (const el of inerted) el.removeAttribute("inert");
   };
 }
 
+const LIVE_REGION_SELECTOR =
+  '[aria-live]:not([aria-live="off"]), [role="status"], [role="alert"], [role="log"]';
+
 /**
- * useDialogBehavior — scroll lock, focus trap, background aria-hiding,
- * Escape, and focus restore on exit-complete (docs/PACKAGE-DESIGN.md §6).
+ * useDialogBehavior — scroll lock, inert page, focus guards, Escape, and
+ * initial focus (docs/PACKAGE-DESIGN.md §6).
  *
- * Escape is unconditional and not configurable: a modal surface that traps
- * focus and cannot be dismissed by keyboard is a defect, not a variant. It
- * only fires `onClose` while `isOpen` — once a close has already been
- * requested there is nothing left to dismiss.
+ * Two windows, on purpose:
+ * - The page is inert while `isOpen`. `isOpen` flips false the instant a
+ *   close is REQUESTED, and the inert cleanup runs in that same commit — the
+ *   one the backdrop unmounts in — so the trigger is tappable from the first
+ *   close frame and a reopen can interrupt the close.
+ * - Scroll lock and the focus guards key on `isPresent`, which outlives
+ *   `isOpen` until AnimatePresence's onExitComplete: the panel is still on
+ *   screen and focusable through the exit, so Tab mid-close must stay in it.
  *
- * Scroll lock, background aria-hiding and the Tab trap key on `isPresent`,
- * not `isOpen`: `isOpen` flips false the instant a close is REQUESTED, but
- * the panel stays mounted and interactive through the whole exit animation
- * (Sheet's AnimatePresence only unmounts it at onExitComplete). Tearing this
- * down at the request would let Tab walk out of a sheet that is still
- * visibly on screen and still scroll-locking the page underneath.
+ * Tab is never intercepted. Two focus guards (rendered by Sheet as siblings
+ * just outside the panel) catch focus leaving either edge and route it on
+ * `relatedTarget`: arriving from inside the panel means Tab ran off that
+ * edge, so wrap to the opposite end; arriving from anywhere else means focus
+ * is entering, so land on the near end.
  *
  * Initial focus lands on the dialog panel itself at the open commit and
  * stays there — opening never pre-highlights a control of its own accord.
@@ -103,16 +140,18 @@ function hideOutsideSiblings(target: Element): () => void {
  * (collapseProgress <= CLOSE_REVEAL_PROGRESS, the same threshold <Close>
  * reveals on) rather than at the commit — stealing focus into a text field
  * before the sheet has visibly arrived can pop a mobile keyboard mid-morph.
- * Skipped entirely once focus has moved off the panel by settle time,
- * whether that's the user tabbing away or a consumer focusing something
- * itself. Focus restore to the trigger happens on `onExitComplete`
- * (Sheet.tsx), not at the moment `open` flips, so the restore doesn't cause
- * a visible scroll jump mid-close.
+ * Skipped entirely once focus has moved off the panel by settle time.
+ * Focus restore to the trigger happens on `onExitComplete` (Sheet.tsx).
+ *
+ * Escape is unconditional and not configurable: a modal surface that traps
+ * focus and cannot be dismissed by keyboard is a defect, not a variant. It
+ * only fires `onClose` while `isOpen`.
  */
 export function useDialogBehavior({
   isOpen,
   isPresent,
   panelRef,
+  backdropRef,
   collapseProgress,
   onClose,
   initialFocus,
@@ -124,16 +163,30 @@ export function useDialogBehavior({
    * outlives `isOpen` through the whole close animation. */
   isPresent: boolean;
   panelRef: RefObject<HTMLElement | null>;
+  /** The click-catcher; never inert. Null when dismissOnBackdrop is off. */
+  backdropRef: RefObject<HTMLElement | null>;
   collapseProgress: MotionValue<number>;
   onClose: () => void;
   /** Opt-in target focused at settle; see types.ts SheetProps.initialFocus. */
   initialFocus?: RefObject<HTMLElement | null>;
-  /** False for a preview card: no scroll lock, aria-hiding, focus move or
-   * Tab trap; light-dismiss instead. Escape closes in both modes. */
+  /** False for a preview card: no scroll lock, inert, focus move or guards;
+   * light-dismiss instead. Escape closes in both modes. */
   modal?: boolean;
   /** Preview light-dismiss: a press on it does not close. */
   triggerRef: RefObject<HTMLElement | null>;
-}): void {
+}): {
+  startGuardRef: RefObject<HTMLSpanElement | null>;
+  endGuardRef: RefObject<HTMLSpanElement | null>;
+  onStartGuardFocus: (e: ReactFocusEvent<HTMLSpanElement>) => void;
+  onEndGuardFocus: (e: ReactFocusEvent<HTMLSpanElement>) => void;
+} {
+  const startGuardRef = useRef<HTMLSpanElement | null>(null);
+  const endGuardRef = useRef<HTMLSpanElement | null>(null);
+  // The iframe focus last went into. Focus coming back out of a child frame
+  // reaches a guard with relatedTarget null (it crossed documents), so the
+  // guard reads this instead to know Tab ran off the panel's edge.
+  const enteredFrameRef = useRef<Element | null>(null);
+
   useEffect(() => {
     if (!modal || !isPresent) return;
     const { body } = document;
@@ -152,34 +205,17 @@ export function useDialogBehavior({
         parseFloat(window.getComputedStyle(body).paddingRight) || 0;
       body.style.paddingRight = `${currentPaddingRight + scrollbarWidth}px`;
     }
+    let released = false;
     return () => {
+      if (released) return;
+      released = true;
       body.style.overflow = prevOverflow;
       body.style.paddingRight = prevPaddingRight;
     };
   }, [modal, isPresent]);
 
-  // Hide everything outside the dialog from assistive tech. aria-modal is a
-  // hint browsers don't act on — a screen reader will otherwise read the
-  // whole page behind the open sheet.
-  useEffect(() => {
-    if (!modal || !isPresent) return;
-    const panel = panelRef.current;
-    if (!panel) return;
-    // Hide from the WIDGET's root, not the dialog panel node itself. In modal
-    // mode the panel, the trigger and the shadow all render inside the same
-    // <VistaSheet.Root> wrapper (only preview mode portals, and it never
-    // reaches this effect), and the trigger is contractually required to
-    // keep reflecting aria-expanded/aria-controls to assistive tech while
-    // the dialog is open (§6). Hiding from the panel's own siblings would
-    // aria-hide the trigger along with everything else. Hiding from the
-    // root wrapper's siblings hides real page content while leaving the
-    // whole vista-sheet widget (trigger included) in the accessibility tree
-    // — the same effective boundary Radix/Base UI get for free from their
-    // portal root.
-    const root = panel.closest("[data-vista-sheet-root]") ?? panel;
-    return hideOutsideSiblings(root);
-  }, [modal, isPresent, panelRef]);
-
+  // Initial focus. Runs before the inert effect below, so the trigger hands
+  // focus to the panel before its wrapper goes inert.
   useEffect(() => {
     if (!modal || !isOpen) return;
     const panel = panelRef.current;
@@ -211,6 +247,27 @@ export function useDialogBehavior({
     });
   }, [modal, isOpen, panelRef, collapseProgress, initialFocus]);
 
+  // The page behind the sheet: no pointer, no focus, no AT. Keyed on
+  // `isOpen`, NOT `isPresent` — see the hook comment.
+  useEffect(() => {
+    if (!modal || !isOpen) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const own = [
+      panel,
+      startGuardRef.current,
+      endGuardRef.current,
+      backdropRef.current,
+    ].filter((n): n is HTMLElement => n !== null);
+    // Live regions present at open keep announcing (and their controls keep
+    // working). One that wraps the sheet itself is an ancestor, not a keep
+    // node — keeping it would keep the whole page.
+    const live = Array.from(
+      document.querySelectorAll(LIVE_REGION_SELECTOR),
+    ).filter((el) => !own.some((n) => el.contains(n)));
+    return inertOutside([...own, ...live]);
+  }, [modal, isOpen, panelRef, backdropRef]);
+
   // Non-modal light dismiss. Keys on pointerdown, so the finger that
   // long-pressed to open the card can lift without closing it.
   useEffect(() => {
@@ -237,41 +294,65 @@ export function useDialogBehavior({
   useEffect(() => {
     if (!isPresent) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (!isOpen) return;
-        e.preventDefault();
-        onClose();
-        return;
-      }
-      if (e.key !== "Tab" || !modal || !panelRef.current) return;
-      const panel = panelRef.current;
-      const items = getTabbables(panel);
-      // No focusable descendant: the panel itself (tabIndex=-1, focused
-      // programmatically on open) is the only thing to hold focus on.
-      const focusTargets = items.length > 0 ? items : [panel];
-
-      // The trap owns every Tab press outright — always preventDefault and
-      // move programmatically — rather than only intercepting at the
-      // first/last boundary. A boundary check trusts the browser's own tab
-      // walk to agree with `focusTargets` in between, which silently breaks
-      // the moment the two diverge (a control the browser considers
-      // focusable that `focusTargets` doesn't, or vice versa); owning every
-      // press makes `focusTargets` the only source of truth, unconditionally.
+      if (e.key !== "Escape" || !isOpen) return;
       e.preventDefault();
-      const active = document.activeElement as HTMLElement | null;
-      const currentIndex = active ? focusTargets.indexOf(active) : -1;
-      let nextIndex: number;
-      if (currentIndex === -1) {
-        nextIndex = e.shiftKey ? focusTargets.length - 1 : 0;
-      } else if (e.shiftKey) {
-        nextIndex =
-          (currentIndex - 1 + focusTargets.length) % focusTargets.length;
-      } else {
-        nextIndex = (currentIndex + 1) % focusTargets.length;
-      }
-      focusTargets[nextIndex].focus();
+      onClose();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [modal, isPresent, isOpen, onClose, panelRef]);
+  }, [isPresent, isOpen, onClose]);
+
+  useEffect(() => {
+    if (!modal || !isPresent) return;
+    // The window blurs as focus moves into a child frame, with that frame
+    // as activeElement; any other blur (to browser chrome) clears it.
+    const onBlur = (e: FocusEvent) => {
+      if (e.target !== window) return;
+      const active = document.activeElement;
+      enteredFrameRef.current =
+        active instanceof HTMLIFrameElement ? active : null;
+    };
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("blur", onBlur);
+      enteredFrameRef.current = null;
+    };
+  }, [modal, isPresent]);
+
+  const routeGuard = useCallback(
+    (edge: "start" | "end", from: EventTarget | null) => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const stops = getTabbables(panel);
+      const first = stops[0] ?? panel;
+      const last = stops[stops.length - 1] ?? panel;
+      const source = from ?? enteredFrameRef.current;
+      enteredFrameRef.current = null;
+      const fromInside = source instanceof Node && panel.contains(source);
+      // Ran off the start edge from inside → wrap to the last stop; entering
+      // at the start from outside → the first. The end guard mirrors it.
+      const target =
+        edge === "start"
+          ? fromInside
+            ? last
+            : first
+          : fromInside
+            ? first
+            : last;
+      target.focus();
+    },
+    [panelRef],
+  );
+
+  const onStartGuardFocus = useCallback(
+    (e: ReactFocusEvent<HTMLSpanElement>) =>
+      routeGuard("start", e.relatedTarget),
+    [routeGuard],
+  );
+  const onEndGuardFocus = useCallback(
+    (e: ReactFocusEvent<HTMLSpanElement>) => routeGuard("end", e.relatedTarget),
+    [routeGuard],
+  );
+
+  return { startGuardRef, endGuardRef, onStartGuardFocus, onEndGuardFocus };
 }
