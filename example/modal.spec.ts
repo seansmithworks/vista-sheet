@@ -210,3 +210,162 @@ test.describe("P0-1 modal: native Tab order", () => {
     await expect(page.getByTestId("option-pear")).toBeFocused();
   });
 });
+
+test.describe("P0-2 Escape: top layer only, never interrupts typing", () => {
+  const closeSheet = '[data-vista-sheet-part="sheet"][aria-labelledby]';
+  // The exit animation keeps a closing panel mounted, so a mounted panel
+  // doesn't prove "still open". The page leaves inert at the close request,
+  // so inert present means the sheet was never asked to close.
+  const stillOpen = (page: Page) =>
+    page.evaluate(() => document.querySelectorAll("[inert]").length > 0);
+
+  test("a preview card inside the sheet takes two Escapes: the card, then the sheet", async ({
+    page,
+  }) => {
+    await openSheet(page, "?preview");
+    await page.getByTestId("preview-link").hover();
+    const card = page.getByTestId("preview-card");
+    await expect(card).toBeVisible();
+    await page.waitForSelector(
+      '[aria-label="Preview card"][data-vista-sheet-settled]',
+    );
+
+    await page.keyboard.press("Escape");
+    await expect(card).toHaveCount(0);
+    // The sheet is still open after the first Escape.
+    await page.waitForTimeout(300);
+    expect(await stillOpen(page)).toBe(true);
+
+    await page.keyboard.press("Escape");
+    await expect(page.locator(closeSheet)).toHaveCount(0);
+  });
+
+  for (const [name, init] of [
+    ["isComposing", { key: "Escape", isComposing: true }],
+    ["keyCode 229", { key: "Escape", keyCode: 229 }],
+  ] as const) {
+    test(`an Escape during IME composition (${name}) does not close the sheet`, async ({
+      page,
+    }) => {
+      await openSheet(page);
+      await page.evaluate((i) => {
+        document.activeElement?.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            ...i,
+            bubbles: true,
+            cancelable: true,
+          }),
+        );
+      }, init);
+      await page.waitForTimeout(400);
+      expect(await stillOpen(page)).toBe(true);
+      // Non-vacuous: a plain Escape still closes it.
+      await page.keyboard.press("Escape");
+      await expect(page.locator(closeSheet)).toHaveCount(0);
+    });
+  }
+
+  test("a listbox that calls preventDefault on Escape keeps the sheet open", async ({
+    page,
+  }) => {
+    await openSheet(page);
+    await page.getByTestId("listbox-button").click();
+    await page.getByTestId("option-apple").focus();
+
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("listbox")).toHaveCount(0);
+    await page.waitForTimeout(400);
+    expect(await stillOpen(page)).toBe(true);
+
+    await page.keyboard.press("Escape");
+    await expect(page.locator(closeSheet)).toHaveCount(0);
+  });
+});
+
+test.describe("P0-1 review fixes", () => {
+  const inertCount = (page: Page) =>
+    page.evaluate(() => document.querySelectorAll("[inert]").length);
+
+  test("stacked modals: the page stays inert until the second sheet closes too", async ({
+    page,
+  }) => {
+    await openSheet(page, "?two");
+    expect(await inertCount(page)).toBeGreaterThan(0);
+
+    // Open the second sheet from inside the first.
+    await page.getByTestId("open-second").click();
+    await page.waitForSelector(
+      '[aria-labelledby="second-sheet-title"][data-vista-sheet-settled]',
+    );
+
+    // Close the FIRST sheet (its Close button is inert under the second, so
+    // drive its Root's state the way a consumer would: the page button path
+    // is closed, so use the first sheet's own Close via script).
+    await page.evaluate(() => {
+      const first = document.querySelector<HTMLElement>(
+        '[aria-labelledby="modal-sheet-title"]',
+      );
+      first?.querySelector<HTMLElement>('[aria-label="Close"]')?.click();
+    });
+    await expect(
+      page.locator('[aria-labelledby="modal-sheet-title"]'),
+    ).toHaveCount(0);
+    // The second is still open: the page must still be inert.
+    await expect(
+      page.locator('[aria-labelledby="second-sheet-title"]'),
+    ).toHaveCount(1);
+    expect(await inertCount(page)).toBeGreaterThan(0);
+    const clicks = page.getByTestId("page-clicks");
+    const box = (await page.getByTestId("page-button").boundingBox())!;
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(clicks).toHaveText("0");
+
+    await page.getByRole("button", { name: "Close second" }).click();
+    await expect(
+      page.locator('[aria-labelledby="second-sheet-title"]'),
+    ).toHaveCount(0);
+    await expect.poll(() => inertCount(page)).toBe(0);
+  });
+
+  test("a node the page itself made inert stays inert after the sheet closes", async ({
+    page,
+  }) => {
+    await page.goto("/fixtures/modal.html");
+    await page.evaluate(() =>
+      document.querySelector("header")?.setAttribute("inert", ""),
+    );
+    await page.getByRole("button", { name: TRIGGER_LABEL }).click();
+    await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
+    await page.keyboard.press("Escape");
+    await expect(page.locator(SHEET)).toHaveCount(0);
+    await expect.poll(() => inertCount(page)).toBe(1);
+    expect(
+      await page.evaluate(() =>
+        document.querySelector("header")?.hasAttribute("inert"),
+      ),
+    ).toBe(true);
+  });
+
+  test("a stale iframe marker doesn't misroute a later guard entry from outside the page", async ({
+    page,
+  }) => {
+    await openSheet(page, "?iframe");
+    await page.getByTestId("listbox-button").focus();
+    await page.keyboard.press("Tab");
+    expect(await focusPath(page)).toBe("iframe>iframe-button");
+
+    // Click back into a panel button: the iframe visit is over.
+    await page.getByTestId("save").click();
+    await expect(page.getByTestId("save")).toBeFocused();
+
+    // Enter the start guard from nowhere (relatedTarget null), as tabbing in
+    // from browser chrome does. It must land on the FIRST stop.
+    await page.evaluate(() => {
+      (document.activeElement as HTMLElement | null)?.blur();
+      document
+        .querySelector<HTMLElement>("[data-vista-sheet-focus-guard]")
+        ?.focus();
+    });
+    expect(await focusPath(page)).toBe("close");
+  });
+});

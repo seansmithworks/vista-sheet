@@ -18,6 +18,15 @@ import { VistaSheet } from "../../src/index";
 //   portals a listbox to <body>, and an open-shadow-root input last.
 // - `?iframe` appends an iframe (with its own button) as the sheet's last
 //   tab stop instead.
+//
+// P0-2 / P0-1 review additions, each behind a query flag so the Tab-order
+// tests above keep their exact tab stops:
+// - The listbox options handle Escape themselves (preventDefault + close),
+//   the way a real listbox does.
+// - `?preview` adds a link-preview Root (hover card) inside the sheet.
+// - `?two` adds a second modal sheet, opened from a button inside the first
+//   (the first sheet's page is inert, so the second's trigger can't be
+//   clicked), to stack two modals.
 
 class ShadowField extends HTMLElement {
   connectedCallback() {
@@ -71,6 +80,11 @@ function Listbox() {
                 aria-selected="false"
                 tabIndex={0}
                 data-testid={`option-${name.toLowerCase()}`}
+                onKeyDown={(e) => {
+                  if (e.key !== "Escape") return;
+                  e.preventDefault();
+                  setOpen(false);
+                }}
               >
                 {name}
               </div>
@@ -83,7 +97,11 @@ function Listbox() {
 }
 
 function App() {
-  const withIframe = new URLSearchParams(window.location.search).has("iframe");
+  const params = new URLSearchParams(window.location.search);
+  const withIframe = params.has("iframe");
+  const withPreview = params.has("preview");
+  const withSecond = params.has("two");
+  const [secondOpen, setSecondOpen] = useState(false);
   const [pageClicks, setPageClicks] = useState(0);
   const [toast, setToast] = useState("");
   const [undos, setUndos] = useState(0);
@@ -183,6 +201,30 @@ function App() {
                 </VistaSheet.Item>
 
                 <VistaSheet.Item>
+                  {withPreview && (
+                    <VistaSheet.Root preview>
+                      <VistaSheet.Shadow />
+                      <VistaSheet.Trigger asChild>
+                        <a href="#preview" data-testid="preview-link">
+                          Preview link
+                        </a>
+                      </VistaSheet.Trigger>
+                      <VistaSheet.Sheet aria-label="Preview card">
+                        <VistaSheet.Content>
+                          <p data-testid="preview-card">Preview body</p>
+                        </VistaSheet.Content>
+                      </VistaSheet.Sheet>
+                    </VistaSheet.Root>
+                  )}
+                  {withSecond && (
+                    <button
+                      type="button"
+                      data-testid="open-second"
+                      onClick={() => setSecondOpen(true)}
+                    >
+                      Open second sheet
+                    </button>
+                  )}
                   {withIframe ? (
                     <iframe
                       title="Embedded"
@@ -197,6 +239,31 @@ function App() {
               </VistaSheet.Content>
             </VistaSheet.Sheet>
           </VistaSheet.Root>
+
+          {withSecond && (
+            <VistaSheet.Root
+              open={secondOpen}
+              onOpenChange={setSecondOpen}
+              defaultAnchor="bottom-left"
+            >
+              <VistaSheet.Shadow />
+              <VistaSheet.Trigger aria-label="Open second fixture">
+                <VistaSheet.Shared>Second</VistaSheet.Shared>
+              </VistaSheet.Trigger>
+              <VistaSheet.Sheet
+                aria-labelledby="second-sheet-title"
+                dismissOnBackdrop={false}
+              >
+                <VistaSheet.Shared>Second</VistaSheet.Shared>
+                <VistaSheet.Close aria-label="Close second" />
+                <VistaSheet.Content>
+                  <VistaSheet.Item>
+                    <h2 id="second-sheet-title">Second sheet</h2>
+                  </VistaSheet.Item>
+                </VistaSheet.Content>
+              </VistaSheet.Sheet>
+            </VistaSheet.Root>
+          )}
         </main>
       </div>
     </div>

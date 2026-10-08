@@ -18,6 +18,7 @@ Plan approved by Sean 2026-10-08 (strawmen accepted: keyboard + setAnchor move w
 
 - [ ] **NEW.** A11y & web-standards plan vs shadcn / Radix / Base UI / React Aria / vaul. **IN PROGRESS (other agent).**
 - [ ] **13.** A11y audit remainder (blockers and the drag-eats-activation major are fixed: `ad24c04`, `af272b6`): no non-drag way to reposition (`setAnchor` is in `src/context.ts:21` but not a public prop); looping trigger video has no pause control (fork: poster at rest vs pause control, poster-at-rest accepted in 14); 11 minors from the 2026-09-14 audit (scratchpad, likely gone).
+- [ ] **NEW.** getTabbables (src/useDialogBehavior.ts): positive tabindex not sorted; `closest('[inert],[hidden]')` doesn't cross shadow boundaries. From P0-1 review, non-blocking.
 
 ## Packaging & compatibility
 

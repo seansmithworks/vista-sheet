@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { FocusEvent as ReactFocusEvent, RefObject } from "react";
 import type { MotionValue } from "motion/react";
 import { CLOSE_REVEAL_PROGRESS } from "./motion";
+import { pushDismissLayer } from "./dismissLayers";
 
 /**
  * Live-DOM tab stops, used ONLY to pick where a focus guard sends focus (the
@@ -70,9 +71,13 @@ function getTabbables(root: HTMLElement): HTMLElement[] {
  * so a toast region nested deep in the app tree only stays live because it is
  * its own keep path, not because a sibling filter skipped it.
  *
- * Elements already inert are left alone, so restore never strips an inert
- * the page set itself. The returned restore is idempotent.
+ * Elements already inert for another reason are left alone, so restore never
+ * strips an inert the page set itself. Elements this module inerted are
+ * owner-counted, so with stacked sheets a node leaves inert only when the
+ * last sheet that inerted it releases it. The returned restore is idempotent.
  */
+const inertOwners = new Map<Element, number>();
+
 function inertOutside(keep: Element[]): () => void {
   // A keep node inside another keep node is already covered, and walking up
   // from it would inert the outer node's own children.
@@ -96,8 +101,13 @@ function inertOutside(keep: Element[]): () => void {
         visit(child);
         continue;
       }
-      if (child.hasAttribute("inert")) continue;
-      child.setAttribute("inert", "");
+      const owners = inertOwners.get(child);
+      if (owners === undefined) {
+        // Inert before any sheet got here: the page's own, never ours.
+        if (child.hasAttribute("inert")) continue;
+        child.setAttribute("inert", "");
+      }
+      inertOwners.set(child, (owners ?? 0) + 1);
       inerted.push(child);
     }
   };
@@ -107,7 +117,15 @@ function inertOutside(keep: Element[]): () => void {
   return () => {
     if (released) return;
     released = true;
-    for (const el of inerted) el.removeAttribute("inert");
+    for (const el of inerted) {
+      const owners = (inertOwners.get(el) ?? 1) - 1;
+      if (owners > 0) {
+        inertOwners.set(el, owners);
+        continue;
+      }
+      inertOwners.delete(el);
+      el.removeAttribute("inert");
+    }
   };
 }
 
@@ -145,7 +163,7 @@ const LIVE_REGION_SELECTOR =
  *
  * Escape is unconditional and not configurable: a modal surface that traps
  * focus and cannot be dismissed by keyboard is a defect, not a variant. It
- * only fires `onClose` while `isOpen`.
+ * goes to the top open layer only, and yields to typing (dismissLayers.ts).
  */
 export function useDialogBehavior({
   isOpen,
@@ -291,16 +309,15 @@ export function useDialogBehavior({
     };
   }, [modal, isOpen, onClose, panelRef, triggerRef]);
 
+  // Escape: the top dismiss layer only (dismissLayers.ts). Registered while
+  // `isOpen`, so a sheet that is mid-close never swallows the Escape meant
+  // for the layer beneath it.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
-    if (!isPresent) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || !isOpen) return;
-      e.preventDefault();
-      onClose();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isPresent, isOpen, onClose]);
+    if (!isOpen) return;
+    return pushDismissLayer(() => onCloseRef.current());
+  }, [isOpen]);
 
   useEffect(() => {
     if (!modal || !isPresent) return;
@@ -312,12 +329,25 @@ export function useDialogBehavior({
       enteredFrameRef.current =
         active instanceof HTMLIFrameElement ? active : null;
     };
+    // The marker only describes the IMMEDIATE exit from the frame. Focus
+    // landing on anything in the panel's own document ends that visit, so a
+    // later guard entry from browser chrome (relatedTarget null again) isn't
+    // mistaken for a frame exit. Bubble phase: React's guard handler, lower
+    // in the tree, has already read the marker for an exit onto a guard.
+    const onFocusIn = (e: FocusEvent) => {
+      const panel = panelRef.current;
+      if (panel && e.target instanceof Node && panel.contains(e.target)) {
+        enteredFrameRef.current = null;
+      }
+    };
     window.addEventListener("blur", onBlur);
+    document.addEventListener("focusin", onFocusIn);
     return () => {
       window.removeEventListener("blur", onBlur);
+      document.removeEventListener("focusin", onFocusIn);
       enteredFrameRef.current = null;
     };
-  }, [modal, isPresent]);
+  }, [modal, isPresent, panelRef]);
 
   const routeGuard = useCallback(
     (edge: "start" | "end", from: EventTarget | null) => {
