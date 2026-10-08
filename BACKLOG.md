@@ -23,16 +23,17 @@ Standing bar (Sean, 2026-08-31): "It all needs to be buttery smooth."
 - [ ] **32.** Test against motion 14. Peer range is `>=12 <14` (green on 12.43.0 and 13.1.1, `4fa3929`). Run `test:geometry` and `perf` with motion@14 as devDep; widen `peerDependencies` only if green.
 - [ ] **L145.** `npx tsc --noEmit` fails (re-verified 2026-10-07): `example/flagship/main.tsx:5` has no `*.jpg` module declaration, `src/naming.test.ts:34-40` assigns null to `number[]`, `tuner/page.tsx:17-18` cannot resolve `@seansmithworks/vista-sheet`. No suite runs bare tsc.
 - [ ] **L148.** dialkit's stylesheet `@import`s Geist Mono from Google Fonts (still true on dialkit 2.0.2, `node_modules/dialkit/dist/styles.css:1`); external request on every tuner/demo page.
-- [ ] **L415.** Local rename remainder: `CLAUDE.md` heading still `# disc-sheet`; qmd re-index of the projects collection not verified. (Directory and memory moves are done.)
+- [ ] **L415.** Local rename remainder (Sean, 2026-09-12: "we should also plan to rename local files too"): `CLAUDE.md` heading still `# disc-sheet`; qmd re-index of the projects collection not verified. (Directory and memory moves are done.)
 
 ## Distribution (site, README links, launch video)
 
 - [ ] **NEW.** Known-issues doc. **IN PROGRESS (other agent).**
-- [ ] **33.** Demo/download site: map visualization-STRUCTURE options from real captures (state matrix, configurator, in-context use cases, morph walkthrough) and Sean picks before any visual treatment. Shotfun A-D rejected 2026-10-05 (drew a generic sheet, not the real component). Also folds in: visual configurator on the site (playground `play.html` exists, site embed does not), the one site page (example gallery first, dials on one specimen), and the seansmithdesign.com cutover. Real captures partial in `.shotfun/states/`.
+- [ ] **33.** Demo/download site: map visualization-STRUCTURE options from real captures (state matrix, configurator, in-context use cases, morph walkthrough) and Sean picks before any visual treatment. Shotfun A-D rejected 2026-10-05 (drew a generic sheet, not the real component). Also folds in: visual configurator on the site (playground `play.html` exists, site embed does not), the one site page (example gallery first, dials on one specimen), and the seansmithdesign.com cutover. Real captures partial in `.shotfun/states/`. Caveat: the configurator answers "both, site first" / "both in parallel" arrived alongside a harness-flagged unverifiable background notification and were never confirmed as Sean's (a later 8090664 line, L192, ticks them CONFIRMED 2026-09-01; unreconciled).
 - [ ] **21.** Decide or kill: one demo or two. GitHub homepage is now https://vista-sheet.onrender.com (verified), Render is current (`ebff8dc`), Vercel is stale (`2dfe523`, orange). README still links to neither. Strawman: pause the Vercel project (reversible). Sean, 2026-09-15: "or maybe both" (unanswered).
 - [ ] **42.** Canvas sharing: live iframes (`play.html?stage`) reject non-same-origin parents, so the canvas needs a hosted build of `example/dist` (Vercel or Render preview). Sean's deploy.
 - [ ] **37.** Demo gaps from capture: no shape control in the settings sheet (only `?shape=` and the playground); dark/warm only on index and playground; no presets switcher; tuner Close renders mid-sheet; mobile link-preview card covers the heading.
 - [ ] **38.** Launch video (/brag-slim): the demo was made for someone else; parked at `~/Code/_experiments/vista-sheet/brag-2026-10-06/`. Revisit after the npm release (outro install line needs a release with link preview).
+- [ ] **11.** Full design system in Magic Patterns (new VistaSheet project). Originally "awaiting Sean's go"; a Magic Patterns design system `ds-60ccb99a-5c2b-4d5a-87ca-491e85e58c38` was created (old L511, a self-report; no repo or git evidence), unpublished. State is carried by 11b.
 - [ ] **11b.** Magic Patterns rebuild stopped 2026-09-14. Design system `ds-60ccb99a-5c2b-4d5a-87ca-491e85e58c38`, unpublished, active artifact `6a5cb9b1-efba-4641-8b2d-41d662174d43`; orange sweep incomplete (staged `index.css` still has 2 `#b4512e`); only basic + chat compared to the real stage. Staged files in `~/.claude/projects/-Users-seansmith-Code-vista-sheet/memory/plans/v02-quality-wave/mp-stopped/`. Sean publishes after a look. Not re-checked against Magic Patterns today.
 
 ## Design calls (Sean's)
@@ -43,7 +44,7 @@ Standing bar (Sean, 2026-08-31): "It all needs to be buttery smooth."
 - [ ] **47.** DECIDE: "What set up for custom do we have? Design System / DESIGN.md / token-key friendly? How do we share the token naming?" Strawman to draft: a token map (`--vista-sheet-*` to DESIGN.md keys) exported as JSON. None exists yet.
 - [ ] **48.** DECIDE: "should these be part of the top section, Buttons & Shapes?" (link preview placement; kept as its own canvas section).
 - [ ] **55.** Confirm: link preview canvas tile on a larger-type host page (`a1c9ad6`, `321e8d9`), shipped as a strawman. Pairs with 48.
-- [ ] **53.** DECIDE OR KILL: exploded view trigger layers are empty outlines while open (`src/Trigger.tsx:175`). Dim is built (`b80e22e`); the Open/Closed toggle on the exploded view is still the strawman, not built.
+- [ ] **53.** DECIDE OR KILL: exploded view trigger layers are empty outlines while open (`src/Trigger.tsx:689-697`, the `{!open && <TriggerSurface/>}` unmount). Dim is built (`b80e22e`); the Open/Closed toggle on the exploded view is still the strawman, not built.
 - [ ] **40.** Canvas design pass: phone-viewport tiles are mostly empty space; Anatomy callout numbers overlap on small triggers; Shadow on/off tiles look near-identical at tile scale; at 390 the States & API "Where" column needs horizontal scroll.
 - [ ] **L291.** snappy/gentle are still un-dialled strawmen (`src/motion.ts:354-372`) and the tuner only exposes 3 of their 5 values (`tuner/page.tsx:78`, no open-direction spring). Options: (1) dial close-only and document the open springs honestly, (2) add an open-direction panel and dial all four springs, (3) cut snappy/gentle and ship `presets.default` alone (earlier recommendation: 3, then 2 later).
 - [ ] **L82.** No visual scrim / backdrop opacity ramp; the modal opens with zero depth cue (`src/Sheet.tsx:301` is an invisible click-catcher, "not a scrim").
@@ -72,13 +73,13 @@ Standing bar (Sean, 2026-08-31): "It all needs to be buttery smooth."
 - [ ] **L337.** Cover focal point for a real portrait (centred crop may cut a face in the disc; `src/Media.tsx` has none).
 - [ ] **L338.** Safari/iOS untested for aspect sheets (px size from innerHeight vs the dvh max-height cap).
 - [ ] **L446.** Dial pass: rectangle S/M/L (strawman heights 36/44/52, padding 14/18/22, gap 6/8/10) and pill corners vs a fixed radius.
-- [ ] **L447.** Dial pass: trigger label reveal window (strawman collapseProgress 0.85 to 1, `DESIGN.md:121`).
+- [ ] **L447.** Dial pass: trigger label reveal window (strawman collapseProgress 0.85 to 1, `DESIGN.md:70`, `triggerLabelRevealStart: 0.85`).
 - [ ] **L448 (+L449).** Shared / Media inside a rectangle trigger is unsupported; the playground disables Rectangle for Shared/media recipes until it is.
 - [ ] **L125.** Dither / other visual treatments: a new surface, not a dial. Separate and larger.
 - [ ] **L348.** Ripple on open (Sean, 2026-09-11: "if this doesn't work we can explore a pivot"): turn the shadow flare into a deliberate ripple via `<VistaSheet.Shadow asChild>` + `useVistaSheet().collapseProgress`; surface-fx has `sheetBloom` + `useRippleEngine`. Includes the edge-aware variant (ripple reflects off the viewport edge the sheet sits against; mirrored virtual sources, inferred). Judge against DESIGN.md section 4.
 - [ ] **L311 (+L318).** Corner-spark (emanata) micro-detail, research done 2026-09-02, `src/` untouched. Artifact https://claude.ai/code/artifact/75282297-73f7-4030-9d3c-cbce78ddb2ab. Five candidate marks, none picked; the mark must sit outside the sheet (a sibling, since `.sheet` is `overflow: hidden`) and never draw the same twice; no Rough.js. Four calls: which mark, every open vs first per session, reduced-motion, opt-in vs default (rec: opt-in).
 - [ ] **L329 (+L330).** Star trigger shape (configurable points and corner radius) and developer/agent-defined custom shapes. Deferred by Sean 2026-09-13 to a future release.
-- [ ] **L297.** Mock the icon-treatment variations as editable Figma frames (six: before / A / B for list and contact). Blocked on Figma MCP OAuth, which only completes from the Mac, not a phone. Sketchpad, not spec.
+- [ ] **L297.** Mock the icon-treatment variations as editable Figma frames. Sean: "mock up the variations there and I will tweak some bits." (six: before / A / B for list and contact). Blocked on Figma MCP OAuth, which only completes from the Mac, not a phone. Sketchpad, not spec.
 - [ ] **In-flow origins.** Generalize the morph beyond the floating disc: thumbnail-to-lightbox, popout-from-body-content (from the 2026-08-31 v0.2 candidates; had no checkbox in the old file).
 - [ ] **L442.** Stagger length scales with Item count (Design menu 9 rows, last row about 0.92s; `ITEM_STAGGER_INTERVAL_SEC = 0.09`). If long sheets feel slow, cap total stagger rather than shrink the interval.
 - [ ] **29.** "Simplify later" list from the link-preview plan (Shadow radius machinery, audit-history comment blocks, modal reveal/backdrop).
@@ -98,5 +99,6 @@ Standing bar (Sean, 2026-08-31): "It all needs to be buttery smooth."
 
 ## Unsure (could not classify from code or git)
 
+- [ ] **L31.** Review flagship captures + parked taste calls (added by Phase 4). No git or code evidence it was ever done or formally closed; the flagship was later changed (`f5a3a8f`, 48px radius) but that is not a review.
 - [ ] **L194.** "Still unparsed from dictation: 'puppy tier agent' (guess: agent-pasteable registry output, shadcn-style) and 'out of the LinkedIn app around'." No code or doc to check; meaning was never confirmed. Kill unless Sean recognises it.
 - [ ] **L355.** Audit doc review: `docs/plans/motion-craft-audit.html` was open in html-review session `sess_1e7f46c0` on 2026-09-11; whether Sean ever commented is not checkable from the repo.
