@@ -12,7 +12,11 @@ function AppIcon() {
   return (
     <div className="media-icon">
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M8 5v14l11-7z" />
+        <rect x="2" y="9" width="2.4" height="6" rx="1.2" />
+        <rect x="6.4" y="5" width="2.4" height="14" rx="1.2" />
+        <rect x="10.8" y="2.5" width="2.4" height="19" rx="1.2" />
+        <rect x="15.2" y="6.5" width="2.4" height="11" rx="1.2" />
+        <rect x="19.6" y="10" width="2.4" height="4" rx="1.2" />
       </svg>
     </div>
   );
@@ -27,7 +31,15 @@ function App() {
 
       {/* Dogfoods the preset API (Phase 1): `snappy` in place of hand-typed
           spring numbers, exactly what presets exist to avoid. */}
-      <Iris.Root className="media-theme" preset={presets.snappy}>
+      {/* 72px squircle: reads as an App Store app icon, not a play button.
+          The sheet-side Shared copy resolves to the same size and the same
+          squircle mask, so the trigger-to-card morph has no shape pop. */}
+      <Iris.Root
+        className="media-theme"
+        preset={presets.snappy}
+        shape="squircle"
+        triggerSize={72}
+      >
         <Iris.Shadow />
 
         <Iris.Trigger aria-label="Open Wavelength preview">
