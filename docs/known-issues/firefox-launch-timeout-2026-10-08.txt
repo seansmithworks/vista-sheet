@@ -1,0 +1,34 @@
+Firefox matrix run, started 2026-10-08, did not complete.
+Command: npm run test:browsers -- --project=firefox (313 tests, 4 workers, --reporter=line)
+Excerpt of the saved output; counts below come from grepping the full 1753-line log.
+
+
+> @seansmithworks/vista-sheet@0.1.1 test:browsers
+> VISTA_BROWSERS=all playwright test -c example/playwright.config.ts --project=firefox --reporter=line
+
+
+Running 313 tests using 4 workers
+
+[1/313] [firefox] › example/canvas-autoplay.spec.ts:29:1 › autoplay cycles live tiles without touching the canvas's focus or scroll
+[2/313] [firefox] › example/a11y.spec.ts:14:3 › §6 accessibility contract › trigger: real button, aria-haspopup, aria-expanded, aria-controls
+[3/313] [firefox] › example/canvas-exploded.spec.ts:42:1 › exploded z-stack: one slab per measured part, labelled by part, flat at gap 0
+[4/313] [firefox] › example/buttons.spec.ts:279:5 › 390x844 - rectangle rest › (btn-rest) size=s: rests at its height and padding, label-sized, pill corners
+  1) [firefox] › example/canvas-exploded.spec.ts:42:1 › exploded z-stack: one slab per measured part, labelled by part, flat at gap 0 
+
+    TimeoutError: browserType.launch: Timeout 180000ms exceeded.
+    Call log:
+      - <launching> /Users/seansmith/Library/Caches/ms-playwright/firefox-1538/firefox/Nightly.app/Contents/MacOS/firefox -no-remote -headless -profile /var/folders/zs/yhxq72hs72j96q_s879rhgm80000gn/T/playwright_firefoxdev_profile-v67PA4 -juggler-pipe -silent
+      - <launched> pid=47812
+      - [pid=47812][err] *** You are running in headless mode.
+      - [pid=47812][err] sandbox_extension_issue_file_to_process failed for /Users/seansmith/Library/Caches/ms-playwright/firefox-1538/firefox/Nightly.app/Contents/MacOS/plugin-container.app: 1 (Operation not permitted)
+      - [pid=47812][out] Crash Annotation GraphicsCriticalError: |[0][GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt (t=6.83382) [GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+
+
+    Error Context: test-results/canvas-exploded-exploded-z-0a9ba-elled-by-part-flat-at-gap-0-firefox/error-context.md
+
+Counts from the full log:
+  last progress line:                      [120/313]
+  failures numbered in the log:            116
+  of those, 'browserType.launch: Timeout 180000ms exceeded': 116
+  assertion failures (expect/Expected/Received lines):       0
+  tests started (progress counter): 120; failed: 116; the other 4 were in flight when the output stops.

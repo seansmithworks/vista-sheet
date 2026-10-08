@@ -309,8 +309,10 @@ const ratio = 9 / 16;
   scales uniformly through the morph and never squashes.
 - `aspectRatio` is required on `Media` because it sizes the media before the
   file loads.
-- The video autoplays muted, loops and plays inline. Reduced-motion users get
-  the poster, paused.
+- The trigger rests on the `poster` and never loads the video (`preload="none"`,
+  paused). The sheet's video plays muted, looped and inline while the sheet is
+  open. Reduced-motion users get the poster, paused, in both places. There is
+  no pause button: Close and Escape are how a user hides it.
 - Use `Media` in place of `Shared`, as a direct child of `Trigger` or `Sheet`.
 - The two instances don't share playback time; make `poster` the clip's first
   frame.
@@ -331,7 +333,7 @@ this hatch.
 ```tsx
 function usePKG() {
   return useVistaSheet();
-  // { open, setOpen, anchor, isDragging, triggerSize, collapseProgress, triggerRect, sheetRect }
+  // { open, setOpen, anchor, setAnchor, isDragging, triggerSize, collapseProgress, triggerRect, sheetRect }
 }
 ```
 
@@ -494,6 +496,7 @@ palette uses a faint white glow instead:
 --vista-sheet-shadow: 0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15);
 --vista-sheet-sheet-shadow: 0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15);
 --vista-sheet-surface-border: rgba(255,255,255,.1);
+--vista-sheet-accent: #f5f5f7; /* focus ring: the default is invisible on dark */
 --vista-sheet-trigger-highlight-color: rgba(255,255,255,.1);
 --vista-sheet-trigger-highlight-strength: 1;
 --vista-sheet-trigger-press-tint: rgba(255,255,255,.15);
@@ -695,37 +698,159 @@ the type checker, as the guard.
 
 ## Accessibility
 
+### Browser floor
+
+Safari and iOS Safari 16.2+, Chrome and Edge 111+, Firefox 113+. The shipped
+CSS uses `color-mix()`, which sets that floor; `inert` (Safari 15.5, Chrome
+102, Firefox 112) sits under it. `corner-shape` stays progressive: browsers
+without it get the tuned `border-radius` fallback.
+
+### Semantics
+
 - Real `<button type="button">` trigger, `aria-haspopup="dialog"`,
   `aria-expanded`, `aria-controls`.
 - `role="dialog"` `aria-modal="true"` sheet; the `Labelled` union makes a
   missing accessible name a type error.
-- Focus lands on the panel on open and stays there by default. Pass a ref
-  to `Sheet`'s `initialFocus` prop to move focus to that control (a search
-  field, a chat composer) once the open settles instead — opt-in, so opening
-  a sheet never pre-highlights a control on its own. Escape closes
-  unconditionally, but only while open; focus restores to the trigger on
-  exit-complete, not at state-change.
-- `<VistaSheet.Close>` reveals on keyboard focus, not only once the open
-  spring settles — a Tab that reaches it before the sheet has visibly
-  finished arriving still finds a visible control, not an invisible one.
-- Body scroll lock, background `aria-hiding` and the Tab trap all last for
-  the whole close animation, not just while `open` is true — they release
-  on exit-complete, same as focus restore.
-- Tab/Shift+Tab cycle every tabbable control in live DOM order — inputs,
-  selects, textareas and contenteditable hosts included, disabled or
-  hidden ones excluded — and never leave the panel; a scrollable
-  `<VistaSheet.Content>` gets its own tab stop while it overflows.
 - `<VistaSheet.Close>` is required in practice; Root logs a dev-only warning
-  if the sheet opens with none registered.
+  if the sheet opens with none registered. It reveals on keyboard focus, not
+  only once the open spring settles, so a Tab that reaches it early still
+  finds a visible control.
 - Link preview cards are non-modal and `aria-hidden`: nothing moves focus,
   locks scroll or traps Tab. The card is a visual duplicate for pointer and
   touch users, so never put focusable content inside it; the link remains the
   accessible element. Keyboard focus on the link opens it after the intent
   delay, and blur closes it.
 
-**Known gap:** no `inert` on background content. `aria-modal="true"` covers
-modern assistive tech; screen readers that ignore it can still navigate out
-of the dialog.
+### Modal behaviour
+
+An open sheet is a real modal, not just a labelled dialog.
+
+- **The page is inert.** While the sheet is open, everything outside it gets
+  `inert`: no pointer, no focus, no assistive-technology access. The panel,
+  its backdrop and any `[aria-live]` or `role="status|alert|log"` region
+  already on the page are kept live, so a toast still announces and stays
+  clickable. The page, trigger included, is released the moment a close is
+  requested, not when the animation ends, so the trigger is tappable from the
+  first close frame and a reopen can interrupt the close.
+- **Focus guards.** Tab is never intercepted. Two `tabindex="0"` guard
+  elements (`data-vista-sheet-focus-guard`) sit just outside the panel and
+  catch focus leaving either edge: Tab off the last control wraps to the
+  first, Shift+Tab off the first wraps to the last. They route by where focus
+  came from, so focus entering from outside lands on the near end. Tab order
+  inside the panel is the browser's own, so radio groups, `<details>`, shadow
+  roots and portaled listboxes behave natively. The guards and the body
+  scroll lock last for the whole close animation, so Tab mid-close stays in
+  the panel.
+- **Focus on open.** Focus lands on the panel and stays there by default.
+  Pass a ref to `Sheet`'s `initialFocus` prop to move focus to that control (a
+  search field, a chat composer) once the open settles instead; opt-in, so
+  opening a sheet never pre-highlights a control on its own.
+- **Escape closes the top layer only.** Open sheets and preview cards form a
+  stack; Escape closes the most recent, so a preview card inside a sheet
+  takes one press and the sheet a second. Escape is ignored when something
+  inside already handled it (a listbox or combobox that calls
+  `preventDefault`) and while an IME composition is ending, so it never
+  interrupts typing. It is not configurable.
+- **Focus restore.** When the close animation finishes, focus returns to the
+  trigger, but only if focus is on the body or still inside the leaving
+  panel. A page control the user clicked mid-close keeps its focus.
+- **Android back.** The package doesn't touch browser history, so the
+  Android back gesture navigates away from the page; it doesn't close the
+  sheet. To make back close it, push a history entry in `onOpenChange` and
+  close on `popstate`.
+
+### Moving the trigger
+
+Dragging stays on by default, but a drag is not the only way to move the
+trigger.
+
+- **Arrow keys.** With the trigger focused, `draggable` on and the sheet
+  closed, the arrow keys move it one step, with the same spring as a drag
+  release (placed directly under reduced motion). The keys are physical, so
+  right-to-left layouts behave the same:
+
+  | From | Left / Right | Up / Down |
+  | --- | --- | --- |
+  | `top-left` / `top-right` | along the top row | Down: `bottom-left` / `bottom-right` |
+  | `top-center` | `top-left` / `top-right` | Down: `center` |
+  | `center` | none | Up: `top-center`, Down: `bottom-center` |
+  | `bottom-left` / `bottom-right` | along the bottom row | Up: `top-left` / `top-right` |
+  | `bottom-center` | `bottom-left` / `bottom-right` | Up: `center` |
+
+  A step off the grid does nothing. While active, a plain arrow is always
+  consumed, so the page doesn't scroll under the trigger; arrows with Alt,
+  Ctrl or Meta pass through to the browser. With `draggable={false}` or the
+  sheet open, arrows are left alone.
+- **`setAnchor(anchor)`** on `useVistaSheet()` moves the trigger exactly like
+  a drag release and fires `onAnchorChange`. Called while the sheet is open,
+  it records the new anchor without moving the open sheet; the trigger takes
+  its new place on close.
+- **Announcement.** Keyboard and `setAnchor` moves write a polite
+  `role="status"` message ("Moved to bottom right.") into a visually hidden
+  span inside Root. Drags never do. Pass `anchorAnnouncement` to Root to
+  translate or replace it; return `false` to announce nothing:
+
+  ```tsx
+  <VistaSheet.Root anchorAnnouncement={(a) => `Verschoben nach ${LABELS_DE[a]}.`}>
+  ```
+
+**Dragging alone does not meet WCAG 2.5.7 (Dragging Movements).** The arrow
+keys cover keyboard users; for mouse, touch and switch users, render a
+control that calls `setAnchor`. A native `<select>` is the smallest accessible
+one. It must live inside `Root` and outside the sheet, since the page is
+inert while the sheet is open:
+
+```tsx
+import { VistaSheet, useVistaSheet, type AnchorId } from "@seansmithworks/vista-sheet";
+
+const ANCHORS: AnchorId[] = [
+  "top-left", "top-center", "top-right",
+  "center",
+  "bottom-left", "bottom-center", "bottom-right",
+];
+
+function MoveMenu() {
+  const { anchor, setAnchor } = useVistaSheet();
+  return (
+    <label>
+      Move button to
+      <select value={anchor} onChange={(e) => setAnchor(e.target.value as AnchorId)}>
+        {ANCHORS.map((a) => (
+          <option key={a} value={a}>{a.replace("-", " ")}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+```
+
+Strict conformance depends on your site rendering a control like this; the
+package ships none.
+
+### Rules for your side
+
+- **Label in Name (WCAG 2.5.3).** If the trigger shows text, its `aria-label`
+  must contain that text: a button reading "Search messages" can be labelled
+  "Open search messages", not "Open inbox". The example pages' axe spec
+  enforces this on every shipping page.
+- **A trigger parked at the bottom covers content (WCAG 2.4.11, Focus Not
+  Obscured).** Without room for it, a focused link near the page end can sit
+  under the trigger. Reserve the trigger's box at the bottom of the page and
+  tell the browser to scroll focus clear of it. `--vista-sheet-trigger-size`
+  is scoped to Root, so use the fixed size: `160px` is the largest default
+  trigger (144px) plus the 16px edge margin.
+
+  ```css
+  html { scroll-padding-bottom: 160px; }
+  body { padding-bottom: 160px; }
+  ```
+
+- **Dark palettes need `--vista-sheet-accent`.** It is the focus-ring colour
+  and defaults to `#1d1d1f`, which is invisible on a dark ground. See the dark
+  recipe under Theming.
+- **Reduced motion.** `prefers-reduced-motion: reduce` (or the `reduceMotion`
+  prop) swaps the morph for a short cross-fade, drops swipe-to-close and
+  keeps video paused on its poster.
 
 ## Known issues / status
 
@@ -749,8 +874,8 @@ of the dialog.
 
 Entrance choreography, `<VistaSheet.Backdrop>` as its own component (dismissal
 still works via `Sheet`'s `dismissOnBackdrop`, which renders an invisible
-click-catcher, no visual dim layer by default), controlled anchor, the
-anchors-subset prop, and arrow-key repositioning between anchors. See
+click-catcher, no visual dim layer by default), controlled anchor and the
+anchors-subset prop. See
 `docs/PACKAGE-DESIGN.md` §8 in the source repo for the reasoning behind each
 cut.
 

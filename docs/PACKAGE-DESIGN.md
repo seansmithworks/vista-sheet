@@ -105,7 +105,8 @@ interface RootProps {
   // ── Position ──────────────────────────────────────────────────
   /** Uncontrolled initial anchor. Default "bottom-center". */
   defaultAnchor?: AnchorId;
-  /** Fires after a drag settles on a new anchor. */
+  /** Fires once per move to a new anchor: a drag release, an arrow key on
+   * the focused trigger, or useVistaSheet().setAnchor. */
   onAnchorChange?: (anchor: AnchorId) => void;
   /** Default true. False renders a fixed trigger with no drag affordance. */
   draggable?: boolean;
@@ -114,6 +115,12 @@ interface RootProps {
    * Default "vista-sheet-anchor". Pass false to disable persistence entirely.
    */
   persistKey?: string | false;
+  /**
+   * The polite status text written when the trigger moves by keyboard or by
+   * useVistaSheet().setAnchor (never by a drag). Default
+   * `Moved to bottom right.` style text. Return false to announce nothing.
+   */
+  anchorAnnouncement?: (anchor: AnchorId) => string | false;
 
   // ── Geometry ──────────────────────────────────────────────────
   /**
@@ -289,6 +296,10 @@ interface VistaSheetState {
   open: boolean;
   setOpen: (open: boolean) => void;
   anchor: AnchorId;
+  /** Move the trigger to `anchor` with the same spring as a drag release
+   * (seated directly under reduced motion). Fires onAnchorChange and the
+   * status announcement when the anchor actually changes. */
+  setAnchor: (anchor: AnchorId) => void;
   isDragging: boolean;
   triggerSize: number;
   /** 0 = fully open (sheet), 1 = fully closed (trigger). Live MotionValue. */
@@ -601,9 +612,17 @@ Do not carry over:
 **Focus management.**
 - On open, focus moves to the dialog panel itself, not to the first control. This is deliberate and it is the shipped behavior (`ContactSheet.tsx:880-889`): focusing the first link pre-highlights it and reads as a selection the user did not make. Tab from the panel goes to the first control.
 - On close, focus returns to the trigger at **exit-complete**, not at state change (`ContactSheet.tsx:1094-1096`). Restoring focus while the surface is still animating out causes a visible scroll jump.
-- Tab and Shift+Tab cycle within the panel over `a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])`.
+- Tab is never intercepted. Two focus guards (`<span tabIndex={0} aria-hidden data-vista-sheet-focus-guard>`), rendered as siblings just outside the panel while a modal sheet is present, catch focus leaving either edge and route on `relatedTarget`: from inside the panel means Tab ran off that edge, so wrap to the opposite end; from anywhere else means focus is entering, so land on the near end. Tab order inside is the browser's own. Focus coming back out of an iframe is handled with a blur fallback.
 
-**Escape** closes, unconditionally, not configurable.
+**Inert page.** While the sheet is open, every sibling off the path from the panel, guards and backdrop to `<body>` gets `inert` (keep-path walking, React Aria's model). Live regions present at open (`[aria-live]`, `role=status|alert|log`) stay live. Elements the page already made inert are left alone, and elements inerted by stacked sheets are owner-counted. The inert window is `open`, not `isPresent`: it is released at the close request, in the commit the backdrop unmounts in, so the trigger is tappable from the first close frame and reopen-mid-close works. Guards and scroll lock key on `isPresent` and last until exit-complete, so Tab mid-close stays in the panel. There is no `aria-hidden` on the page; `inert` does that job.
+
+**Dismiss layers.** Open modal sheets and preview cards register in `src/dismissLayers.ts` in the order they open. One document keydown listener in the bubble phase sends Escape to the top layer only. It is ignored when `defaultPrevented` (a listbox or combobox claimed it), `isComposing` or `keyCode === 229` (IME). So a preview card in a sheet takes one Escape and the sheet a second.
+
+**Focus restore** happens at exit-complete, only if focus is on the body or inside the leaving panel, so a page control clicked mid-close keeps focus.
+
+**Keyboard repositioning.** With the trigger focused, `draggable` on and the sheet closed, arrow keys move it one anchor via `adjacentAnchor` and the same `snapTo` a drag release uses. Plain arrows are always consumed; Alt, Ctrl and Meta arrows pass through. `useVistaSheet().setAnchor` routes through the same `snapTo`. Moves write `Moved to bottom right.` into a visually hidden `role="status"` span in Root (`anchorAnnouncement` overrides it); drags never do.
+
+**Escape** closes, unconditionally, not configurable, subject to the dismiss-layer rules above.
 
 **Body scroll lock** while open, restoring the previous `overflow` value rather than clearing it.
 
@@ -627,9 +646,8 @@ Do not carry over:
 
 ### Known gaps, stated rather than hidden
 
-1. **No `inert` on background content.** `aria-modal="true"` is what ships today and it covers modern AT, but screen readers that ignore it can navigate out of the dialog. Radix applies `inert` to siblings. v0.2 item, called out in the README rather than quietly omitted.
-2. **The focus trap does not see into shadow DOM or iframes.** Same limitation as the shipped code.
-3. **No keyboard repositioning.** The trigger is fully reachable and operable by keyboard (Tab to it, Enter opens), but moving it between anchors is pointer-only. This matches the shipped component. See §8 for the cost.
+1. **Strict WCAG 2.5.7 needs a consumer control.** Dragging stays on by default and arrow keys cover keyboard users, but a mouse or touch user who cannot drag needs a control that calls `setAnchor`. The README ships a "Move" menu recipe; the package renders none.
+2. **Android's back gesture leaves the page** rather than closing the sheet. The package does not touch history; the README says so.
 
 ---
 
