@@ -417,7 +417,9 @@ test.describe("media: trigger + playback", () => {
     });
   }
 
-  test("media: video autoplays muted, looped and inline", async ({ page }) => {
+  test("media: trigger video rests on its poster; the open sheet video plays muted, looped and inline", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await gotoVideo(page);
 
@@ -425,26 +427,16 @@ test.describe("media: trigger + playback", () => {
       '[data-vista-sheet-root="video"] [data-vista-sheet-part="trigger-surface"] [data-vista-sheet-part="media"] video',
     );
 
-    await expect
-      .poll(
-        async () =>
-          triggerVideo.evaluate(
-            (v: HTMLVideoElement) => !v.paused && v.currentTime > 0.2,
-          ),
-        { timeout: 5000 },
-      )
-      .toBe(true);
-
-    expect(await triggerVideo.evaluate((v: HTMLVideoElement) => v.muted)).toBe(
-      true,
-    );
-    expect(await triggerVideo.evaluate((v: HTMLVideoElement) => v.loop)).toBe(
+    // At rest: paused on the poster, never started (nothing moves unasked).
+    await page.waitForTimeout(1200);
+    expect(await triggerVideo.evaluate((v: HTMLVideoElement) => v.paused)).toBe(
       true,
     );
     expect(
-      await triggerVideo.evaluate((v: HTMLVideoElement) => v.playsInline),
-    ).toBe(true);
-    expect(await triggerVideo.getAttribute("autoplay")).not.toBeNull();
+      await triggerVideo.evaluate((v: HTMLVideoElement) => v.currentTime),
+    ).toBe(0);
+    expect(await triggerVideo.getAttribute("autoplay")).toBeNull();
+    expect(await triggerVideo.getAttribute("poster")).not.toBeNull();
 
     await page.getByRole("button", { name: "Open portrait video" }).click();
 
