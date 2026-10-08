@@ -21,7 +21,7 @@ reaching for an existing term.
 
 ```bash
 npm install @seansmithworks/vista-sheet
-npm install react react-dom motion@13
+npm install react react-dom motion@14
 ```
 
 The second line installs the [peer dependencies](#peer-dependencies); skip
@@ -44,7 +44,7 @@ To test an unreleased branch, install straight from GitHub. Add `#<branch>`
 ```bash
 npm install github:seansmithworks/vista-sheet
 npm install github:seansmithworks/vista-sheet#explore/link-preview
-npm install react react-dom motion@13
+npm install react react-dom motion@14
 ```
 
 It builds itself on install: npm installs the package's dev dependencies
@@ -83,7 +83,7 @@ everything) or diff your copy against a fresh `add` in a scratch directory.
 Peer dependencies aren't copied and still need installing:
 
 ```bash
-npm install react react-dom motion@13
+npm install react react-dom motion@14
 ```
 
 ### Live-tuning panel
@@ -117,7 +117,7 @@ hand-translation. This repo runs the same file live at
 
 - `react` >=19
 - `react-dom` >=19
-- `motion` >=12 <14 (full suite run green against both 12.43.0 and 13.1.1)
+- `motion` ^12 || ^13 || ^14 (geometry suite and perf gate run green against 12.43.0, 13.5.1 and 14.0.0)
 
 None are bundled. Install them yourself if your app doesn't already have
 them.
