@@ -56,6 +56,7 @@ export default defineConfig({
         surface: resolve(__dirname, "surface.html"),
         focus: resolve(__dirname, "fixtures/focus.html"),
         modal: resolve(__dirname, "fixtures/modal.html"),
+        anchorKeyboard: resolve(__dirname, "fixtures/anchor-keyboard.html"),
       },
     },
   },
