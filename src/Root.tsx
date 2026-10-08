@@ -32,6 +32,11 @@ import {
 import { usePersistedAnchor } from "./usePersistedAnchor";
 import styles from "./styles.module.css";
 
+/** "bottom-right" -> "Moved to bottom right." */
+function defaultAnchorAnnouncement(anchor: AnchorId): string {
+  return `Moved to ${anchor.replace("-", " ")}.`;
+}
+
 /**
  * <VistaSheet.Root> — owns open state, anchor state, the LayoutGroup, the
  * shared context, and the reduced-motion decision.
@@ -47,6 +52,7 @@ export function Root({
   onOpenChange,
   defaultAnchor = DEFAULT_ANCHOR,
   onAnchorChange,
+  anchorAnnouncement,
   draggable = true,
   persistKey,
   triggerSize: triggerSizeProp,
@@ -99,12 +105,44 @@ export function Root({
     defaultAnchor,
     persistKey,
   );
-  const setAnchor = useCallback(
+  const commitAnchor = useCallback(
     (next: AnchorId) => {
       setAnchorState(next);
       onAnchorChange?.(next);
     },
     [setAnchorState, onAnchorChange],
+  );
+
+  // The single role="status" region below. Written on keyboard and
+  // programmatic moves only (Trigger's snapTo decides); a drag is its own
+  // feedback, so it never announces. Empty until the first such move.
+  const [anchorStatus, setAnchorStatus] = useState("");
+  const anchorAnnouncementRef = useRef(anchorAnnouncement);
+  anchorAnnouncementRef.current = anchorAnnouncement;
+  const announceAnchor = useCallback((next: AnchorId) => {
+    const text = (anchorAnnouncementRef.current ?? defaultAnchorAnnouncement)(
+      next,
+    );
+    if (text !== false) setAnchorStatus(text);
+  }, []);
+
+  // Public setAnchor: always through Trigger's snapTo, so a programmatic move
+  // springs like a drag release. With no Trigger mounted there is nothing to
+  // move, so the anchor is only recorded.
+  const snapToRef: VistaSheetContextValue["snapToRef"] = useRef(null);
+  const anchorRef = useRef(anchor);
+  anchorRef.current = anchor;
+  const setAnchor = useCallback(
+    (next: AnchorId) => {
+      if (snapToRef.current) {
+        snapToRef.current(next, { announce: true });
+      } else if (next !== anchorRef.current) {
+        anchorRef.current = next;
+        commitAnchor(next);
+        announceAnchor(next);
+      }
+    },
+    [commitAnchor, announceAnchor],
   );
 
   const triggerSize = useTriggerSize(triggerSizeProp);
@@ -333,6 +371,9 @@ export function Root({
     setOpen,
     anchor,
     setAnchor,
+    commitAnchor,
+    announceAnchor,
+    snapToRef,
     isDragging,
     setIsDragging,
     draggable,
@@ -419,6 +460,9 @@ export function Root({
           }}
         >
           {children}
+          <span role="status" className={styles.visuallyHidden}>
+            {anchorStatus}
+          </span>
         </div>
       </LayoutGroup>
     </VistaSheetContext.Provider>

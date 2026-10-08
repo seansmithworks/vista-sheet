@@ -7,6 +7,8 @@ import {
   PREVIEW_MIN_HEIGHT_PX,
   PREVIEW_PREFERRED_SIDE,
   type AnchorId,
+  type ArrowKey,
+  adjacentAnchor,
   nearestAnchor,
   previewPlacement,
   previewSheetPlacement,
@@ -685,5 +687,80 @@ describe("previewSheetPlacement", () => {
     expect(p.width).toBe(`${390 - 32}px`);
     expect(p.bottomPx).toBeUndefined();
     expect(p.anchorX).toBe(16);
+  });
+});
+
+describe("adjacentAnchor (P0-3 keyboard moves)", () => {
+  // The key map from example/anchor-keyboard.spec.ts; null = no move.
+  const MAP: Record<AnchorId, Record<ArrowKey, AnchorId | null>> = {
+    "top-left": {
+      ArrowLeft: null,
+      ArrowRight: "top-center",
+      ArrowUp: null,
+      ArrowDown: "bottom-left",
+    },
+    "top-center": {
+      ArrowLeft: "top-left",
+      ArrowRight: "top-right",
+      ArrowUp: null,
+      ArrowDown: "center",
+    },
+    "top-right": {
+      ArrowLeft: "top-center",
+      ArrowRight: null,
+      ArrowUp: null,
+      ArrowDown: "bottom-right",
+    },
+    center: {
+      ArrowLeft: null,
+      ArrowRight: null,
+      ArrowUp: "top-center",
+      ArrowDown: "bottom-center",
+    },
+    "bottom-left": {
+      ArrowLeft: null,
+      ArrowRight: "bottom-center",
+      ArrowUp: "top-left",
+      ArrowDown: null,
+    },
+    "bottom-center": {
+      ArrowLeft: "bottom-left",
+      ArrowRight: "bottom-right",
+      ArrowUp: "center",
+      ArrowDown: null,
+    },
+    "bottom-right": {
+      ArrowLeft: "bottom-center",
+      ArrowRight: null,
+      ArrowUp: "top-right",
+      ArrowDown: null,
+    },
+  };
+  const KEYS: ArrowKey[] = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+
+  for (const from of ALL_ANCHORS) {
+    for (const key of KEYS) {
+      it(`${from} + ${key} -> ${MAP[from][key] ?? "null"}`, () => {
+        expect(adjacentAnchor(from, key)).toBe(MAP[from][key]);
+      });
+    }
+  }
+
+  it("every anchor is reachable from every other", () => {
+    for (const start of ALL_ANCHORS) {
+      const seen = new Set<AnchorId>([start]);
+      const queue = [start];
+      while (queue.length) {
+        const a = queue.shift()!;
+        for (const key of KEYS) {
+          const next = adjacentAnchor(a, key);
+          if (next && !seen.has(next)) {
+            seen.add(next);
+            queue.push(next);
+          }
+        }
+      }
+      expect(seen.size).toBe(ALL_ANCHORS.length);
+    }
   });
 });

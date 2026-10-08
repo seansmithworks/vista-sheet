@@ -81,7 +81,8 @@ export interface RootProps {
   // Position
   /** Uncontrolled initial anchor. Default "bottom-center". */
   defaultAnchor?: AnchorId;
-  /** Fires after a drag settles on a new anchor. */
+  /** Fires once per move to a new anchor: a drag release, an arrow key on
+   * the focused trigger, or useVistaSheet().setAnchor. */
   onAnchorChange?: (anchor: AnchorId) => void;
   /** Default true. False renders a fixed trigger with no drag affordance. */
   draggable?: boolean;
@@ -90,6 +91,12 @@ export interface RootProps {
    * Default "vista-sheet-anchor". Pass false to disable persistence entirely.
    */
   persistKey?: string | false;
+  /**
+   * The polite status text written when the trigger moves by keyboard or by
+   * useVistaSheet().setAnchor (never by a drag). Default
+   * `Moved to bottom right.` style text. Return false to announce nothing.
+   */
+  anchorAnnouncement?: (anchor: AnchorId) => string | false;
 
   // Geometry
   /**
@@ -277,6 +284,10 @@ export interface VistaSheetState {
   open: boolean;
   setOpen: (open: boolean) => void;
   anchor: AnchorId;
+  /** Move the trigger to `anchor` with the same spring as a drag release
+   * (seated directly under reduced motion). Fires onAnchorChange and the
+   * status announcement when the anchor actually changes. */
+  setAnchor: (anchor: AnchorId) => void;
   isDragging: boolean;
   triggerSize: number;
   /** 0 = fully open (sheet), 1 = fully closed (trigger). Live MotionValue. */

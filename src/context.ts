@@ -18,7 +18,18 @@ import type { TriggerBox } from "./shape";
  * widening useVistaSheet() later is additive, not a breaking change.
  */
 export interface VistaSheetContextValue extends VistaSheetState {
-  setAnchor: (anchor: AnchorId) => void;
+  /** Internal only — record a new anchor (state, persistence,
+   * onAnchorChange) without moving the trigger. Trigger's snapTo is the
+   * mover; this is what it commits through. */
+  commitAnchor: (anchor: AnchorId) => void;
+  /** Internal only — write the anchor's announcement into Root's
+   * role="status" region (anchorAnnouncement, or the default text). */
+  announceAnchor: (anchor: AnchorId) => void;
+  /** Internal only — Trigger registers its snapTo here so the public
+   * setAnchor animates exactly like a drag release. */
+  snapToRef: MutableRefObject<
+    ((anchor: AnchorId, opts: { announce: boolean }) => void) | null
+  >;
   setIsDragging: (dragging: boolean) => void;
   draggable: boolean;
   sheetMaxWidth: number;
@@ -161,6 +172,7 @@ export function useVistaSheet(): VistaSheetState {
     open,
     setOpen,
     anchor,
+    setAnchor,
     isDragging,
     triggerSize,
     collapseProgress,
@@ -171,6 +183,7 @@ export function useVistaSheet(): VistaSheetState {
     open,
     setOpen,
     anchor,
+    setAnchor,
     isDragging,
     triggerSize,
     collapseProgress,

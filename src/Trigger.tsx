@@ -15,16 +15,17 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactNode,
 } from "react";
-import { animate, motion, useMotionValue } from "motion/react";
-import type { MotionValue, PanInfo } from "motion/react";
+import { animate, frame, motion, useMotionValue } from "motion/react";
+import type { PanInfo } from "motion/react";
 import {
+  adjacentAnchor,
   nearestAnchor,
   rectFromBox,
   rectsNear,
   restingLeft,
   restingTop,
 } from "./anchors";
-import type { AnchorId } from "./anchors";
+import type { AnchorId, ArrowKey } from "./anchors";
 import {
   SlotContext,
   TriggerSurfaceContext,
@@ -48,17 +49,18 @@ import type { TriggerFeedback } from "./triggerFeedback";
 import type { Rect, TriggerComponentProps, TriggerProps } from "./types";
 import styles from "./styles.module.css";
 
-/** Jump the trigger's x/y motion values to the anchor's resting position. */
-function seatAt(
-  x: MotionValue<number>,
-  y: MotionValue<number>,
-  anchor: AnchorId,
-  vpW: number,
-  vpH: number,
-  box: { width: number; height: number },
-) {
-  x.jump(restingLeft(anchor, vpW, box.width));
-  y.jump(restingTop(anchor, vpH, box.height));
+const ARROW_KEYS: readonly string[] = [
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+] satisfies ArrowKey[];
+const isArrowKey = (key: string): key is ArrowKey => ARROW_KEYS.includes(key);
+
+/** Where x/y are seated, or springing to. */
+interface Heading {
+  left: number;
+  top: number;
 }
 
 export function Trigger(props: TriggerComponentProps) {
@@ -91,7 +93,9 @@ function ButtonTrigger({
     open,
     setOpen,
     anchor,
-    setAnchor,
+    commitAnchor,
+    announceAnchor,
+    snapToRef,
     setIsDragging,
     draggable,
     shape,
@@ -149,6 +153,26 @@ function ButtonTrigger({
   const latestBoxRef = useRef<TriggerBox | null>(null);
   const publishedBoxRef = useRef<TriggerBox | null>(null);
 
+  // The seat x/y are at or springing to. Every writer that gives x/y a new
+  // destination records it here: seat() for a jump, snapTo() for a spring.
+  // The anchor layout effect below reconciles the destination against
+  // (anchor, box) and only moves x/y when the destination is WRONG, so it can
+  // never cancel a spring that is already headed to the right seat (F12: it
+  // used to jump x/y on every anchor change, killing the drag-release snap
+  // in the same commit that set the anchor). A drag moves x/y without
+  // touching this; its release hands over through snapTo.
+  const headingRef = useRef<Heading | null>(null);
+  const seat = useCallback(
+    (to: AnchorId, box: { width: number; height: number }) => {
+      const left = restingLeft(to, window.innerWidth, box.width);
+      const top = restingTop(to, window.innerHeight, box.height);
+      headingRef.current = { left, top };
+      x.jump(left);
+      y.jump(top);
+    },
+    [x, y],
+  );
+
   // Seed x/y at the anchor's resting position on mount and whenever the
   // anchor or trigger size changes while the sheet is not being dragged.
   //
@@ -164,18 +188,37 @@ function ButtonTrigger({
   // ~700ms drift across the viewport on first paint. Reading the DOM here
   // instead means both commits compute the identical target, so x/y never
   // actually moves and there is nothing for the layoutId to FLIP.
-  useLayoutEffect(() => {
-    const vpW = window.innerWidth;
-    const vpH = window.innerHeight;
-    const box =
+  //
+  // An anchor change made through snapTo (drag release, arrow key, public
+  // setAnchor) arrives here already headed to this seat, so nothing moves:
+  // the spring keeps running. Any other change (mount, the persisted anchor
+  // loading, a size change) is a jump.
+  const seatBox = useCallback(
+    () =>
       shape === "rectangle" && wrapperRef.current
         ? {
             width: wrapperRef.current.offsetWidth,
             height: wrapperRef.current.offsetHeight,
           }
-        : triggerBox;
-    seatAt(x, y, anchor, vpW, vpH, box);
-  }, [anchor, shape, triggerBox.width, triggerBox.height, x, y]);
+        : { width: triggerBox.width, height: triggerBox.height },
+    [shape, triggerBox.width, triggerBox.height],
+  );
+  useLayoutEffect(() => {
+    const box = seatBox();
+    const heading = headingRef.current;
+    if (
+      heading &&
+      Math.abs(
+        heading.left - restingLeft(anchor, window.innerWidth, box.width),
+      ) < 0.5 &&
+      Math.abs(
+        heading.top - restingTop(anchor, window.innerHeight, box.height),
+      ) < 0.5
+    ) {
+      return;
+    }
+    seat(anchor, box);
+  }, [anchor, seatBox, seat]);
 
   // Resize: re-seat the trigger at its anchor's new resting position. While
   // <Sheet> is mounted (sheetRect !== null), defer instead of jumping now —
@@ -189,11 +232,11 @@ function ButtonTrigger({
         pendingResizeRef.current = true;
         return;
       }
-      seatAt(x, y, anchor, window.innerWidth, window.innerHeight, triggerBox);
+      seat(anchor, triggerBox);
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [anchor, triggerBox.width, triggerBox.height, sheetRect, x, y]);
+  }, [anchor, triggerBox.width, triggerBox.height, sheetRect, seat]);
 
   // Flush a deferred resize once the morph is over (sheetRect settles back
   // to null at Sheet's onExitComplete, or was never set — the open case
@@ -202,8 +245,8 @@ function ButtonTrigger({
     if (sheetRect !== null) return;
     if (!pendingResizeRef.current) return;
     pendingResizeRef.current = false;
-    seatAt(x, y, anchor, window.innerWidth, window.innerHeight, triggerBox);
-  }, [anchor, triggerBox.width, triggerBox.height, sheetRect, x, y]);
+    seat(anchor, triggerBox);
+  }, [anchor, triggerBox.width, triggerBox.height, sheetRect, seat]);
 
   // The trigger's resting corner radius as a live numeric MotionValue.
   // Motion's shared-layout radius mix only sees an inline value it manages,
@@ -476,14 +519,69 @@ function ButtonTrigger({
     [setFeedback],
   );
 
+  // The one way the trigger moves to an anchor on purpose: a drag release,
+  // an arrow key, or the public setAnchor. Records the destination, commits
+  // the anchor (onAnchorChange, persistence, and the status text when
+  // asked), then springs x/y there from wherever they are, keeping any
+  // in-flight velocity, or seats them directly under reduced motion.
+  const anchorRef = useRef(anchor);
+  anchorRef.current = anchor;
+  const snapTo = useCallback(
+    (to: AnchorId, { announce }: { announce: boolean }) => {
+      const box = seatBox();
+      const left = restingLeft(to, window.innerWidth, box.width);
+      const top = restingTop(to, window.innerHeight, box.height);
+      headingRef.current = { left, top };
+      if (to !== anchorRef.current) {
+        anchorRef.current = to;
+        commitAnchor(to);
+        if (announce) announceAnchor(to);
+      }
+      // The x/y writes run in Motion's update step, the same step its own
+      // animations write in, so the move is painted in that frame's render
+      // step before anything that measures the trigger next frame
+      // (triggerRect, and through it <Shadow>). Written straight from an
+      // input task, the move lands between frames and those trail it by an
+      // extra frame; written in postRender, the next frame's measurement can
+      // run before Motion paints a jump, and the shadow is left behind.
+      frame.update(() => {
+        if (reduceMotion) {
+          x.jump(left);
+          y.jump(top);
+          return;
+        }
+        const snapSpring = { type: "spring" as const, ...SNAP_SPRING };
+        animate(x, left, snapSpring);
+        animate(y, top, snapSpring);
+      });
+    },
+    [seatBox, commitAnchor, announceAnchor, reduceMotion, x, y],
+  );
+  useLayoutEffect(() => {
+    snapToRef.current = snapTo;
+    return () => {
+      if (snapToRef.current === snapTo) snapToRef.current = null;
+    };
+  }, [snapTo, snapToRef]);
+
   const handleKeyDown = useCallback(
     (e: ReactKeyboardEvent) => {
       if (e.key === " " && !e.repeat) {
         writeHighlightAt("50%", "50%");
         setFeedback("pressed");
+        return;
       }
+      // Arrow keys move the trigger one anchor (adjacentAnchor) while it can
+      // be dragged and the sheet is closed. Every plain arrow is consumed
+      // then, a move or not, so the page never scrolls under a focused
+      // trigger; modified arrows are left to the browser.
+      if (!isArrowKey(e.key) || !draggable || open) return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      e.preventDefault();
+      const to = adjacentAnchor(anchorRef.current, e.key);
+      if (to) snapTo(to, { announce: true });
     },
-    [setFeedback, writeHighlightAt],
+    [setFeedback, writeHighlightAt, draggable, open, snapTo],
   );
 
   const handleKeyUp = useCallback(
@@ -540,25 +638,10 @@ function ButtonTrigger({
         );
       }
 
-      if (pickedAnchor !== anchor) setAnchor(pickedAnchor);
-
-      if (reduceMotion) {
-        seatAt(x, y, pickedAnchor, vpW, vpH, triggerBox);
-        return;
-      }
-      const snapSpring = { type: "spring" as const, ...SNAP_SPRING };
-      animate(x, restingLeft(pickedAnchor, vpW, triggerBox.width), snapSpring);
-      animate(y, restingTop(pickedAnchor, vpH, triggerBox.height), snapSpring);
+      // A drag is its own feedback: it never writes the status region.
+      snapTo(pickedAnchor, { announce: false });
     },
-    [
-      anchor,
-      triggerBox.width,
-      triggerBox.height,
-      reduceMotion,
-      setAnchor,
-      x,
-      y,
-    ],
+    [anchor, triggerBox.width, triggerBox.height, snapTo, x, y],
   );
 
   const handleClick = useCallback(

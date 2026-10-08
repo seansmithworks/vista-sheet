@@ -237,6 +237,11 @@ export const STATE_ROWS: StateRow[] = [
     surface: "persistKey",
     status: { kind: "api" },
   },
+  {
+    name: "Move announcement",
+    surface: "anchorAnnouncement",
+    status: { kind: "api" },
+  },
   { name: "Custom springs", surface: "transition", status: { kind: "api" } },
   {
     name: "Close lead delay",
@@ -292,6 +297,7 @@ export const PROP_COVERAGE: {
     onAnchorChange: "Anchor change callback",
     draggable: "Drag and snap",
     persistKey: "Anchor persistence",
+    anchorAnnouncement: "Move announcement",
     triggerSize: "Trigger size",
     sheetMaxWidth: "Sheet max width",
     shape: "Shape",

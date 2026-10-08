@@ -598,3 +598,18 @@
   --vista-sheet-trigger-radius: var(--vista-sheet-preview-radius);
   --vista-sheet-shadow: none;
 }
+
+/* Root's role="status" region (anchor-move announcements): read by screen
+ * readers, never painted. Not display:none or visibility:hidden, which would
+ * also hide it from assistive tech. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
