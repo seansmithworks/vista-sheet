@@ -9,7 +9,7 @@ import { ALL_ANCHORS, type AnchorId } from "../src/anchors";
  *   (a) trigger-side vs sheet-side <Shared> box size  — B1
  *   (b) sheet border-radius > 0 in both motion modes — B3
  *   (c) content sits inside the sheet's padding box — M4
- *   (d) --vista-sheet-z / --vista-sheet-sheet-max-width respond to props — M1/M2
+ *   (d) --wicket-iris-z / --wicket-iris-sheet-max-width respond to props — M1/M2
  *
  * FIXED — Defect 3 (stale first-open shared-layoutId snapshot). Tests (e),
  * (j), and (k) are green. FIVE candidate fixes were tried and rejected
@@ -35,12 +35,12 @@ import { ALL_ANCHORS, type AnchorId } from "../src/anchors";
  * render (still needed for hydration-safe position math in anchors.ts), but
  * it no longer sizes any FLIP-tracked element. Root.tsx now renders a
  * scoped `<style>` block with real `@media` rules for
- * `--vista-sheet-trigger-size`, derived from `resolveTriggerSize` (the ramp's one
+ * `--wicket-iris-trigger-size`, derived from `resolveTriggerSize` (the ramp's one
  * source of truth) at the ramp's own breakpoints. A real `@media` query
  * resolves correctly in the browser before any script runs, so there is
  * never a stale value for Motion to snapshot in the first place. Neither
  * Root.tsx's wrapper nor Trigger.tsx's drag wrapper write
- * `--vista-sheet-trigger-size` inline anymore — an inline write on either would
+ * `--wicket-iris-trigger-size` inline anymore — an inline write on either would
  * have kept beating the `<style>` block's `@media` rules regardless of
  * viewport, which is why Trigger.tsx's drag wrapper (an ANCESTOR of the
  * trigger-side `.shared`) needed the same change as Root.tsx, not just one of
@@ -73,7 +73,7 @@ async function gotoExample(
   const qs = query ? `?${new URLSearchParams(query).toString()}` : "";
   await page.goto(`/${qs}`);
   await page.waitForSelector(
-    '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+    '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
   );
 }
 
@@ -97,7 +97,7 @@ async function waitForStableWidth(
 async function openSheet(page: Page) {
   await page.getByRole("button", { name: TRIGGER_LABEL }).click();
   const sheet = page.locator(
-    '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+    '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
   );
   await sheet.waitFor();
   // Let the FLIP/cross-fade fully settle so offsetWidth/Height reflect the
@@ -106,7 +106,7 @@ async function openSheet(page: Page) {
 }
 
 /**
- * Frame-samples `[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]` against whichever surface
+ * Frame-samples `[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]` against whichever surface
  * node currently shares its layoutId (`sheet` while opening, `trigger-surface`
  * while closing — both project to the same box during the FLIP, so either
  * selector matching is sufficient) for `durationMs`, via an in-page rAF loop
@@ -128,14 +128,14 @@ async function openSheet(page: Page) {
  * worstHeight were 315px (open) and 487px (close).
  */
 // `rootSelector` scopes to the demo's primary sheet on pages that render a
-// second, unrelated VistaSheet.Root (index's "Design" settings sheet —
-// `[data-vista-sheet-root="main"]`, the id set in main.tsx). flagship.html
+// second, unrelated Iris.Root (index's "Design" settings sheet —
+// `[data-wicket-iris-root="main"]`, the id set in main.tsx). flagship.html
 // (off-limits, unmodified) has exactly one Root and no such id, so its own
 // caller (test (m)) passes "" for an unscoped, unambiguous selector there.
 async function sampleShadowSurfaceDelta(
   page: Page,
   durationMs: number,
-  rootSelector = '[data-vista-sheet-root="main"] ',
+  rootSelector = '[data-wicket-iris-root="main"] ',
 ) {
   return page.evaluate(
     ({ duration, root }) => {
@@ -150,10 +150,10 @@ async function sampleShadowSurfaceDelta(
         const start = performance.now();
         function tick() {
           const surface = document.querySelector(
-            `${root}[data-vista-sheet-part="sheet"], ${root}[data-vista-sheet-part="trigger-surface"]`,
+            `${root}[data-wicket-iris-part="sheet"], ${root}[data-wicket-iris-part="trigger-surface"]`,
           );
           const shadow = document.querySelector(
-            `${root}[data-vista-sheet-part="shadow"]`,
+            `${root}[data-wicket-iris-part="shadow"]`,
           );
           if (surface && shadow) {
             const s = surface.getBoundingClientRect();
@@ -223,7 +223,7 @@ for (const viewport of VIEWPORTS) {
         await gotoExample(page, reduced);
 
         const triggerShared = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]',
         );
         // useTriggerSize's SSR-safe initializer (M6) always resolves at the
         // ramp's base size first, then promotes to the real size in a
@@ -239,7 +239,7 @@ for (const viewport of VIEWPORTS) {
         await openSheet(page);
 
         const sheetShared = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shared"][data-vista-sheet-slot="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shared"][data-wicket-iris-slot="sheet"]',
         );
         const sheetBox = await sheetShared.boundingBox();
         expect(
@@ -262,7 +262,7 @@ for (const viewport of VIEWPORTS) {
         await openSheet(page);
 
         const sheet = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         );
         const radius = await sheet.evaluate((el) => {
           const cs = getComputedStyle(el);
@@ -283,10 +283,10 @@ for (const viewport of VIEWPORTS) {
         await openSheet(page);
 
         const sheet = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         );
         const content = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="content"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="content"]',
         );
 
         const sheetBox = (await sheet.boundingBox())!;
@@ -313,7 +313,7 @@ for (const viewport of VIEWPORTS) {
         );
       });
 
-      test("(d) --vista-sheet-z and --vista-sheet-sheet-max-width respond to props", async ({
+      test("(d) --wicket-iris-z and --wicket-iris-sheet-max-width respond to props", async ({
         page,
       }) => {
         await gotoExample(page, reduced, {
@@ -321,13 +321,13 @@ for (const viewport of VIEWPORTS) {
           sheetMaxWidth: "600",
         });
 
-        const rootEl = page.locator('[data-vista-sheet-root="main"]');
+        const rootEl = page.locator('[data-wicket-iris-root="main"]');
         const z = await rootEl.evaluate((el) =>
-          getComputedStyle(el).getPropertyValue("--vista-sheet-z").trim(),
+          getComputedStyle(el).getPropertyValue("--wicket-iris-z").trim(),
         );
         const maxWidth = await rootEl.evaluate((el) =>
           getComputedStyle(el)
-            .getPropertyValue("--vista-sheet-sheet-max-width")
+            .getPropertyValue("--wicket-iris-sheet-max-width")
             .trim(),
         );
         expect(z).toBe("500");
@@ -335,7 +335,7 @@ for (const viewport of VIEWPORTS) {
 
         // And it must actually reach the rendered layers, not just the var.
         const triggerRoot = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-root"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-root"]',
         );
         const triggerZ = await triggerRoot.evaluate(
           (el) => getComputedStyle(el).zIndex,
@@ -344,10 +344,10 @@ for (const viewport of VIEWPORTS) {
 
         await openSheet(page);
         const sheet = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         );
         const sheetWidth = (await sheet.boundingBox())!.width;
-        // .sheet's CSS width is min(--vista-sheet-sheet-max-width, 100vw -
+        // .sheet's CSS width is min(--wicket-iris-sheet-max-width, 100vw -
         // 32px) — at our narrowest viewport (375) the viewport clamp wins,
         // not the 600px max-width, so the expectation has to account for
         // that clamp rather than assume 600 always renders.
@@ -374,7 +374,7 @@ for (const viewport of VIEWPORTS) {
 
         await trigger.click();
         const sheet = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         );
         await sheet.waitFor();
         await waitForStableWidth(page, sheet);
@@ -387,8 +387,8 @@ for (const viewport of VIEWPORTS) {
             const el = document.elementFromPoint(x, y);
             return (
               el
-                ?.closest("[data-vista-sheet-part]")
-                ?.getAttribute("data-vista-sheet-part") ?? null
+                ?.closest("[data-wicket-iris-part]")
+                ?.getAttribute("data-wicket-iris-part") ?? null
             );
           },
           [cx, cy],
@@ -402,7 +402,7 @@ for (const viewport of VIEWPORTS) {
 
       // Review finding #8, resurrected as a real gate — and it caught a
       // shipped defect immediately. The trigger's RESTING shape is CSS
-      // (`border-radius: var(--vista-sheet-trigger-radius, 9999px)`), but the
+      // (`border-radius: var(--wicket-iris-trigger-radius, 9999px)`), but the
       // close morph binds a numeric MotionValue over it (M1) and Motion
       // writes that inline: scale-corrected percentages while the projection
       // runs, then one final px keyframe when it settles. So "the trigger is a
@@ -427,7 +427,7 @@ for (const viewport of VIEWPORTS) {
           await page.waitForTimeout(1600);
           const r = await page.evaluate(() => {
             const el = document.querySelector(
-              '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+              '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
             ) as HTMLElement | null;
             if (!el) return null;
             const box = el.getBoundingClientRect();
@@ -461,7 +461,7 @@ for (const viewport of VIEWPORTS) {
           ).toBe(true);
           expect(
             r!.inline === "" || isCircular(r!.inline),
-            `${variant}: a stale inline border-radius (${r!.inline}) survived the morph and beats the --vista-sheet-trigger-radius token`,
+            `${variant}: a stale inline border-radius (${r!.inline}) survived the morph and beats the --wicket-iris-trigger-radius token`,
           ).toBe(true);
         };
 
@@ -552,10 +552,10 @@ for (const viewport of VIEWPORTS) {
           page,
         }) => {
           // flagship.html is off-limits/unmodified — it has exactly one
-          // Root and no `data-vista-sheet-root="main"` id, so its own
+          // Root and no `data-wicket-iris-root="main"` id, so its own
           // locators here stay unscoped (unambiguous on that page).
           await page.goto("/flagship.html");
-          await page.waitForSelector('[data-vista-sheet-part="trigger"]');
+          await page.waitForSelector('[data-wicket-iris-part="trigger"]');
           // The flagship's text faces are used ONLY inside its sheet, so they
           // are still unloaded when the trigger is tapped and the swap re-lays
           // the sheet out mid-morph (measured at 390x844: 592 -> 618px tall,
@@ -569,10 +569,10 @@ for (const viewport of VIEWPORTS) {
           );
           await waitForStableWidth(
             page,
-            page.locator('[data-vista-sheet-part="trigger"]'),
+            page.locator('[data-wicket-iris-part="trigger"]'),
           );
 
-          await page.locator('[data-vista-sheet-part="trigger"]').click();
+          await page.locator('[data-wicket-iris-part="trigger"]').click();
           const openResult = await sampleShadowSurfaceDelta(page, 1200, "");
           console.log(
             `[geometry] ${viewport.width}x${viewport.height} flagship open: ` +
@@ -604,10 +604,10 @@ for (const viewport of VIEWPORTS) {
           await openSheet(page);
 
           const sheet = page.locator(
-            '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+            '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
           );
           const box = (await sheet.boundingBox())!;
-          // Top strip of the sheet, above <VistaSheet.Shared>'s 24px margin
+          // Top strip of the sheet, above <Iris.Shared>'s 24px margin
           // and the Close button inside Content — a safe drag-handle point
           // that isn't an interactive child.
           const startX = box.x + box.width / 2;
@@ -628,10 +628,10 @@ for (const viewport of VIEWPORTS) {
 
           const held = await page.evaluate(() => {
             const surface = document.querySelector(
-              '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+              '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
             )!;
             const shadow = document.querySelector(
-              '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+              '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
             )!;
             const s = surface.getBoundingClientRect();
             const sh = shadow.getBoundingClientRect();
@@ -738,7 +738,7 @@ for (const viewport of VIEWPORTS) {
           const trigger = page.getByRole("button", { name: TRIGGER_LABEL });
           await trigger.click();
           const sheet = page.locator(
-            '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+            '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
           );
           await sheet.waitFor();
           await waitForStableWidth(page, sheet);
@@ -938,7 +938,7 @@ for (const viewport of VIEWPORTS) {
                 const start = performance.now();
                 function tick() {
                   const el = document.querySelector(
-                    '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"], [data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+                    '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"], [data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
                   );
                   if (el) {
                     const rect = el.getBoundingClientRect();
@@ -985,7 +985,7 @@ for (const viewport of VIEWPORTS) {
  * shape, then adds shape-specific radius-tracking gates ((rt), (sh)) across
  * every shape including the default. `?shape=` is example/main.tsx's P2
  * task-1 fixture; expectShapeApplied fails first for every shape today,
- * since no part carries `data-vista-sheet-shape` yet.
+ * since no part carries `data-wicket-iris-shape` yet.
  */
 const NON_DEFAULT_SHAPES = ["squircle", "rounded-square", "square"] as const;
 const ALL_SHAPES = ["circle", ...NON_DEFAULT_SHAPES] as const;
@@ -998,9 +998,9 @@ const RADIUS_TRACK_THRESHOLD_PX = 4;
 
 async function expectShapeApplied(page: Page, shape: ShapeName) {
   const actual = await page
-    .locator('[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]')
-    .getAttribute("data-vista-sheet-shape");
-  expect(actual, "?shape= did not reach <VistaSheet.Root shape>").toBe(shape);
+    .locator('[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]')
+    .getAttribute("data-wicket-iris-shape");
+  expect(actual, "?shape= did not reach <Iris.Root shape>").toBe(shape);
 }
 
 function radiusToPx(value: string, box: number): number {
@@ -1049,10 +1049,10 @@ async function sampleShadowSurfaceRadiusDelta(page: Page, durationMs: number) {
       const start = performance.now();
       function tick() {
         const surface = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"], [data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"], [data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
         ) as HTMLElement | null;
         const shadow = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
         ) as HTMLElement | null;
         if (surface && shadow) {
           const surfaceRect = surface.getBoundingClientRect();
@@ -1068,7 +1068,7 @@ async function sampleShadowSurfaceRadiusDelta(page: Page, durationMs: number) {
                 (surface.offsetWidth || surfaceRect.width || 1));
           const shadowRadius = parseFloat(
             getComputedStyle(shadow).getPropertyValue(
-              "--vista-sheet-shadow-radius",
+              "--wicket-iris-shadow-radius",
             ),
           );
           const a = Math.min(
@@ -1145,7 +1145,7 @@ for (const shape of NON_DEFAULT_SHAPES) {
       const trigger = page.getByRole("button", { name: TRIGGER_LABEL });
       await trigger.click();
       const sheet = page.locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       );
       await sheet.waitFor();
       await waitForStableWidth(page, sheet);
@@ -1204,7 +1204,7 @@ for (const shape of NON_DEFAULT_SHAPES) {
       expect(openPaint, "open->settle").toBeNull();
 
       const sheet = page.locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       );
       await waitForStableWidth(page, sheet);
 
@@ -1241,7 +1241,7 @@ for (const shape of NON_DEFAULT_SHAPES) {
             await page.waitForTimeout(1600);
             const r = await page.evaluate(() => {
               const el = document.querySelector(
-                '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+                '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
               ) as HTMLElement | null;
               if (!el) return null;
               const box = el.getBoundingClientRect();
@@ -1345,20 +1345,20 @@ for (const shape of ALL_SHAPES) {
       await expectShapeApplied(page, shape);
 
       const triggerSurface = page.locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
       );
       await waitForStableWidth(page, triggerSurface);
       await page.waitForTimeout(300);
 
       const closedRest = await page.evaluate(() => {
         const surface = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
         ) as HTMLElement | null;
         const shadow = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
         ) as HTMLElement | null;
         const shared = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]',
         ) as HTMLElement | null;
         if (!surface || !shadow || !shared) return null;
         const surfaceRect = surface.getBoundingClientRect();
@@ -1372,7 +1372,7 @@ for (const shape of ALL_SHAPES) {
           surfaceRadius: getComputedStyle(surface).borderTopLeftRadius,
           shadowRadius: parseFloat(
             getComputedStyle(shadow).getPropertyValue(
-              "--vista-sheet-shadow-radius",
+              "--wicket-iris-shadow-radius",
             ),
           ),
           shadowCornerShape: getComputedStyle(shadow)
@@ -1446,7 +1446,7 @@ for (const shape of ALL_SHAPES) {
       await trigger.focus();
       const focusState = await page.evaluate(() => {
         const button = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
         ) as HTMLElement | null;
         if (!button) return null;
         const rect = button.getBoundingClientRect();
@@ -1478,13 +1478,13 @@ for (const shape of ALL_SHAPES) {
       await openSheet(page);
       const openRest = await page.evaluate(() => {
         const sheet = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         ) as HTMLElement | null;
         const shadow = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
         ) as HTMLElement | null;
         const shared = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shared"][data-vista-sheet-slot="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shared"][data-wicket-iris-slot="sheet"]',
         ) as HTMLElement | null;
         if (!sheet || !shadow || !shared) return null;
         const sheetRect = sheet.getBoundingClientRect();
@@ -1500,7 +1500,7 @@ for (const shape of ALL_SHAPES) {
           sheetWidth: sheetRect.width,
           shadowRadius: parseFloat(
             getComputedStyle(shadow).getPropertyValue(
-              "--vista-sheet-shadow-radius",
+              "--wicket-iris-shadow-radius",
             ),
           ),
           sharedWidth: sharedRect.width,
@@ -1538,12 +1538,12 @@ for (const shape of ALL_SHAPES) {
         expect(openRest!.sharedMask).toBe("none");
       } else if (shape === "rounded-square") {
         // The rounded-square radius formula (styles.module.css) is 25% of
-        // --vista-sheet-trigger-size minus the ring inset
-        // (--vista-sheet-surface-border-width, read off the surface), on BOTH
+        // --wicket-iris-trigger-size minus the ring inset
+        // (--wicket-iris-surface-border-width, read off the surface), on BOTH
         // slots — deliberately the SAME source value regardless of slot "so
         // the Shared FLIP has no radius pop" (that CSS's own comment). The
         // trigger's own surface (closedRest!.surfaceWidth) IS
-        // --vista-sheet-trigger-size exactly; <Shared> itself renders two
+        // --wicket-iris-trigger-size exactly; <Shared> itself renders two
         // ring widths narrower (its inset-ring sizing), so comparing against its
         // own rendered width, or the sheet's much larger outer box, both
         // miss the actual formula input — trigger-size is only recoverable
@@ -1592,10 +1592,10 @@ test.describe("1280x800 — normal — D4 consumer delay", () => {
     await page.waitForTimeout(120);
     const midDelay = await page.evaluate(() => {
       const surface = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       );
       const shadow = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
       );
       if (!surface || !shadow) return null;
       const s = surface.getBoundingClientRect();
@@ -1624,16 +1624,16 @@ test.describe("1280x800 — normal — D4 consumer delay", () => {
  * Frame-samples every element inside the trigger root or the sheet (both
  * subtrees, every descendant) — AND each element's ::before/::after — for a
  * computed `box-shadow` or `filter` other than `none`, for `durationMs`, via
- * an in-page rAF loop. `[data-vista-sheet-part="shadow"]` and its
+ * an in-page rAF loop. `[data-wicket-iris-part="shadow"]` and its
  * descendants are excluded — that element (and only that element, via its
  * own ::before/::after) is the one documented painter (DESIGN.md §4.1) —
  * but it is never a descendant of trigger-root or sheet in this example
- * (Shadow, Trigger, and Sheet are siblings under VistaSheet.Root), so the
+ * (Shadow, Trigger, and Sheet are siblings under Iris.Root), so the
  * exclusion here only matters if a future example nests it. `filter` is
  * checked alongside `box-shadow` because `filter: drop-shadow(...)` is the
  * same class of second painter — a shadow rendered outside Shadow.tsx's one
  * silhouette — that a plain box-shadow guard would miss entirely. Returns
- * the first offending element/pseudo found (tag + its data-vista-sheet-part,
+ * the first offending element/pseudo found (tag + its data-wicket-iris-part,
  * if any + which pseudo-element + which property + its value) or null.
  */
 async function sampleForStrayPainter(page: Page, durationMs: number) {
@@ -1656,15 +1656,15 @@ async function sampleForStrayPainter(page: Page, durationMs: number) {
       function tick() {
         if (!found) {
           const nodes = document.querySelectorAll(
-            '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-root"], ' +
-              '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-root"] *, ' +
-              '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"], ' +
-              '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"] *',
+            '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-root"], ' +
+              '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-root"] *, ' +
+              '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"], ' +
+              '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"] *',
           );
           outer: for (const el of Array.from(nodes)) {
             if (
               el.closest(
-                '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+                '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
               )
             )
               continue;
@@ -1679,7 +1679,7 @@ async function sampleForStrayPainter(page: Page, durationMs: number) {
               if (bs && bs !== "none") {
                 found = {
                   tag: el.tagName.toLowerCase(),
-                  part: el.getAttribute("data-vista-sheet-part"),
+                  part: el.getAttribute("data-wicket-iris-part"),
                   pseudo,
                   property: "box-shadow",
                   value: bs,
@@ -1690,7 +1690,7 @@ async function sampleForStrayPainter(page: Page, durationMs: number) {
               if (filter && filter !== "none") {
                 found = {
                   tag: el.tagName.toLowerCase(),
-                  part: el.getAttribute("data-vista-sheet-part"),
+                  part: el.getAttribute("data-wicket-iris-part"),
                   pseudo,
                   property: "filter",
                   value: filter,
@@ -1725,7 +1725,7 @@ async function sampleForStrayMask(page: Page, durationMs: number) {
       const start = performance.now();
       function tick() {
         const sheet = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         );
         if (sheet) {
           const mi = getComputedStyle(sheet).maskImage;
@@ -1744,13 +1744,13 @@ async function sampleForStrayMask(page: Page, durationMs: number) {
 
 /**
  * (p) Regression gate for the shadow-pop fix: one painter, one clock
- * (DESIGN.md §4.1). Before the fix, `.sheet[data-vista-sheet-settled]`
- * painted its own `--vista-sheet-sheet-shadow` box-shadow starting 240ms
+ * (DESIGN.md §4.1). Before the fix, `.sheet[data-wicket-iris-settled]`
+ * painted its own `--wicket-iris-sheet-shadow` box-shadow starting 240ms
  * after settle — a second painter/second clock that a demo close-mask
  * (driven by collapseProgress velocity, itself a symptom of the same
  * "second clock" class of bug) could clip for one frame. Deliberately broken
  * to confirm this test can fail: restoring that CSS rule (uncommented,
- * `[data-vista-sheet-settled] { box-shadow: var(--vista-sheet-sheet-shadow, ...) }`)
+ * `[data-wicket-iris-settled] { box-shadow: var(--wicket-iris-sheet-shadow, ...) }`)
  * turned this red — the sheet's computed box-shadow was no longer "none"
  * once settled — then reverted, both checked in the shadow-pop-fix commit.
  */
@@ -1766,7 +1766,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
 
     // Frame-sample the sheet's COMPUTED box-shadow (not the inline style —
     // this must catch a shadow painted by any CSS rule, including a
-    // resurrected `[data-vista-sheet-settled]` one) for 1.2s, covering the
+    // resurrected `[data-wicket-iris-settled]` one) for 1.2s, covering the
     // open spring's settle. Any non-"none" value at any sampled frame fails.
     const seenBoxShadow = await page.evaluate((duration) => {
       return new Promise<string>((resolve) => {
@@ -1774,7 +1774,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
         const start = performance.now();
         function tick() {
           const sheet = document.querySelector(
-            '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+            '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
           );
           if (sheet) {
             const bs = getComputedStyle(sheet).boxShadow;
@@ -1798,23 +1798,23 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
     expect(seenBoxShadow).toBe("");
 
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await waitForStableWidth(page, sheet);
 
     const restState = await page.evaluate(() => {
       const sheetEl = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       );
       const shadowEl = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
       );
       return {
         sheetBoxShadow: sheetEl ? getComputedStyle(sheetEl).boxShadow : null,
         sheetMaskImage: sheetEl ? getComputedStyle(sheetEl).maskImage : null,
         sheetShadowOpacity: shadowEl
           ? getComputedStyle(shadowEl)
-              .getPropertyValue("--vista-sheet-sheet-shadow-opacity")
+              .getPropertyValue("--wicket-iris-sheet-shadow-opacity")
               .trim()
           : null,
       };
@@ -1822,7 +1822,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
     console.log(
       `[geometry] (p) at open rest: box-shadow=${restState.sheetBoxShadow}, ` +
         `mask-image=${restState.sheetMaskImage}, ` +
-        `--vista-sheet-sheet-shadow-opacity=${restState.sheetShadowOpacity}`,
+        `--wicket-iris-sheet-shadow-opacity=${restState.sheetShadowOpacity}`,
     );
     expect(restState.sheetBoxShadow).toBe("none");
     expect(["none", null]).toContain(restState.sheetMaskImage);
@@ -1838,7 +1838,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
    * revived box-shadow on .triggerSurface, or a filter: drop-shadow(...) —
    * the same class of second painter under a different CSS property, which
    * (p) never touches at all) would pass (p) while still producing a shadow
-   * pop. Single-painter (DESIGN.md §4.1): only <VistaSheet.Shadow>'s own
+   * pop. Single-painter (DESIGN.md §4.1): only <Iris.Shadow>'s own
    * ::before/::after may ever paint one.
    *
    * Proven twice to fail (P2 task 1 report has the pasted red lines for
@@ -1865,7 +1865,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
     expect(openPaint, "open->settle").toBeNull();
 
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await waitForStableWidth(page, sheet);
 
@@ -1913,7 +1913,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
     const trigger = page.getByRole("button", { name: TRIGGER_LABEL });
     await trigger.click();
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await sheet.waitFor();
     await waitForStableWidth(page, sheet);
@@ -1935,7 +1935,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
     await waitForStableWidth(page, sheet);
     const maskAtRest = await page.evaluate(() => {
       const sheetEl = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       );
       return sheetEl ? getComputedStyle(sheetEl).maskImage : null;
     });
@@ -1956,7 +1956,7 @@ test.describe("1280x800 — normal — shadow crossfade (single painter)", () =>
  * algebraically invariant. The center anchor pins BOTH top and bottom, so
  * bottom isn't a distinguishing axis here; centre-offset is.
  */
-const ANCHOR_STORAGE_KEY = "vista-sheet-anchor";
+const ANCHOR_STORAGE_KEY = "wicket-iris-anchor";
 
 async function gotoWithAnchor(page: Page, anchor: string, path = "/") {
   await page.addInitScript(
@@ -1967,10 +1967,10 @@ async function gotoWithAnchor(page: Page, anchor: string, path = "/") {
   );
   await page.goto(path);
   // Index ("/") renders a second Root (the settings sheet), scoped by
-  // `data-vista-sheet-root="main"`; flagship.html has exactly one Root and
+  // `data-wicket-iris-root="main"`; flagship.html has exactly one Root and
   // no such id, so it stays unscoped there.
-  const scope = path === "/" ? '[data-vista-sheet-root="main"] ' : "";
-  await page.waitForSelector(`${scope}[data-vista-sheet-part="trigger"]`);
+  const scope = path === "/" ? '[data-wicket-iris-root="main"] ' : "";
+  await page.waitForSelector(`${scope}[data-wicket-iris-part="trigger"]`);
 }
 
 /** Same rAF sampling loop as sampleShadowSurfaceDelta, plus the two
@@ -1991,10 +1991,10 @@ async function sampleCenterAnchorDelta(page: Page, durationMs: number) {
       const start = performance.now();
       function tick() {
         const surface = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"], [data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"], [data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
         );
         const shadow = document.querySelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
         );
         if (surface && shadow) {
           const s = surface.getBoundingClientRect();
@@ -2051,7 +2051,7 @@ test.describe("center anchor", () => {
       await gotoWithAnchor(page, "center");
 
       const trigger = page.locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
       );
       await waitForStableWidth(page, trigger);
       const box = (await trigger.boundingBox())!;
@@ -2075,22 +2075,22 @@ test.describe("center anchor", () => {
     // sheet's content genuinely overflows the height-capped box and
     // scrolls, rather than fitting and making the height cap moot.
     // flagship.html is off-limits/unmodified — one Root, no
-    // `data-vista-sheet-root="main"` id, so it stays unscoped here.
+    // `data-wicket-iris-root="main"` id, so it stays unscoped here.
     await gotoWithAnchor(page, "center", "/flagship.html");
 
-    const trigger = page.locator('[data-vista-sheet-part="trigger"]');
+    const trigger = page.locator('[data-wicket-iris-part="trigger"]');
     await trigger.click();
-    const sheet = page.locator('[data-vista-sheet-part="sheet"]');
+    const sheet = page.locator('[data-wicket-iris-part="sheet"]');
     await sheet.waitFor();
     await waitForStableWidth(page, sheet);
 
     const metrics = await page.evaluate(() => {
       const sheetEl = document.querySelector(
-        '[data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-part="sheet"]',
       )!;
       const box = sheetEl.getBoundingClientRect();
       const content = sheetEl.querySelector(
-        '[data-vista-sheet-part="content"]',
+        '[data-wicket-iris-part="content"]',
       ) as HTMLElement | null;
       return {
         top: box.top,
@@ -2129,7 +2129,7 @@ test.describe("center anchor", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await gotoWithAnchor(page, "center");
     const trigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
 
     // Open.
@@ -2167,7 +2167,7 @@ test.describe("center anchor", () => {
     // Swipe close.
     await trigger.click();
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await sheet.waitFor();
     await waitForStableWidth(page, sheet);
@@ -2197,7 +2197,7 @@ test.describe("center anchor", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await gotoWithAnchor(page, "center");
     const trigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     await trigger.click();
     await page.waitForTimeout(900);
@@ -2206,7 +2206,7 @@ test.describe("center anchor", () => {
 
     const r = await page.evaluate(() => {
       const el = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
       ) as HTMLElement | null;
       if (!el) return null;
       const box = el.getBoundingClientRect();
@@ -2254,16 +2254,16 @@ test.describe("center anchor", () => {
     await page.waitForTimeout(900); // let the snap spring settle
 
     const persisted = await page.evaluate(() =>
-      window.localStorage.getItem("vista-sheet-anchor"),
+      window.localStorage.getItem("wicket-iris-anchor"),
     );
     expect(persisted).toBe("center");
 
     await page.reload();
     await page.waitForSelector(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     const restoredTrigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, restoredTrigger);
     const restoredBox = (await restoredTrigger.boundingBox())!;
@@ -2277,7 +2277,7 @@ test.describe("center anchor", () => {
     // A legitimate persisted non-center anchor still restores correctly.
     await gotoWithAnchor(page, "top-right");
     const topRightTrigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, topRightTrigger);
     const topRightBox = (await topRightTrigger.boundingBox())!;
@@ -2290,7 +2290,7 @@ test.describe("center anchor", () => {
     // DEFAULT_ANCHOR ("bottom-center"), never to the invalid value itself.
     await gotoWithAnchor(page, "middle-center");
     const fallbackTrigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, fallbackTrigger);
     const fallbackBox = (await fallbackTrigger.boundingBox())!;
@@ -2317,7 +2317,7 @@ test.describe("center anchor", () => {
  * d020d91 precedent and keeps `min(88dvh, calc(100dvh - 32px))`.
  *
  * Sets the persisted anchor directly via localStorage (the same key
- * `usePersistedAnchor` reads, `vista-sheet-anchor`) rather than simulating a
+ * `usePersistedAnchor` reads, `wicket-iris-anchor`) rather than simulating a
  * drag — anchor selection isn't under test here, only the resulting
  * max-height. Injects a 3000px-tall filler node into the sheet's content
  * after opening so the cap is actually load-bearing (a short sheet would
@@ -2350,17 +2350,17 @@ for (const viewport of [
         page,
       }) => {
         await page.addInitScript(
-          (a) => window.localStorage.setItem("vista-sheet-anchor", a),
+          (a) => window.localStorage.setItem("wicket-iris-anchor", a),
           anchor,
         );
         await page.goto("/");
         await page.waitForSelector(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
         );
         await page.getByRole("button", { name: TRIGGER_LABEL }).click();
 
         const sheet = page.locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         );
         await sheet.waitFor();
         await waitForStableWidth(page, sheet);
@@ -2368,7 +2368,7 @@ for (const viewport of [
         // Force real overflow so the cap is load-bearing, not just declared.
         await page.evaluate(() => {
           const content = document.querySelector(
-            '[data-vista-sheet-root="main"] [data-vista-sheet-part="content"]',
+            '[data-wicket-iris-root="main"] [data-wicket-iris-part="content"]',
           );
           const filler = document.createElement("div");
           filler.style.height = "3000px";
@@ -2401,10 +2401,10 @@ for (const viewport of [
 }
 
 /**
- * Design settings sheet (a second, independent VistaSheet.Root, `id="settings"`)
+ * Design settings sheet (a second, independent Iris.Root, `id="settings"`)
  * replacing the old fixed "Iridescent shadow" pill. Scoped to
- * `[data-vista-sheet-root="settings"]` the same way every other test above is
- * scoped to `"main"` — both roots render `[data-vista-sheet-part="trigger"]`
+ * `[data-wicket-iris-root="settings"]` the same way every other test above is
+ * scoped to `"main"` — both roots render `[data-wicket-iris-part="trigger"]`
  * etc, so an unscoped locator here would be ambiguous too.
  */
 test.describe("Design settings sheet", () => {
@@ -2415,7 +2415,7 @@ test.describe("Design settings sheet", () => {
   }) => {
     await gotoExample(page, false);
     const trigger = page.locator(
-      '[data-vista-sheet-root="settings"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, trigger);
     const box = (await trigger.boundingBox())!;
@@ -2429,7 +2429,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
 
@@ -2469,7 +2469,7 @@ test.describe("Design settings sheet", () => {
       () => getComputedStyle(document.body).backgroundColor,
     );
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await openSheet(page);
     const sheetBefore = await sheet.evaluate(
@@ -2481,7 +2481,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
     await page.getByRole("switch", { name: "Dark mode" }).click();
@@ -2489,7 +2489,7 @@ test.describe("Design settings sheet", () => {
     await page.keyboard.press("Escape");
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor({ state: "detached", timeout: 5000 });
 
@@ -2509,7 +2509,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
     await page.getByRole("switch", { name: "Dark mode" }).click();
@@ -2517,7 +2517,7 @@ test.describe("Design settings sheet", () => {
 
     await page.reload();
     await page.waitForSelector(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     const isDark = await page.evaluate(() => document.body.dataset.darkMode);
     expect(isDark).toBe("true");
@@ -2529,7 +2529,7 @@ test.describe("Design settings sheet", () => {
     await gotoExample(page, false);
     await openSheet(page);
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
   });
@@ -2546,7 +2546,7 @@ test.describe("Design settings sheet", () => {
   }) => {
     await gotoExample(page, false);
     const trigger = page.locator(
-      '[data-vista-sheet-root="settings"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, trigger);
     const box = (await trigger.boundingBox())!;
@@ -2575,7 +2575,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
     await page.getByRole("combobox", { name: "Surface" }).selectOption("warm");
@@ -2584,13 +2584,13 @@ test.describe("Design settings sheet", () => {
     await page.keyboard.press("Escape");
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor({ state: "detached", timeout: 5000 });
 
     await openSheet(page);
     const sheet = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
     );
     const bg = await sheet.evaluate(
       (el) => getComputedStyle(el).backgroundColor,
@@ -2612,7 +2612,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
     await page.getByRole("switch", { name: "Iridescent shadow" }).click();
@@ -2651,7 +2651,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
     await page.getByRole("switch", { name: "Iridescent shadow" }).click();
@@ -2668,12 +2668,12 @@ test.describe("Design settings sheet", () => {
 
     await page.reload();
     await page.waitForSelector(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
 
@@ -2699,7 +2699,7 @@ test.describe("Design settings sheet", () => {
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     await page
       .locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
       )
       .waitFor();
     await page.getByRole("switch", { name: "Iridescent shadow" }).click();
@@ -2757,10 +2757,10 @@ for (const viewport of [
       await gotoWithAnchor(page, "top-right");
 
       const mainTrigger = page.locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
       );
       const settingsTrigger = page.locator(
-        '[data-vista-sheet-root="settings"] [data-vista-sheet-part="trigger"]',
+        '[data-wicket-iris-root="settings"] [data-wicket-iris-part="trigger"]',
       );
       await waitForStableWidth(page, mainTrigger);
       await waitForStableWidth(page, settingsTrigger);
@@ -2791,7 +2791,7 @@ for (const viewport of [
       );
       await page
         .locator(
-          '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+          '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
         )
         .waitFor();
     });
@@ -2812,10 +2812,10 @@ test.describe("settings vs main trigger collision — live drag", () => {
     await gotoExample(page, false);
 
     const mainTrigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     const settingsTrigger = page.locator(
-      '[data-vista-sheet-root="settings"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, mainTrigger);
     await waitForStableWidth(page, settingsTrigger);
@@ -2855,10 +2855,10 @@ test.describe("settings vs main trigger collision — live drag", () => {
     await gotoExample(page, false);
 
     const mainTrigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     const settingsTrigger = page.locator(
-      '[data-vista-sheet-root="settings"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="trigger"]',
     );
     await waitForStableWidth(page, mainTrigger);
     await waitForStableWidth(page, settingsTrigger);

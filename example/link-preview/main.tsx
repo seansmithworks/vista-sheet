@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { VistaSheet, useVistaSheet } from "../../src/index";
+import { Iris, useIris } from "../../src/index";
 import "../example.css";
 import "./link-preview.css";
 
@@ -21,28 +21,28 @@ if (darkParam === null) prefersDark.addEventListener("change", applyDark);
 
 function LinkPreview({ href, children }: { href: string; children: string }) {
   return (
-    <VistaSheet.Root preview className="lp">
-      <VistaSheet.Shadow />
-      <VistaSheet.Trigger asChild>
+    <Iris.Root preview className="lp">
+      <Iris.Shadow />
+      <Iris.Trigger asChild>
         <a className="lp-link" href={href}>
           {children}
         </a>
-      </VistaSheet.Trigger>
-      <VistaSheet.Sheet
+      </Iris.Trigger>
+      <Iris.Sheet
         aria-label={`Preview of ${children}`}
         aspectRatio={360 / 520}
       >
-        <VistaSheet.Content>
+        <Iris.Content>
           <PreviewFrame href={href} />
-        </VistaSheet.Content>
-      </VistaSheet.Sheet>
-    </VistaSheet.Root>
+        </Iris.Content>
+      </Iris.Sheet>
+    </Iris.Root>
   );
 }
 
 // One live iframe at a time: mounted on open, gone the instant a close starts.
 function PreviewFrame({ href }: { href: string }) {
-  const { open } = useVistaSheet();
+  const { open } = useIris();
   const [loaded, setLoaded] = useState(false);
   if (!open) return null;
   const src = new URL(href, location.origin);

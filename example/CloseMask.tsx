@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 // Relative import: the example lives inside the package repo itself (no
 // publish step yet), so it reaches the package the same way main.tsx does.
-// A real consumer would import from "@seansmithworks/vista-sheet".
-import { useVistaSheet } from "../src/index";
+// A real consumer would import from "@wicket/iris".
+import { useIris } from "../src/index";
 
 /**
  * CloseMask — the trailing-paper close mask, rebuilt from OUTSIDE the
@@ -11,15 +11,15 @@ import { useVistaSheet } from "../src/index";
  * artifact specific to a tall sheet whose shared element leads the close:
  * mid-collapse, the vacated paper above the avatar sits as a solid opaque
  * block for a few frames. This is the package's own escape-hatch validation
- * test — it is cut from `vista-sheet` because it does not belong in a generic
+ * test — it is cut from `wicket-iris` because it does not belong in a generic
  * primitive (a sheet with no leading shared element has no such artifact),
  * but re-derived here for the flagship-style example so the demo isn't
  * visibly worse without it.
  *
  * THE FINDING: this component is buildable using ONLY the documented v0.1
- * API — useVistaSheet().collapseProgress and .open — and one documented DOM
- * contract: the sheet element carries `data-vista-sheet-part="sheet"`. No
- * widening of useVistaSheet() was needed.
+ * API — useIris().collapseProgress and .open — and one documented DOM
+ * contract: the sheet element carries `data-wicket-iris-part="sheet"`. No
+ * widening of useIris() was needed.
  *
  * Why `open`, not getVelocity(): a prior version inferred "closing" from the
  * sign of collapseProgress.getVelocity() (positive while progress increases
@@ -38,17 +38,17 @@ import { useVistaSheet } from "../src/index";
  * sheet element on every collapseProgress tick.
  */
 export function CloseMask() {
-  const { collapseProgress, open } = useVistaSheet();
+  const { collapseProgress, open } = useIris();
 
   useEffect(() => {
     const apply = () => {
-      // Scoped to the main Root's wrapper (`data-vista-sheet-root="main"`,
-      // set in main.tsx): a second, unrelated VistaSheet.Root (the "Design"
-      // settings sheet) also renders `[data-vista-sheet-part="sheet"]` when
+      // Scoped to the main Root's wrapper (`data-wicket-iris-root="main"`,
+      // set in main.tsx): a second, unrelated Iris.Root (the "Design"
+      // settings sheet) also renders `[data-wicket-iris-part="sheet"]` when
       // open, and an unscoped query would grab whichever one is open at the
       // time — usually not this one.
       const sheetEl = document.querySelector<HTMLElement>(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
       );
       if (!sheetEl) return;
 

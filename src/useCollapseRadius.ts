@@ -39,19 +39,19 @@ export function useCollapseRadius({
   const radiusVarsRef = useRef({ sheetRadius: 48, triggerRadius: 9999 });
 
   // Read the shape tokens once per open — a designer's CSS override on
-  // --vista-sheet-sheet-radius / --vista-sheet-trigger-radius is honored
+  // --wicket-iris-sheet-radius / --wicket-iris-trigger-radius is honored
   // without becoming a JS prop (docs/PACKAGE-DESIGN.md §3).
   useEffect(() => {
     if (!open) return;
     radiusVarsRef.current = {
       sheetRadius: readVarPx(
         varsElRef.current,
-        "--vista-sheet-sheet-radius",
+        "--wicket-iris-sheet-radius",
         48,
       ),
       triggerRadius: readVarPx(
         varsElRef.current,
-        "--vista-sheet-trigger-radius",
+        "--wicket-iris-trigger-radius",
         9999,
       ),
     };

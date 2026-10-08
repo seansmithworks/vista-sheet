@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 import { CloseMask } from "../CloseMask";
 import "./flagship.css";
 import portraitUrl from "./portrait.jpg";
@@ -87,38 +87,38 @@ function App() {
       <h1 className="flagship-whisper">
         Sean Smith — tap the trigger. Drag it anywhere.
       </h1>
-      <VistaSheet.Root className="flagship-theme">
-        <VistaSheet.Shadow />
+      <Iris.Root className="flagship-theme">
+        <Iris.Shadow />
 
-        <VistaSheet.Trigger aria-label="Open contact">
-          <VistaSheet.Shared>
+        <Iris.Trigger aria-label="Open contact">
+          <Iris.Shared>
             <Portrait />
-          </VistaSheet.Shared>
-        </VistaSheet.Trigger>
+          </Iris.Shared>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet aria-labelledby="flagship-sheet-title">
-          <VistaSheet.Shared>
+        <Iris.Sheet aria-labelledby="flagship-sheet-title">
+          <Iris.Shared>
             <Portrait />
-          </VistaSheet.Shared>
+          </Iris.Shared>
 
-          <VistaSheet.Close aria-label="Close" />
+          <Iris.Close aria-label="Close" />
 
-          <VistaSheet.Content>
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Item>
               <p className="flagship-eyebrow">Open to work · 2026</p>
               <h2 id="flagship-sheet-title" className="flagship-title">
                 Let&rsquo;s make something together!
               </h2>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <p className="flagship-tagline">
                 Looking for full-time design leadership, and open to advisory.
                 Email is fastest.
               </p>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <nav aria-label="Contact links" className="flagship-actions">
                 {actions.map((action) => (
                   <a
@@ -146,9 +146,9 @@ function App() {
                   </a>
                 ))}
               </nav>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <a
                 className="flagship-cta"
                 href="https://calendar.app.google/bSgz9A1G5FnY6CdD8"
@@ -157,13 +157,13 @@ function App() {
               >
                 book a slot ↗
               </a>
-            </VistaSheet.Item>
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
+            </Iris.Item>
+          </Iris.Content>
+        </Iris.Sheet>
 
         {/* Escape-hatch reuse, unmodified — see example/CloseMask.tsx. */}
         <CloseMask />
-      </VistaSheet.Root>
+      </Iris.Root>
     </div>
   );
 }

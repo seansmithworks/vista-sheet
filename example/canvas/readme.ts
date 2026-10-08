@@ -55,7 +55,7 @@ export const PART_CONTRACT: PartRow[] = readmeTable("DOM contract").map(
   ([part, element]) => ({ part, element }),
 );
 
-/** `--vista-sheet-shadow-opacity/-radius` → `--vista-sheet-shadow-opacity`, `--vista-sheet-shadow-radius`. */
+/** `--wicket-iris-shadow-opacity/-radius` → `--wicket-iris-shadow-opacity`, `--wicket-iris-shadow-radius`. */
 function expand(spec: string): string[] {
   const [first, ...rest] = spec.split("/");
   const base = first.replace(/-[a-z]+$/, "");
@@ -66,7 +66,7 @@ function expand(spec: string): string[] {
 export function runtimeVars(md = readme): string[] {
   const para = md.match(/The package writes([\s\S]*?)read these, don't set them/);
   if (!para) throw new Error("README: runtime-var paragraph not found");
-  const specs = [...para[1].matchAll(/`(--vista-sheet-[^`]+)`/g)].map((m) => m[1]);
+  const specs = [...para[1].matchAll(/`(--wicket-iris-[^`]+)`/g)].map((m) => m[1]);
   return [...new Set(specs.flatMap(expand))];
 }
 

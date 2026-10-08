@@ -15,7 +15,7 @@ const TRIGGER_LABEL = "Open example sheet";
 async function gotoSquircle(page: Page) {
   await page.goto("/?shape=squircle");
   await page.waitForSelector(
-    '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+    '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
   );
 }
 
@@ -37,22 +37,22 @@ test.describe("squircle fallback (WebKit)", () => {
 
     const shapeAttr = await page
       .locator(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
       )
-      .getAttribute("data-vista-sheet-shape");
+      .getAttribute("data-wicket-iris-shape");
     expect(shapeAttr).toBe("squircle");
 
     await page.waitForTimeout(600);
 
     const rest = await page.evaluate(() => {
       const surface = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
       ) as HTMLElement | null;
       const shadow = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="shadow"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="shadow"]',
       ) as HTMLElement | null;
       const shared = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="shared"][data-vista-sheet-slot="trigger"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]',
       ) as HTMLElement | null;
       if (!surface || !shadow || !shared) return null;
       const rect = surface.getBoundingClientRect();
@@ -64,7 +64,7 @@ test.describe("squircle fallback (WebKit)", () => {
         radius: getComputedStyle(surface).borderTopLeftRadius,
         shadowRadius: parseFloat(
           getComputedStyle(shadow).getPropertyValue(
-            "--vista-sheet-shadow-radius",
+            "--wicket-iris-shadow-radius",
           ),
         ),
         sharedMask:
@@ -92,7 +92,7 @@ test.describe("squircle fallback (WebKit)", () => {
 
     const restAfterClose = await page.evaluate(() => {
       const surface = document.querySelector(
-        '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]',
+        '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]',
       ) as HTMLElement | null;
       if (!surface) return null;
       const rect = surface.getBoundingClientRect();

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 import "./contact.css";
 
 function PencilIcon() {
@@ -24,30 +24,30 @@ function App() {
 
   return (
     <div className="contact-page">
-      <VistaSheet.Root className="contact-theme">
-        <VistaSheet.Shadow />
+      <Iris.Root className="contact-theme">
+        <Iris.Shadow />
 
-        <VistaSheet.Trigger aria-label="Open contact form">
-          <VistaSheet.Shared>
+        <Iris.Trigger aria-label="Open contact form">
+          <Iris.Shared>
             <PencilIcon />
-          </VistaSheet.Shared>
-        </VistaSheet.Trigger>
+          </Iris.Shared>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet aria-labelledby="contact-sheet-title">
-          <VistaSheet.Shared>
+        <Iris.Sheet aria-labelledby="contact-sheet-title">
+          <Iris.Shared>
             <PencilIcon />
-          </VistaSheet.Shared>
+          </Iris.Shared>
 
-          <VistaSheet.Close aria-label="Close" />
+          <Iris.Close aria-label="Close" />
 
-          <VistaSheet.Content>
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Item>
               <h2 id="contact-sheet-title" className="contact-title">
                 Send a message
               </h2>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <form
                 className="contact-form"
                 onSubmit={(e) => {
@@ -83,10 +83,10 @@ function App() {
                   {submitted ? "Sent — thanks." : ""}
                 </p>
               </form>
-            </VistaSheet.Item>
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
-      </VistaSheet.Root>
+            </Iris.Item>
+          </Iris.Content>
+        </Iris.Sheet>
+      </Iris.Root>
     </div>
   );
 }

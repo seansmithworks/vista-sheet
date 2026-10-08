@@ -57,7 +57,7 @@ body {
 }
 
 /* Dark mode: example.css's body[data-dark-mode="true"] already sets the page
- * ground, text and every --vista-sheet-* token (surface, border, shadows), so
+ * ground, text and every --wicket-iris-* token (surface, border, shadows), so
  * the card, skeleton and Open pill follow with no values of their own. Only
  * the page's literal greys need a dark counterpart. */
 body[data-dark-mode="true"] .lp-page .lp-note {
@@ -78,7 +78,7 @@ body[data-dark-mode="true"] .lp-link {
 }
 
 .lp-link:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent, #1d1d1f);
+  outline: 2px solid var(--wicket-iris-accent, #1d1d1f);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -86,10 +86,10 @@ body[data-dark-mode="true"] .lp-link {
 /* Theme vars for the card live on Root's className (the layer). The frame
  * fills the card edge to edge. */
 .lp {
-  --vista-sheet-sheet-padding: 0px;
+  --wicket-iris-sheet-padding: 0px;
 }
 
-[data-vista-sheet-part="content"] {
+[data-wicket-iris-part="content"] {
   position: relative;
   overflow: hidden;
 }
@@ -99,8 +99,8 @@ body[data-dark-mode="true"] .lp-link {
 .lp-skeleton {
   position: absolute;
   inset: 0;
-  background: var(--vista-sheet-surface, #fafafa);
-  --lp-bone: var(--vista-sheet-surface-border, #e5e5e5);
+  background: var(--wicket-iris-surface, #fafafa);
+  --lp-bone: var(--wicket-iris-surface-border, #e5e5e5);
 }
 
 .lp-skeleton::before,
@@ -135,7 +135,7 @@ body[data-dark-mode="true"] .lp-link {
   width: 100%;
   height: 100%;
   border: 0;
-  background: var(--vista-sheet-surface-elevated, #ffffff);
+  background: var(--wicket-iris-surface-elevated, #ffffff);
   pointer-events: none; /* non-interactive, like an iOS preview */
   opacity: 0;
   transition: opacity 200ms ease-out;
@@ -154,15 +154,15 @@ body[data-dark-mode="true"] .lp-link {
   height: 36px;
   padding: 0 14px;
   border-radius: 9999px;
-  background: var(--vista-sheet-surface-elevated, #ffffff);
-  border: 1px solid var(--vista-sheet-surface-border, #e5e5e5);
-  color: var(--vista-sheet-text, #1d1d1f);
+  background: var(--wicket-iris-surface-elevated, #ffffff);
+  border: 1px solid var(--wicket-iris-surface-border, #e5e5e5);
+  color: var(--wicket-iris-text, #1d1d1f);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
 }
 
 .lp-open:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent, #1d1d1f);
+  outline: 2px solid var(--wicket-iris-accent, #1d1d1f);
   outline-offset: 2px;
 }

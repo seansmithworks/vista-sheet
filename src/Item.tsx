@@ -1,16 +1,16 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useVistaSheetInternal } from "./context";
+import { useIrisInternal } from "./context";
 import type { ItemProps } from "./types";
 import styles from "./styles.module.css";
 
 /**
- * <VistaSheet.Item> — a staggered child of <VistaSheet.Content>. No props
+ * <Iris.Item> — a staggered child of <Iris.Content>. No props
  * beyond children/className: the stagger interval is internal (§3).
  */
 export function Item({ children, className }: ItemProps) {
-  const ctx = useVistaSheetInternal("Item");
+  const ctx = useIrisInternal("Item");
   const variants = ctx.reduceMotion
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
@@ -25,7 +25,7 @@ export function Item({ children, className }: ItemProps) {
   return (
     <motion.div
       className={`${styles.item} ${className ?? ""}`}
-      data-vista-sheet-part="item"
+      data-wicket-iris-part="item"
       variants={variants}
     >
       {children}

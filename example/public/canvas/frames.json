@@ -566,7 +566,7 @@
       "id": "shadow-crossfade",
       "group": "shadow",
       "title": "Shadow crossfade",
-      "description": "The same progress points with every part but <VistaSheet.Shadow> made transparent: one painter crossfading the thin trigger look into the heavy sheet look.",
+      "description": "The same progress points with every part but <Iris.Shadow> made transparent: one painter crossfading the thin trigger look into the heavy sheet look.",
       "tileId": "behaviour-shadow-on",
       "viewport": "desktop",
       "deviceScaleFactor": 1,

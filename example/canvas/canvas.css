@@ -1,7 +1,7 @@
 /*
  * Canvas chrome: a quiet specimen sheet. Neutral example palette
  * (DESIGN.md "Example pages" column); the specimens are the only event.
- * This file never styles [data-vista-sheet-*]: specimens live in iframes
+ * This file never styles [data-wicket-iris-*]: specimens live in iframes
  * and carry their own CSS.
  */
 :root {

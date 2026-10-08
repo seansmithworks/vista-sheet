@@ -3,18 +3,18 @@ import type { CSSProperties } from "react";
 import { createRoot } from "react-dom/client";
 import { DialRoot, useDialKit, useDialKitController } from "dialkit";
 import "dialkit/styles.css";
-import { VistaSheet, type TriggerShape } from "../src/index";
+import { Iris, type TriggerShape } from "../src/index";
 import { CloseMask } from "./CloseMask";
 import { ALL_ANCHORS, DEFAULT_ANCHOR, type AnchorId } from "../src/anchors";
 import "./example.css";
 
-// Sized to 100% of its parent, not a fixed px value: <VistaSheet.Shared>'s two
+// Sized to 100% of its parent, not a fixed px value: <Iris.Shared>'s two
 // instances (trigger-side and sheet-side) are laid out at different sizes by the
 // package itself (the trigger's inset circle, the sheet's margined circle), so
 // the child inside must fill whatever box it's given rather than assert its
 // own size. Passing two differently-sized children into the two slots is
 // exactly the footgun docs/PACKAGE-DESIGN.md §7B warns about (E1).
-// <VistaSheet.Shared> clips it to the trigger's shape, so it must not round itself.
+// <Iris.Shared> clips it to the trigger's shape, so it must not round itself.
 function ColorCircle() {
   return (
     <div
@@ -46,7 +46,7 @@ const openDelayOverride = testParams.has("openDelay")
   : undefined;
 
 // Demo-only: a single persisted settings object driving every toggle/select
-// in the "Design" VistaSheet below (iridescent glow, dark ground, surface
+// in the "Design" Iris below (iridescent glow, dark ground, surface
 // palette, main trigger size, dial visibility). One key, one try/catch, so a
 // reload keeps every setting together rather than scattering localStorage
 // keys per control.
@@ -73,10 +73,14 @@ const DEFAULT_SETTINGS: DemoSettings = {
   glowStrength: "Bold",
   spinSpeed: "Moderate",
 };
-const SETTINGS_KEY = "vista-sheet-example:settings";
+const SETTINGS_KEY = "wicket-iris-example:settings";
+// Pre-rename key, read as a fallback so saved demo settings survive.
+const LEGACY_SETTINGS_KEY = "vista-sheet-example:settings";
 function readRawSettings(): Record<string, unknown> | null {
   try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
+    const raw =
+      localStorage.getItem(SETTINGS_KEY) ??
+      localStorage.getItem(LEGACY_SETTINGS_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -93,13 +97,13 @@ function readSettings(): DemoSettings {
 }
 
 // The main Root's persisted anchor — same key `usePersistedAnchor` falls
-// back to (DEFAULT_STORAGE_KEY) since main.tsx's <VistaSheet.Root id="main">
+// back to (DEFAULT_STORAGE_KEY) since main.tsx's <Iris.Root id="main">
 // below passes no `persistKey` override. Read directly here (rather than
 // waiting on `onAnchorChange`, which only fires from a live drag — the
 // mount-time localStorage restore inside usePersistedAnchor sets React
 // state directly and never calls it) so the settings sheet's initial anchor
 // already accounts for a persisted top-right main sheet on first paint.
-const MAIN_ANCHOR_STORAGE_KEY = "vista-sheet-anchor";
+const MAIN_ANCHOR_STORAGE_KEY = "wicket-iris-anchor";
 function readMainAnchor(): AnchorId {
   try {
     const raw = localStorage.getItem(MAIN_ANCHOR_STORAGE_KEY);
@@ -387,7 +391,7 @@ const IRI_PALETTES: Record<string, IriPreset> = Object.fromEntries(
 );
 
 // Live dials for the glow, shown only while the toggle is on. Persisted under
-// dialkit:morph-sheet-iridescent. That key predates the VistaSheet rename —
+// dialkit:morph-sheet-iridescent. That key predates the package renames —
 // changing it orphans Sean's saved dial history, so the id below stays as-is.
 const IRI_DIALS = {
   palette: {
@@ -411,13 +415,13 @@ const IRI_DIALS = {
 };
 
 // The Shadow crossfade window (Shadow.tsx reads these two vars via
-// readVarPx: --vista-sheet-sheet-shadow-fade-start/-fade-end). Seeded so the
-// heavy sheet shadow (`--vista-sheet-sheet-shadow`) is fully in at
+// readVarPx: --wicket-iris-sheet-shadow-fade-start/-fade-end). Seeded so the
+// heavy sheet shadow (`--wicket-iris-sheet-shadow`) is fully in at
 // collapseProgress p=0 (open, at rest) and fully gone by p=0.25 — roughly
 // where the silhouette has shrunk enough that the thin disc shadow
-// (`--vista-sheet-shadow`) alone reads right, rather than a heavy blur on a
+// (`--wicket-iris-shadow`) alone reads right, rather than a heavy blur on a
 // small shape. Persisted under dialkit:morph-sheet-shadow-crossfade. That key
-// predates the VistaSheet rename — changing it orphans Sean's saved dial
+// predates the package renames — changing it orphans Sean's saved dial
 // history, so the id below stays as-is.
 const SHADOW_CROSSFADE_DIALS = {
   fadeStart: [0, 0, 1, 0.01] as [number, number, number, number],
@@ -441,7 +445,7 @@ function App() {
   // Dark mode toggles body-level background/text, not just `.page` (the
   // page div has no explicit height, so a short page would leave the
   // original light body visible below the fold) — and, via example.css's
-  // `body[data-dark-mode="true"]` block, the --vista-sheet-* consumer
+  // `body[data-dark-mode="true"]` block, the --wicket-iris-* consumer
   // tokens both sheets read, so they switch to dark chrome too.
   useEffect(() => {
     document.body.dataset.darkMode = settings.darkMode ? "true" : "false";
@@ -632,13 +636,13 @@ function App() {
     ),
   } as CSSProperties;
   // Consumer-set crossfade dial, plumbed as CSS custom properties on an
-  // ancestor of <VistaSheet.Shadow> — CSS custom properties inherit down the
+  // ancestor of <Iris.Shadow> — CSS custom properties inherit down the
   // DOM tree, and .shadow (or an asChild swap) isn't portalled, so Shadow.tsx's
   // readVarPx(el, ...) picks these up via getComputedStyle the same way it
-  // already reads --vista-sheet-sheet-radius from wherever a consumer set it.
+  // already reads --wicket-iris-sheet-radius from wherever a consumer set it.
   const shadowCrossfadeStyle = {
-    "--vista-sheet-sheet-shadow-fade-start": shadowCrossfade.fadeStart,
-    "--vista-sheet-sheet-shadow-fade-end": shadowCrossfade.fadeEnd,
+    "--wicket-iris-sheet-shadow-fade-start": shadowCrossfade.fadeStart,
+    "--wicket-iris-sheet-shadow-fade-end": shadowCrossfade.fadeEnd,
   } as CSSProperties;
   const pageStyle = shadowCrossfadeStyle;
 
@@ -655,13 +659,13 @@ function App() {
       {settings.showDials && (
         <DialRoot position="bottom-right" productionEnabled />
       )}
-      <h1>vista-sheet</h1>
+      <h1>Wicket Iris</h1>
       <p className="sub">
         A bare trigger, morphing into a sheet. Tap the trigger (bottom-center by
         default) — drag it to any of the seven anchors first if you like.
       </p>
 
-      <VistaSheet.Root
+      <Iris.Root
         shape={shapeOverride}
         id="main"
         zIndex={zIndexOverride}
@@ -683,38 +687,38 @@ function App() {
         }
       >
         {iri ? (
-          <VistaSheet.Shadow asChild>
+          <Iris.Shadow asChild>
             <div ref={iriShadowRef} className="iri-shadow" style={iriStyle} />
-          </VistaSheet.Shadow>
+          </Iris.Shadow>
         ) : (
-          <VistaSheet.Shadow />
+          <Iris.Shadow />
         )}
 
-        <VistaSheet.Trigger aria-label="Open example sheet">
-          <VistaSheet.Shared>
+        <Iris.Trigger aria-label="Open example sheet">
+          <Iris.Shared>
             <ColorCircle />
-          </VistaSheet.Shared>
-        </VistaSheet.Trigger>
+          </Iris.Shared>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet aria-labelledby="example-sheet-title">
-          <VistaSheet.Shared>
+        <Iris.Sheet aria-labelledby="example-sheet-title">
+          <Iris.Shared>
             <ColorCircle />
-          </VistaSheet.Shared>
+          </Iris.Shared>
 
-          <VistaSheet.Close aria-label="Close" />
+          <Iris.Close aria-label="Close" />
 
-          <VistaSheet.Content>
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Item>
               <h2 id="example-sheet-title">Placeholder heading</h2>
-            </VistaSheet.Item>
-            <VistaSheet.Item>
+            </Iris.Item>
+            <Iris.Item>
               <p>
-                Everything inside &lt;VistaSheet.Content&gt; is supplied by the
+                Everything inside &lt;Iris.Content&gt; is supplied by the
                 consumer. This example ships a colored circle, this heading, and
                 two links.
               </p>
-            </VistaSheet.Item>
-            <VistaSheet.Item>
+            </Iris.Item>
+            <Iris.Item>
               <nav
                 aria-label="Example links"
                 style={{ display: "flex", gap: 16 }}
@@ -722,28 +726,28 @@ function App() {
                 <a href="https://example.com">Example.com</a>
                 <a href="https://github.com">GitHub</a>
               </nav>
-            </VistaSheet.Item>
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
+            </Iris.Item>
+          </Iris.Content>
+        </Iris.Sheet>
 
         {/* CloseMask demonstrates the escape hatch: it rebuilds the
             trailing-paper close mask from OUTSIDE the package using only
-            useVistaSheet().collapseProgress (+ its built-in getVelocity()) and
+            useIris().collapseProgress (+ its built-in getVelocity()) and
             triggerRect/sheetRect. It renders no DOM of its own — it finds the
-            live sheet element by its documented data-vista-sheet-part="sheet"
+            live sheet element by its documented data-wicket-iris-part="sheet"
             attribute and writes a mask-image directly onto it. See
             CloseMask.tsx. */}
         <CloseMask />
-      </VistaSheet.Root>
+      </Iris.Root>
 
-      {/* A second, independent VistaSheet.Root: a small "Design" settings
+      {/* A second, independent Iris.Root: a small "Design" settings
           panel that restyles the demo above. Own id ("settings", vs the main
           sheet's "main") and own persistKey so its anchor never shares
           localStorage with the main sheet's. Rendered after (and painted
           above, via a higher zIndex) the main Root so the two triggers never
           fight over stacking order if they ever visually overlap. Not
           draggable — it is a fixed utility control, not the demo subject. */}
-      <VistaSheet.Root
+      <Iris.Root
         // Remounted on its own applied anchor (`key`): anchor is
         // uncontrolled-only in v0.1 (docs/PACKAGE-DESIGN.md §8), so a
         // `defaultAnchor` change alone wouldn't move an already-mounted
@@ -763,19 +767,19 @@ function App() {
         triggerSize={40}
         zIndex={300}
       >
-        <VistaSheet.Trigger aria-label="Design settings">
+        <Iris.Trigger aria-label="Design settings">
           <SlidersIcon />
-        </VistaSheet.Trigger>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet aria-labelledby="settings-sheet-title">
-          <VistaSheet.Close aria-label="Close settings" />
+        <Iris.Sheet aria-labelledby="settings-sheet-title">
+          <Iris.Close aria-label="Close settings" />
 
-          <VistaSheet.Content>
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Item>
               <h2 id="settings-sheet-title">Design</h2>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <span className="settings-label" id="setting-iridescent-label">
                   Iridescent shadow
@@ -793,9 +797,9 @@ function App() {
                   <span className="demo-toggle-track" aria-hidden="true" />
                 </button>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <label className="settings-label" htmlFor="setting-palette">
                   Glow colour
@@ -823,9 +827,9 @@ function App() {
                   ))}
                 </select>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <label className="settings-label" htmlFor="setting-strength">
                   Glow strength
@@ -846,9 +850,9 @@ function App() {
                   <option value="Bold">Bold</option>
                 </select>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <label className="settings-label" htmlFor="setting-speed">
                   Shadow speed
@@ -879,9 +883,9 @@ function App() {
                   <option value="Variable">Variable</option>
                 </select>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <span className="settings-label" id="setting-dark-mode-label">
                   Dark mode
@@ -899,9 +903,9 @@ function App() {
                   <span className="demo-toggle-track" aria-hidden="true" />
                 </button>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <label className="settings-label" htmlFor="setting-surface">
                   Surface
@@ -920,9 +924,9 @@ function App() {
                   <option value="warm">Warm</option>
                 </select>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <label
                   className="settings-label"
@@ -946,9 +950,9 @@ function App() {
                   <option value="large">Large</option>
                 </select>
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div className="settings-row">
                 <span className="settings-label" id="setting-show-dials-label">
                   Show dials
@@ -966,10 +970,10 @@ function App() {
                   <span className="demo-toggle-track" aria-hidden="true" />
                 </button>
               </div>
-            </VistaSheet.Item>
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
-      </VistaSheet.Root>
+            </Iris.Item>
+          </Iris.Content>
+        </Iris.Sheet>
+      </Iris.Root>
     </div>
   );
 }

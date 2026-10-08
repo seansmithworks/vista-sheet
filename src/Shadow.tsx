@@ -3,7 +3,7 @@
 import { cloneElement, isValidElement, useEffect, useRef } from "react";
 import type { CSSProperties, ReactElement, Ref } from "react";
 import { cancelFrame, frame } from "motion/react";
-import { useVistaSheetInternal } from "./context";
+import { useIrisInternal } from "./context";
 import { Layer } from "./Layer";
 import { mergeRefs } from "./mergeRefs";
 import { readVarPx } from "./readVarPx";
@@ -16,16 +16,16 @@ import type { ShadowProps } from "./types";
 import styles from "./styles.module.css";
 
 /**
- * <VistaSheet.Shadow> — the shadow seam (docs/PACKAGE-DESIGN.md §4).
+ * <Iris.Shadow> — the shadow seam (docs/PACKAGE-DESIGN.md §4).
  *
  * One fixed, aria-hidden div at z-1, sized to the silhouette interpolated
  * between the trigger and the sheet. It is the only painter of both shadows
  * (DESIGN.md §4.1): the disc shadow and the sheet's resting shadow, two
  * layers crossfaded on collapseProgress. The crossfade window is the
- * --vista-sheet-sheet-shadow-fade-start / -fade-end CSS vars.
+ * --wicket-iris-sheet-shadow-fade-start / -fade-end CSS vars.
  *
  * asChild clones the single child (e.g. a surface-fx dither layer), merges
- * the positioning, attributes and --vista-sheet-shadow-* vars onto it, and
+ * the positioning, attributes and --wicket-iris-shadow-* vars onto it, and
  * composes the child's own ref (React 19 `props.ref`) with Shadow's.
  */
 
@@ -46,7 +46,7 @@ function readRenderedCornerRadius(el: HTMLElement): number {
 }
 
 export function Shadow({ className, asChild, children }: ShadowProps) {
-  const ctx = useVistaSheetInternal("Shadow");
+  const ctx = useIrisInternal("Shadow");
   const {
     collapseProgress,
     triggerRectLive,
@@ -110,17 +110,17 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const inFlight = isInFlight(p);
       const withinSettleGrace =
         performance.now() - lastActiveAtRef.current < SURFACE_READ_GRACE_MS;
-      const sheetRadius = readVarPx(el, "--vista-sheet-sheet-radius", 48);
+      const sheetRadius = readVarPx(el, "--wicket-iris-sheet-radius", 48);
       const surfaceEl = el
-        .closest("[data-vista-sheet-root]")
+        .closest("[data-wicket-iris-root]")
         ?.querySelector<HTMLElement>(
-          '[data-vista-sheet-part="sheet"], [data-vista-sheet-part="trigger-surface"]',
+          '[data-wicket-iris-part="sheet"], [data-wicket-iris-part="trigger-surface"]',
         );
       let radius: number;
       if (surfaceEl && (inFlight || withinSettleGrace)) {
         radius = readRenderedCornerRadius(surfaceEl);
       } else {
-        const token = readVarPx(el, "--vista-sheet-trigger-radius", 9999);
+        const token = readVarPx(el, "--wicket-iris-trigger-radius", 9999);
         const triggerCorner = resolveTriggerCornerRadius({
           shape,
           triggerSize: 2 * Math.min(trigger.halfWidth, trigger.halfHeight),
@@ -143,12 +143,12 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const pClamped = p < 0 ? 0 : p > 1 ? 1 : p;
       const fadeStart = readVarPx(
         el,
-        "--vista-sheet-sheet-shadow-fade-start",
+        "--wicket-iris-sheet-shadow-fade-start",
         0,
       );
       const fadeEnd = readVarPx(
         el,
-        "--vista-sheet-sheet-shadow-fade-end",
+        "--wicket-iris-sheet-shadow-fade-end",
         0.25,
       );
       const span = fadeEnd - fadeStart;
@@ -160,16 +160,16 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
           : Math.min(1, Math.max(0, (fadeEnd - pClamped) / span));
       const discShadowOpacity = 1 - sheetShadowOpacity;
 
-      el.style.setProperty("--vista-sheet-collapse", String(p));
+      el.style.setProperty("--wicket-iris-collapse", String(p));
       el.style.setProperty(
-        "--vista-sheet-shadow-opacity",
+        "--wicket-iris-shadow-opacity",
         String(discShadowOpacity),
       );
       el.style.setProperty(
-        "--vista-sheet-sheet-shadow-opacity",
+        "--wicket-iris-sheet-shadow-opacity",
         String(sheetShadowOpacity),
       );
-      el.style.setProperty("--vista-sheet-shadow-radius", `${radius}px`);
+      el.style.setProperty("--wicket-iris-shadow-radius", `${radius}px`);
       el.style.width = `${halfW * 2}px`;
       el.style.height = `${halfH * 2}px`;
       el.style.left = `${cx - halfW}px`;
@@ -200,7 +200,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
     // inside any epsilon band. Each tick disarms and schedules a one-frame
     // quiet check; only a frame with no tick connects the observer, so one
     // path covers any frame, never both.
-    const rootEl = elRef.current?.closest("[data-vista-sheet-root]") ?? null;
+    const rootEl = elRef.current?.closest("[data-wicket-iris-root]") ?? null;
     let mutationObserver: MutationObserver | null = null;
     let observing = false;
     let graceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -303,9 +303,9 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
 
   const sharedProps = {
     "aria-hidden": true as const,
-    "data-vista-sheet-part": "shadow",
+    "data-wicket-iris-part": "shadow",
     "data-state": dataState,
-    "data-vista-sheet-shape": shape,
+    "data-wicket-iris-shape": shape,
   };
 
   let shadow: ReactElement;

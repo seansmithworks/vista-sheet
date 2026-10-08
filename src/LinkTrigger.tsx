@@ -11,7 +11,7 @@ import {
 import type { ReactElement, SyntheticEvent } from "react";
 import { useMotionValue } from "motion/react";
 import { rectFromBox } from "./anchors";
-import { useVistaSheetInternal } from "./context";
+import { useIrisInternal } from "./context";
 import { mergeRefs } from "./mergeRefs";
 import { TriggerSurface } from "./TriggerSurface";
 import {
@@ -57,7 +57,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
     setLayerArmed,
     triggerElRef,
     previewPointerRef,
-  } = useVistaSheetInternal("Trigger");
+  } = useIrisInternal("Trigger");
 
   const child = Children.only(children);
   const childProps = child.props as ChildProps;
@@ -293,7 +293,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
       ...handlers,
       ref: attachLink,
       className: `${styles.previewTrigger} ${childProps.className ?? ""}`,
-      "data-vista-sheet-part": "trigger",
+      "data-wicket-iris-part": "trigger",
     },
     childProps.children as never,
     !open && (

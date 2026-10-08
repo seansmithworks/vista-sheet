@@ -1,8 +1,8 @@
 import { createRoot } from "react-dom/client";
-import { VistaSheet, useVistaSheet } from "../../src/index";
+import { Iris, useIris } from "../../src/index";
 import type { AnchorId } from "../../src/anchors";
 
-// useVistaSheet().setAnchor called while the sheet is open (from a control
+// useIris().setAnchor called while the sheet is open (from a control
 // inside it). Driven by anchor-open.spec.ts. Exposes window.__anchorChanges
 // and [data-testid="anchor-readout"].
 
@@ -14,7 +14,7 @@ declare global {
 window.__anchorChanges = [];
 
 function MoveButton({ to }: { to: AnchorId }) {
-  const { setAnchor } = useVistaSheet();
+  const { setAnchor } = useIris();
   return (
     <button
       type="button"
@@ -27,34 +27,34 @@ function MoveButton({ to }: { to: AnchorId }) {
 }
 
 function Readout() {
-  const { anchor } = useVistaSheet();
+  const { anchor } = useIris();
   return <span data-testid="anchor-readout">{anchor}</span>;
 }
 
 function App() {
   return (
-    <VistaSheet.Root
+    <Iris.Root
       id="ao"
       defaultAnchor="bottom-center"
       persistKey={false}
       onAnchorChange={(a) => window.__anchorChanges.push(a)}
     >
-      <VistaSheet.Shadow />
-      <VistaSheet.Trigger aria-label="Open fixture sheet">
-        <VistaSheet.Shared>Open</VistaSheet.Shared>
-      </VistaSheet.Trigger>
-      <VistaSheet.Sheet aria-labelledby="ao-sheet-title">
-        <VistaSheet.Shared>Open</VistaSheet.Shared>
-        <VistaSheet.Close aria-label="Close" />
-        <VistaSheet.Content>
-          <VistaSheet.Item>
+      <Iris.Shadow />
+      <Iris.Trigger aria-label="Open fixture sheet">
+        <Iris.Shared>Open</Iris.Shared>
+      </Iris.Trigger>
+      <Iris.Sheet aria-labelledby="ao-sheet-title">
+        <Iris.Shared>Open</Iris.Shared>
+        <Iris.Close aria-label="Close" />
+        <Iris.Content>
+          <Iris.Item>
             <h2 id="ao-sheet-title">Anchor while open</h2>
             <MoveButton to="top-right" />
-          </VistaSheet.Item>
-        </VistaSheet.Content>
-      </VistaSheet.Sheet>
+          </Iris.Item>
+        </Iris.Content>
+      </Iris.Sheet>
       <Readout />
-    </VistaSheet.Root>
+    </Iris.Root>
   );
 }
 

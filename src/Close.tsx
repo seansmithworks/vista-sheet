@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { useVistaSheetInternal } from "./context";
+import { useIrisInternal } from "./context";
 import {
   CLOSE_EXIT_SEC,
   CLOSE_FADE_IN_SEC,
@@ -35,7 +35,7 @@ function DefaultCloseGlyph() {
 }
 
 /**
- * <VistaSheet.Close> — the close button. Registers itself in context on
+ * <Iris.Close> — the close button. Registers itself in context on
  * mount so Root/Sheet can dev-warn if the sheet opens with no visible close
  * control rendered (docs/PACKAGE-DESIGN.md §1). Escape and backdrop click are
  * not a substitute.
@@ -51,7 +51,7 @@ function DefaultCloseGlyph() {
  * keyboard user.
  */
 export function Close({ children, className, ...aria }: CloseProps) {
-  const ctx = useVistaSheetInternal("Close");
+  const ctx = useIrisInternal("Close");
   const { registerClose, setOpen, collapseProgress, reduceMotion } = ctx;
   // Seeded from the clock so a sheet mounted open (already at rest) renders
   // Close in place instead of spinning it in.
@@ -82,7 +82,7 @@ export function Close({ children, className, ...aria }: CloseProps) {
     <motion.button
       type="button"
       className={`${styles.closeButton} ${className ?? ""}`}
-      data-vista-sheet-part="close"
+      data-wicket-iris-part="close"
       onClick={() => setOpen(false)}
       onFocus={() => setRevealed(true)}
       initial={hidden}

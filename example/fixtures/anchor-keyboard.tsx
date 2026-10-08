@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { VistaSheet, useVistaSheet } from "../../src/index";
+import { Iris, useIris } from "../../src/index";
 import { ALL_ANCHORS, type AnchorId } from "../../src/anchors";
 
 // P0-3 fixture (docs/plans/a11y-web-standards.md, P0 item 3): keyboard moves
@@ -14,8 +14,8 @@ import { ALL_ANCHORS, type AnchorId } from "../../src/anchors";
 //   ?rtl                document.dir = "rtl"
 //
 // Exposes: window.__anchorChanges (every onAnchorChange payload, in order),
-// [data-testid="anchor-readout"] (useVistaSheet().anchor), and one
-// [data-testid="set-<anchor>"] button per anchor calling useVistaSheet()
+// [data-testid="anchor-readout"] (useIris().anchor), and one
+// [data-testid="set-<anchor>"] button per anchor calling useIris()
 // .setAnchor. Both the prop and setAnchor are not built yet at the time this
 // gate is written, so they are reached through untyped shapes: this file
 // stays valid before and after the build.
@@ -41,7 +41,7 @@ if (announce === "custom") {
 }
 
 function Controls() {
-  const { anchor, setAnchor } = useVistaSheet() as unknown as {
+  const { anchor, setAnchor } = useIris() as unknown as {
     anchor: AnchorId;
     setAnchor: (a: AnchorId) => void;
   };
@@ -73,7 +73,7 @@ function Controls() {
 
 function App() {
   return (
-    <VistaSheet.Root
+    <Iris.Root
       id="kb"
       defaultAnchor={startAnchor}
       draggable={draggable}
@@ -81,21 +81,21 @@ function App() {
       onAnchorChange={(a) => window.__anchorChanges.push(a)}
       {...extraRootProps}
     >
-      <VistaSheet.Shadow />
-      <VistaSheet.Trigger aria-label="Move fixture trigger">
-        <VistaSheet.Shared>Open</VistaSheet.Shared>
-      </VistaSheet.Trigger>
-      <VistaSheet.Sheet aria-labelledby="kb-sheet-title">
-        <VistaSheet.Shared>Open</VistaSheet.Shared>
-        <VistaSheet.Close aria-label="Close" />
-        <VistaSheet.Content>
-          <VistaSheet.Item>
+      <Iris.Shadow />
+      <Iris.Trigger aria-label="Move fixture trigger">
+        <Iris.Shared>Open</Iris.Shared>
+      </Iris.Trigger>
+      <Iris.Sheet aria-labelledby="kb-sheet-title">
+        <Iris.Shared>Open</Iris.Shared>
+        <Iris.Close aria-label="Close" />
+        <Iris.Content>
+          <Iris.Item>
             <h2 id="kb-sheet-title">Anchor keyboard</h2>
-          </VistaSheet.Item>
-        </VistaSheet.Content>
-      </VistaSheet.Sheet>
+          </Iris.Item>
+        </Iris.Content>
+      </Iris.Sheet>
       <Controls />
-    </VistaSheet.Root>
+    </Iris.Root>
   );
 }
 

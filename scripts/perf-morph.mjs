@@ -532,11 +532,11 @@ async function measureLaunch(cycles) {
     // drops a trace marker that places the scored windows.
     await page.addInitScript(
       ({ inject, mark }) => {
-        // vista-sheet-example:settings is the demo's single persisted
+        // wicket-iris-example:settings is the demo's single persisted
         // settings object (main.tsx readSettings/updateSettings) — the old
         // per-toggle localStorage key (iridescent-only) was folded into it.
         localStorage.setItem(
-          "vista-sheet-example:settings",
+          "wicket-iris-example:settings",
           JSON.stringify({ iridescent: inject }),
         );
         // Page-clock record of each cycle, read back by verifyInjections.
@@ -577,9 +577,9 @@ async function measureLaunch(cycles) {
     if (INJECT_ANIMATION) await injectUnrelatedAnimation(page);
 
     // Scoped to the main Root (id="main" in main.tsx): a second, unrelated
-    // VistaSheet.Root (the "Design" settings sheet) also renders a trigger.
+    // Iris.Root (the "Design" settings sheet) also renders a trigger.
     const trigger = page.locator(
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
     );
     const triggerBox = await trigger.boundingBox();
     const cx = triggerBox.x + triggerBox.width / 2;
@@ -605,7 +605,7 @@ async function measureLaunch(cycles) {
       await page.mouse.click(cx, cy);
       await page.waitForTimeout(WINDOW_MS + 800); // open window + hold
       const closeBox = await page
-        .locator('[data-vista-sheet-root="main"] [data-vista-sheet-part="close"]')
+        .locator('[data-wicket-iris-root="main"] [data-wicket-iris-part="close"]')
         .boundingBox();
       await page.mouse.click(closeBox.x + closeBox.width / 2, closeBox.y + closeBox.height / 2);
       await page.waitForTimeout(WINDOW_MS + 700); // close window + hold
@@ -822,7 +822,7 @@ async function main() {
     .filter(([, on]) => on)
     .map(([name]) => name);
 
-  console.log("vista-sheet perf");
+  console.log("Wicket Iris perf");
   console.log(`  renderer:   ${result.gpu}`);
   console.log(`  mode:       ${LAUNCH_OPTIONS.channel} headless (new)`);
   console.log(`  load1:      ${gateLoad.toFixed(2)} (quiet threshold < ${QUIET_THRESHOLD.toFixed(1)}, ${CORES} cores)`);

@@ -42,34 +42,34 @@ export interface LabState {
 }
 
 export type PlayMessage =
-  | { type: "vista-sheet-play:ready" }
+  | { type: "wicket-iris-play:ready" }
   | {
-      type: "vista-sheet-play:state";
+      type: "wicket-iris-play:state";
       state: PlayState;
       overrides?: PlayStageOverrides;
     }
   // A drag report: the stage tells the shell where the specimen landed.
-  | { type: "vista-sheet-play:anchor"; anchor: AnchorId }
+  | { type: "wicket-iris-play:anchor"; anchor: AnchorId }
   // A command: the shell tells the stage to move the specimen (Anchor
   // dropdown only). Never sent in response to a report — that round trip
   // is what looped forever before this type existed.
-  | { type: "vista-sheet-play:set-anchor"; anchor: AnchorId }
+  | { type: "wicket-iris-play:set-anchor"; anchor: AnchorId }
   // Remount the specimen at rest (renderer-only; PlayState is untouched).
-  | { type: "vista-sheet-play:reset" }
+  | { type: "wicket-iris-play:reset" }
   // Motion Lab: a clock command in, the lab's state out.
-  | { type: "vista-sheet-play:clock"; command: ClockCommand }
-  | { type: "vista-sheet-play:clock-state"; state: LabState };
+  | { type: "wicket-iris-play:clock"; command: ClockCommand }
+  | { type: "wicket-iris-play:clock-state"; state: LabState };
 
 export function isPlayMessage(data: unknown): data is PlayMessage {
   if (typeof data !== "object" || data === null) return false;
   const type = (data as { type?: unknown }).type;
   return (
-    type === "vista-sheet-play:ready" ||
-    type === "vista-sheet-play:state" ||
-    type === "vista-sheet-play:anchor" ||
-    type === "vista-sheet-play:set-anchor" ||
-    type === "vista-sheet-play:reset" ||
-    type === "vista-sheet-play:clock" ||
-    type === "vista-sheet-play:clock-state"
+    type === "wicket-iris-play:ready" ||
+    type === "wicket-iris-play:state" ||
+    type === "wicket-iris-play:anchor" ||
+    type === "wicket-iris-play:set-anchor" ||
+    type === "wicket-iris-play:reset" ||
+    type === "wicket-iris-play:clock" ||
+    type === "wicket-iris-play:clock-state"
   );
 }

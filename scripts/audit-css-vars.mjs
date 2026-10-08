@@ -4,10 +4,10 @@
  * (docs/PACKAGE-DESIGN.md / REVIEW-FINDINGS.md, "the mechanical audit that
  * finds four of these").
  *
- * Any --vista-sheet-* variable that styles.module.css READS via var(...) must
- * be either WRITTEN by the package (a .setProperty("--vista-sheet-...") call
- * or a `["--vista-sheet-..." as string]:` inline-style key somewhere in src/)
- * or DOCUMENTED as a consumer-set token (a `--vista-sheet-...` row in the
+ * Any --wicket-iris-* variable that styles.module.css READS via var(...) must
+ * be either WRITTEN by the package (a .setProperty("--wicket-iris-...") call
+ * or a `["--wicket-iris-..." as string]:` inline-style key somewhere in src/)
+ * or DOCUMENTED as a consumer-set token (a `--wicket-iris-...` row in the
  * README's theming table). A var that is neither is a dead prop — this is
  * the exact mechanism that found B1/B3/M1/M2 (styles.module.css read them,
  * nothing wrote them, and two of them weren't even documented at the time).
@@ -15,14 +15,14 @@
  * Exit 0 and print a clean report if every read var is covered. Exit 1 and
  * list the orphans otherwise.
  *
- * Inverse direction: every --vista-sheet-* variable the README documents as a
+ * Inverse direction: every --wicket-iris-* variable the README documents as a
  * consumer token must actually be READ somewhere in src/ (the CSS module's
  * var(...) calls, or a JS/TS reference — e.g. readVarPx). A documented var
  * nothing reads is dead documentation: a consumer who sets it gets silence,
  * and nothing in the repo would ever tell them. This is the audit's
  * structural blind spot — "read implies written-or-documented" says nothing
  * about "documented implies read" — and it is exactly how
- * --vista-sheet-surface-elevated and --vista-sheet-edge-margin survived as
+ * --wicket-iris-surface-elevated and --wicket-iris-edge-margin survived as
  * phantom tokens in the README with zero occurrences in src/.
  */
 import { readFileSync, readdirSync } from "node:fs";
@@ -31,9 +31,9 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // Single source of truth for the var prefix — every regex and log line below
-// builds off this instead of hard-coding "vista-sheet" repeatedly, so a
+// builds off this instead of hard-coding "wicket-iris" repeatedly, so a
 // future rename is a one-line change.
-const PREFIX = "vista-sheet";
+const PREFIX = "wicket-iris";
 const VAR_RE = new RegExp(`--${PREFIX}-[a-zA-Z0-9-]+`, "g");
 
 function uniqueMatches(text, re) {
@@ -60,7 +60,7 @@ const varCallRe = new RegExp(`var\\(\\s*(--${PREFIX}-[a-zA-Z0-9-]+)`, "g");
 const readVars = new Set();
 for (const m of css.matchAll(varCallRe)) readVars.add(m[1]);
 
-// 2. Vars the package WRITES: any --vista-sheet-* identifier that appears as
+// 2. Vars the package WRITES: any --wicket-iris-* identifier that appears as
 // a .setProperty(...) target or an inline-style object key in src/ TS/TSX.
 const srcFiles = readSrcFiles(join(ROOT, "src"), [".ts", ".tsx"]);
 const writtenVars = new Set();
@@ -78,17 +78,17 @@ for (const file of srcFiles) {
   for (const m of text.matchAll(inlineStyleKeyRe)) writtenVars.add(m[1]);
 }
 
-// 3. Vars the README DOCUMENTS as consumer-set tokens: any `--vista-sheet-*`
+// 3. Vars the README DOCUMENTS as consumer-set tokens: any `--wicket-iris-*`
 // inside a markdown table cell (backtick-quoted).
 const readmePath = join(ROOT, "README.md");
 const readme = readFileSync(readmePath, "utf8");
 const documentedVars = uniqueMatches(readme, VAR_RE);
 
-// 3b. Just the theming TABLE rows (`| \`--vista-sheet-x\` | ... |`), not the
+// 3b. Just the theming TABLE rows (`| \`--wicket-iris-x\` | ... |`), not the
 // "package writes ..." prose list further down. The two are documented
 // differently on purpose: table rows are the consumer-set contract this
 // inverse check is guarding; the prose list is package-written-and-consumer-
-// read vars (e.g. --vista-sheet-collapse), which the CSS/JS read scan below
+// read vars (e.g. --wicket-iris-collapse), which the CSS/JS read scan below
 // would false-positive on if it tried to hold them to the same rule.
 const tableRowRe = new RegExp(`^\\|\\s*\`(--${PREFIX}-[a-zA-Z0-9-]+)\`\\s*\\|`, "gm");
 const tableDocumentedVars = new Set();
@@ -118,7 +118,7 @@ console.log(`Documented (README table):  ${documentedVars.size}`);
 console.log("");
 
 // 4. Vars READ anywhere in src/: styles.module.css's var(...) calls (readVars
-// from step 1), plus any --vista-sheet-* string literal passed to a runtime
+// from step 1), plus any --wicket-iris-* string literal passed to a runtime
 // getter (getPropertyValue(...) / readVarPx(...)) in JS/TS. This is
 // deliberately broader than "written" — a var can be read without the
 // package ever writing it (e.g. a shape token a consumer overrides and the

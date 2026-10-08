@@ -9,12 +9,12 @@ import { test, expect, type Page } from "@playwright/test";
  */
 
 const TRIGGER_LABEL = "Open modal fixture";
-const SHEET = '[data-vista-sheet-part="sheet"]';
+const SHEET = '[data-wicket-iris-part="sheet"]';
 
 async function openSheet(page: Page, query = ""): Promise<void> {
   await page.goto(`/fixtures/modal.html${query}`);
   await page.getByRole("button", { name: TRIGGER_LABEL }).click();
-  await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
+  await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
 }
 
 /** Deep focus path: through open shadow roots and same-origin iframes. */
@@ -26,7 +26,7 @@ function focusPath(page: Page): Promise<string> {
       const el = a as HTMLElement;
       parts.push(
         el.dataset.testid ??
-          el.getAttribute("data-vista-sheet-part") ??
+          el.getAttribute("data-wicket-iris-part") ??
           el.tagName.toLowerCase(),
       );
       if (el.shadowRoot?.activeElement) a = el.shadowRoot.activeElement;
@@ -68,7 +68,7 @@ test.describe("P0-1 modal: inert page", () => {
     await expect(clicks).toHaveText("1");
 
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
-    await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
+    await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
     // Nothing of the sheet covers the button (it is fixed and stacked above
     // the sheet's layers anyway), so only inert can be stopping the click.
     const sheetBox = await page.locator(SHEET).boundingBox();
@@ -92,7 +92,7 @@ test.describe("P0-1 modal: inert page", () => {
     const landed = await page.evaluate(() => {
       const a = document.activeElement as HTMLElement | null;
       return {
-        id: a?.dataset.testid ?? a?.getAttribute("data-vista-sheet-part"),
+        id: a?.dataset.testid ?? a?.getAttribute("data-wicket-iris-part"),
         inert: a?.closest("[inert]") !== null,
         body: a === document.body,
       };
@@ -212,7 +212,7 @@ test.describe("P0-1 modal: native Tab order", () => {
 });
 
 test.describe("P0-2 Escape: top layer only, never interrupts typing", () => {
-  const closeSheet = '[data-vista-sheet-part="sheet"][aria-labelledby]';
+  const closeSheet = '[data-wicket-iris-part="sheet"][aria-labelledby]';
   // The exit animation keeps a closing panel mounted, so a mounted panel
   // doesn't prove "still open". The page leaves inert at the close request,
   // so inert present means the sheet was never asked to close.
@@ -227,7 +227,7 @@ test.describe("P0-2 Escape: top layer only, never interrupts typing", () => {
     const card = page.getByTestId("preview-card");
     await expect(card).toBeVisible();
     await page.waitForSelector(
-      '[aria-label="Preview card"][data-vista-sheet-settled]',
+      '[aria-label="Preview card"][data-wicket-iris-settled]',
     );
 
     await page.keyboard.press("Escape");
@@ -295,7 +295,7 @@ test.describe("P0-1 review fixes", () => {
     // Open the second sheet from inside the first.
     await page.getByTestId("open-second").click();
     await page.waitForSelector(
-      '[aria-labelledby="second-sheet-title"][data-vista-sheet-settled]',
+      '[aria-labelledby="second-sheet-title"][data-wicket-iris-settled]',
     );
 
     // Close the FIRST sheet (its Close button is inert under the second, so
@@ -335,7 +335,7 @@ test.describe("P0-1 review fixes", () => {
       document.querySelector("header")?.setAttribute("inert", ""),
     );
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
-    await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
+    await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
     await page.keyboard.press("Escape");
     await expect(page.locator(SHEET)).toHaveCount(0);
     await expect.poll(() => inertCount(page)).toBe(1);
@@ -363,7 +363,7 @@ test.describe("P0-1 review fixes", () => {
     await page.evaluate(() => {
       (document.activeElement as HTMLElement | null)?.blur();
       document
-        .querySelector<HTMLElement>("[data-vista-sheet-focus-guard]")
+        .querySelector<HTMLElement>("[data-wicket-iris-focus-guard]")
         ?.focus();
     });
     expect(await focusPath(page)).toBe("close");

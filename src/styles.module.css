@@ -1,9 +1,9 @@
 /*
- * vista-sheet — all package CSS. Every variable is --vista-sheet-* and every
+ * wicket-iris — all package CSS. Every variable is --wicket-iris-* and every
  * one has a hardcoded fallback, so the package renders correctly with a
  * consumer who sets nothing (docs/PACKAGE-DESIGN.md §2).
  *
- * --vista-sheet-trigger-size is written by Root.tsx as a scoped @media-query
+ * --wicket-iris-trigger-size is written by Root.tsx as a scoped @media-query
  * <style> block (derived from useTriggerSize's resolveTriggerSize, its one
  * source of truth), not an inline style — that is the D3 fix (stale first-open
  * shared-layoutId snapshot): a real @media query resolves correctly at
@@ -16,9 +16,9 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--vista-sheet-z, 100);
-  width: var(--vista-sheet-trigger-size, 96px);
-  height: var(--vista-sheet-trigger-size, 96px);
+  z-index: var(--wicket-iris-z, 100);
+  width: var(--wicket-iris-trigger-size, 96px);
+  height: var(--wicket-iris-trigger-size, 96px);
   cursor: grab;
   touch-action: none;
 }
@@ -27,9 +27,9 @@
  * measurements): lift the trigger's stacking context over the sheet's
  * z + 102 so the trigger-side <Shared> copy is not occluded by the sheet's
  * still-opaque background mid-crossfade. Stays a calc() on the token rather
- * than an inline style so a consumer's own --vista-sheet-z still governs. */
-.dragWrapper[data-vista-sheet-closing] {
-  z-index: calc(var(--vista-sheet-z, 100) + 103);
+ * than an inline style so a consumer's own --wicket-iris-z still governs. */
+.dragWrapper[data-wicket-iris-closing] {
+  z-index: calc(var(--wicket-iris-z, 100) + 103);
 }
 
 .dragWrapper:active {
@@ -68,9 +68,9 @@
 }
 
 .triggerButton:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent, #1d1d1f);
+  outline: 2px solid var(--wicket-iris-accent, #1d1d1f);
   outline-offset: 5px;
-  border-radius: var(--vista-sheet-trigger-radius, 9999px);
+  border-radius: var(--wicket-iris-trigger-radius, 9999px);
 }
 
 .triggerSurface {
@@ -86,18 +86,18 @@
    * normal in-flow content, within the nearest ancestor stacking context
    * (.dragWrapper, position:fixed) — it can't escape below that ancestor's
    * own background/borders, only below its own siblings. `.shared[data-
-   * vista-sheet-slot="trigger"]`'s explicit z-index:1 is unaffected either
+   * wicket-iris-slot="trigger"]`'s explicit z-index:1 is unaffected either
    * way. */
   z-index: -1;
-  border-radius: var(--vista-sheet-trigger-radius, 9999px);
-  background: var(--vista-sheet-surface, #fafafa);
-  /* The ring width is one token: .shared[data-vista-sheet-slot="trigger"]'s
+  border-radius: var(--wicket-iris-trigger-radius, 9999px);
+  background: var(--wicket-iris-surface, #fafafa);
+  /* The ring width is one token: .shared[data-wicket-iris-slot="trigger"]'s
    * inset, the .shared size fallback and the rounded-square Shared radius all
-   * derive from --vista-sheet-surface-border-width, so the ring stays even
+   * derive from --wicket-iris-surface-border-width, so the ring stays even
    * and concentric at any width. */
-  border: var(--vista-sheet-surface-border-width, 1px) solid
-    var(--vista-sheet-surface-border, rgba(229, 229, 229, 0.6));
-  /* No box-shadow here: <VistaSheet.Shadow> paints the silhouette shadow
+  border: var(--wicket-iris-surface-border-width, 1px) solid
+    var(--wicket-iris-surface-border, rgba(229, 229, 229, 0.6));
+  /* No box-shadow here: <Iris.Shadow> paints the silhouette shadow
    * (docs/PACKAGE-DESIGN.md §4). This surface used to carry the same shadow
    * too, so the resting disc painted it twice and the first frame of every
    * open — when this element unmounts — halved the shadow in one step. */
@@ -106,40 +106,40 @@
 
 /* Trigger feedback: hover lift and press scale (Trigger.tsx,
  * triggerFeedback.ts). Written at rest only, on the trigger button and on
- * <VistaSheet.Shadow>'s element together, so the shadow moves with the
+ * <Iris.Shadow>'s element together, so the shadow moves with the
  * surface. Individual translate/scale, never transform: Motion owns the
  * surface's and Shared's inline transform. Every target is centred on the
  * button, so each scales about the same point. Off under reduced motion
  * (the shadow never gets the attribute then). 1px lift and 0.97 press
  * dialled by Sean 2026-10-07; 150ms strong ease-out. */
-.triggerButton[data-vista-sheet-feedback]:not([data-vista-sheet-reduce-motion])
+.triggerButton[data-wicket-iris-feedback]:not([data-wicket-iris-reduce-motion])
   > :is(.triggerSurface, .shared, .triggerLabel),
-[data-vista-sheet-part="shadow"][data-vista-sheet-feedback] {
+[data-wicket-iris-part="shadow"][data-wicket-iris-feedback] {
   transition:
     translate 150ms cubic-bezier(0.23, 1, 0.32, 1),
     scale 150ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.triggerButton[data-vista-sheet-feedback="hover"]:not(
-    [data-vista-sheet-reduce-motion]
+.triggerButton[data-wicket-iris-feedback="hover"]:not(
+    [data-wicket-iris-reduce-motion]
   )
   > :is(.triggerSurface, .shared, .triggerLabel),
-[data-vista-sheet-part="shadow"][data-vista-sheet-feedback="hover"] {
-  translate: 0 calc(var(--vista-sheet-trigger-hover-lift, 1px) * -1);
+[data-wicket-iris-part="shadow"][data-wicket-iris-feedback="hover"] {
+  translate: 0 calc(var(--wicket-iris-trigger-hover-lift, 1px) * -1);
 }
 
-.triggerButton[data-vista-sheet-feedback="pressed"]:not(
-    [data-vista-sheet-reduce-motion]
+.triggerButton[data-wicket-iris-feedback="pressed"]:not(
+    [data-wicket-iris-reduce-motion]
   )
   > :is(.triggerSurface, .shared, .triggerLabel),
-[data-vista-sheet-part="shadow"][data-vista-sheet-feedback="pressed"] {
-  scale: var(--vista-sheet-trigger-press-scale, 0.97);
+[data-wicket-iris-part="shadow"][data-wicket-iris-feedback="pressed"] {
+  scale: var(--wicket-iris-trigger-press-scale, 0.97);
 }
 
 /* Pointer highlight and press tint: two layers inside the trigger surface,
  * clipped by its own shape. They ride the surface's lift and scale and
  * never change its box, so the morph measures nothing new. The highlight
- * is a soft radial spot centred on --vista-sheet-trigger-highlight-x/-y
+ * is a soft radial spot centred on --wicket-iris-trigger-highlight-x/-y
  * (written per frame by Trigger.tsx; centred for touch, keyboard and
  * reduced motion). Default colour: 7% of the text colour, so a light
  * palette gets a faint tint and a dark one a faint glow. Strength 0 turns
@@ -155,17 +155,17 @@
 }
 
 .triggerSurface::before {
-  left: var(--vista-sheet-trigger-highlight-x, 50%);
-  top: var(--vista-sheet-trigger-highlight-y, 50%);
-  width: var(--vista-sheet-trigger-highlight-size, 96px);
-  height: var(--vista-sheet-trigger-highlight-size, 96px);
+  left: var(--wicket-iris-trigger-highlight-x, 50%);
+  top: var(--wicket-iris-trigger-highlight-y, 50%);
+  width: var(--wicket-iris-trigger-highlight-size, 96px);
+  height: var(--wicket-iris-trigger-highlight-size, 96px);
   translate: -50% -50%;
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
     var(
-      --vista-sheet-trigger-highlight-color,
-      color-mix(in srgb, var(--vista-sheet-text, #1d1d1f) 7%, transparent)
+      --wicket-iris-trigger-highlight-color,
+      color-mix(in srgb, var(--wicket-iris-text, #1d1d1f) 7%, transparent)
     ),
     transparent
   );
@@ -176,31 +176,31 @@
 
 .triggerSurface::after {
   inset: 0;
-  background: var(--vista-sheet-trigger-press-tint, rgba(0, 0, 0, 0.06));
+  background: var(--wicket-iris-trigger-press-tint, rgba(0, 0, 0, 0.06));
 }
 
-.triggerButton[data-vista-sheet-feedback="hover"] > .triggerSurface::before,
-.triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::before,
-.triggerButton[data-vista-sheet-feedback="pressed"] > .triggerSurface::after {
-  opacity: var(--vista-sheet-trigger-highlight-strength, 0.75);
+.triggerButton[data-wicket-iris-feedback="hover"] > .triggerSurface::before,
+.triggerButton[data-wicket-iris-feedback="pressed"] > .triggerSurface::before,
+.triggerButton[data-wicket-iris-feedback="pressed"] > .triggerSurface::after {
+  opacity: var(--wicket-iris-trigger-highlight-strength, 0.75);
 }
 
-.triggerButton[data-vista-sheet-feedback="pressed"]:not(
-    [data-vista-sheet-reduce-motion]
-  ):not([data-vista-sheet-highlight="static"])
+.triggerButton[data-wicket-iris-feedback="pressed"]:not(
+    [data-wicket-iris-reduce-motion]
+  ):not([data-wicket-iris-highlight="static"])
   > .triggerSurface::before {
   scale: 0.6;
 }
 
 /* Before an open: rest instantly, so the morph never measures a transform
  * that is still transitioning out and no highlight rides into the morph. */
-.triggerButton[data-vista-sheet-feedback="none"]:not(
-    [data-vista-sheet-reduce-motion]
+.triggerButton[data-wicket-iris-feedback="none"]:not(
+    [data-wicket-iris-reduce-motion]
   )
   > :is(.triggerSurface, .shared, .triggerLabel),
-.triggerButton[data-vista-sheet-feedback="none"] > .triggerSurface::before,
-.triggerButton[data-vista-sheet-feedback="none"] > .triggerSurface::after,
-[data-vista-sheet-part="shadow"][data-vista-sheet-feedback="none"] {
+.triggerButton[data-wicket-iris-feedback="none"] > .triggerSurface::before,
+.triggerButton[data-wicket-iris-feedback="none"] > .triggerSurface::after,
+[data-wicket-iris-part="shadow"][data-wicket-iris-feedback="none"] {
   transition: none;
 }
 
@@ -217,14 +217,14 @@
 
 /*
  * .shared — the shared-element slot, base rule. Sized to
- * --vista-sheet-shared-size, which defaults to the live --vista-sheet-trigger-size
- * (written on <VistaSheet.Root>'s own wrapper div, an ancestor of both the
+ * --wicket-iris-shared-size, which defaults to the live --wicket-iris-trigger-size
+ * (written on <Iris.Root>'s own wrapper div, an ancestor of both the
  * trigger and the sheet, so both slots resolve the same size).
  *
  * The trigger- and sheet-side instances need genuinely different layout —
  * the trigger clips to a circle inset in the surface ring, the sheet sits
  * in flow with margin — so a single opinionated rule (the pre-review
- * version of this file) can never serve both. `data-vista-sheet-slot="trigger" | "sheet"`,
+ * version of this file) can never serve both. `data-wicket-iris-slot="trigger" | "sheet"`,
  * set by <Shared> from SlotContext (provided by <Trigger>/<Sheet>), is a
  * higher-specificity attribute selector, so it reliably wins over this base
  * rule regardless of source order — unlike trying to override via a
@@ -234,7 +234,7 @@
 .shared {
   position: relative;
   /* The fallback is trigger-size MINUS the trigger-side slot's ring inset
-   * (--vista-sheet-surface-border-width) on each edge, not the raw
+   * (--wicket-iris-surface-border-width) on each edge, not the raw
    * trigger-size: the trigger-side instance below is inset by the ring width
    * inside a triggerSize-square parent, so its EFFECTIVE rendered box is
    * triggerSize - 2 * ring. Both instances must resolve to
@@ -242,26 +242,26 @@
    * requires — so this base rule (which the sheet-side slot inherits
    * unmodified) has to match it. */
   width: var(
-    --vista-sheet-shared-size,
+    --wicket-iris-shared-size,
     calc(
-      var(--vista-sheet-trigger-size, 96px) -
-        2 * var(--vista-sheet-surface-border-width, 1px)
+      var(--wicket-iris-trigger-size, 96px) -
+        2 * var(--wicket-iris-surface-border-width, 1px)
     )
   );
   height: var(
-    --vista-sheet-shared-size,
+    --wicket-iris-shared-size,
     calc(
-      var(--vista-sheet-trigger-size, 96px) -
-        2 * var(--vista-sheet-surface-border-width, 1px)
+      var(--wicket-iris-trigger-size, 96px) -
+        2 * var(--wicket-iris-surface-border-width, 1px)
     )
   );
   pointer-events: none;
 }
 
 /* Trigger-side: inset in the surface ring, clipped to a circle, centered. */
-.shared[data-vista-sheet-slot="trigger"] {
+.shared[data-wicket-iris-slot="trigger"] {
   position: absolute;
-  inset: var(--vista-sheet-surface-border-width, 1px);
+  inset: var(--wicket-iris-surface-border-width, 1px);
   z-index: 1;
   width: auto;
   height: auto;
@@ -275,7 +275,7 @@
 /* Sheet-side: no header row to sit inside here, so this stays in flow with
  * margin rather than the source's `position: absolute` — simpler than the
  * extraction source because the package has no header spacer to clear. */
-.shared[data-vista-sheet-slot="sheet"] {
+.shared[data-wicket-iris-slot="sheet"] {
   position: relative;
   margin: 24px 24px 0;
   border-radius: 50%;
@@ -285,8 +285,8 @@
 
 .sheet {
   position: fixed;
-  width: min(var(--vista-sheet-sheet-max-width, 480px), calc(100vw - 32px));
-  left: var(--vista-sheet-sheet-left, 16px);
+  width: min(var(--wicket-iris-sheet-max-width, 480px), calc(100vw - 32px));
+  left: var(--wicket-iris-sheet-left, 16px);
   /* Default: grow upward from the bottom edge. Sheet.tsx always writes
    * `top`/`bottom` inline (never via a var, so they win regardless of
    * cascade order) — top-only anchors grow downward, bottom-only anchors
@@ -304,21 +304,21 @@
   height: fit-content;
   display: flex;
   flex-direction: column;
-  background: var(--vista-sheet-surface-elevated, #ffffff);
-  border: 1px solid var(--vista-sheet-surface-border, rgba(229, 229, 229, 0.6));
+  background: var(--wicket-iris-surface-elevated, #ffffff);
+  border: 1px solid var(--wicket-iris-surface-border, rgba(229, 229, 229, 0.6));
   /* Motion's inline borderRadius MotionValue (Sheet.tsx) wins during the
    * morph; this supplies the resting shape AND the reduced-motion shape,
    * which never gets an inline value at all (its render branch passes no
    * borderRadius) and previously rendered with square corners. */
-  border-radius: var(--vista-sheet-sheet-radius, 48px);
+  border-radius: var(--wicket-iris-sheet-radius, 48px);
   /* No shadow of its own, ever: Motion draws the growing sheet scaled down
    * (~37% on the first open frame), which squashed a sheet-painted shadow
    * into a dark, tight edge that then lightened as the box grew. Both looks
    * (the thin disc shadow and the sheet's heavier resting shadow) are
-   * painted, and crossfaded, by <VistaSheet.Shadow> alone (Shadow.tsx,
+   * painted, and crossfaded, by <Iris.Shadow> alone (Shadow.tsx,
    * .shadow::before/::after below) — one painter, one clock (DESIGN.md
    * §4.1). This element used to fade its own box-shadow in via
-   * `[data-vista-sheet-settled]`, which was a second clock and produced a
+   * `[data-wicket-iris-settled]`, which was a second clock and produced a
    * one-frame pop when a demo mask clipped it at the phase boundary. */
   box-shadow: none;
   /* SSR/pre-hydration fallback only — Sheet.tsx always writes an inline
@@ -326,7 +326,7 @@
    * over this. Matches the default anchor (bottom-center). */
   max-height: 88dvh;
   overflow: hidden;
-  color: var(--vista-sheet-text, #1d1d1f);
+  color: var(--wicket-iris-text, #1d1d1f);
 }
 
 .sheet:focus {
@@ -341,8 +341,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: pan-y;
-  padding: 0 var(--vista-sheet-sheet-padding, 24px)
-    var(--vista-sheet-sheet-padding, 24px);
+  padding: 0 var(--wicket-iris-sheet-padding, 24px)
+    var(--wicket-iris-sheet-padding, 24px);
 }
 
 /* Layout-neutral: kept as a real (if empty) CSS-module rule so
@@ -362,23 +362,23 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--vista-sheet-text, #1d1d1f);
+  color: var(--wicket-iris-text, #1d1d1f);
   cursor: pointer;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
 .closeButton:focus-visible {
-  outline: 2px solid var(--vista-sheet-accent, #1d1d1f);
+  outline: 2px solid var(--wicket-iris-accent, #1d1d1f);
   outline-offset: 2px;
 }
 
 .shadow {
-  border-radius: var(--vista-sheet-shadow-radius, 9999px);
+  border-radius: var(--wicket-iris-shadow-radius, 9999px);
 }
 
 /* Two shadow looks on one silhouette, crossfaded by opacity (Shadow.tsx sets
- * both --vista-sheet-shadow-opacity and --vista-sheet-sheet-shadow-opacity
+ * both --wicket-iris-shadow-opacity and --wicket-iris-sheet-shadow-opacity
  * every collapseProgress tick). Only opacity animates here — never blur or
  * spread (DESIGN.md §4.3). .shadow is itself `position: fixed`, so it is
  * already a positioning context for these; no extra `position: relative`
@@ -394,20 +394,20 @@
 
 .shadow::before {
   box-shadow: var(
-    --vista-sheet-shadow,
+    --wicket-iris-shadow,
     0 2px 16px -4px rgba(0, 0, 0, 0.03),
     0 6px 20px -4px rgba(0, 0, 0, 0.08)
   );
-  opacity: var(--vista-sheet-shadow-opacity, 1);
+  opacity: var(--wicket-iris-shadow-opacity, 1);
 }
 
 .shadow::after {
   box-shadow: var(
-    --vista-sheet-sheet-shadow,
+    --wicket-iris-sheet-shadow,
     0 12px 16px -12px rgba(0, 0, 0, 0.12),
     0 8px 22px -4px rgba(0, 0, 0, 0.12)
   );
-  opacity: var(--vista-sheet-sheet-shadow-opacity, 0);
+  opacity: var(--wicket-iris-sheet-shadow-opacity, 0);
 }
 
 /* Trigger shape (v0.2). The trigger's rest radius is JS-owned
@@ -419,34 +419,34 @@
  * src/shape.ts (src/styles.shape.test.ts checks this). */
 
 /* Strawman (v0.2): 25% of trigger size, awaiting Sean's dial pass. */
-.triggerButton[data-vista-sheet-shape="rounded-square"]:focus-visible {
+.triggerButton[data-wicket-iris-shape="rounded-square"]:focus-visible {
   border-radius: min(
-    var(--vista-sheet-trigger-radius, 9999px),
-    calc(var(--vista-sheet-trigger-size, 96px) * 0.25)
+    var(--wicket-iris-trigger-radius, 9999px),
+    calc(var(--wicket-iris-trigger-size, 96px) * 0.25)
   );
 }
 
 /* Minus the ring width: concentric with the surface's ring. The sheet-side slot
  * uses this same value so the Shared FLIP has no radius pop. */
-.shared[data-vista-sheet-slot][data-vista-sheet-shape="rounded-square"] {
+.shared[data-wicket-iris-slot][data-wicket-iris-shape="rounded-square"] {
   border-radius: max(
     0px,
     calc(
       min(
-          var(--vista-sheet-trigger-radius, 9999px),
-          calc(var(--vista-sheet-trigger-size, 96px) * 0.25)
+          var(--wicket-iris-trigger-radius, 9999px),
+          calc(var(--wicket-iris-trigger-size, 96px) * 0.25)
         ) -
-        var(--vista-sheet-surface-border-width, 1px)
+        var(--wicket-iris-surface-border-width, 1px)
     )
   );
 }
 
 /* No minimum radius in this package. */
-.triggerButton[data-vista-sheet-shape="square"]:focus-visible {
+.triggerButton[data-wicket-iris-shape="square"]:focus-visible {
   border-radius: 0;
 }
 
-.shared[data-vista-sheet-slot][data-vista-sheet-shape="square"] {
+.shared[data-wicket-iris-slot][data-wicket-iris-shape="square"] {
   border-radius: 0;
 }
 
@@ -458,18 +458,18 @@
  * below and supportsCornerShape() detect it. Once Safari AND Firefox ship
  * it, delete the fallback border-radius rule below,
  * SQUIRCLE_FALLBACK_RADIUS_FRACTION, and the README browser-support line. */
-.triggerButton[data-vista-sheet-shape="squircle"]:focus-visible {
+.triggerButton[data-wicket-iris-shape="squircle"]:focus-visible {
   border-radius: min(
-    var(--vista-sheet-trigger-radius, 9999px),
-    calc(var(--vista-sheet-trigger-size, 96px) * 0.2716)
+    var(--wicket-iris-trigger-radius, 9999px),
+    calc(var(--wicket-iris-trigger-size, 96px) * 0.2716)
   );
 }
 
-/* Exact n=4 superellipse, all browsers (VistaSheet.Shared). 128-vertex
+/* Exact n=4 superellipse, all browsers (Iris.Shared). 128-vertex
  * static SVG mask, not clip-path or an inline style — an inline style would
  * hit framer-motion's never-clears-inline-style trap on runtime shape
  * changes. */
-.shared[data-vista-sheet-slot][data-vista-sheet-shape="squircle"] {
+.shared[data-wicket-iris-slot][data-wicket-iris-shape="squircle"] {
   border-radius: 0;
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100,50 L100,52.46 L100,54.92 L99.99,57.42 L99.98,59.94 L99.95,62.51 L99.89,65.14 L99.8,67.82 L99.64,70.56 L99.39,73.36 L99.03,76.21 L98.51,79.07 L97.78,81.92 L96.8,84.71 L95.54,87.37 L93.95,89.84 L92.04,92.04 L89.84,93.95 L87.37,95.54 L84.71,96.8 L81.92,97.78 L79.07,98.51 L76.21,99.03 L73.36,99.39 L70.56,99.64 L67.82,99.8 L65.14,99.89 L62.51,99.95 L59.94,99.98 L57.42,99.99 L54.92,100 L52.46,100 L50,100 L47.54,100 L45.08,100 L42.58,99.99 L40.06,99.98 L37.49,99.95 L34.86,99.89 L32.18,99.8 L29.44,99.64 L26.64,99.39 L23.79,99.03 L20.93,98.51 L18.08,97.78 L15.29,96.8 L12.63,95.54 L10.16,93.95 L7.96,92.04 L6.05,89.84 L4.46,87.37 L3.2,84.71 L2.22,81.92 L1.49,79.07 L0.97,76.21 L0.61,73.36 L0.36,70.56 L0.2,67.82 L0.11,65.14 L0.05,62.51 L0.02,59.94 L0.01,57.42 L0,54.92 L0,52.46 L0,50 L0,47.54 L0,45.08 L0.01,42.58 L0.02,40.06 L0.05,37.49 L0.11,34.86 L0.2,32.18 L0.36,29.44 L0.61,26.64 L0.97,23.79 L1.49,20.93 L2.22,18.08 L3.2,15.29 L4.46,12.63 L6.05,10.16 L7.96,7.96 L10.16,6.05 L12.63,4.46 L15.29,3.2 L18.08,2.22 L20.93,1.49 L23.79,0.97 L26.64,0.61 L29.44,0.36 L32.18,0.2 L34.86,0.11 L37.49,0.05 L40.06,0.02 L42.58,0.01 L45.08,0 L47.54,0 L50,0 L52.46,0 L54.92,0 L57.42,0.01 L59.94,0.02 L62.51,0.05 L65.14,0.11 L67.82,0.2 L70.56,0.36 L73.36,0.61 L76.21,0.97 L79.07,1.49 L81.92,2.22 L84.71,3.2 L87.37,4.46 L89.84,6.05 L92.04,7.96 L93.95,10.16 L95.54,12.63 L96.8,15.29 L97.78,18.08 L98.51,20.93 L99.03,23.79 L99.39,26.64 L99.64,29.44 L99.8,32.18 L99.89,34.86 L99.95,37.49 L99.98,40.06 L99.99,42.58 L100,45.08 L100,47.54Z'/%3E%3C/svg%3E");
   mask-size: 100% 100%;
@@ -480,16 +480,16 @@
  * geometry mid-morph (Strawman (v0.2)). box-shadow on the pseudo-layers
  * follows corner-shape in Chromium (verified on Chromium 151). */
 @supports (corner-shape: squircle) {
-  .triggerButton[data-vista-sheet-shape="squircle"]:focus-visible {
-    border-radius: var(--vista-sheet-trigger-radius, 9999px);
+  .triggerButton[data-wicket-iris-shape="squircle"]:focus-visible {
+    border-radius: var(--wicket-iris-trigger-radius, 9999px);
     corner-shape: squircle;
   }
 
-  .triggerSurface[data-vista-sheet-shape="squircle"],
-  .sheet[data-vista-sheet-shape="squircle"],
-  .shadow[data-vista-sheet-shape="squircle"],
-  .shadow[data-vista-sheet-shape="squircle"]::before,
-  .shadow[data-vista-sheet-shape="squircle"]::after {
+  .triggerSurface[data-wicket-iris-shape="squircle"],
+  .sheet[data-wicket-iris-shape="squircle"],
+  .shadow[data-wicket-iris-shape="squircle"],
+  .shadow[data-wicket-iris-shape="squircle"]::before,
+  .shadow[data-wicket-iris-shape="squircle"]::after {
     corner-shape: squircle;
   }
 }
@@ -497,43 +497,43 @@
 /* Rectangle trigger (v0.2). Strawman (v0.2): S/M/L heights 36/44/52px,
  * inline padding 14/18/22px, gap 6/8/10px, awaiting Sean's dial pass
  * (DESIGN.md §3). Width is the label's max-content unless Root's buttonWidth
- * writes --vista-sheet-button-width. JS measures this box; it never sizes
+ * writes --wicket-iris-button-width. JS measures this box; it never sizes
  * it. */
-.dragWrapper[data-vista-sheet-shape="rectangle"] {
-  width: var(--vista-sheet-button-width, max-content);
+.dragWrapper[data-wicket-iris-shape="rectangle"] {
+  width: var(--wicket-iris-button-width, max-content);
   height: 44px;
 }
 
-.dragWrapper[data-vista-sheet-shape="rectangle"][data-vista-sheet-button-size="s"] {
+.dragWrapper[data-wicket-iris-shape="rectangle"][data-wicket-iris-button-size="s"] {
   height: 36px;
 }
 
-.dragWrapper[data-vista-sheet-shape="rectangle"][data-vista-sheet-button-size="l"] {
+.dragWrapper[data-wicket-iris-shape="rectangle"][data-wicket-iris-button-size="l"] {
   height: 52px;
 }
 
-.triggerButton[data-vista-sheet-shape="rectangle"] {
+.triggerButton[data-wicket-iris-shape="rectangle"] {
   box-sizing: border-box;
   padding-inline: 18px;
   gap: 8px;
   white-space: nowrap;
   font: inherit;
-  color: var(--vista-sheet-text, #1d1d1f);
+  color: var(--wicket-iris-text, #1d1d1f);
 }
 
-.triggerButton[data-vista-sheet-shape="rectangle"][data-vista-sheet-button-size="s"] {
+.triggerButton[data-wicket-iris-shape="rectangle"][data-wicket-iris-button-size="s"] {
   padding-inline: 14px;
   gap: 6px;
 }
 
-.triggerButton[data-vista-sheet-shape="rectangle"][data-vista-sheet-button-size="l"] {
+.triggerButton[data-wicket-iris-shape="rectangle"][data-wicket-iris-button-size="l"] {
   padding-inline: 22px;
   gap: 10px;
 }
 
 /* Strawman (v0.2): a fixed buttonWidth narrower than the label clips it; no
  * ellipsis. */
-.triggerButton[data-vista-sheet-shape="rectangle"] .triggerLabel {
+.triggerButton[data-wicket-iris-shape="rectangle"] .triggerLabel {
   overflow: hidden;
 }
 
@@ -545,7 +545,7 @@
 }
 
 /*
- * .media / .mediaElement — VistaSheet.Media (P4). Media.tsx owns every
+ * .media / .mediaElement — Iris.Media (P4). Media.tsx owns every
  * geometry write (width/height/left/top/transform) imperatively; no such
  * property may be declared here, and this rule declares no box-shadow or
  * filter (Shadow.tsx is the single painter, DESIGN.md §4.1).
@@ -554,7 +554,7 @@
   position: absolute;
   inset: 0;
   /* Paints above the surface's own background/border and below any
-   * in-flow child (e.g. <VistaSheet.Close>), within the surface's own
+   * in-flow child (e.g. <Iris.Close>), within the surface's own
    * stacking context — matching .triggerSurface's negative-z-index
    * reasoning above. The surface's own overflow:hidden plus its
    * border-radius/corner-shape is the clip; .media declares neither. */
@@ -594,9 +594,9 @@
 /* Preview defaults at zero specificity, so Root's className wins. No resting
  * shadow: there is no disc under a text link. */
 :where(.previewLayer) {
-  --vista-sheet-sheet-radius: 16px;
-  --vista-sheet-trigger-radius: var(--vista-sheet-preview-radius);
-  --vista-sheet-shadow: none;
+  --wicket-iris-sheet-radius: 16px;
+  --wicket-iris-trigger-radius: var(--wicket-iris-preview-radius);
+  --wicket-iris-shadow: none;
 }
 
 /* Root's role="status" region (anchor-move announcements): read by screen

@@ -15,21 +15,21 @@ import AxeBuilder from "@axe-core/playwright";
  */
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
-const SHEET = '[data-vista-sheet-part="sheet"]';
+const SHEET = '[data-wicket-iris-part="sheet"]';
 
 // The focus guards (`<span tabIndex=0 aria-hidden>`, the standard focus-trap
 // sentinel) are scanned, not excluded: axe's aria-hidden-focus does not flag
-// them. If a future axe does, exclude only [data-vista-sheet-focus-guard].
+// them. If a future axe does, exclude only [data-wicket-iris-focus-guard].
 
-// data-vista-sheet-settled flips at a collapse threshold, before the item
+// data-wicket-iris-settled flips at a collapse threshold, before the item
 // stagger has finished fading in. A half-faded item reads as low contrast, so
 // wait for every item to be fully opaque too.
 async function waitSettled(page: Page) {
-  await page.waitForSelector(`${SHEET}[data-vista-sheet-settled]`);
+  await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
   await page.waitForFunction(
     (sheet) =>
       [
-        ...document.querySelectorAll(`${sheet} [data-vista-sheet-part="item"]`),
+        ...document.querySelectorAll(`${sheet} [data-wicket-iris-part="item"]`),
       ].every((el) => getComputedStyle(el).opacity === "1"),
     SHEET,
   );

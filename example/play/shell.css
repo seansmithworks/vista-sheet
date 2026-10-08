@@ -144,20 +144,20 @@ body {
 /* Strawman (v0.2): phone controls Root — neutral example tokens, 40px
    utility trigger, no Shadow (task 4 spec). */
 .play-controls-theme {
-  --vista-sheet-surface: #fafafa;
-  --vista-sheet-surface-elevated: #ffffff;
-  --vista-sheet-surface-border: #e5e5e5;
-  --vista-sheet-text: #1d1d1f;
-  --vista-sheet-accent: #1d1d1f;
-  --vista-sheet-sheet-padding: 20px;
+  --wicket-iris-surface: #fafafa;
+  --wicket-iris-surface-elevated: #ffffff;
+  --wicket-iris-surface-border: #e5e5e5;
+  --wicket-iris-text: #1d1d1f;
+  --wicket-iris-accent: #1d1d1f;
+  --wicket-iris-sheet-padding: 20px;
 }
 
-.play-controls-theme [data-vista-sheet-part="close"] {
+.play-controls-theme [data-wicket-iris-part="close"] {
   position: absolute;
   top: 16px;
   right: 16px;
 }
 
-.play-controls-theme [data-vista-sheet-part="trigger"] {
-  color: var(--vista-sheet-text);
+.play-controls-theme [data-wicket-iris-part="trigger"] {
+  color: var(--wicket-iris-text);
 }

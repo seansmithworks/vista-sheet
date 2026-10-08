@@ -1,8 +1,8 @@
-# `vista-sheet` package design
+# Wicket Iris package design
 
 Draggable trigger that morphs into a sheet. Generic React primitive, compound-component API.
 
-Shipped as `@seansmithworks/vista-sheet`. `VistaSheet` is the exported namespace object throughout, and `--vista-sheet-*` is the CSS custom property namespace.
+Shipped as `@wicket/iris`. `Iris` is the exported namespace object throughout, and `--wicket-iris-*` is the CSS custom property namespace.
 
 Source of the extraction: `src/components/chrome/FloatingIdentity.tsx`, `ContactSheet.tsx`, `anchorPositions.ts` and their CSS modules on `seansmithdesign.com`. Everything cited below was verified against those files, not inferred.
 
@@ -30,37 +30,37 @@ Precedent check. Two of Sean's own packages already set conventions:
 ### The tree
 
 ```tsx
-import { VistaSheet } from "@seansmithworks/vista-sheet";
+import { Iris } from "@wicket/iris";
 
-<VistaSheet.Root>
-  <VistaSheet.Shadow />
+<Iris.Root>
+  <Iris.Shadow />
 
-  <VistaSheet.Trigger aria-label="Open contact">
-    <VistaSheet.Shared>
+  <Iris.Trigger aria-label="Open contact">
+    <Iris.Shared>
       <Avatar />
-    </VistaSheet.Shared>
-  </VistaSheet.Trigger>
+    </Iris.Shared>
+  </Iris.Trigger>
 
-  <VistaSheet.Sheet aria-labelledby="sheet-title">
-    <VistaSheet.Shared>
+  <Iris.Sheet aria-labelledby="sheet-title">
+    <Iris.Shared>
       <Avatar />
-    </VistaSheet.Shared>
+    </Iris.Shared>
 
-    <VistaSheet.Close aria-label="Close" />
+    <Iris.Close aria-label="Close" />
 
-    <VistaSheet.Content>
-      <VistaSheet.Item>
+    <Iris.Content>
+      <Iris.Item>
         <h2 id="sheet-title">Sean Smith</h2>
-      </VistaSheet.Item>
-      <VistaSheet.Item>…</VistaSheet.Item>
-    </VistaSheet.Content>
-  </VistaSheet.Sheet>
-</VistaSheet.Root>
+      </Iris.Item>
+      <Iris.Item>…</Iris.Item>
+    </Iris.Content>
+  </Iris.Sheet>
+</Iris.Root>
 ```
 
 Nine exports total: eight components plus one hook. That is the whole surface area.
 
-### `<VistaSheet.Root>`
+### `<Iris.Root>`
 
 Owns open state, anchor state, the `LayoutGroup`, the shared context, and the reduced-motion decision.
 
@@ -83,7 +83,7 @@ interface MorphTransition {
   /** Sheet to trigger. Default: { stiffness: 375, damping: 32, mass: 1 } */
   close?: Spring | Transition;
   /**
-   * The <VistaSheet.Shared> element's own morph. Direction-aware: a single
+   * The <Iris.Shared> element's own morph. Direction-aware: a single
    * value applies to both directions, { open, close } sets them apart.
    * Defaults: open { stiffness: 500, damping: 45 },
    *           close { stiffness: 305, damping: 28.9, mass: 1 }
@@ -106,18 +106,18 @@ interface RootProps {
   /** Uncontrolled initial anchor. Default "bottom-center". */
   defaultAnchor?: AnchorId;
   /** Fires once per move to a new anchor: a drag release, an arrow key on
-   * the focused trigger, or useVistaSheet().setAnchor. */
+   * the focused trigger, or useIris().setAnchor. */
   onAnchorChange?: (anchor: AnchorId) => void;
   /** Default true. False renders a fixed trigger with no drag affordance. */
   draggable?: boolean;
   /**
    * localStorage key for the chosen anchor.
-   * Default "vista-sheet-anchor". Pass false to disable persistence entirely.
+   * Default "wicket-iris-anchor". Pass false to disable persistence entirely.
    */
   persistKey?: string | false;
   /**
    * The polite status text written when the trigger moves by keyboard or by
-   * useVistaSheet().setAnchor (never by a drag). Default
+   * useIris().setAnchor (never by a drag). Default
    * `Moved to bottom right.` style text. Return false to announce nothing.
    */
   anchorAnnouncement?: (anchor: AnchorId) => string | false;
@@ -145,13 +145,13 @@ interface RootProps {
 }
 ```
 
-**Uncontrolled path.** `<VistaSheet.Root>` with no `open`. The trigger tap toggles internal state, `onOpenChange` fires for telemetry. The anchor is read from `localStorage` at mount, validated against the seven legal values, and written back on every settled drag. This is the default and it is what the flagship example uses.
+**Uncontrolled path.** `<Iris.Root>` with no `open`. The trigger tap toggles internal state, `onOpenChange` fires for telemetry. The anchor is read from `localStorage` at mount, validated against the seven legal values, and written back on every settled drag. This is the default and it is what the flagship example uses.
 
-**Controlled path.** Pass `open` and `onOpenChange`. The package calls `onOpenChange(next)` and does nothing else; the surface only changes when `open` changes. All internal triggers route through the same call: trigger tap, Escape, backdrop click, swipe-down past threshold, `<VistaSheet.Close>`. There is no second escape valve, so a consumer holding `open={false}` gets a sheet that genuinely cannot open.
+**Controlled path.** Pass `open` and `onOpenChange`. The package calls `onOpenChange(next)` and does nothing else; the surface only changes when `open` changes. All internal triggers route through the same call: trigger tap, Escape, backdrop click, swipe-down past threshold, `<Iris.Close>`. There is no second escape valve, so a consumer holding `open={false}` gets a sheet that genuinely cannot open.
 
 Anchor is deliberately **uncontrolled only** in v0.1. See §8.
 
-#### Preview mode: `<VistaSheet.Root preview>`
+#### Preview mode: `<Iris.Root preview>`
 
 ```ts
 interface RootProps {
@@ -169,25 +169,25 @@ type PreviewRootProps = Pick<RootProps, PreviewKept> & {
   preview: true;
 } & Partial<Record<Exclude<keyof RootProps, PreviewKept | "preview">, never>>;
 
-/** What <VistaSheet.Root> accepts. */
+/** What <Iris.Root> accepts. */
 type RootComponentProps = RootProps | PreviewRootProps;
 ```
 
-`preview` turns a consumer's `<a>` into the trigger of a non-modal hover card. The Trigger is `<VistaSheet.Trigger asChild>` over the link (`PreviewTriggerProps`: `asChild: true`, one element child, no `aria-label`, no `className`; the modal `TriggerProps` keeps `aria-label` required, so the modal compile-time check survives). `<VistaSheet.Sheet>` still needs `aria-label` or `aria-labelledby`, but a preview card is `aria-hidden`, so nothing inside it may be focusable; the link is the accessible element.
+`preview` turns a consumer's `<a>` into the trigger of a non-modal hover card. The Trigger is `<Iris.Trigger asChild>` over the link (`PreviewTriggerProps`: `asChild: true`, one element child, no `aria-label`, no `className`; the modal `TriggerProps` keeps `aria-label` required, so the modal compile-time check survives). `<Iris.Sheet>` still needs `aria-label` or `aria-labelledby`, but a preview card is `aria-hidden`, so nothing inside it may be focusable; the link is the accessible element.
 
 Every modal-only prop (`open`, `defaultOpen`, `defaultAnchor`, `draggable`, `persistKey`, `triggerSize`, `shape`, `buttonSize`, `buttonWidth`, ...) is `never` on `PreviewRootProps`, so passing one is a type error, not a silent no-op. `RootComponentProps` is additive for existing modal consumers.
 
-**Why a Root mode and not a new component.** The morph's clock coupling (`startMorphClock` plus its fallback rAF), shared context, `LayoutGroup` and reduced-motion decision all live in Root, and that is the most fragile code in the package. A separate `<VistaSheet.Preview>` would have to duplicate it. So there is one Root, and `preview` branches in exactly three places:
+**Why a Root mode and not a new component.** The morph's clock coupling (`startMorphClock` plus its fallback rAF), shared context, `LayoutGroup` and reduced-motion decision all live in Root, and that is the most fragile code in the package. A separate `<Iris.Preview>` would have to duplicate it. So there is one Root, and `preview` branches in exactly three places:
 
 1. **The Trigger switch.** `asChild` selects `LinkTrigger` (hover intent, focus intent, touch long-press, one pinned line box) over the button trigger.
 2. **The placement function.** `previewSheetPlacement` (built on the pure `previewPlacement` in `anchors.ts`) replaces `sheetPlacement`: above the hovered line if the whole card fits there, otherwise the side with more room (above wins a tie), shrunk to fit; 8px gap, 16px viewport clamp, a 240px minimum height (currently; `PREVIEW_MIN_HEIGHT_PX`). Computed once at open.
 3. **`useDialogBehavior({ modal })`.** `modal: false` skips scroll lock, the inert page, focus move and the focus guards, and adds light dismiss (outside press, scroll, resize). Escape closes in both modes.
 
-Root also owns one `display: contents` layer on `<body>` that Sheet and Shadow both portal into, so `Shadow` still finds its sheet through `[data-vista-sheet-root]`. The layer exists only while a card is armed, open or closing, and carries the theme vars and the consumer's `className`. Content and Shadow carry no preview branches.
+Root also owns one `display: contents` layer on `<body>` that Sheet and Shadow both portal into, so `Shadow` still finds its sheet through `[data-wicket-iris-root]`. The layer exists only while a card is armed, open or closing, and carries the theme vars and the consumer's `className`. Content and Shadow carry no preview branches.
 
 **Settled (Sean, 2026-10-04).** Placement is above when the whole card fits there, otherwise the side with more room, because the lines below stay hoverable. The 240px minimum height stays. The card is hoverable (WCAG 1.4.13), with a hover intent (currently 150ms, `PREVIEW_HOVER_INTENT_MS`) and a grace to cross the gap (currently 250ms, `PREVIEW_CLOSE_GRACE_MS`). Timings and the link-end radius (currently 4px, `PREVIEW_TRIGGER_RADIUS_PX`) are strawmen that live only in `src/motion.ts`.
 
-### `<VistaSheet.Trigger>`
+### `<Iris.Trigger>`
 
 The fixed drag wrapper plus the trigger button plus the morph seed surface.
 
@@ -202,13 +202,13 @@ interface TriggerProps {
 
 Renders three nested nodes the consumer does not control:
 
-1. `motion.div[data-vista-sheet-part="trigger-root"]`, `position: fixed` at the viewport origin, positioned entirely by Motion `x`/`y` MotionValues holding the trigger's top-left in viewport px. This single-origin model is load-bearing: nothing ever changes CSS `left`/`top` after mount, so a snap is a plain `x`/`y` animation with no FLIP and no one-frame transform desync.
-2. `button[data-vista-sheet-part="trigger"]`, transparent, fills the wrapper, carries `aria-haspopup="dialog"` / `aria-expanded` / `aria-controls`.
-3. `motion.div[data-vista-sheet-part="trigger-surface"]`, the `layoutId` seed. Circular, painted from `--vista-sheet-surface` and `--vista-sheet-surface-border`. This is the element that FLIPs into the sheet, which is why it is package-owned rather than a slot.
+1. `motion.div[data-wicket-iris-part="trigger-root"]`, `position: fixed` at the viewport origin, positioned entirely by Motion `x`/`y` MotionValues holding the trigger's top-left in viewport px. This single-origin model is load-bearing: nothing ever changes CSS `left`/`top` after mount, so a snap is a plain `x`/`y` animation with no FLIP and no one-frame transform desync.
+2. `button[data-wicket-iris-part="trigger"]`, transparent, fills the wrapper, carries `aria-haspopup="dialog"` / `aria-expanded` / `aria-controls`.
+3. `motion.div[data-wicket-iris-part="trigger-surface"]`, the `layoutId` seed. Circular, painted from `--wicket-iris-surface` and `--wicket-iris-surface-border`. This is the element that FLIPs into the sheet, which is why it is package-owned rather than a slot.
 
 `children` render above the seed surface, inside the button.
 
-### `<VistaSheet.Sheet>`
+### `<Iris.Sheet>`
 
 The modal surface. Same `layoutId` as the trigger seed, so Motion FLIPs the box between the two.
 
@@ -231,9 +231,9 @@ The `Labelled` union makes it a type error to render a dialog with no accessible
 
 Escape is **not** configurable. A modal surface that traps focus and cannot be dismissed by keyboard is a defect, not a variant.
 
-### `<VistaSheet.Shared>`
+### `<Iris.Shared>`
 
-The shared-element slot. Rendered **twice**: once inside `<VistaSheet.Trigger>`, once inside `<VistaSheet.Sheet>`, with the same children. It carries its own `layoutId` and its own spring, independent of the surface morph.
+The shared-element slot. Rendered **twice**: once inside `<Iris.Trigger>`, once inside `<Iris.Sheet>`, with the same children. It carries its own `layoutId` and its own spring, independent of the surface morph.
 
 ```ts
 interface SharedProps {
@@ -242,11 +242,11 @@ interface SharedProps {
 }
 ```
 
-Critical structural rule inherited from the source, and the package enforces it by construction: `<VistaSheet.Shared>` renders as a **sibling** of the trigger seed surface, never a child. Nesting it would make its projection inherit the surface's close-morph FLIP, freezing it at the surface's transient mid-collapse box and then teleporting it home. The comment at `FloatingIdentity.tsx:1935-1944` documents that exact bug.
+Critical structural rule inherited from the source, and the package enforces it by construction: `<Iris.Shared>` renders as a **sibling** of the trigger seed surface, never a child. Nesting it would make its projection inherit the surface's close-morph FLIP, freezing it at the surface's transient mid-collapse box and then teleporting it home. The comment at `FloatingIdentity.tsx:1935-1944` documents that exact bug.
 
 Optional: omit it entirely. The morph still works; there is just no element that persists visually across it.
 
-### `<VistaSheet.Content>` and `<VistaSheet.Item>`
+### `<Iris.Content>` and `<Iris.Item>`
 
 `Content` holds sheet content at opacity 0 through the bloom and reveals it after, then fades it out first on close. `Item` is a staggered child.
 
@@ -259,7 +259,7 @@ No props beyond that. The reveal delay, stagger interval, and exit duration are 
 
 `Content` also owns the scroll region: it applies `overflow-y: auto` to itself and reports `scrollTop` to the swipe-to-close handler, which must not fire while the content is scrolled. That coupling exists today at `ContactSheet.tsx:929-930` and it is easy to lose in an extraction.
 
-### `<VistaSheet.Close>`
+### `<Iris.Close>`
 
 ```ts
 interface CloseProps {
@@ -271,7 +271,7 @@ interface CloseProps {
 
 Registers itself in context on mount. If the sheet opens and no `Close` is registered, Root logs a dev-only warning. Escape and backdrop click are not a substitute for a visible close control.
 
-### `<VistaSheet.Backdrop>`
+### `<Iris.Backdrop>`
 
 Opt-in **visual** scrim only. Dismiss-on-outside-click is Root behavior and works whether or not `Backdrop` is rendered.
 
@@ -285,14 +285,14 @@ interface BackdropProps {
 
 This split matters. The site currently ships `backdropDimEnabled: false` (verified in `surface-fx/src/schema/bloomDefaults.ts`), so the default look is a clear page behind the bloom. Making the scrim a component rather than a boolean means the default costs nothing and the dim variant costs one line.
 
-### `<VistaSheet.Shadow>`
+### `<Iris.Shadow>`
 
 See §4.
 
-### `useVistaSheet()`
+### `useIris()`
 
 ```ts
-interface VistaSheetState {
+interface IrisState {
   open: boolean;
   setOpen: (open: boolean) => void;
   anchor: AnchorId;
@@ -309,10 +309,10 @@ interface VistaSheetState {
   sheetRect: { cx: number; cy: number; halfWidth: number; halfHeight: number } | null;
 }
 
-function useVistaSheet(): VistaSheetState;
+function useIris(): IrisState;
 ```
 
-Throws outside `<VistaSheet.Root>`. This hook is the escape hatch for §3 and the data source for §4.
+Throws outside `<Iris.Root>`. This hook is the escape hatch for §3 and the data source for §4.
 
 ### Props deliberately NOT exposed
 
@@ -349,25 +349,25 @@ Required companion file: `src/css-modules.d.ts`, copied verbatim from device-fra
 
 ### Namespace and mapping
 
-Every variable is `--vista-sheet-*` and every one has a hardcoded fallback in the CSS, so the package renders correctly with a consumer who sets nothing. The mapping below is what the flagship example writes to re-skin the primitive back into Sean's site.
+Every variable is `--wicket-iris-*` and every one has a hardcoded fallback in the CSS, so the package renders correctly with a consumer who sets nothing. The mapping below is what the flagship example writes to re-skin the primitive back into Sean's site.
 
 | Package variable | Default (fallback baked in the CSS) | Current site variable |
 | --- | --- | --- |
-| `--vista-sheet-surface` | `#fafafa` | `--color-paper` |
-| `--vista-sheet-surface-elevated` | `#ffffff` | `--color-paper-soft` (midnight sheet fill) |
-| `--vista-sheet-surface-border` | `#e5e5e5` | `--color-paper-edge` |
-| `--vista-sheet-text` | `#1d1d1f` | `--color-ink` |
-| `--vista-sheet-accent` | `#1d1d1f` | `--color-accent` (focus ring only) |
-| `--vista-sheet-sheet-max-width` | `480px` | `--contact-sheet-max-width` |
-| `--vista-sheet-shared-size` | matches `--vista-sheet-trigger-size` | `--contact-portrait-size` |
-| `--vista-sheet-sheet-radius` | `48px` | `tuning.sheetRadius` |
-| `--vista-sheet-trigger-radius` | `9999px` | `tuning.discRadius` |
-| `--vista-sheet-edge-margin` | `16px` | `EDGE_MARGIN` in `anchorPositions.ts` |
-| `--vista-sheet-shadow` | `0 1px 4px rgba(26,22,16,.14), 0 6px 24px rgba(0,0,0,.15)` | `.triggerSurface` box-shadow |
-| `--vista-sheet-sheet-shadow` | `0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)` | `.sheet` box-shadow |
-| `--vista-sheet-z` | `100` | the z-index literals |
+| `--wicket-iris-surface` | `#fafafa` | `--color-paper` |
+| `--wicket-iris-surface-elevated` | `#ffffff` | `--color-paper-soft` (midnight sheet fill) |
+| `--wicket-iris-surface-border` | `#e5e5e5` | `--color-paper-edge` |
+| `--wicket-iris-text` | `#1d1d1f` | `--color-ink` |
+| `--wicket-iris-accent` | `#1d1d1f` | `--color-accent` (focus ring only) |
+| `--wicket-iris-sheet-max-width` | `480px` | `--contact-sheet-max-width` |
+| `--wicket-iris-shared-size` | matches `--wicket-iris-trigger-size` | `--contact-portrait-size` |
+| `--wicket-iris-sheet-radius` | `48px` | `tuning.sheetRadius` |
+| `--wicket-iris-trigger-radius` | `9999px` | `tuning.discRadius` |
+| `--wicket-iris-edge-margin` | `16px` | `EDGE_MARGIN` in `anchorPositions.ts` |
+| `--wicket-iris-shadow` | `0 1px 4px rgba(26,22,16,.14), 0 6px 24px rgba(0,0,0,.15)` | `.triggerSurface` box-shadow |
+| `--wicket-iris-sheet-shadow` | `0 8px 48px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.12)` | `.sheet` box-shadow |
+| `--wicket-iris-z` | `100` | the z-index literals |
 
-Derived z-stack, from `--vista-sheet-z` (call it `z`):
+Derived z-stack, from `--wicket-iris-z` (call it `z`):
 
 | Layer | z |
 | --- | --- |
@@ -382,16 +382,16 @@ Those offsets reproduce the shipped stack exactly (99 / 100 / 201 / 202) at the 
 
 | Variable | On | Meaning |
 | --- | --- | --- |
-| `--vista-sheet-trigger-size` | trigger root | resolved diameter in px |
-| `--vista-sheet-sheet-left`, `--vista-sheet-sheet-top` | sheet | resolved placement in px |
-| `--vista-sheet-collapse` | shadow layer | `0..1`, the live morph progress |
-| `--vista-sheet-shadow-radius` | shadow layer | the interpolated corner radius |
+| `--wicket-iris-trigger-size` | trigger root | resolved diameter in px |
+| `--wicket-iris-sheet-left`, `--wicket-iris-sheet-top` | sheet | resolved placement in px |
+| `--wicket-iris-collapse` | shadow layer | `0..1`, the live morph progress |
+| `--wicket-iris-shadow-radius` | shadow layer | the interpolated corner radius |
 
 ### One fix taken during extraction
 
 The site duplicates the trigger breakpoints in two places: the `@media` blocks in `FloatingIdentity.module.css:94-106` and the `resolveDiscSize()` function at `FloatingIdentity.tsx:311-317`, with a comment on each telling you to keep them in sync. That is a latent bug, and the sync failure mode (trigger shifts off its anchor) is exactly the kind of thing that gets debugged twice.
 
-In the package, `resolveTriggerSize()` remains the single source of the size ramp, but it is not JS writing the var at runtime. `Root` renders a scoped `<style>` block with real `@media` rules — one per breakpoint in the ramp — that set `--vista-sheet-trigger-size` in CSS, server-rendered and deterministic from props alone. Neither `Root`'s wrapper nor `Trigger`'s drag wrapper writes `--vista-sheet-trigger-size` inline; an inline write on either would always beat the `@media` rules, at every viewport, and defeat the point of resolving the size in CSS. The live JS value from the size hook feeds only position math (`anchors.ts`) and drag-constraint numbers — never a FLIP-tracked element's painted box.
+In the package, `resolveTriggerSize()` remains the single source of the size ramp, but it is not JS writing the var at runtime. `Root` renders a scoped `<style>` block with real `@media` rules — one per breakpoint in the ramp — that set `--wicket-iris-trigger-size` in CSS, server-rendered and deterministic from props alone. Neither `Root`'s wrapper nor `Trigger`'s drag wrapper writes `--wicket-iris-trigger-size` inline; an inline write on either would always beat the `@media` rules, at every viewport, and defeat the point of resolving the size in CSS. The live JS value from the size hook feeds only position math (`anchors.ts`) and drag-constraint numbers — never a FLIP-tracked element's painted box.
 
 This split exists because Motion snapshots a shared-`layoutId` element's box at first paint. A JS-resolved size is not available correctly at first paint without either a hydration mismatch (server and client disagreeing before the effect that would set it runs) or a stale post-mount promotion (the size hook returning a base value on first render for hydration safety, then correcting itself after Motion has already snapshotted the shared-element origin). Resolving the size in CSS via `@media`, instead of in JS via an effect, means the browser has the correct value at first paint with no client-side correction step for Motion to snapshot ahead of.
 
@@ -420,7 +420,7 @@ cannot do that on the open's spring, because the surface's close FLIP is
 deliberately started `surfaceCloseLeadDelayMs` after the shared element's.
 Left on one fixed spring, the shared element parked at its resting box 175ms
 before the trigger stopped moving, and the 2px border relationship
-(`.shared[data-vista-sheet-slot="trigger"]`, `inset: 2px`) arrived a sixth of a
+(`.shared[data-wicket-iris-slot="trigger"]`, `inset: 2px`) arrived a sixth of a
 second early. The close default was originally derived from `close` by
 formula; as of "Version 4" it is independently dialled instead (see the table
 above), so if `close` is ever retuned again, `shared.close` must be re-dialled
@@ -444,7 +444,7 @@ Each accepts a full Motion `Transition` as well as the `Spring` shorthand, so "I
 
 ### CSS variables: shape tokens
 
-`--vista-sheet-sheet-radius` (48px) and `--vista-sheet-trigger-radius` (9999px). These are read once when the sheet opens, via a small `readVarPx` helper modelled on the existing `useCssVarPx.ts`, and fed to the border-radius transform.
+`--wicket-iris-sheet-radius` (48px) and `--wicket-iris-trigger-radius` (9999px). These are read once when the sheet opens, via a small `readVarPx` helper modelled on the existing `useCssVarPx.ts`, and fed to the border-radius transform.
 
 Rationale: radius is a design token. A designer will want it sitting next to the rest of the surface styling in CSS, not buried in a JS prop object. Every other visual token in this package is a CSS variable, and radius should not be the exception just because JS happens to interpolate it.
 
@@ -466,7 +466,7 @@ Each of these is a fix for a specific artifact. Exposing them turns "we solved t
 
 ### The escape hatch
 
-**`useVistaSheet().collapseProgress`**: the raw `MotionValue<number>`, 0 at fully open, 1 at fully closed. It is the same value the package's own radius, mask, and opacity transforms read.
+**`useIris().collapseProgress`**: the raw `MotionValue<number>`, 0 at fully open, 1 at fully closed. It is the same value the package's own radius, mask, and opacity transforms read.
 
 Anything the package will not animate for you, you animate off that value, and it is frame-locked to the morph by construction rather than by a parallel timer. Combined with `triggerRect` and `sheetRect`, that is enough to rebuild any of the internal choreography externally. Section 8 uses exactly this to validate the hatch: the trailing-paper close mask is cut from the package and rebuilt in the example app. If it cannot be rebuilt from outside, the hatch is inadequate and we find out in week one instead of after v1.
 
@@ -479,58 +479,58 @@ Anything the package will not animate for you, you animate off that value, and i
 ### Default, zero dependencies
 
 ```tsx
-<VistaSheet.Root>
-  <VistaSheet.Shadow />
+<Iris.Root>
+  <Iris.Shadow />
   …
-</VistaSheet.Root>
+</Iris.Root>
 ```
 
-Renders one `div`: `position: fixed`, `aria-hidden="true"`, `pointer-events: none`, at `z - 1`, sized and positioned to the interpolated silhouette between the trigger circle and the sheet box. It paints a plain `box-shadow` from `--vista-sheet-shadow`. It carries, updated every frame without a React re-render:
+Renders one `div`: `position: fixed`, `aria-hidden="true"`, `pointer-events: none`, at `z - 1`, sized and positioned to the interpolated silhouette between the trigger circle and the sheet box. It paints a plain `box-shadow` from `--wicket-iris-shadow`. It carries, updated every frame without a React re-render:
 
 ```
-data-vista-sheet-part="shadow"
+data-wicket-iris-part="shadow"
 data-state="closed" | "open" | "dragging"
 style:
-  --vista-sheet-collapse: 0..1
-  --vista-sheet-shadow-radius      px
+  --wicket-iris-collapse: 0..1
+  --wicket-iris-shadow-radius      px
 ```
 
-A consumer with only CSS can already do a lot with that: swap the shadow, tie its opacity to `--vista-sheet-collapse`, change the falloff.
+A consumer with only CSS can already do a lot with that: swap the shadow, tie its opacity to `--wicket-iris-collapse`, change the falloff.
 
 ### Swapped for a surface-fx dither layer
 
 ```tsx
-import { VistaSheet, useVistaSheet } from "@seansmithworks/vista-sheet";
+import { Iris, useIris } from "@wicket/iris";
 import { useRippleEngine, velocityToRipple } from "@seansmith/surface-fx";
 
 function DitherShadow() {
-  const { collapseProgress, triggerRect, sheetRect, isDragging } = useVistaSheet();
+  const { collapseProgress, triggerRect, sheetRect, isDragging } = useIris();
   // build the mask / shader uniforms off collapseProgress + the two rects
   return <canvas … />;
 }
 
-<VistaSheet.Shadow asChild>
+<Iris.Shadow asChild>
   <DitherShadow />
-</VistaSheet.Shadow>
+</Iris.Shadow>
 ```
 
-`asChild` clones the single child and merges onto it: the fixed positioning, the z-index, `aria-hidden`, `pointer-events: none`, the `data-*` attributes, and all the `--vista-sheet-shadow-*` custom properties. The child gets a correctly placed, correctly stacked, non-interactive layer for free and only has to paint.
+`asChild` clones the single child and merges onto it: the fixed positioning, the z-index, `aria-hidden`, `pointer-events: none`, the `data-*` attributes, and all the `--wicket-iris-shadow-*` custom properties. The child gets a correctly placed, correctly stacked, non-interactive layer for free and only has to paint.
 
-The richer signal (the raw MotionValue and the two rects) comes through `useVistaSheet()`, not through the slot. Keeping data flow in the hook and layout in the slot means the slot has one job and the hook has one job.
+The richer signal (the raw MotionValue and the two rects) comes through `useIris()`, not through the slot. Keeping data flow in the hook and layout in the slot means the slot has one job and the hook has one job.
 
-**The package never imports surface-fx.** `@seansmith/surface-fx` appears only in the example app's dependencies. The default `<VistaSheet.Shadow />` has no dependency beyond React.
+**The package never imports surface-fx.** `@seansmith/surface-fx` appears only in the example app's dependencies. The default `<Iris.Shadow />` has no dependency beyond React.
 
 ### Why this shape
 
-- **Render prop** (`<VistaSheet.Shadow>{(state) => …}</VistaSheet.Shadow>`): equal power, but every consumer re-declares the fixed positioning and the z-index, and gets one of them wrong. The slot owns the container so the consumer owns only the paint.
+- **Render prop** (`<Iris.Shadow>{(state) => …}</Iris.Shadow>`): equal power, but every consumer re-declares the fixed positioning and the z-index, and gets one of them wrong. The slot owns the container so the consumer owns only the paint.
 - **Data-attributes only, styled by consumer CSS**: cannot paint a WebGL canvas or a JS-computed radial mask. Insufficient for the actual target.
 - **A `shadow` prop on Root taking a component**: makes composition order implicit and reads badly in a compound API.
 
 ### The tradeoff you are buying
 
-Today the box-shadow is painted directly on `.triggerSurface` and `.sheet`. In this design it moves to the separate shadow layer, which means **if you do not render `<VistaSheet.Shadow />` you get a flat trigger with no shadow.**
+Today the box-shadow is painted directly on `.triggerSurface` and `.sheet`. In this design it moves to the separate shadow layer, which means **if you do not render `<Iris.Shadow />` you get a flat trigger with no shadow.**
 
-That is deliberate. The alternative (keep a built-in shadow on the surfaces *and* offer a shadow layer) means swapping in the dither requires two edits: add the layer, and null out the built-in. That is the friction that makes people not bother. Radix makes the same call with `Dialog.Overlay`. `<VistaSheet.Shadow />` appears in every documentation example including the one-line copy-paste sample.
+That is deliberate. The alternative (keep a built-in shadow on the surfaces *and* offer a shadow layer) means swapping in the dither requires two edits: add the layer, and null out the built-in. That is the friction that makes people not bother. Radix makes the same call with `Dialog.Overlay`. `<Iris.Shadow />` appears in every documentation example including the one-line copy-paste sample.
 
 ---
 
@@ -539,12 +539,12 @@ That is deliberate. The alternative (keep a built-in shadow on the surfaces *and
 ### Package
 
 ```
-vista-sheet/
+wicket-iris/
 ├── package.json              ~35    name, root-only exports, react+motion peers
 ├── tsconfig.json             ~20    device-frame's, verbatim
 ├── README.md                ~260    pitch → install → one copy-paste sample → prop tables
 └── src/
-    ├── index.ts              ~25    the VistaSheet namespace object, useVistaSheet, exported types
+    ├── index.ts              ~25    the Iris namespace object, useIris, exported types
     ├── Root.tsx             ~180    context, open+anchor state, LayoutGroup, persistence, reduced-motion, id generation
     ├── Trigger.tsx             ~200    fixed drag wrapper, x/y MotionValues, drag + nearest-anchor snap, tap-vs-drag, trigger button, seed surface
     ├── Sheet.tsx            ~260    dialog surface, layoutId FLIP, borderRadius transform, swipe-to-close, placement from anchor
@@ -553,15 +553,15 @@ vista-sheet/
     ├── Close.tsx             ~35    close button, registers itself for the dev warning
     ├── Backdrop.tsx          ~45    visual scrim only
     ├── Shadow.tsx            ~95    shadow slot + asChild merge, writes geometry vars per frame
-    ├── context.ts            ~70    context type, useVistaSheet, the throw-outside-Root guard
+    ├── context.ts            ~70    context type, useIris, the throw-outside-Root guard
     ├── anchors.ts           ~180    seven-anchor model: nearestAnchor, restingLeft/Top, anchorCenter, sheetPlacement
     ├── motion.ts             ~75    default springs, internal choreography constants, transition merge
-    ├── useTriggerSize.ts     ~45    resolve the ramp to a number, write --vista-sheet-trigger-size, resize handling
+    ├── useTriggerSize.ts     ~45    resolve the ramp to a number, write --wicket-iris-trigger-size, resize handling
     ├── usePersistedAnchor.ts ~50    localStorage read + validate + write
     ├── useDialogBehavior.ts  ~95    scroll lock, inert page, focus guards, Escape via dismissLayers, focus restore on exit-complete
     ├── readVarPx.ts          ~35    read a px custom property (radius tokens)
     ├── types.ts              ~60    AnchorId, Spring, MorphTransition, prop interfaces
-    ├── styles.module.css    ~380    all package CSS, --vista-sheet-* vars with fallbacks
+    ├── styles.module.css    ~380    all package CSS, --wicket-iris-* vars with fallbacks
     └── css-modules.d.ts       ~4    device-frame's file, verbatim
 ```
 
@@ -570,14 +570,14 @@ Roughly 1,900 lines. That is higher than the raw extraction estimate (~800 TS + 
 ### Example app
 
 ```
-vista-sheet/example/
+wicket-iris/example/
 ├── index.html            ~20
 ├── vite.config.ts         ~8
 ├── main.tsx              ~40    mount, palette toggle for light/midnight proof
 ├── IdentityTrigger.tsx  ~220    Sean's contact surface, built on the primitive
-├── DitherShadow.tsx     ~120    surface-fx dither layer through <VistaSheet.Shadow asChild>
+├── DitherShadow.tsx     ~120    surface-fx dither layer through <Iris.Shadow asChild>
 ├── CloseMask.tsx         ~60    the trailing-paper mask, rebuilt off collapseProgress (see §8)
-└── example.module.css   ~200    the site's tokens mapped onto --vista-sheet-*
+└── example.module.css   ~200    the site's tokens mapped onto --wicket-iris-*
 ```
 
 ### Where surface-fx's conventions carry over, and where they do not
@@ -609,7 +609,7 @@ Do not carry over:
 **Focus management.**
 - On open, focus moves to the dialog panel itself, not to the first control. This is deliberate and it is the shipped behavior (`ContactSheet.tsx:880-889`): focusing the first link pre-highlights it and reads as a selection the user did not make. Tab from the panel goes to the first control.
 - On close, focus returns to the trigger at **exit-complete**, not at state change (`ContactSheet.tsx:1094-1096`). Restoring focus while the surface is still animating out causes a visible scroll jump.
-- Tab is never intercepted. Two focus guards (`<span tabIndex={0} aria-hidden data-vista-sheet-focus-guard>`), rendered as siblings just outside the panel while a modal sheet is present, catch focus leaving either edge and route on `relatedTarget`: from inside the panel means Tab ran off that edge, so wrap to the opposite end; from anywhere else means focus is entering, so land on the near end. Tab order inside is the browser's own. Focus coming back out of an iframe is handled with a blur fallback.
+- Tab is never intercepted. Two focus guards (`<span tabIndex={0} aria-hidden data-wicket-iris-focus-guard>`), rendered as siblings just outside the panel while a modal sheet is present, catch focus leaving either edge and route on `relatedTarget`: from inside the panel means Tab ran off that edge, so wrap to the opposite end; from anywhere else means focus is entering, so land on the near end. Tab order inside is the browser's own. Focus coming back out of an iframe is handled with a blur fallback.
 
 **Inert page.** While the sheet is open, every sibling off the path from the panel, guards and backdrop to `<body>` gets `inert` (keep-path walking, React Aria's model). Live regions present at open (`[aria-live]` other than `aria-live="off"`, `role=status|alert|log`) stay live; one that wraps the sheet is not kept, since that would keep the whole page. Elements the page already made inert are left alone, and elements inerted by stacked sheets are owner-counted. The inert window is `open`, not `isPresent`: it is released at the close request, in the commit the backdrop unmounts in, so the trigger is tappable from the first close frame and reopen-mid-close works. Guards and scroll lock key on `isPresent` and last until exit-complete, so Tab mid-close stays in the panel. There is no `aria-hidden` on the page; `inert` does that job.
 
@@ -617,7 +617,7 @@ Do not carry over:
 
 **Focus restore** happens at exit-complete, only if focus is on the body or inside the leaving panel, so a page control clicked mid-close keeps focus.
 
-**Keyboard repositioning.** With the trigger focused, `draggable` on and the sheet closed, arrow keys move it one anchor via `adjacentAnchor` and the same `snapTo` a drag release uses. Plain arrows are always consumed; Alt, Ctrl and Meta arrows pass through. `useVistaSheet().setAnchor` routes through the same `snapTo`. Moves write `Moved to bottom right.` into a visually hidden `role="status"` span in Root (`anchorAnnouncement` overrides it); drags never do.
+**Keyboard repositioning.** With the trigger focused, `draggable` on and the sheet closed, arrow keys move it one anchor via `adjacentAnchor` and the same `snapTo` a drag release uses. Plain arrows are always consumed; Alt, Ctrl and Meta arrows pass through. `useIris().setAnchor` routes through the same `snapTo`. Moves write `Moved to bottom right.` into a visually hidden `role="status"` span in Root (`anchorAnnouncement` overrides it); drags never do.
 
 **Escape** closes, unconditionally, not configurable, subject to the dismiss-layer rules above.
 
@@ -635,10 +635,10 @@ Do not carry over:
 
 ### What the consumer owns
 
-- Every semantic inside `<VistaSheet.Sheet>`: heading levels, landmarks, link text, reading order.
+- Every semantic inside `<Iris.Sheet>`: heading levels, landmarks, link text, reading order.
 - Supplying both accessible names. Both are typed-required, so this is enforced, not merely asked for.
-- Rendering a visible `<VistaSheet.Close>`. The package does not place it, because placement is a design decision, but Root logs a dev-only warning if the sheet opens with none registered. Escape plus backdrop click is not sufficient for a touch user with a screen reader.
-- Color contrast of the content and of any `--vista-sheet-*` overrides.
+- Rendering a visible `<Iris.Close>`. The package does not place it, because placement is a design decision, but Root logs a dev-only warning if the sheet opens with none registered. Escape plus backdrop click is not sufficient for a touch user with a screen reader.
+- Color contrast of the content and of any `--wicket-iris-*` overrides.
 - Any live-region announcements their content needs beyond the dialog role.
 
 ### Known gaps, stated rather than hidden
@@ -660,9 +660,9 @@ Do not carry over:
 
 **Uncertainty: low.** I would make this call again without hesitating.
 
-### B. `<VistaSheet.Shared>` is duplicated in both Trigger and Sheet, not hoisted to a Root prop
+### B. `<Iris.Shared>` is duplicated in both Trigger and Sheet, not hoisted to a Root prop
 
-**Rejected:** `<VistaSheet.Root shared={<Avatar />}>`, with the package rendering it into both states automatically.
+**Rejected:** `<Iris.Root shared={<Avatar />}>`, with the package rendering it into both states automatically.
 
 **Why rejected.** The shared element needs genuinely different layout in each state. In the trigger it is `inset: 2px` and clipped to a circle so the surface ring shows around it. In the sheet it is `position: absolute; top: 24px; left: 24px` at a fixed size, sitting over a spacer row (`ContactSheet.module.css:168-178`). A single hoisted node can only be styled by the package, which means the package would have to own sheet header layout. That is a content decision and it does not belong in a generic primitive. Duplicating the slot keeps layout with the consumer in both states.
 
@@ -678,19 +678,19 @@ Do not carry over:
 
 **Cost.** Someone who wants a materially different close choreography has to fork. Accepted. That is a fork worth forcing, because the alternative is a package that ships twenty ways to look wrong.
 
-**Uncertainty: medium.** This section used to flag `radiusCloseDelaySec: 1.5` as tuned to a 480px-wide, roughly 600px-tall sheet and wrong for a 900px one. It was worse than that — being wall-clock rather than progress-based, it was longer than a close takes at ANY sheet size, so it never let the radius round at all on the close direction and left the trigger resting as a squircle. It is gone; `radiusHoldFraction` alone carries the hold, and the rounding phase targets half the trigger's own box so it lands on the resting shape continuously. The remaining soft spot is that `sheetMaxWidth` is a prop while `--vista-sheet-sheet-max-width` is also a CSS variable; those two must not disagree, and the package should let the prop win and write the variable.
+**Uncertainty: medium.** This section used to flag `radiusCloseDelaySec: 1.5` as tuned to a 480px-wide, roughly 600px-tall sheet and wrong for a 900px one. It was worse than that — being wall-clock rather than progress-based, it was longer than a close takes at ANY sheet size, so it never let the radius round at all on the close direction and left the trigger resting as a squircle. It is gone; `radiusHoldFraction` alone carries the hold, and the rounding phase targets half the trigger's own box so it lands on the resting shape continuously. The remaining soft spot is that `sheetMaxWidth` is a prop while `--wicket-iris-sheet-max-width` is also a CSS variable; those two must not disagree, and the package should let the prop win and write the variable.
 
 ---
 
 ## 8. What I would cut from v0.1
 
-Ship this: `Root`, `Trigger`, `Sheet`, `Shared`, `Content`, `Item`, `Close`, `Shadow`, `useVistaSheet`. Roughly 1,400 lines. That is the smallest thing that is still the actual product.
+Ship this: `Root`, `Trigger`, `Sheet`, `Shared`, `Content`, `Item`, `Close`, `Shadow`, `useIris`. Roughly 1,400 lines. That is the smallest thing that is still the actual product.
 
 | Cut | Cost |
 | --- | --- |
-| **The entrance choreography** (WAAPI arrival stroke, impact ripple, velocity coupling) | Already out of scope per the extraction map; reconfirming it. Near-zero cost to the package. Real cost to the site: the trigger simply appears. The site keeps its own arrival animation on a wrapper, driven off `useVistaSheet().triggerRect`. Say this out loud in the migration plan so nobody discovers it during cutover. |
-| **`<VistaSheet.Backdrop>`** | Site default is already no scrim. Dismissal behavior still ships. A consumer who wants a dim scrim writes six lines of their own fixed div. Low. |
-| **Controlled `anchor` + `onAnchorChange` as a controlled pair** | Ship uncontrolled and persisted only; keep `onAnchorChange` as a read-only notification. Cost: the anchor itself is not a controlled prop. Programmatic moves shipped in P0-3 as public `useVistaSheet().setAnchor`; only the controlled `anchor` prop remains cut. Low. |
+| **The entrance choreography** (WAAPI arrival stroke, impact ripple, velocity coupling) | Already out of scope per the extraction map; reconfirming it. Near-zero cost to the package. Real cost to the site: the trigger simply appears. The site keeps its own arrival animation on a wrapper, driven off `useIris().triggerRect`. Say this out loud in the migration plan so nobody discovers it during cutover. |
+| **`<Iris.Backdrop>`** | Site default is already no scrim. Dismissal behavior still ships. A consumer who wants a dim scrim writes six lines of their own fixed div. Low. |
+| **Controlled `anchor` + `onAnchorChange` as a controlled pair** | Ship uncontrolled and persisted only; keep `onAnchorChange` as a read-only notification. Cost: the anchor itself is not a controlled prop. Programmatic moves shipped in P0-3 as public `useIris().setAnchor`; only the controlled `anchor` prop remains cut. Low. |
 | **The `anchors` subset prop and `edgeMargin`** | All six anchors at 16px. Cost: low, and it is additive later. |
 | **Arrow-key repositioning between anchors** | Roughly 20 lines and a genuine accessibility and delight win, but it did not exist in the shipped component and extraction was the wrong time to add behavior. Shipped in P0-3 (a11y/p0): arrow keys move the focused trigger, sharing `snapTo` with the drag release. |
 | **The trailing-paper close mask** (`surfaceCloseMask` and its triangular envelope) | **The expensive one, and it doubles as the design's own test.** See below. |
@@ -701,8 +701,8 @@ That mask is roughly 50 lines of the least explicable code in `ContactSheet.tsx`
 
 But Sean's flagship example *does* have it, and cutting the mask outright would make the example visibly worse than the live site it replaces. That is not acceptable.
 
-So: **cut it from the package, rebuild it in the example app** off `useVistaSheet().collapseProgress`, in `example/CloseMask.tsx`. Roughly 60 lines applying a `maskImage` to `<VistaSheet.Sheet>` from outside.
+So: **cut it from the package, rebuild it in the example app** off `useIris().collapseProgress`, in `example/CloseMask.tsx`. Roughly 60 lines applying a `maskImage` to `<Iris.Sheet>` from outside.
 
 This is the design's own validation test. If that mask can be rebuilt from outside the package with no additional API, the escape hatch in §3 is proven sufficient and the internal-constants decision in §7C is safe. If it cannot, the hatch is inadequate and we learn it in week one, on a case we already understand, instead of after v1 on a case we do not.
 
-Build the example's `CloseMask.tsx` **first**, before finalizing `useVistaSheet()`'s shape. It is the cheapest possible check on the most consequential decision in this document.
+Build the example's `CloseMask.tsx` **first**, before finalizing `useIris()`'s shape. It is the cheapest possible check on the most consequential decision in this document.

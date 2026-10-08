@@ -20,15 +20,15 @@ const TUNER_DIR = new URL("../tuner/", import.meta.url);
 const TUNER_FILES = ["page.tsx", "tune.module.css"];
 
 function usage() {
-  console.log(`vista-sheet — a draggable trigger that morphs into a modal sheet
+  console.log(`Wicket Iris — a draggable trigger that morphs into a modal sheet
 
 Usage:
-  npx @seansmithworks/vista-sheet add [targetDir] [--force]
+  npx @wicket/iris add [targetDir] [--force]
 
   Copies the component source into your project (default target:
-  ./src/vista-sheet) so you own and can edit the files directly.
+  ./src/wicket-iris) so you own and can edit the files directly.
 
-  npx @seansmithworks/vista-sheet add tuner [targetDir] [--force]
+  npx @wicket/iris add tuner [targetDir] [--force]
 
   Copies the live-tuning panel instead (default target: ./tuner). It is a
   development tool, not part of the component — see its own instructions
@@ -68,7 +68,7 @@ function copyFiles(sourceDir, files, targetDir, force) {
     }
     if (conflicts.length > 0) {
       console.error(
-        `vista-sheet: refusing to overwrite existing files (use --force to overwrite):`
+        `wicket-iris: refusing to overwrite existing files (use --force to overwrite):`
       );
       for (const c of conflicts) console.error(`  ${c}`);
       process.exit(1);
@@ -94,7 +94,7 @@ function cmdAdd(args) {
     return;
   }
 
-  const targetDir = path.resolve(process.cwd(), positional[0] || "./src/vista-sheet");
+  const targetDir = path.resolve(process.cwd(), positional[0] || "./src/wicket-iris");
 
   const files = readSrcFiles();
 
@@ -106,16 +106,16 @@ function cmdAdd(args) {
   const copied = copyFiles(SRC_DIR, files, targetDir, force);
   const relTarget = path.relative(process.cwd(), targetDir) || ".";
 
-  console.log(`vista-sheet: copied ${copied} files to ${relTarget}`);
+  console.log(`wicket-iris: copied ${copied} files to ${relTarget}`);
   if (skipCssShim) {
     console.log(
-      `vista-sheet: detected next-env.d.ts, skipping css-modules.d.ts (Next already declares *.module.css)`
+      `wicket-iris: detected next-env.d.ts, skipping css-modules.d.ts (Next already declares *.module.css)`
     );
   }
   console.log(`\nInstall peer dependencies:`);
   console.log(`  npm install react react-dom motion`);
   console.log(`\nImport it:`);
-  console.log(`  import { VistaSheet } from "./${relTarget}";`);
+  console.log(`  import { Iris } from "./${relTarget}";`);
 }
 
 function cmdAddTuner(positional, force) {
@@ -124,7 +124,7 @@ function cmdAddTuner(positional, force) {
   const copied = copyFiles(TUNER_DIR, TUNER_FILES, targetDir, force);
   const relTarget = path.relative(process.cwd(), targetDir) || ".";
 
-  console.log(`vista-sheet: copied ${copied} tuner files to ${relTarget}`);
+  console.log(`wicket-iris: copied ${copied} tuner files to ${relTarget}`);
   console.log(`\nThe tuner needs dialkit itself, as a devDependency only:`);
   console.log(`  npm install -D dialkit`);
   console.log(
@@ -148,7 +148,7 @@ function main() {
     return;
   }
 
-  console.error(`vista-sheet: unknown command "${command}"\n`);
+  console.error(`wicket-iris: unknown command "${command}"\n`);
   usage();
   process.exit(1);
 }

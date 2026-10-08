@@ -14,7 +14,9 @@ import { SWIPE_OFFSET_PX } from "../../src/motion";
 
 export type AutoplayKind = "morph" | "swipe";
 
-const STORAGE_KEY = "vista-sheet-canvas-autoplay";
+const STORAGE_KEY = "wicket-iris-canvas-autoplay";
+// Pre-rename key, read as a fallback so the saved toggle survives.
+const LEGACY_STORAGE_KEY = "vista-sheet-canvas-autoplay";
 const REDUCED = "(prefers-reduced-motion: reduce)";
 const HOLD_OPEN_MS = 1200;
 const HOLD_CLOSED_MS = 1000;
@@ -25,7 +27,10 @@ const STAGGER_MS = 400;
 export function useAutoplayToggle(): [boolean, (on: boolean) => void] {
   const [on, setOn] = useState(() => {
     if (matchMedia(REDUCED).matches) return false;
-    return localStorage.getItem(STORAGE_KEY) !== "off";
+    return (
+      (localStorage.getItem(STORAGE_KEY) ??
+        localStorage.getItem(LEGACY_STORAGE_KEY)) !== "off"
+    );
   });
   return [
     on,
@@ -37,9 +42,9 @@ export function useAutoplayToggle(): [boolean, (on: boolean) => void] {
 }
 
 const SEL = {
-  trigger: '[data-vista-sheet-part="trigger"]',
-  sheet: '[data-vista-sheet-part="sheet"]',
-  close: '[data-vista-sheet-part="sheet"] [data-vista-sheet-part="close"]',
+  trigger: '[data-wicket-iris-part="trigger"]',
+  sheet: '[data-wicket-iris-part="sheet"]',
+  close: '[data-wicket-iris-part="sheet"] [data-wicket-iris-part="close"]',
 };
 
 /** A drag down the sheet past SWIPE_OFFSET_PX, as pointer events on the
@@ -110,7 +115,7 @@ export function useAutoplay(
         if (!sheet) {
           doc.querySelector<HTMLElement>(SEL.trigger)?.click();
           await until(() =>
-            Boolean(doc.querySelector("[data-vista-sheet-settled]")),
+            Boolean(doc.querySelector("[data-wicket-iris-settled]")),
           );
           await sleep(HOLD_OPEN_MS);
         } else {
@@ -119,7 +124,7 @@ export function useAutoplay(
           await until(
             () =>
               !doc.querySelector(SEL.sheet) &&
-              !doc.querySelector("[data-vista-sheet-closing]"),
+              !doc.querySelector("[data-wicket-iris-closing]"),
           );
           await sleep(HOLD_CLOSED_MS);
         }

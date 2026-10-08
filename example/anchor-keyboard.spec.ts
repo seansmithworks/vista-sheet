@@ -34,7 +34,7 @@ import {
  *   `Moved to ${anchor with "-" replaced by " "}.`, e.g. "Moved to bottom
  *   right." and "Moved to center.". It is visually hidden (<= 1px box) but not
  *   display:none / visibility:hidden. Drags never write to it.
- * - useVistaSheet().setAnchor(a) animates identically (spring, never a jump),
+ * - useIris().setAnchor(a) animates identically (spring, never a jump),
  *   fires onAnchorChange, and announces the same text.
  * - Root `anchorAnnouncement?: (a) => string | false` replaces the text;
  *   `false` writes nothing (text stays empty). Moves and onAnchorChange are
@@ -48,10 +48,10 @@ import {
  *   the trigger seats directly: no in-flight frame.
  */
 
-const ROOT = '[data-vista-sheet-root="kb"] ';
-const WRAPPER = `${ROOT}[data-vista-sheet-part="trigger-root"]`;
-const SURFACE = `${ROOT}[data-vista-sheet-part="trigger-surface"]`;
-const SHADOW = `${ROOT}[data-vista-sheet-part="shadow"]`;
+const ROOT = '[data-wicket-iris-root="kb"] ';
+const WRAPPER = `${ROOT}[data-wicket-iris-part="trigger-root"]`;
+const SURFACE = `${ROOT}[data-wicket-iris-part="trigger-surface"]`;
+const SHADOW = `${ROOT}[data-wicket-iris-part="shadow"]`;
 const STATUS = `${ROOT}[role="status"]`;
 const TRIGGER_LABEL = "Move fixture trigger";
 
@@ -141,7 +141,7 @@ async function load(
 const trigger = (page: Page) =>
   page.getByRole("button", { name: TRIGGER_LABEL });
 // Activate a set-<anchor> button without a synthetic pointer. On a bare html page
-// with no vista-sheet code, a Playwright mouse.click() whose handler changes a text
+// with no wicket-iris code, a Playwright mouse.click() whose handler changes a text
 // node stalls the next frame 25-50ms (Chromium's post-layout hover check); el.click()
 // does not. Chromium/Playwright artifact, not the package.
 const setAnchorBtn = (page: Page, testId: string) =>
@@ -366,7 +366,7 @@ test.describe("P0-3 keyboard anchor moves: when inactive", () => {
     await load(page, { anchor: "bottom-center" });
     await trigger(page).click();
     await page.waitForSelector(
-      `${ROOT}[data-vista-sheet-part="sheet"][data-vista-sheet-settled]`,
+      `${ROOT}[data-wicket-iris-part="sheet"][data-wicket-iris-settled]`,
     );
     await recordPrevented(page);
     // Focus is inside the sheet; the page behind it is inert.
@@ -383,7 +383,7 @@ test.describe("P0-3 keyboard anchor moves: when inactive", () => {
           cancelable: true,
         }),
       );
-    }, `${ROOT}[data-vista-sheet-part="trigger"]`);
+    }, `${ROOT}[data-wicket-iris-part="trigger"]`);
     await page.waitForTimeout(300);
     await expect(readout(page)).toHaveText("bottom-center");
     expect(await changes(page)).toEqual([]);
@@ -392,7 +392,7 @@ test.describe("P0-3 keyboard anchor moves: when inactive", () => {
     expect((await prevented(page)).at(-1)).toBe(false);
     await page.keyboard.press("Escape");
     await expect(
-      page.locator(`${ROOT}[data-vista-sheet-part="sheet"]`),
+      page.locator(`${ROOT}[data-wicket-iris-part="sheet"]`),
     ).toHaveCount(0);
     await expectSeated(page, "bottom-center");
   });

@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 /**
  * Dissection › Anatomy › Exploded z-stack. The stack is clones of a frozen
  * real specimen, one per measured part: the slab count and the labels must
- * be the specimen's own [data-vista-sheet-part] set, and at gap 0 the stack
+ * be the specimen's own [data-wicket-iris-part] set, and at gap 0 the stack
  * must composite back to the original specimen.
  */
 
@@ -57,12 +57,12 @@ test("exploded z-stack: one slab per measured part, labelled by part, flat at ga
   const measured = await frame.evaluate(() =>
     [
       ...document.querySelectorAll<HTMLElement>(
-        "[data-exploded-original] [data-vista-sheet-part]",
+        "[data-exploded-original] [data-wicket-iris-part]",
       ),
     ].map((el) =>
-      el.dataset.vistaSheetSlot
-        ? `${el.dataset.vistaSheetPart}:${el.dataset.vistaSheetSlot}`
-        : el.dataset.vistaSheetPart!,
+      el.dataset.wicketIrisSlot
+        ? `${el.dataset.wicketIrisPart}:${el.dataset.wicketIrisSlot}`
+        : el.dataset.wicketIrisPart!,
     ),
   );
   expect(measured.length).toBeGreaterThan(4);
@@ -186,7 +186,7 @@ test("exploded z-stack: one slab per measured part, labelled by part, flat at ga
     const s = document.createElement("style");
     s.dataset.test = "";
     s.textContent =
-      '[data-vista-sheet-part="item"],[data-vista-sheet-part="item"] *{color:transparent!important}';
+      '[data-wicket-iris-part="item"],[data-wicket-iris-part="item"] *{color:transparent!important}';
     document.head.append(s);
   });
   const masked = await pair();

@@ -1,4 +1,4 @@
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 
 export type SpecimenKind = "disc" | "button" | "sheet";
 
@@ -21,24 +21,24 @@ function PlusIcon() {
 
 function SheetBody() {
   return (
-    <VistaSheet.Sheet aria-labelledby="surface-sheet-title">
-      <VistaSheet.Content>
-        <VistaSheet.Close aria-label="Close" />
-        <VistaSheet.Item>
+    <Iris.Sheet aria-labelledby="surface-sheet-title">
+      <Iris.Content>
+        <Iris.Close aria-label="Close" />
+        <Iris.Item>
           <h2 id="surface-sheet-title">Sean Smith</h2>
-        </VistaSheet.Item>
-        <VistaSheet.Item>
+        </Iris.Item>
+        <Iris.Item>
           <p>Designer. The sheet&apos;s resting shadow is the open look.</p>
-        </VistaSheet.Item>
-      </VistaSheet.Content>
-    </VistaSheet.Sheet>
+        </Iris.Item>
+      </Iris.Content>
+    </Iris.Sheet>
   );
 }
 
 /**
  * One live specimen per iframe (Trigger and Sheet are position: fixed, so
  * each needs its own viewport, as on the canvas). The parent tuner writes
- * every --vista-sheet-* var onto this document's body and sets the theme
+ * every --wicket-iris-* var onto this document's body and sets the theme
  * via body[data-dark-mode] (example/example.css); this file sets none.
  */
 export function Stage({ kind }: { kind: SpecimenKind }) {
@@ -51,28 +51,28 @@ export function Stage({ kind }: { kind: SpecimenKind }) {
 
   if (kind === "button") {
     return (
-      <VistaSheet.Root {...common} shape="rectangle" buttonSize="m">
-        <VistaSheet.Shadow />
-        <VistaSheet.Trigger aria-label="New message">
+      <Iris.Root {...common} shape="rectangle" buttonSize="m">
+        <Iris.Shadow />
+        <Iris.Trigger aria-label="New message">
           <PlusIcon />
           New message
-        </VistaSheet.Trigger>
+        </Iris.Trigger>
         <SheetBody />
-      </VistaSheet.Root>
+      </Iris.Root>
     );
   }
 
   return (
-    <VistaSheet.Root
+    <Iris.Root
       {...common}
       triggerSize={96}
       defaultOpen={kind === "sheet"}
     >
-      <VistaSheet.Shadow />
-      <VistaSheet.Trigger aria-label="Open contact">
+      <Iris.Shadow />
+      <Iris.Trigger aria-label="Open contact">
         <PlusIcon />
-      </VistaSheet.Trigger>
+      </Iris.Trigger>
       <SheetBody />
-    </VistaSheet.Root>
+    </Iris.Root>
   );
 }

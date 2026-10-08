@@ -14,10 +14,10 @@ import { test, expect } from "@playwright/test";
  * Instrumentation is entirely test-side (page.addInitScript), never a
  * production hook: `Element.prototype.getBoundingClientRect` and
  * `window.getComputedStyle` are wrapped to count calls against the surface
- * element (`[data-vista-sheet-part="sheet"]` /
- * `[data-vista-sheet-part="trigger-surface"]`), and a MutationObserver
+ * element (`[data-wicket-iris-part="sheet"]` /
+ * `[data-wicket-iris-part="trigger-surface"]`), and a MutationObserver
  * counts style-attribute writes to the shadow element
- * (`[data-vista-sheet-part="shadow"]`) — both tallied into per-rAF-frame
+ * (`[data-wicket-iris-part="shadow"]`) — both tallied into per-rAF-frame
  * buckets so "runs twice for one frame" is visible directly, without
  * relying on wall-clock sampling.
  *
@@ -48,14 +48,14 @@ async function installFrameCounters(page: import("@playwright/test").Page) {
     let styleReadsThisFrame = 0;
     let shadowWritesThisFrame = 0;
 
-    // Scoped to the demo's primary sheet (`[data-vista-sheet-root="main"]`,
+    // Scoped to the demo's primary sheet (`[data-wicket-iris-root="main"]`,
     // per geometry.spec.ts's own convention) — the page also renders a
-    // second, independent VistaSheet.Root (the "Design" settings sheet)
+    // second, independent Iris.Root (the "Design" settings sheet)
     // whose own Shadow instance would otherwise add unrelated noise to a
     // global selector.
     const SURFACE_SELECTOR =
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="sheet"], ' +
-      '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger-surface"]';
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"], ' +
+      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]';
 
     function tick() {
       w.__surfaceRectReadsPerFrame.push(rectReadsThisFrame);
@@ -121,8 +121,8 @@ async function installFrameCounters(page: import("@playwright/test").Page) {
         return (
           m.type === "attributes" &&
           m.attributeName === "style" &&
-          target.getAttribute?.("data-vista-sheet-part") === "shadow" &&
-          target.closest('[data-vista-sheet-root="main"]')
+          target.getAttribute?.("data-wicket-iris-part") === "shadow" &&
+          target.closest('[data-wicket-iris-root="main"]')
         );
       });
       if (relevant) shadowWritesThisFrame++;
@@ -160,7 +160,7 @@ test("(pf) Shadow: surface reads and shadow writes each run at most once per ani
   await installFrameCounters(page);
   await page.goto("/");
   await page.waitForSelector(
-    '[data-vista-sheet-root="main"] [data-vista-sheet-part="trigger"]',
+    '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
   );
 
   const trigger = page.getByRole("button", { name: TRIGGER_LABEL });

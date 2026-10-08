@@ -2,7 +2,7 @@
  * mediaFit — pure geometry for the media-fill piece (Media.tsx). No React,
  * no DOM: every function here takes plain numbers and returns plain numbers,
  * so it can be unit-tested without a browser and reused by both the trigger-
- * side and sheet-side <VistaSheet.Media>.
+ * side and sheet-side <Iris.Media>.
  *
  * File named mediaFit.ts (not media.ts) on purpose: a case-insensitive
  * filesystem (macOS default) would collide it with Media.tsx.

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 
 // N2 red-proof fixture (wave.md "### N2"): a sheet whose content ends in
 // every control the focus trap has to reason about correctly — a text
@@ -23,52 +23,52 @@ function App() {
 
   return (
     <div className="page">
-      <VistaSheet.Root>
-        <VistaSheet.Shadow />
+      <Iris.Root>
+        <Iris.Shadow />
 
-        <VistaSheet.Trigger aria-label="Open focus fixture">
-          <VistaSheet.Shared>Open</VistaSheet.Shared>
-        </VistaSheet.Trigger>
+        <Iris.Trigger aria-label="Open focus fixture">
+          <Iris.Shared>Open</Iris.Shared>
+        </Iris.Trigger>
 
-        <VistaSheet.Sheet
+        <Iris.Sheet
           aria-labelledby="focus-sheet-title"
           initialFocus={withInitialFocus ? inputRef : undefined}
         >
-          <VistaSheet.Shared>Open</VistaSheet.Shared>
+          <Iris.Shared>Open</Iris.Shared>
 
-          <VistaSheet.Close aria-label="Close" />
+          <Iris.Close aria-label="Close" />
 
-          <VistaSheet.Content>
-            <VistaSheet.Item>
+          <Iris.Content>
+            <Iris.Item>
               <h2 id="focus-sheet-title">Focus fixture</h2>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <div style={{ height: 3000 }} data-testid="long-content">
                 3000px of plain content with no controls of its own.
               </div>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <label htmlFor="focus-textarea">Notes</label>
               <textarea id="focus-textarea" data-testid="field-textarea" />
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <label htmlFor="focus-select">Choice</label>
               <select id="focus-select" data-testid="field-select">
                 <option value="a">A</option>
                 <option value="b">B</option>
               </select>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <button type="button" disabled data-testid="field-disabled">
                 Disabled
               </button>
-            </VistaSheet.Item>
+            </Iris.Item>
 
-            <VistaSheet.Item>
+            <Iris.Item>
               <a
                 href="#nowhere"
                 style={{ display: "none" }}
@@ -76,7 +76,7 @@ function App() {
               >
                 Hidden link
               </a>
-            </VistaSheet.Item>
+            </Iris.Item>
 
             {/* Last in the sheet, deliberately: the a11y test this fixture
                 replaces (a11y.spec.ts's old "focusables" locator) used the
@@ -86,7 +86,7 @@ function App() {
                 entirely still passed that test. An input that ends the
                 tab sequence is the one shape that selector-mirroring test
                 was structurally incapable of catching. */}
-            <VistaSheet.Item>
+            <Iris.Item>
               <label htmlFor="focus-input">Text field</label>
               <input
                 id="focus-input"
@@ -94,10 +94,10 @@ function App() {
                 data-testid="field-input"
                 ref={inputRef}
               />
-            </VistaSheet.Item>
-          </VistaSheet.Content>
-        </VistaSheet.Sheet>
-      </VistaSheet.Root>
+            </Iris.Item>
+          </Iris.Content>
+        </Iris.Sheet>
+      </Iris.Root>
     </div>
   );
 }

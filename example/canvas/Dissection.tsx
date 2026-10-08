@@ -436,7 +436,7 @@ function Anatomy({ frames }: { frames: FramesManifest | Error | null }) {
         <h2>Anatomy</h2>
         <p>
           Every recipe is one foundation plus the parts it adds. Every box is a
-          measured <code>data-vista-sheet-part</code> element.
+          measured <code>data-wicket-iris-part</code> element.
         </p>
       </header>
       {recipes.length === 0 ? (
@@ -793,23 +793,23 @@ function Springs() {
 // ---------- Tokens ----------
 
 const TOKEN_CONTROLS: Record<string, string> = {
-  "--vista-sheet-surface": "Trigger fill",
-  "--vista-sheet-surface-elevated": "Sheet fill",
-  "--vista-sheet-surface-border": "Hairline on trigger and sheet",
-  "--vista-sheet-text": "Sheet text and Close glyph",
-  "--vista-sheet-accent": "Focus rings",
-  "--vista-sheet-sheet-max-width": "Sheet width cap",
-  "--vista-sheet-shared-size": "Shared element size in the sheet",
-  "--vista-sheet-sheet-radius": "Sheet corner radius at rest",
-  "--vista-sheet-trigger-radius": "Trigger corner radius",
-  "--vista-sheet-sheet-padding": "Sheet inner padding",
-  "--vista-sheet-shadow": "Thin shadow look (trigger)",
-  "--vista-sheet-sheet-shadow": "Heavy shadow look (open sheet)",
-  "--vista-sheet-sheet-shadow-fade-start":
+  "--wicket-iris-surface": "Trigger fill",
+  "--wicket-iris-surface-elevated": "Sheet fill",
+  "--wicket-iris-surface-border": "Hairline on trigger and sheet",
+  "--wicket-iris-text": "Sheet text and Close glyph",
+  "--wicket-iris-accent": "Focus rings",
+  "--wicket-iris-sheet-max-width": "Sheet width cap",
+  "--wicket-iris-shared-size": "Shared element size in the sheet",
+  "--wicket-iris-sheet-radius": "Sheet corner radius at rest",
+  "--wicket-iris-trigger-radius": "Trigger corner radius",
+  "--wicket-iris-sheet-padding": "Sheet inner padding",
+  "--wicket-iris-shadow": "Thin shadow look (trigger)",
+  "--wicket-iris-sheet-shadow": "Heavy shadow look (open sheet)",
+  "--wicket-iris-sheet-shadow-fade-start":
     "Crossfade window start (collapseProgress)",
-  "--vista-sheet-sheet-shadow-fade-end":
+  "--wicket-iris-sheet-shadow-fade-end":
     "Crossfade window end (collapseProgress)",
-  "--vista-sheet-z": "Base z-index of the layer stack",
+  "--wicket-iris-z": "Base z-index of the layer stack",
 };
 
 type PaletteKey =
@@ -823,13 +823,13 @@ type PaletteKey =
 
 /** Which play palette field sets each token (play/codegen writes them). */
 const PALETTE_FIELD: Record<string, PaletteKey> = {
-  "--vista-sheet-surface": "surface",
-  "--vista-sheet-surface-elevated": "surfaceElevated",
-  "--vista-sheet-surface-border": "border",
-  "--vista-sheet-text": "text",
-  "--vista-sheet-accent": "accent",
-  "--vista-sheet-shadow": "triggerShadow",
-  "--vista-sheet-sheet-shadow": "sheetShadow",
+  "--wicket-iris-surface": "surface",
+  "--wicket-iris-surface-elevated": "surfaceElevated",
+  "--wicket-iris-surface-border": "border",
+  "--wicket-iris-text": "text",
+  "--wicket-iris-accent": "accent",
+  "--wicket-iris-shadow": "triggerShadow",
+  "--wicket-iris-sheet-shadow": "sheetShadow",
 };
 
 const PALETTE_ORDER: PaletteId[] = [
@@ -878,7 +878,7 @@ function Tokens() {
       <header>
         <h2>Tokens</h2>
         <p>
-          The public <code>--vista-sheet-*</code> set, read from the README
+          The public <code>--wicket-iris-*</code> set, read from the README
           theming table, with what each of the four play palettes sets it to.
         </p>
       </header>

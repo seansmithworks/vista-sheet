@@ -9,26 +9,26 @@ import { Close } from "./Close";
 import { Shadow } from "./Shadow";
 
 /**
- * VistaSheet — draggable trigger that morphs into a modal sheet.
+ * Iris — draggable trigger that morphs into a modal sheet.
  *
  * ```tsx
- * <VistaSheet.Root>
- *   <VistaSheet.Shadow />
- *   <VistaSheet.Trigger aria-label="Open contact">
- *     <VistaSheet.Shared><Avatar /></VistaSheet.Shared>
- *   </VistaSheet.Trigger>
- *   <VistaSheet.Sheet aria-labelledby="sheet-title">
- *     <VistaSheet.Shared><Avatar /></VistaSheet.Shared>
- *     <VistaSheet.Media poster="/poster.jpg" aspectRatio={9 / 16} />
- *     <VistaSheet.Content>
- *       <VistaSheet.Close aria-label="Close" />
- *       <VistaSheet.Item><h2 id="sheet-title">Title</h2></VistaSheet.Item>
- *     </VistaSheet.Content>
- *   </VistaSheet.Sheet>
- * </VistaSheet.Root>
+ * <Iris.Root>
+ *   <Iris.Shadow />
+ *   <Iris.Trigger aria-label="Open contact">
+ *     <Iris.Shared><Avatar /></Iris.Shared>
+ *   </Iris.Trigger>
+ *   <Iris.Sheet aria-labelledby="sheet-title">
+ *     <Iris.Shared><Avatar /></Iris.Shared>
+ *     <Iris.Media poster="/poster.jpg" aspectRatio={9 / 16} />
+ *     <Iris.Content>
+ *       <Iris.Close aria-label="Close" />
+ *       <Iris.Item><h2 id="sheet-title">Title</h2></Iris.Item>
+ *     </Iris.Content>
+ *   </Iris.Sheet>
+ * </Iris.Root>
  * ```
  */
-export const VistaSheet = {
+export const Iris = {
   Root,
   Trigger,
   Sheet,
@@ -40,7 +40,7 @@ export const VistaSheet = {
   Shadow,
 };
 
-export { useVistaSheet } from "./context";
+export { useIris } from "./context";
 export { presets } from "./motion";
 
 export type {
@@ -51,7 +51,7 @@ export type {
   PreviewTriggerProps,
   RootComponentProps,
   TriggerComponentProps,
-  VistaSheetState,
+  IrisState,
   ItemProps,
   Labelled,
   MediaProps,

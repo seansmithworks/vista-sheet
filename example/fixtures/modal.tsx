@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { VistaSheet } from "../../src/index";
+import { Iris } from "../../src/index";
 
 // P0-1 modal fixture (docs/plans/a11y-web-standards.md, P0 item 1): the page
 // behind an open sheet is inert, and Tab inside the sheet follows the
@@ -142,27 +142,27 @@ function App() {
         </aside>
 
         <main>
-          <VistaSheet.Root>
-            <VistaSheet.Shadow />
+          <Iris.Root>
+            <Iris.Shadow />
 
-            <VistaSheet.Trigger aria-label="Open modal fixture">
-              <VistaSheet.Shared>Open</VistaSheet.Shared>
-            </VistaSheet.Trigger>
+            <Iris.Trigger aria-label="Open modal fixture">
+              <Iris.Shared>Open</Iris.Shared>
+            </Iris.Trigger>
 
-            <VistaSheet.Sheet
+            <Iris.Sheet
               aria-labelledby="modal-sheet-title"
               dismissOnBackdrop={false}
             >
-              <VistaSheet.Shared>Open</VistaSheet.Shared>
+              <Iris.Shared>Open</Iris.Shared>
 
-              <VistaSheet.Close aria-label="Close" />
+              <Iris.Close aria-label="Close" />
 
-              <VistaSheet.Content>
-                <VistaSheet.Item>
+              <Iris.Content>
+                <Iris.Item>
                   <h2 id="modal-sheet-title">Modal fixture</h2>
-                </VistaSheet.Item>
+                </Iris.Item>
 
-                <VistaSheet.Item>
+                <Iris.Item>
                   <fieldset>
                     <legend>Size</legend>
                     {["small", "medium", "large"].map((size) => (
@@ -178,18 +178,18 @@ function App() {
                       </label>
                     ))}
                   </fieldset>
-                </VistaSheet.Item>
+                </Iris.Item>
 
-                <VistaSheet.Item>
+                <Iris.Item>
                   <details data-testid="details">
                     <summary data-testid="summary">More</summary>
                     <a href="#hidden" data-testid="details-link">
                       Hidden while closed
                     </a>
                   </details>
-                </VistaSheet.Item>
+                </Iris.Item>
 
-                <VistaSheet.Item>
+                <Iris.Item>
                   <button
                     type="button"
                     data-testid="save"
@@ -198,23 +198,23 @@ function App() {
                     Save
                   </button>
                   <Listbox />
-                </VistaSheet.Item>
+                </Iris.Item>
 
-                <VistaSheet.Item>
+                <Iris.Item>
                   {withPreview && (
-                    <VistaSheet.Root preview>
-                      <VistaSheet.Shadow />
-                      <VistaSheet.Trigger asChild>
+                    <Iris.Root preview>
+                      <Iris.Shadow />
+                      <Iris.Trigger asChild>
                         <a href="#preview" data-testid="preview-link">
                           Preview link
                         </a>
-                      </VistaSheet.Trigger>
-                      <VistaSheet.Sheet aria-label="Preview card">
-                        <VistaSheet.Content>
+                      </Iris.Trigger>
+                      <Iris.Sheet aria-label="Preview card">
+                        <Iris.Content>
                           <p data-testid="preview-card">Preview body</p>
-                        </VistaSheet.Content>
-                      </VistaSheet.Sheet>
-                    </VistaSheet.Root>
+                        </Iris.Content>
+                      </Iris.Sheet>
+                    </Iris.Root>
                   )}
                   {withSecond && (
                     <button
@@ -235,34 +235,34 @@ function App() {
                   ) : (
                     <shadow-field data-testid="shadow-host" />
                   )}
-                </VistaSheet.Item>
-              </VistaSheet.Content>
-            </VistaSheet.Sheet>
-          </VistaSheet.Root>
+                </Iris.Item>
+              </Iris.Content>
+            </Iris.Sheet>
+          </Iris.Root>
 
           {withSecond && (
-            <VistaSheet.Root
+            <Iris.Root
               open={secondOpen}
               onOpenChange={setSecondOpen}
               defaultAnchor="bottom-left"
             >
-              <VistaSheet.Shadow />
-              <VistaSheet.Trigger aria-label="Open second fixture">
-                <VistaSheet.Shared>Second</VistaSheet.Shared>
-              </VistaSheet.Trigger>
-              <VistaSheet.Sheet
+              <Iris.Shadow />
+              <Iris.Trigger aria-label="Open second fixture">
+                <Iris.Shared>Second</Iris.Shared>
+              </Iris.Trigger>
+              <Iris.Sheet
                 aria-labelledby="second-sheet-title"
                 dismissOnBackdrop={false}
               >
-                <VistaSheet.Shared>Second</VistaSheet.Shared>
-                <VistaSheet.Close aria-label="Close second" />
-                <VistaSheet.Content>
-                  <VistaSheet.Item>
+                <Iris.Shared>Second</Iris.Shared>
+                <Iris.Close aria-label="Close second" />
+                <Iris.Content>
+                  <Iris.Item>
                     <h2 id="second-sheet-title">Second sheet</h2>
-                  </VistaSheet.Item>
-                </VistaSheet.Content>
-              </VistaSheet.Sheet>
-            </VistaSheet.Root>
+                  </Iris.Item>
+                </Iris.Content>
+              </Iris.Sheet>
+            </Iris.Root>
           )}
         </main>
       </div>
