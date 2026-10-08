@@ -119,7 +119,7 @@ hand-translation. This repo runs the same file live at
 
 - `react` >=19
 - `react-dom` >=19
-- `motion` ^12 || ^13 || ^14 (geometry suite and perf gate run green against 12.43.0, 13.5.1 and 14.0.0)
+- `motion` ^12 || ^13 || ^14 (geometry suite run green against 12.43.0, 13.5.1 and 14.0.0; see [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md) for the perf-gate detail)
 
 None are bundled. Install them yourself if your app doesn't already have
 them.

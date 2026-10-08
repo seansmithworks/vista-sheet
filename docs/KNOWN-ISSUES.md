@@ -2,7 +2,7 @@
 
 Browser and platform issues, plus the known limits scattered across README, DESIGN.md and the backlog. Status values: **open**, **parked** (decided not to fix now), **by design**, **test-only** (the component is fine; a spec assumes Chromium).
 
-Last cross-browser run: 2026-10-07, Playwright 1.62, `npm run test:browsers` on `canvas` @ `8090664`. Chromium 313/313, WebKit 303/314, iOS-emulated WebKit 295/314, Pixel-emulated Chromium 311/313. Firefox could not be run (see below).
+Last cross-browser run: 2026-10-07, Playwright 1.62, `npm run test:browsers`, run in a separate worktree at `8090664`, before the motion 12-14 change (`46cf886`) and this file (`391e836`). Chromium 313/313, WebKit 303/314, iOS-emulated WebKit 295/314, Pixel-emulated Chromium 311/313. Firefox did not run (see below). Logs: `/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/browsers/` (session scratch, not in the repo).
 
 ## How to run the browser matrix
 
@@ -20,8 +20,8 @@ All headless. A full project takes about 9 minutes. Playwright's WebKit is the S
 | Issue | Affects | Symptom | Workaround | Status |
 |---|---|---|---|---|
 | `corner-shape: squircle` unsupported | Safari, Firefox (stable) | `shape="squircle"` falls back to a tuned `border-radius`; close to, not identical to, a superellipse | None needed; the fallback is intentional | by design (Sean, 2026-09-13). Revisit when `corner-shape` ships in stable WebKit |
-| Firefox not covered by the suite | Firefox 153 | No result. Playwright's Firefox hangs on launch inside the agent sandbox (`RenderCompositorSWGL failed mapping default framebuffer`); every test fails instantly or hangs | Run `npm run test:browsers -- --project=firefox` from a normal terminal | open |
-| Keyboard focus does not open a link preview | Safari (default settings) | Tab skips links unless "Press Tab to highlight each item" is on (Option+Tab otherwise), so keyboard users in default Safari never reach the focus-open path. The link remains the accessible element | Enable the Safari setting; or give the preview trigger a `tabIndex={0}` wrapper | open, browser behaviour |
+| Firefox not covered by the suite | Firefox | No result. Playwright Firefox fails or hangs on launch in the agent sandbox; cause not captured | Run `npm run test:browsers -- --project=firefox` from a normal terminal | open |
+| Keyboard focus does not open a link preview | Safari (default settings) | Observed: after Tab, the link is not focused in Playwright WebKit. Inferred, not verified: Safari skips links unless "Press Tab to highlight each item" is on (Option+Tab otherwise), so keyboard users in default Safari would never reach the focus-open path | Unverified: enable the Safari setting, or give the preview trigger a `tabIndex={0}` wrapper | open, browser behaviour |
 | Link preview long-press untested on a real iPhone | iOS Safari | Only a synthetic CDP touch (Chromium) is covered. iOS's long-press callout and text selection are unverified. Playwright's WebKit has no CDP, so 3 touch specs cannot run there | Manual check on a device | open |
 | Mouse-driven drag intermittently does not register | Playwright WebKit (desktop and iPhone emulation) | Dragging the trigger sometimes leaves it where it started: `buttons.spec.ts` snap cases fail on different cases per run (1 of 12 on desktop WebKit, 4 on mobile-safari); `geometry.spec.ts:2852` fails every time | Not known. Cause unconfirmed: either Playwright's synthetic mouse in WebKit or a real Motion-drag gap in Safari. Check by dragging by hand in Safari | open, needs a manual Safari check |
 | Canvas dissection never reports ready | WebKit, iOS WebKit | `data-exploded-ready` is never set, so the exploded z-stack does not finish (30s timeout) | None known | open (canvas page, not the package) |
@@ -35,7 +35,8 @@ All headless. A full project takes about 9 minutes. Playwright's WebKit is the S
 | Shared / Media inside a rectangle trigger | All | Unsupported in v0.2 | Use plain children | open |
 | Dia toolbar picks up the glow colour | Dia | With the sheet anchored top and the demo glow on, the toolbar tints. Mechanism inferred: top-edge colour sampling when no `theme-color` is set | Add `<meta name="theme-color">` | parked (demo only) |
 | Dia corner mismatch | Dia | Shadow tighter than the sheet; not reproducible in Chrome 154 | None | parked, needs a console check in Dia |
-| `motion` 12, 13 and 14 supported | All | Peer range is `^12 \|\| ^13 \|\| ^14`; the geometry suite and perf gate run green against 12.43.0, 13.5.1 and 14.0.0 | None | resolved |
+| `motion` 12, 13 and 14 supported | All | Peer range is `^12 \|\| ^13 \|\| ^14`. `geometry.spec.ts` passed 137/137 on 12.43.0, 13.5.1 and 14.0.0 (`/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/packaging/m12.geometry.log`, `m13.geometry.log`, `m14.geometry.log`). Perf gate: passed on 12.43.0 and 14.0.0 (`m12.perf.log`, `m14.perf.log`); the saved 13.5.1 log is a FAIL under heavy load (load1=110), and the passing rerun was an agent report, log not retained | None | resolved |
+| iOS home-page disc offset | iOS Simulator (iPhone 18 Pro, iOS 27) | The bottom-centre disc on `/` sits about 170px above the bottom edge, over the floating toolbar. Evidence: `/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/browsers/ios-index-rest.png`. Cause not investigated | None | open |
 | Nothing consumes the package yet | n/a | Gate-tested, not battle-tested | n/a | open |
 
 ## Tests that assume Chromium
@@ -46,19 +47,19 @@ These fail in other engines for reasons that are not component bugs. They are no
 |---|---|---|
 | `link-preview.spec.ts` (f) long-press, (f) short tap, (g) console errors | WebKit, mobile-safari | Use `newCDPSession` for touch; CDP is Chromium-only |
 | `link-preview.spec.ts` (e) scroll closes | mobile-safari | `mouse.wheel` is unsupported in mobile WebKit |
-| `link-preview.spec.ts` (h) keyboard focus | WebKit, mobile-safari | `Tab` does not focus links in Safari by default (see above) |
+| `link-preview.spec.ts` (h) keyboard focus | WebKit, mobile-safari | After Tab the link is not focused in Playwright WebKit; the Safari-setting explanation is inferred, not verified (see above) |
 | `canvas.spec.ts` behaviour-draggable | WebKit, mobile-safari | Reads `getComputedStyle().userSelect`, which WebKit exposes only as `-webkit-user-select`. Likely a measurement gap; not verified |
 | `canvas-lab.spec.ts:20` | WebKit, mobile-safari | Arrow-key frame step lands 1.5ms off the expected tick (314.1 vs 315.625). Likely timer rounding in the test's frame math; not verified |
-| `canvas-lab.spec.ts:87`, `focus.spec.ts:215` | mobile-safari (focus.spec also mobile-chrome) | Assume the desktop layout (the second legend, the Recipe selector); not present at phone width |
-| `geometry.spec.ts:2235`, `:2809` | mobile-safari | Drive the anchor with the mouse on a touch-emulated device; same family as the drag issue above |
+| `canvas-lab.spec.ts:87`, `focus.spec.ts:215` | mobile-safari (focus.spec also mobile-chrome) | Assume the desktop layout (the second legend, the Recipe selector); not present at phone width. Inferred, not verified |
+| `geometry.spec.ts:2235`, `:2809` | mobile-safari | Drive the anchor with the mouse on a touch-emulated device; same family as the drag issue above. Inferred, not verified |
 
 ## Known Chromium flakes
 
-Pass on rerun. Run under load (several browsers at once) to make them worse.
+Carried over from earlier runs (agent report; logs not retained). Pass on rerun; run under load (several browsers at once) to make them worse.
 
 - `geometry.spec.ts:316`
 - `geometry.spec.ts:2347`
 - `media.spec.ts:289`
 - `media.spec.ts:606` (1.72px vs 1px)
 
-None of the four failed in the 2026-10-07 Chromium run.
+None of the four failed in the 2026-10-07 Chromium run (`/private/tmp/claude-501/-Users-seansmith-Code-vista-sheet--claude-worktrees-agent-a047d6627e27030d5/b3e5ba75-7a87-4a36-9446-874ead363758/scratchpad/browsers/chromium.log`: 313 passed).
