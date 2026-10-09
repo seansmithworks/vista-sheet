@@ -21,10 +21,13 @@
   left: 24px;
   margin: 0;
   font-size: 13px;
-  color: rgba(20, 22, 28, 0.65);
+  color: color-mix(in srgb, var(--wicket-iris-text) 65%, transparent);
   max-width: 280px;
 }
 
+/* .media-page carries the tokens too so the whisper (a sibling of the
+ * Iris.Root) derives its colour from them. */
+.media-page,
 .media-theme {
   --wicket-iris-surface: #f5f6fa;
   --wicket-iris-surface-elevated: #ffffff;
@@ -97,7 +100,7 @@
   padding: 0 16px;
   border-radius: 9999px;
   background: var(--wicket-iris-accent);
-  color: #ffffff;
+  color: var(--wicket-iris-surface-elevated);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;

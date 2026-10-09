@@ -20,5 +20,12 @@ ul {
 
 li {
   padding: 12px 0;
-  border-top: 1px solid #e5e5e5;
+  /* This page loads no example.css, so the vars are unset at rest; the
+   * fallbacks are the package's neutral defaults. */
+  border-top: 1px solid
+    color-mix(
+      in srgb,
+      var(--wicket-iris-text, #1d1d1f) 9.5%,
+      var(--wicket-iris-surface, #fafafa)
+    );
 }

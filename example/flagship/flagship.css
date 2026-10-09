@@ -13,7 +13,13 @@
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  background: #e8e2d2;
+  /* Paper ground: the elevated surface deepened 2% toward the text colour
+   * (renders #e8e2d2 ±1 with the palette below). */
+  background: color-mix(
+    in srgb,
+    var(--wicket-iris-surface-elevated) 98%,
+    var(--wicket-iris-text)
+  );
 }
 
 /* T1: the page at rest was an empty paper field with an unnamed face on it
@@ -29,10 +35,13 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(26, 22, 16, 0.65);
+  color: color-mix(in srgb, var(--wicket-iris-text) 65%, transparent);
 }
 
 /* The 13 consumer tokens, set to the site's light palette (flagship-facts.md). */
+/* .flagship-page carries the tokens too so the page ground and whisper
+ * derive from them. */
+.flagship-page,
 .flagship-theme {
   --wicket-iris-surface: #f3eee3;
   --wicket-iris-surface-elevated: #ede6d3;
@@ -170,7 +179,7 @@
  * border-bottoms weren't. first-child's own border-top full-bleeds exactly
  * like the others instead. */
 .flagship-action:first-child {
-  border-top: 1px solid rgba(26, 22, 16, 0.1);
+  border-top: 1px solid color-mix(in srgb, var(--wicket-iris-text) 10%, transparent);
 }
 
 .flagship-action {
@@ -184,18 +193,18 @@
   color: var(--wicket-iris-text);
   text-decoration: none;
   /* M5: #ebe4d4 on #ede6d3 (the elevated sheet) was 1.02:1 — invisible. */
-  border-bottom: 1px solid rgba(26, 22, 16, 0.1);
+  border-bottom: 1px solid color-mix(in srgb, var(--wicket-iris-text) 10%, transparent);
   /* M3: hover background matched the sheet's own background exactly —
    * zero pixels changed. */
   transition: background-color 120ms ease-out;
 }
 
 .flagship-action:hover {
-  background: rgba(26, 22, 16, 0.045);
+  background: color-mix(in srgb, var(--wicket-iris-text) 4.5%, transparent);
 }
 
 .flagship-action:active {
-  background: rgba(26, 22, 16, 0.075);
+  background: color-mix(in srgb, var(--wicket-iris-text) 7.5%, transparent);
 }
 
 /* M10: every link used Chrome's default blue focus ring, spanning the full

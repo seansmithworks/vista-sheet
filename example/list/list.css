@@ -72,7 +72,7 @@
 }
 
 .list-row:hover {
-  background: rgba(28, 27, 23, 0.05);
+  background: color-mix(in srgb, var(--wicket-iris-text) 5%, transparent);
 }
 
 .list-row:focus-visible {
