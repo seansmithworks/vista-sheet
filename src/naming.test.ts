@@ -78,6 +78,8 @@ const VISTA_SHEET: Rule = {
     "src/usePersistedAnchor.test.tsx": ["vista-sheet-anchor"],
     // The GitHub repo keeps its name until Sean renames it.
     "package.json": [REPO_URL],
+    "packages/orrery-ui/package.json": [REPO_URL],
+    "packages/orrery-ui/README.md": [REPO_URL],
     "README.md": ["github:seansmithworks/vista-sheet"],
     // Out of scope for the rename pass: Sean edits the CLAUDE.md heading.
     "CLAUDE.md": ["@seansmithworks/vista-sheet"],
