@@ -186,7 +186,7 @@ export function mergeTransition(
     "mass" in provided
   ) {
     console.warn(
-      "[wicket-iris] A transition combines `visualDuration`/`bounce` with " +
+      "[orrery-iris] A transition combines `visualDuration`/`bounce` with " +
         "`mass`. Motion resolves stiffness/damping/mass before it ever " +
         "looks at visualDuration/bounce, so `mass` silently discards both " +
         "and the spring falls back to Motion's defaults (measured: a " +

@@ -16,7 +16,7 @@ import { expect, test, type Page } from "@playwright/test";
 async function mountDefaultOpenSearch(page: Page) {
   await page.addInitScript(() => {
     window.addEventListener("message", (e) => {
-      if ((e.data as { type?: string })?.type === "wicket-iris-play:ready") {
+      if ((e.data as { type?: string })?.type === "orrery-iris-play:ready") {
         (window as unknown as { __stageReady?: boolean }).__stageReady = true;
       }
     });
@@ -35,7 +35,7 @@ async function mountDefaultOpenSearch(page: Page) {
       applyRecipe: (state: unknown, id: string) => unknown;
     };
     const message = {
-      type: "wicket-iris-play:state",
+      type: "orrery-iris-play:state",
       state: applyRecipe(DEFAULT_STATE, "search"),
       overrides: { defaultOpen: true },
     };
@@ -46,11 +46,11 @@ async function mountDefaultOpenSearch(page: Page) {
 
 function readMountState(page: Page) {
   return page.evaluate(() => {
-    const sheet = document.querySelector('[data-wicket-iris-part="sheet"]');
-    const close = document.querySelector('[data-wicket-iris-part="close"]');
-    const shadow = document.querySelector('[data-wicket-iris-part="shadow"]');
+    const sheet = document.querySelector('[data-orrery-iris-part="sheet"]');
+    const close = document.querySelector('[data-orrery-iris-part="close"]');
+    const shadow = document.querySelector('[data-orrery-iris-part="shadow"]');
     return {
-      settled: sheet?.hasAttribute("data-wicket-iris-settled") ?? null,
+      settled: sheet?.hasAttribute("data-orrery-iris-settled") ?? null,
       closeOpacity: close ? getComputedStyle(close).opacity : null,
       discShadowOpacity: shadow
         ? getComputedStyle(shadow, "::before").opacity
@@ -68,7 +68,7 @@ test("defaultOpen renders settled: marker, Close, sheet shadow, initialFocus", a
   page,
 }) => {
   await mountDefaultOpenSearch(page);
-  await expect(page.locator('[data-wicket-iris-part="sheet"]')).toBeVisible();
+  await expect(page.locator('[data-orrery-iris-part="sheet"]')).toBeVisible();
   await expect
     .poll(() => readMountState(page), { timeout: 3000 })
     .toEqual({
@@ -84,23 +84,23 @@ test("defaultOpen sheet closes to the trigger and reopens", async ({
   page,
 }) => {
   await mountDefaultOpenSearch(page);
-  const sheet = page.locator('[data-wicket-iris-part="sheet"]');
-  await expect(sheet).toHaveAttribute("data-wicket-iris-settled", "");
-  await page.locator('[data-wicket-iris-part="close"]').click();
+  const sheet = page.locator('[data-orrery-iris-part="sheet"]');
+  await expect(sheet).toHaveAttribute("data-orrery-iris-settled", "");
+  await page.locator('[data-orrery-iris-part="close"]').click();
   await expect(sheet).toHaveCount(0);
   await expect
     .poll(() =>
       page.evaluate(() => {
         const shadow = document.querySelector(
-          '[data-wicket-iris-part="shadow"]',
+          '[data-orrery-iris-part="shadow"]',
         );
         return shadow ? getComputedStyle(shadow, "::before").opacity : null;
       }),
     )
     .toBe("1");
-  await page.locator('[data-wicket-iris-part="trigger"]').click();
-  await expect(sheet).toHaveAttribute("data-wicket-iris-settled", "");
-  await expect(page.locator('[data-wicket-iris-part="close"]')).toHaveCSS(
+  await page.locator('[data-orrery-iris-part="trigger"]').click();
+  await expect(sheet).toHaveAttribute("data-orrery-iris-settled", "");
+  await expect(page.locator('[data-orrery-iris-part="close"]')).toHaveCSS(
     "opacity",
     "1",
   );

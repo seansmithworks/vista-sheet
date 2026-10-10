@@ -78,7 +78,7 @@ export function Media({
     if (!wrapper || !el) return;
 
     const surface = wrapper.closest<HTMLElement>(
-      '[data-wicket-iris-part="sheet"], [data-wicket-iris-part="trigger-surface"]',
+      '[data-orrery-iris-part="sheet"], [data-orrery-iris-part="trigger-surface"]',
     );
 
     // Sentinel, not NaN: `Math.abs(NaN - x)` is NaN, and NaN never compares
@@ -172,8 +172,8 @@ export function Media({
     <div
       ref={wrapperRef}
       className={`${styles.media} ${className ?? ""}`}
-      data-wicket-iris-part="media"
-      data-wicket-iris-slot={slot}
+      data-orrery-iris-part="media"
+      data-orrery-iris-slot={slot}
     >
       {src ? (
         <video

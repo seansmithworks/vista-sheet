@@ -76,7 +76,7 @@ export function Content({ children, className }: ContentProps) {
     <motion.div
       ref={contentScrollElRef}
       className={`${styles.content} ${className ?? ""}`}
-      data-wicket-iris-part="content"
+      data-orrery-iris-part="content"
       tabIndex={tabbable ? 0 : undefined}
       variants={variants}
       initial="hidden"

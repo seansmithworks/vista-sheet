@@ -1,5 +1,5 @@
 /**
- * Measuring a live specimen's parts: every `[data-wicket-iris-part]`
+ * Measuring a live specimen's parts: every `[data-orrery-iris-part]`
  * element in a stage iframe, its box, computed z-index and position. Shared
  * by the Anatomy specimens and the exploded z-stack.
  */
@@ -36,21 +36,21 @@ export function wait(fn: () => boolean, timeout = 8000): Promise<void> {
 
 export function measure(doc: Document): PartBox[] {
   const win = doc.defaultView!;
-  return [...doc.querySelectorAll<HTMLElement>("[data-wicket-iris-part]")].map(
+  return [...doc.querySelectorAll<HTMLElement>("[data-orrery-iris-part]")].map(
     (el, i) => {
       const r = el.getBoundingClientRect();
       const cs = win.getComputedStyle(el);
       const parentEl = el.parentElement?.closest<HTMLElement>(
-        "[data-wicket-iris-part]",
+        "[data-orrery-iris-part]",
       );
       return {
         n: i + 1,
-        part: el.dataset.wicketIrisPart!,
-        slot: el.dataset.wicketIrisSlot ?? null,
+        part: el.dataset.orreryIrisPart!,
+        slot: el.dataset.orreryIrisSlot ?? null,
         parent: parentEl
           ? partKey({
-              part: parentEl.dataset.wicketIrisPart!,
-              slot: parentEl.dataset.wicketIrisSlot ?? null,
+              part: parentEl.dataset.orreryIrisPart!,
+              slot: parentEl.dataset.orreryIrisSlot ?? null,
             })
           : null,
         x: r.left,
@@ -86,23 +86,23 @@ export function freezeSpecimen(
       const el = frame();
       if (!el || e.source !== el.contentWindow) return;
       if (e.origin !== location.origin || !isPlayMessage(e.data)) return;
-      if (e.data.type !== "wicket-iris-play:ready") return;
+      if (e.data.type !== "orrery-iris-play:ready") return;
       window.removeEventListener("message", onMessage);
       const win = el.contentWindow!;
       win.addEventListener("focusin", () => el.blur(), true);
       win.postMessage(
-        { type: "wicket-iris-play:state", state: tile.state },
+        { type: "orrery-iris-play:state", state: tile.state },
         location.origin,
       );
       const doc = el.contentDocument!;
       try {
         const trigger = () =>
-          doc.querySelector<HTMLElement>('[data-wicket-iris-part="trigger"]');
+          doc.querySelector<HTMLElement>('[data-orrery-iris-part="trigger"]');
         await wait(() => Boolean(trigger()));
         if (open) {
           trigger()!.click();
           await wait(() =>
-            Boolean(doc.querySelector("[data-wicket-iris-settled]")),
+            Boolean(doc.querySelector("[data-orrery-iris-settled]")),
           );
         }
         await new Promise((r) => setTimeout(r, 1400));

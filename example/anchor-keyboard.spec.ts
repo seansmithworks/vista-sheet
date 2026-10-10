@@ -48,10 +48,10 @@ import {
  *   the trigger seats directly: no in-flight frame.
  */
 
-const ROOT = '[data-wicket-iris-root="kb"] ';
-const WRAPPER = `${ROOT}[data-wicket-iris-part="trigger-root"]`;
-const SURFACE = `${ROOT}[data-wicket-iris-part="trigger-surface"]`;
-const SHADOW = `${ROOT}[data-wicket-iris-part="shadow"]`;
+const ROOT = '[data-orrery-iris-root="kb"] ';
+const WRAPPER = `${ROOT}[data-orrery-iris-part="trigger-root"]`;
+const SURFACE = `${ROOT}[data-orrery-iris-part="trigger-surface"]`;
+const SHADOW = `${ROOT}[data-orrery-iris-part="shadow"]`;
 const STATUS = `${ROOT}[role="status"]`;
 const TRIGGER_LABEL = "Move fixture trigger";
 
@@ -141,7 +141,7 @@ async function load(
 const trigger = (page: Page) =>
   page.getByRole("button", { name: TRIGGER_LABEL });
 // Activate a set-<anchor> button without a synthetic pointer. On a bare html page
-// with no wicket-iris code, a Playwright mouse.click() whose handler changes a text
+// with no orrery-iris code, a Playwright mouse.click() whose handler changes a text
 // node stalls the next frame 25-50ms (Chromium's post-layout hover check); el.click()
 // does not. Chromium/Playwright artifact, not the package.
 const setAnchorBtn = (page: Page, testId: string) =>
@@ -366,7 +366,7 @@ test.describe("P0-3 keyboard anchor moves: when inactive", () => {
     await load(page, { anchor: "bottom-center" });
     await trigger(page).click();
     await page.waitForSelector(
-      `${ROOT}[data-wicket-iris-part="sheet"][data-wicket-iris-settled]`,
+      `${ROOT}[data-orrery-iris-part="sheet"][data-orrery-iris-settled]`,
     );
     await recordPrevented(page);
     // Focus is inside the sheet; the page behind it is inert.
@@ -383,7 +383,7 @@ test.describe("P0-3 keyboard anchor moves: when inactive", () => {
           cancelable: true,
         }),
       );
-    }, `${ROOT}[data-wicket-iris-part="trigger"]`);
+    }, `${ROOT}[data-orrery-iris-part="trigger"]`);
     await page.waitForTimeout(300);
     await expect(readout(page)).toHaveText("bottom-center");
     expect(await changes(page)).toEqual([]);
@@ -392,7 +392,7 @@ test.describe("P0-3 keyboard anchor moves: when inactive", () => {
     expect((await prevented(page)).at(-1)).toBe(false);
     await page.keyboard.press("Escape");
     await expect(
-      page.locator(`${ROOT}[data-wicket-iris-part="sheet"]`),
+      page.locator(`${ROOT}[data-orrery-iris-part="sheet"]`),
     ).toHaveCount(0);
     await expectSeated(page, "bottom-center");
   });

@@ -316,7 +316,7 @@ describe("sheetPlacement — maxHeight (regression: top-pinned lost its 100dvh-3
 });
 
 const DEFAULT_SHEET_WIDTH_CSS =
-  "min(var(--wicket-iris-sheet-max-width, 480px), calc(100vw - 32px))";
+  "min(var(--orrery-iris-sheet-max-width, 480px), calc(100vw - 32px))";
 const DEFAULT_SHEET_HEIGHT_CSS = "fit-content";
 
 describe("sheetPlacement — aspectRatio (P4)", () => {

@@ -263,7 +263,7 @@ function ButtonTrigger({
   useEffect(() => {
     const el = surfaceRef.current;
     if (!el) return;
-    const token = readVarPx(el, "--wicket-iris-trigger-radius", 9999);
+    const token = readVarPx(el, "--orrery-iris-trigger-radius", 9999);
     triggerRestRadius.set(
       resolveTriggerCornerRadius({
         shape,
@@ -333,7 +333,7 @@ function ButtonTrigger({
     const unsubY = y.on("change", update);
     window.addEventListener("resize", update);
     // Strawman (v0.2): a plain mount-time getBoundingClientRect() can race a
-    // same-commit CSS change (here, Root's scoped --wicket-iris-trigger-size
+    // same-commit CSS change (here, Root's scoped --orrery-iris-trigger-size
     // <style> block) in WebKit — observed via direct instrumentation: the
     // very first rAF after mount read the trigger button's width before
     // WebKit had resolved the @media rule that sizes it, committing a
@@ -433,7 +433,7 @@ function ButtonTrigger({
       if (openRef.current || sheetRectRef.current !== null) return;
       // Reduced motion keeps the highlight (an opacity fade) but never moves
       // the shadow; the button's lift/scale rules are off via
-      // data-wicket-iris-reduce-motion.
+      // data-orrery-iris-reduce-motion.
       writeTriggerFeedback(
         reduceMotion
           ? [triggerRef.current]
@@ -447,16 +447,16 @@ function ButtonTrigger({
   // Pointer-following highlight: written straight to the button's style, at
   // most once per frame, never through React state. Touch, keyboard and
   // reduced motion get it centred and static (no press tighten either):
-  // data-wicket-iris-highlight="static".
+  // data-orrery-iris-highlight="static".
   const highlightRafRef = useRef<number | null>(null);
   const highlightPointRef = useRef({ x: 0, y: 0 });
   const writeHighlightAt = useCallback((x: string, y: string) => {
     const el = triggerRef.current;
     if (!el) return;
-    el.style.setProperty("--wicket-iris-trigger-highlight-x", x);
-    el.style.setProperty("--wicket-iris-trigger-highlight-y", y);
+    el.style.setProperty("--orrery-iris-trigger-highlight-x", x);
+    el.style.setProperty("--orrery-iris-trigger-highlight-y", y);
     el.setAttribute(
-      "data-wicket-iris-highlight",
+      "data-orrery-iris-highlight",
       x === "50%" ? "static" : "follow",
     );
   }, []);
@@ -513,7 +513,7 @@ function ButtonTrigger({
       if (openRef.current || sheetRectRef.current !== null) return;
       trackHighlight(e, false);
       const current = triggerRef.current?.getAttribute(
-        "data-wicket-iris-feedback",
+        "data-orrery-iris-feedback",
       );
       if (current !== "hover" && current !== "pressed") setFeedback("hover");
     },
@@ -714,23 +714,23 @@ function ButtonTrigger({
         wrapperRef.current = el;
       }}
       className={`${styles.dragWrapper} ${className ?? ""}`}
-      // width/height come from .dragWrapper's CSS rule (var(--wicket-iris-
+      // width/height come from .dragWrapper's CSS rule (var(--orrery-iris-
       // trigger-size)), not an inline write of `triggerSize` — an inline
       // write here would win over Root's scoped @media block regardless of
       // viewport, reproducing D3 one level down (this element is the
-      // ancestor .shared[data-wicket-iris-slot="trigger"] inherits from).
+      // ancestor .shared[data-orrery-iris-slot="trigger"] inherits from).
       // `x`/`y` still come from the live triggerSize for position math
       // (anchors.ts) — that's unaffected by D3, which is a BOX-SIZE defect,
       // not a position one.
       style={{ x, y }}
-      data-wicket-iris-part="trigger-root"
+      data-orrery-iris-part="trigger-root"
       // Lift the trigger above the sheet (z + 103) during a CLOSE. The
       // `-shared` and `-surface` layoutId pairs crossfade on different
       // springs, so the sheet-side <Shared> fades out while the opaque sheet
       // still covers the trigger-side copy; lifting lets that copy paint
       // through the gap. Close only: while open, the invisible button would
       // sit over the sheet and swallow its clicks.
-      data-wicket-iris-closing={sheetRect !== null && !open ? "" : undefined}
+      data-orrery-iris-closing={sheetRect !== null && !open ? "" : undefined}
       drag={draggable && !open ? true : false}
       dragMomentum={false}
       dragElastic={reduceMotion ? 0 : 0.06}
@@ -746,8 +746,8 @@ function ButtonTrigger({
             ? window.innerHeight - triggerBox.height
             : 0,
       }}
-      data-wicket-iris-shape={shape}
-      data-wicket-iris-button-size={
+      data-orrery-iris-shape={shape}
+      data-orrery-iris-button-size={
         shape === "rectangle" ? buttonSize : undefined
       }
       onPointerDown={handlePointerDown}
@@ -770,15 +770,15 @@ function ButtonTrigger({
         }}
         type="button"
         className={styles.triggerButton}
-        data-wicket-iris-part="trigger"
-        data-wicket-iris-reduce-motion={reduceMotion ? "" : undefined}
+        data-orrery-iris-part="trigger"
+        data-orrery-iris-reduce-motion={reduceMotion ? "" : undefined}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? sheetId : undefined}
         id={triggerId}
         onClick={handleClick}
-        data-wicket-iris-shape={shape}
-        data-wicket-iris-button-size={
+        data-orrery-iris-shape={shape}
+        data-orrery-iris-button-size={
           shape === "rectangle" ? buttonSize : undefined
         }
         {...aria}
@@ -788,7 +788,7 @@ function ButtonTrigger({
             as="div"
             ref={attachSurfaceRef}
             className={styles.triggerSurface}
-            data-wicket-iris-shape={shape}
+            data-orrery-iris-shape={shape}
             restRadius={triggerRestRadius}
           />
         )}
@@ -799,7 +799,7 @@ function ButtonTrigger({
               <span
                 ref={attachLabelRef}
                 className={styles.triggerLabel}
-                data-wicket-iris-part="trigger-label"
+                data-orrery-iris-part="trigger-label"
               >
                 {label}
               </span>

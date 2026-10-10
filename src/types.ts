@@ -88,7 +88,7 @@ export interface RootProps {
   draggable?: boolean;
   /**
    * localStorage key for the chosen anchor.
-   * Default "wicket-iris-anchor". Pass false to disable persistence entirely.
+   * Default "orrery-iris-anchor". Pass false to disable persistence entirely.
    */
   persistKey?: string | false;
   /**
@@ -109,7 +109,7 @@ export interface RootProps {
   /**
    * Trigger shape. Default "circle". The surface, Shadow, both
    * <Iris.Shared> slots and the focus ring follow it;
-   * --wicket-iris-trigger-radius caps the corner radius for every shape.
+   * --orrery-iris-trigger-radius caps the corner radius for every shape.
    * "squircle" is a true superellipse where CSS corner-shape is supported
    * and a close border-radius approximation elsewhere. "rectangle" is a
    * label-sized button trigger (plain children; Shared and Media are not
@@ -251,7 +251,7 @@ export interface ShadowProps {
   className?: string;
   /** Render a single child in place of the default shadow div, merging the
    * fixed positioning, z-index, aria-hidden, pointer-events, data-* attributes
-   * and --wicket-iris-shadow-* custom properties onto it. */
+   * and --orrery-iris-shadow-* custom properties onto it. */
   asChild?: boolean;
   children?: ReactNode;
 }

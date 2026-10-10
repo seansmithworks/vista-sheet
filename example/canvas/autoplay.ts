@@ -14,7 +14,7 @@ import { SWIPE_OFFSET_PX } from "../../src/motion";
 
 export type AutoplayKind = "morph" | "swipe";
 
-const STORAGE_KEY = "wicket-iris-canvas-autoplay";
+const STORAGE_KEY = "orrery-iris-canvas-autoplay";
 // Pre-rename key, read as a fallback so the saved toggle survives.
 const LEGACY_STORAGE_KEY = "vista-sheet-canvas-autoplay";
 const REDUCED = "(prefers-reduced-motion: reduce)";
@@ -42,9 +42,9 @@ export function useAutoplayToggle(): [boolean, (on: boolean) => void] {
 }
 
 const SEL = {
-  trigger: '[data-wicket-iris-part="trigger"]',
-  sheet: '[data-wicket-iris-part="sheet"]',
-  close: '[data-wicket-iris-part="sheet"] [data-wicket-iris-part="close"]',
+  trigger: '[data-orrery-iris-part="trigger"]',
+  sheet: '[data-orrery-iris-part="sheet"]',
+  close: '[data-orrery-iris-part="sheet"] [data-orrery-iris-part="close"]',
 };
 
 /** A drag down the sheet past SWIPE_OFFSET_PX, as pointer events on the
@@ -115,7 +115,7 @@ export function useAutoplay(
         if (!sheet) {
           doc.querySelector<HTMLElement>(SEL.trigger)?.click();
           await until(() =>
-            Boolean(doc.querySelector("[data-wicket-iris-settled]")),
+            Boolean(doc.querySelector("[data-orrery-iris-settled]")),
           );
           await sleep(HOLD_OPEN_MS);
         } else {
@@ -124,7 +124,7 @@ export function useAutoplay(
           await until(
             () =>
               !doc.querySelector(SEL.sheet) &&
-              !doc.querySelector("[data-wicket-iris-closing]"),
+              !doc.querySelector("[data-orrery-iris-closing]"),
           );
           await sleep(HOLD_CLOSED_MS);
         }

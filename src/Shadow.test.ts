@@ -71,7 +71,7 @@ describe("mergeRefs", () => {
  */
 type CapturedShadowChild = ReactElement<{
   ref?: (n: HTMLElement | null) => void;
-  "data-wicket-iris-part"?: string;
+  "data-orrery-iris-part"?: string;
 }>;
 
 function renderShadowAsChild(
@@ -136,6 +136,6 @@ describe("<Shadow asChild>", () => {
   it("clone carries the shadow part attribute", () => {
     const el = renderShadowAsChild(undefined);
 
-    expect(el.props["data-wicket-iris-part"]).toBe("shadow");
+    expect(el.props["data-orrery-iris-part"]).toBe("shadow");
   });
 });

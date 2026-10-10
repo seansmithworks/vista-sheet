@@ -14,8 +14,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Iris } from "@wicket/iris";
-import type { MotionPreset } from "@wicket/iris";
+import { Iris } from "@orrery-ui/iris";
+import type { MotionPreset } from "@orrery-ui/iris";
 import { DialRoot, DialStore, useDialKitController } from "dialkit";
 import type { TransitionConfig } from "dialkit";
 import "dialkit/styles.css";
@@ -106,7 +106,7 @@ function toPresetSpring(spring: MotionSpring): {
 
 // ── Measurement ────────────────────────────────────────────────────────────
 // Two elements, sampled per frame from the Close click until both are quiet:
-//   box    = [data-wicket-iris-part="trigger-surface"]      the collapsing shell
+//   box    = [data-orrery-iris-part="trigger-surface"]      the collapsing shell
 //   avatar = the trigger-side <Iris.Shared>           inset: 2px inside it
 //
 // ARRIVAL GAP  = avatarArrival - boxArrival, ms. Negative = the avatar gets
@@ -277,10 +277,10 @@ export default function TunePage() {
 
     const tick = (now: number) => {
       const boxEl = document.querySelector(
-        '[data-wicket-iris-part="trigger-surface"]',
+        '[data-orrery-iris-part="trigger-surface"]',
       );
       const avEl = document.querySelector(
-        '[data-wicket-iris-part="shared"][data-wicket-iris-slot="trigger"]',
+        '[data-orrery-iris-part="shared"][data-orrery-iris-slot="trigger"]',
       );
       if (!boxEl || !avEl) {
         rafRef.current = requestAnimationFrame(tick);
@@ -354,7 +354,7 @@ export default function TunePage() {
   // Read-out hook for the measurement harness; the numbers on screen and the
   // numbers in the report are the same numbers.
   useEffect(() => {
-    (window as unknown as Record<string, unknown>).__wicketIrisTune = {
+    (window as unknown as Record<string, unknown>).__orreryIrisTune = {
       runs,
       summary,
       values: { discShell: shellSpring, avatar: avatarSpring, leadDelay },

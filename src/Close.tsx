@@ -82,7 +82,7 @@ export function Close({ children, className, ...aria }: CloseProps) {
     <motion.button
       type="button"
       className={`${styles.closeButton} ${className ?? ""}`}
-      data-wicket-iris-part="close"
+      data-orrery-iris-part="close"
       onClick={() => setOpen(false)}
       onFocus={() => setRevealed(true)}
       initial={hidden}

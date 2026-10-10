@@ -22,10 +22,10 @@ import styles from "./styles.module.css";
  * between the trigger and the sheet. It is the only painter of both shadows
  * (DESIGN.md §4.1): the disc shadow and the sheet's resting shadow, two
  * layers crossfaded on collapseProgress. The crossfade window is the
- * --wicket-iris-sheet-shadow-fade-start / -fade-end CSS vars.
+ * --orrery-iris-sheet-shadow-fade-start / -fade-end CSS vars.
  *
  * asChild clones the single child (e.g. a surface-fx dither layer), merges
- * the positioning, attributes and --wicket-iris-shadow-* vars onto it, and
+ * the positioning, attributes and --orrery-iris-shadow-* vars onto it, and
  * composes the child's own ref (React 19 `props.ref`) with Shadow's.
  */
 
@@ -110,17 +110,17 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const inFlight = isInFlight(p);
       const withinSettleGrace =
         performance.now() - lastActiveAtRef.current < SURFACE_READ_GRACE_MS;
-      const sheetRadius = readVarPx(el, "--wicket-iris-sheet-radius", 48);
+      const sheetRadius = readVarPx(el, "--orrery-iris-sheet-radius", 48);
       const surfaceEl = el
-        .closest("[data-wicket-iris-root]")
+        .closest("[data-orrery-iris-root]")
         ?.querySelector<HTMLElement>(
-          '[data-wicket-iris-part="sheet"], [data-wicket-iris-part="trigger-surface"]',
+          '[data-orrery-iris-part="sheet"], [data-orrery-iris-part="trigger-surface"]',
         );
       let radius: number;
       if (surfaceEl && (inFlight || withinSettleGrace)) {
         radius = readRenderedCornerRadius(surfaceEl);
       } else {
-        const token = readVarPx(el, "--wicket-iris-trigger-radius", 9999);
+        const token = readVarPx(el, "--orrery-iris-trigger-radius", 9999);
         const triggerCorner = resolveTriggerCornerRadius({
           shape,
           triggerSize: 2 * Math.min(trigger.halfWidth, trigger.halfHeight),
@@ -143,12 +143,12 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
       const pClamped = p < 0 ? 0 : p > 1 ? 1 : p;
       const fadeStart = readVarPx(
         el,
-        "--wicket-iris-sheet-shadow-fade-start",
+        "--orrery-iris-sheet-shadow-fade-start",
         0,
       );
       const fadeEnd = readVarPx(
         el,
-        "--wicket-iris-sheet-shadow-fade-end",
+        "--orrery-iris-sheet-shadow-fade-end",
         0.25,
       );
       const span = fadeEnd - fadeStart;
@@ -160,16 +160,16 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
           : Math.min(1, Math.max(0, (fadeEnd - pClamped) / span));
       const discShadowOpacity = 1 - sheetShadowOpacity;
 
-      el.style.setProperty("--wicket-iris-collapse", String(p));
+      el.style.setProperty("--orrery-iris-collapse", String(p));
       el.style.setProperty(
-        "--wicket-iris-shadow-opacity",
+        "--orrery-iris-shadow-opacity",
         String(discShadowOpacity),
       );
       el.style.setProperty(
-        "--wicket-iris-sheet-shadow-opacity",
+        "--orrery-iris-sheet-shadow-opacity",
         String(sheetShadowOpacity),
       );
-      el.style.setProperty("--wicket-iris-shadow-radius", `${radius}px`);
+      el.style.setProperty("--orrery-iris-shadow-radius", `${radius}px`);
       el.style.width = `${halfW * 2}px`;
       el.style.height = `${halfH * 2}px`;
       el.style.left = `${cx - halfW}px`;
@@ -200,7 +200,7 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
     // inside any epsilon band. Each tick disarms and schedules a one-frame
     // quiet check; only a frame with no tick connects the observer, so one
     // path covers any frame, never both.
-    const rootEl = elRef.current?.closest("[data-wicket-iris-root]") ?? null;
+    const rootEl = elRef.current?.closest("[data-orrery-iris-root]") ?? null;
     let mutationObserver: MutationObserver | null = null;
     let observing = false;
     let graceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -303,9 +303,9 @@ export function Shadow({ className, asChild, children }: ShadowProps) {
 
   const sharedProps = {
     "aria-hidden": true as const,
-    "data-wicket-iris-part": "shadow",
+    "data-orrery-iris-part": "shadow",
     "data-state": dataState,
-    "data-wicket-iris-shape": shape,
+    "data-orrery-iris-shape": shape,
   };
 
   let shadow: ReactElement;

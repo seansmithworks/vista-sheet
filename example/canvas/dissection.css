@@ -1,6 +1,6 @@
 /*
  * Dissection view. Same quiet specimen sheet as the Interactive view
- * (canvas.css tokens); captions in mono. Never styles [data-wicket-iris-*]
+ * (canvas.css tokens); captions in mono. Never styles [data-orrery-iris-*]
  * itself: specimens live in iframes, captures are images.
  */
 

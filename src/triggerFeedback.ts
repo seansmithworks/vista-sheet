@@ -15,7 +15,7 @@
  */
 export type TriggerFeedback = "hover" | "pressed" | "rest" | "none";
 
-const ATTR = "data-wicket-iris-feedback";
+const ATTR = "data-orrery-iris-feedback";
 
 export function writeTriggerFeedback(
   els: ReadonlyArray<HTMLElement | null>,

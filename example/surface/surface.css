@@ -1,5 +1,5 @@
 /* Surface & shadow tuner (surface.html). Page chrome and the stage's label
- * colour only: every dial writes a real --wicket-iris-* token. */
+ * colour only: every dial writes a real --orrery-iris-* token. */
 
 *,
 *::before,
@@ -28,8 +28,8 @@ html[data-surface-stage] body[data-dark-mode="true"] {
 }
 
 /* The rectangle trigger's label: buttons don't inherit colour. */
-html[data-surface-stage] [data-wicket-iris-part="trigger"] {
-  color: var(--wicket-iris-text);
+html[data-surface-stage] [data-orrery-iris-part="trigger"] {
+  color: var(--orrery-iris-text);
   font:
     500 15px/1 system-ui,
     -apple-system,

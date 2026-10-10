@@ -293,7 +293,7 @@ export function LinkTrigger({ children }: { children: ReactElement }) {
       ...handlers,
       ref: attachLink,
       className: `${styles.previewTrigger} ${childProps.className ?? ""}`,
-      "data-wicket-iris-part": "trigger",
+      "data-orrery-iris-part": "trigger",
     },
     childProps.children as never,
     !open && (

@@ -25,7 +25,7 @@ export function Item({ children, className }: ItemProps) {
   return (
     <motion.div
       className={`${styles.item} ${className ?? ""}`}
-      data-wicket-iris-part="item"
+      data-orrery-iris-part="item"
       variants={variants}
     >
       {children}

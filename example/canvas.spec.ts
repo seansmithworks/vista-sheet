@@ -55,7 +55,7 @@ async function liveFrame(page: Page, tileId: string): Promise<Frame> {
 // covers it), so it starts off here.
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() =>
-    localStorage.setItem("wicket-iris-canvas-autoplay", "off"),
+    localStorage.setItem("orrery-iris-canvas-autoplay", "off"),
   );
 });
 
@@ -69,20 +69,20 @@ test("every play tile renders the state it declares", async ({ page }) => {
       const frame = await liveFrame(page, tile.id);
       const { state } = tile;
       const open = Boolean(tile.overrides?.defaultOpen);
-      const trigger = frame.locator('[data-wicket-iris-part="trigger"]');
+      const trigger = frame.locator('[data-orrery-iris-part="trigger"]');
 
       // Shape and button size, from the package's own attributes.
-      await expect(trigger).toHaveAttribute("data-wicket-iris-shape", state.shape);
+      await expect(trigger).toHaveAttribute("data-orrery-iris-shape", state.shape);
       if (state.shape === "rectangle") {
         await expect(trigger).toHaveAttribute(
-          "data-wicket-iris-button-size",
+          "data-orrery-iris-button-size",
           state.buttonSize,
         );
       } else {
-        await expect(trigger).not.toHaveAttribute("data-wicket-iris-button-size");
+        await expect(trigger).not.toHaveAttribute("data-orrery-iris-button-size");
       }
       // Open state.
-      await expect(frame.locator('[data-wicket-iris-part="sheet"]')).toHaveCount(
+      await expect(frame.locator('[data-orrery-iris-part="sheet"]')).toHaveCount(
         open ? 1 : 0,
       );
       // Recipe: each recipe's trigger carries its own accessible name.
@@ -95,7 +95,7 @@ test("every play tile renders the state it declares", async ({ page }) => {
       const m = await frame.evaluate(
         ({ surface, elevated, ground }) => {
           const q = (part: string) =>
-            document.querySelector<HTMLElement>(`[data-wicket-iris-part="${part}"]`);
+            document.querySelector<HTMLElement>(`[data-orrery-iris-part="${part}"]`);
           // Normalise a CSS colour the way the browser computes it.
           const probe = document.createElement("div");
           document.body.append(probe);
@@ -201,17 +201,17 @@ async function openAndWatch(page: Page, tileId: string) {
   return frame.evaluate(async () => {
     const t0 = performance.now();
     document
-      .querySelector<HTMLElement>('[data-wicket-iris-part="trigger"]')!
+      .querySelector<HTMLElement>('[data-orrery-iris-part="trigger"]')!
       .click();
     let first: { opacity: number; transform: string } | null = null;
     for (;;) {
       await new Promise((r) => requestAnimationFrame(r));
-      const sheet = document.querySelector('[data-wicket-iris-part="sheet"]');
+      const sheet = document.querySelector('[data-orrery-iris-part="sheet"]');
       if (sheet && !first) {
         const cs = getComputedStyle(sheet);
         first = { opacity: Number(cs.opacity), transform: cs.transform };
       }
-      if (sheet?.hasAttribute("data-wicket-iris-settled")) break;
+      if (sheet?.hasAttribute("data-orrery-iris-settled")) break;
       if (performance.now() - t0 > 5000) break;
     }
     return { first, settleMs: performance.now() - t0 };
@@ -243,9 +243,9 @@ test("motion overrides are observable: presets, reduced motion, Esc", async ({
   // Esc dismiss: on an active default-open tile, Esc closes the sheet.
   const frame = await liveFrame(page, "open-basic");
   await page.locator('[data-canvas-tile="open-basic"] .cv-activate').click();
-  await expect(frame.locator('[data-wicket-iris-part="sheet"]')).toHaveCount(1);
+  await expect(frame.locator('[data-orrery-iris-part="sheet"]')).toHaveCount(1);
   await page.keyboard.press("Escape");
-  await expect(frame.locator('[data-wicket-iris-part="sheet"]')).toHaveCount(0);
+  await expect(frame.locator('[data-orrery-iris-part="sheet"]')).toHaveCount(0);
 });
 
 test("dissection renders every captured sequence with no broken image", async ({
@@ -309,7 +309,7 @@ test("Appearance: Dark repaints following tiles neutral-dark, never Theme tiles"
 
   const fill = (frame: Frame, part: string) =>
     frame.evaluate((p) => {
-      const el = document.querySelector(`[data-wicket-iris-part="${p}"]`)!;
+      const el = document.querySelector(`[data-orrery-iris-part="${p}"]`)!;
       return {
         seen: getComputedStyle(el).backgroundColor,
         body: getComputedStyle(document.body).backgroundColor,
@@ -366,7 +366,7 @@ test("list, grid and nav open tiles: the shared icon is a 40px disc with a 24px 
     await test.step(id, async () => {
       const frame = await liveFrame(page, id);
       const shared = frame.locator(
-        '[data-wicket-iris-part="shared"][data-wicket-iris-slot="sheet"]',
+        '[data-orrery-iris-part="shared"][data-orrery-iris-slot="sheet"]',
       );
       await expect(shared).toHaveCount(1);
       const size = await shared.evaluate((el) => {

@@ -38,7 +38,7 @@ function SheetBody() {
 /**
  * One live specimen per iframe (Trigger and Sheet are position: fixed, so
  * each needs its own viewport, as on the canvas). The parent tuner writes
- * every --wicket-iris-* var onto this document's body and sets the theme
+ * every --orrery-iris-* var onto this document's body and sets the theme
  * via body[data-dark-mode] (example/example.css); this file sets none.
  */
 export function Stage({ kind }: { kind: SpecimenKind }) {

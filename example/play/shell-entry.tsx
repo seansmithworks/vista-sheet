@@ -98,13 +98,13 @@ function Shell() {
       if (e.origin !== location.origin) return;
       if (!isPlayMessage(e.data)) return;
 
-      if (e.data.type === "wicket-iris-play:ready") {
+      if (e.data.type === "orrery-iris-play:ready") {
         stageReadyRef.current = true;
         frame.contentWindow?.postMessage(
-          { type: "wicket-iris-play:state", state },
+          { type: "orrery-iris-play:state", state },
           location.origin,
         );
-      } else if (e.data.type === "wicket-iris-play:anchor") {
+      } else if (e.data.type === "orrery-iris-play:anchor") {
         const anchor = e.data.anchor;
         setState((s) => ({ ...s, anchor }));
       }
@@ -117,7 +117,7 @@ function Shell() {
   useEffect(() => {
     if (!stageReadyRef.current) return;
     iframeRef.current?.contentWindow?.postMessage(
-      { type: "wicket-iris-play:state", state },
+      { type: "orrery-iris-play:state", state },
       location.origin,
     );
   }, [state]);
@@ -125,12 +125,12 @@ function Shell() {
   // Command, not report: only the Anchor dropdown calls this. It updates
   // `state.anchor` (codegen + dropdown display) and separately posts a
   // `set-anchor` command so the stage can tell it apart from its own
-  // `wicket-iris-play:anchor` drag reports (line 107) — conflating the two
+  // `orrery-iris-play:anchor` drag reports (line 107) — conflating the two
   // is what made a drag loop forever.
   function onAnchorCommand(anchor: AnchorId) {
     setState((s) => ({ ...s, anchor }));
     iframeRef.current?.contentWindow?.postMessage(
-      { type: "wicket-iris-play:set-anchor", anchor },
+      { type: "orrery-iris-play:set-anchor", anchor },
       location.origin,
     );
   }

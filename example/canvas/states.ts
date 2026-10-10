@@ -52,12 +52,12 @@ export const STATE_ROWS: StateRow[] = [
   },
   {
     name: "Open, settled",
-    surface: "data-wicket-iris-settled",
+    surface: "data-orrery-iris-settled",
     status: { kind: "captured", seq: "morph-circle", frame: 5 },
   },
   {
     name: "Closing",
-    surface: "data-wicket-iris-closing",
+    surface: "data-orrery-iris-closing",
     status: { kind: "captured", seq: "morph-circle", frame: 6 },
   },
   {
@@ -124,12 +124,12 @@ export const STATE_ROWS: StateRow[] = [
   // Configuration
   {
     name: "Shape",
-    surface: "shape · data-wicket-iris-shape",
+    surface: "shape · data-orrery-iris-shape",
     status: { kind: "live", tileId: "shape-squircle" },
   },
   {
     name: "Button size",
-    surface: "buttonSize · data-wicket-iris-button-size",
+    surface: "buttonSize · data-orrery-iris-button-size",
     status: { kind: "live", tileId: "button-m-icon-text" },
   },
   {
@@ -216,12 +216,12 @@ export const STATE_ROWS: StateRow[] = [
   // Structure
   {
     name: "Parts",
-    surface: "children · data-wicket-iris-part",
+    surface: "children · data-orrery-iris-part",
     status: { kind: "anatomy" },
   },
   {
     name: "Slots",
-    surface: "data-wicket-iris-slot",
+    surface: "data-orrery-iris-slot",
     status: { kind: "anatomy" },
   },
   // API-only

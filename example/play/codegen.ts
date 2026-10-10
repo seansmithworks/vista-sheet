@@ -250,7 +250,7 @@ export function printJsxFile(state: PlayState): string {
   const lines = ['"use client";', ""];
   if (treeHasFocus) lines.push('import { useRef } from "react";');
   lines.push(
-    'import { Iris } from "@wicket/iris";',
+    'import { Iris } from "@orrery-ui/iris";',
     "// Styles: paste the CSS output into your global stylesheet.",
     "",
     "export default function IrisExample() {",
@@ -292,26 +292,26 @@ const BASE_CSS = `.vs-button-icon {
 
 /* The 44px close sits concentric with the sheet's corner (its centre on the
  * corner arc's centre), so it clears the curve like the content does. */
-.vs-theme [data-wicket-iris-part="close"] {
+.vs-theme [data-orrery-iris-part="close"] {
   position: absolute;
-  top: max(16px, calc(var(--wicket-iris-sheet-radius, 48px) - 22px));
-  right: max(16px, calc(var(--wicket-iris-sheet-radius, 48px) - 22px));
+  top: max(16px, calc(var(--orrery-iris-sheet-radius, 48px) - 22px));
+  right: max(16px, calc(var(--orrery-iris-sheet-radius, 48px) - 22px));
 }
 
 /* The bottom inset is the sheet radius, so the last line sits above where
  * the corner curve starts and clears it by the same gutter as the sides. */
-.vs-theme [data-wicket-iris-part="content"] {
+.vs-theme [data-orrery-iris-part="content"] {
   padding-bottom: max(
-    var(--wicket-iris-sheet-padding, 24px),
-    var(--wicket-iris-sheet-radius, 48px)
+    var(--orrery-iris-sheet-padding, 24px),
+    var(--orrery-iris-sheet-radius, 48px)
   );
 }
 
-.vs-theme [data-wicket-iris-part="item"] {
+.vs-theme [data-orrery-iris-part="item"] {
   padding-top: 16px;
 }
 
-.vs-theme [data-wicket-iris-part="item"]:first-of-type {
+.vs-theme [data-orrery-iris-part="item"]:first-of-type {
   padding-top: 24px;
 }
 
@@ -319,25 +319,25 @@ const BASE_CSS = `.vs-button-icon {
  * title on the close button's centre line, clear of the corner curve. 13px
  * is half the h2's 26px line. */
 .vs-theme
-  [data-wicket-iris-part="sheet"]:not(:has([data-wicket-iris-part="shared"]))
-  [data-wicket-iris-part="item"]:first-of-type {
-  padding-top: max(25px, calc(var(--wicket-iris-sheet-radius, 48px) - 13px));
+  [data-orrery-iris-part="sheet"]:not(:has([data-orrery-iris-part="shared"]))
+  [data-orrery-iris-part="item"]:first-of-type {
+  padding-top: max(25px, calc(var(--orrery-iris-sheet-radius, 48px) - 13px));
 }
 
-.vs-theme [data-wicket-iris-part="content"] h2 {
+.vs-theme [data-orrery-iris-part="content"] h2 {
   font-size: 20px;
   line-height: 1.3;
   margin: 0;
 }
 
-.vs-theme [data-wicket-iris-part="item"]:has(h2) + [data-wicket-iris-part="item"] {
+.vs-theme [data-orrery-iris-part="item"]:has(h2) + [data-orrery-iris-part="item"] {
   padding-top: 8px;
 }
 
-.vs-theme [data-wicket-iris-part="content"] p {
+.vs-theme [data-orrery-iris-part="content"] p {
   margin: 0;
   line-height: 1.5;
-  color: color-mix(in srgb, var(--wicket-iris-text) 72%, transparent);
+  color: color-mix(in srgb, var(--orrery-iris-text) 72%, transparent);
 }`;
 
 /**
@@ -348,8 +348,8 @@ const BASE_CSS = `.vs-button-icon {
  *
  * The var block is never omitted, even when the current palette equals the
  * package's own README defaults (Warm): a recipe's css can read any
- * `--wicket-iris-*` token via `var(...)` with no fallback (e.g. the chat
- * bubble's `background: var(--wicket-iris-accent)`), so the copied CSS must
+ * `--orrery-iris-*` token via `var(...)` with no fallback (e.g. the chat
+ * bubble's `background: var(--orrery-iris-accent)`), so the copied CSS must
  * be self-contained on every palette or that token resolves to nothing.
  * (Previously this block was emitted only for values that differed from
  * PACKAGE_DEFAULTS, which meant Warm — the default palette — never declared
@@ -358,20 +358,20 @@ const BASE_CSS = `.vs-button-icon {
 export function buildCss(state: PlayState): string {
   const recipe = getRecipe(state.recipe);
   const varLines: string[] = [
-    `  --wicket-iris-surface: ${state.surface};`,
-    `  --wicket-iris-surface-elevated: ${state.surfaceElevated};`,
-    `  --wicket-iris-surface-border: ${state.border};`,
-    `  --wicket-iris-text: ${state.text};`,
-    `  --wicket-iris-accent: ${state.accent};`,
+    `  --orrery-iris-surface: ${state.surface};`,
+    `  --orrery-iris-surface-elevated: ${state.surfaceElevated};`,
+    `  --orrery-iris-surface-border: ${state.border};`,
+    `  --orrery-iris-text: ${state.text};`,
+    `  --orrery-iris-accent: ${state.accent};`,
   ];
   if (state.sheetRadius !== 48) {
-    varLines.push(`  --wicket-iris-sheet-radius: ${state.sheetRadius}px;`);
+    varLines.push(`  --orrery-iris-sheet-radius: ${state.sheetRadius}px;`);
   }
   if (state.sheetPadding !== 24) {
-    varLines.push(`  --wicket-iris-sheet-padding: ${state.sheetPadding}px;`);
+    varLines.push(`  --orrery-iris-sheet-padding: ${state.sheetPadding}px;`);
   }
-  varLines.push(`  --wicket-iris-shadow: ${state.triggerShadow};`);
-  varLines.push(`  --wicket-iris-sheet-shadow: ${state.sheetShadow};`);
+  varLines.push(`  --orrery-iris-shadow: ${state.triggerShadow};`);
+  varLines.push(`  --orrery-iris-sheet-shadow: ${state.sheetShadow};`);
 
   const blocks: string[] = [`.vs-theme {\n${varLines.join("\n")}\n}`];
   blocks.push(BASE_CSS);

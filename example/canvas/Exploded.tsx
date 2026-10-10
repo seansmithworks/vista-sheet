@@ -29,7 +29,7 @@ const ROTATE_Z = -40;
 const FIT_MARGIN = 28;
 
 interface Layer {
-  /** Index into the document's [data-wicket-iris-part] list. */
+  /** Index into the document's [data-orrery-iris-part] list. */
   index: number;
   box: PartBox;
   /** The Shadow part is split into its two looks, one sub-slab each: the
@@ -60,7 +60,7 @@ function splitShadow(
   order: number[],
   boxes: PartBox[],
 ): Layer[] {
-  const els = [...doc.querySelectorAll<HTMLElement>("[data-wicket-iris-part]")];
+  const els = [...doc.querySelectorAll<HTMLElement>("[data-orrery-iris-part]")];
   const win = doc.defaultView!;
   return order.flatMap((index): Layer[] => {
     const box = boxes[index];
@@ -82,10 +82,10 @@ function splitShadow(
  */
 function paintOrder(doc: Document): number[] {
   const win = doc.defaultView!;
-  const els = [...doc.querySelectorAll<HTMLElement>("[data-wicket-iris-part]")];
+  const els = [...doc.querySelectorAll<HTMLElement>("[data-orrery-iris-part]")];
   const kids = new Map<number, number[]>();
   els.forEach((el, i) => {
-    const p = el.parentElement?.closest<HTMLElement>("[data-wicket-iris-part]");
+    const p = el.parentElement?.closest<HTMLElement>("[data-orrery-iris-part]");
     const pi = p ? els.indexOf(p) : -1;
     kids.set(pi, [...(kids.get(pi) ?? []), i]);
   });
@@ -145,7 +145,7 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
     pointerEvents: "none",
   });
   const shadowEl = doc.querySelector<HTMLElement>(
-    '[data-wicket-iris-part="shadow"]',
+    '[data-orrery-iris-part="shadow"]',
   );
   const shadowRadius = shadowEl
     ? win.getComputedStyle(shadowEl).borderRadius
@@ -158,7 +158,7 @@ function buildStack(doc: Document, layers: Layer[]): Stack {
     clone.inert = true;
     clone.style.setProperty("visibility", "hidden", "important");
     clone
-      .querySelectorAll<HTMLElement>("[data-wicket-iris-part]")
+      .querySelectorAll<HTMLElement>("[data-orrery-iris-part]")
       .forEach((p, j) => {
         p.style.setProperty(
           "visibility",
@@ -312,7 +312,7 @@ export function Exploded({ tile }: { tile: PlayTile }) {
     freezeSpecimen(() => iframeRef.current, tile, true, signal).then(
       (doc) => {
         if (signal.cancelled) return;
-        // Measure before cloning: clones carry data-wicket-iris-part too.
+        // Measure before cloning: clones carry data-orrery-iris-part too.
         const boxes = measure(doc);
         const next = splitShadow(doc, paintOrder(doc), boxes);
         stackRef.current = buildStack(doc, next);

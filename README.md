@@ -14,7 +14,7 @@ There is no canonical design-system name for this pattern. Material has
 SpeedDial, a FAB that expands into a radial menu of actions. Apple and Radix
 both have sheets, but theirs enter from a screen edge rather than growing out
 of a persistent trigger. Nobody has standardized "trigger morphs into
-surface," so Wicket Iris (`Iris`) names the shape directly rather than
+surface," so Orrery Iris (`Iris`) names the shape directly rather than
 reaching for an existing term.
 
 Browser and platform limits: [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
@@ -22,11 +22,14 @@ Browser and platform limits: [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
 ## Install
 
 ```bash
-npm install @wicket/iris
+npm install @orrery-ui/iris   # the Iris component
+npm install orrery-ui         # the full Orrery system
 npm install react react-dom motion@14
 ```
 
-The second line installs the [peer dependencies](#peer-dependencies); skip
+`@orrery-ui/iris` is the component on its own; `orrery-ui` re-exports every Orrery component (today that is Iris), so import from whichever you installed.
+
+The last line installs the [peer dependencies](#peer-dependencies); skip
 any your app already has.
 
 `dist/` ships compiled ESM + `.d.ts` declarations, so the default import
@@ -34,7 +37,7 @@ needs no build-step config on the consumer's side — no `transpilePackages`,
 no extra `tsc` target. CSS is bundled and auto-imported by the package's own
 entry point; you don't need a separate stylesheet `<link>` or `import` for
 the component to render styled. A manual stylesheet path,
-`@wicket/iris/styles.css`, also exists if you need to import
+`@orrery-ui/iris/styles.css`, also exists if you need to import
 the CSS on its own (e.g. to inline it above the fold, or reference it from a
 non-JS build step) — most consumers never need it.
 
@@ -64,11 +67,11 @@ If you'd rather own the files outright — no package dependency, no
 project:
 
 ```bash
-npx @wicket/iris add
+npx @orrery-ui/iris add
 ```
 
 This drops all of `src/`'s components, hooks, and `styles.module.css` into
-`./src/wicket-iris` (pass a different path as the first argument to change
+`./src/orrery-iris` (pass a different path as the first argument to change
 the target). It skips the test file and, if your project already has a
 `next-env.d.ts`, skips the `*.module.css` ambient type shim too (Next
 already declares it — a duplicate `declare module` block is a TS error). It
@@ -76,8 +79,8 @@ refuses to overwrite existing files unless you pass `--force`.
 
 After copy-in, the Usage and Link preview snippets below import from the
 copied folder, not the package: use the import path the CLI prints after
-copying (by default `"./src/wicket-iris"`, relative to where you ran it)
-instead of `"@wicket/iris"`.
+copying (by default `"./src/orrery-iris"`, relative to where you ran it)
+instead of `"@orrery-ui/iris"`.
 
 The tradeoff: you own the copy from that point on. There's no update
 channel — to pick up changes, re-run with `--force` (which overwrites
@@ -91,7 +94,7 @@ npm install react react-dom motion@14
 ### Live-tuning panel
 
 ```bash
-npx @wicket/iris add tuner
+npx @orrery-ui/iris add tuner
 ```
 
 Copies a small dialkit-driven page (`./tuner` by default) for dialling the
@@ -133,7 +136,7 @@ there):
 ```tsx
 "use client";
 
-import { Iris } from "@wicket/iris";
+import { Iris } from "@orrery-ui/iris";
 
 export default function ContactTrigger() {
   return (
@@ -216,7 +219,7 @@ first line of that file.
 `<Iris.Root shape>` takes `"circle"` (default), `"squircle"`,
 `"rounded-square"`, `"square"` or `"rectangle"`. The trigger surface, `<Iris.Shadow>`,
 both `<Iris.Shared>` slots and the focus ring all follow it.
-`--wicket-iris-trigger-radius` still caps the corner radius for every shape.
+`--orrery-iris-trigger-radius` still caps the corner radius for every shape.
 With `"squircle"` the sheet's own corners use the squircle curve too, so the
 surface never switches corner geometry mid-morph. `<Iris.Shared>`
 children should fill their box without applying their own `border-radius` —
@@ -231,7 +234,7 @@ approximation.
 ```tsx
 "use client";
 
-import { Iris } from "@wicket/iris";
+import { Iris } from "@orrery-ui/iris";
 
 export default function SearchTrigger() {
   return (
@@ -265,8 +268,8 @@ export default function SearchTrigger() {
 - Width sizes to the trigger's label (children) by default. Pass `buttonWidth`
   (px) for a fixed width; a value narrower than the label clips it, no
   ellipsis.
-- Corners are a pill — `min(--wicket-iris-trigger-radius, height / 2)` — a
-  strawman awaiting Sean's dial pass. Set `--wicket-iris-trigger-radius` lower
+- Corners are a pill — `min(--orrery-iris-trigger-radius, height / 2)` — a
+  strawman awaiting Sean's dial pass. Set `--orrery-iris-trigger-radius` lower
   for a rounded rectangle instead.
 - A rectangle trigger holds plain children only: an icon, icon + text, or
   text. `<Iris.Shared>` and `<Iris.Media>` are not supported
@@ -348,7 +351,7 @@ mount it while the card is open and drop it the instant a close starts.
 // LinkPreview.tsx
 "use client";
 
-import { Iris, useIris } from "@wicket/iris";
+import { Iris, useIris } from "@orrery-ui/iris";
 
 export function LinkPreview({ href, children }: { href: string; children: string }) {
   return (
@@ -427,49 +430,49 @@ version, with a loading skeleton and an "Open" link inside the card.
 Two public styling surfaces: CSS custom properties and a DOM data-attribute
 contract.
 
-### `--wicket-iris-*` custom properties
+### `--orrery-iris-*` custom properties
 
 Every visual token is a CSS custom property with a hardcoded fallback, so the
 package renders correctly out of the box:
 
 | Variable | Default |
 | --- | --- |
-| `--wicket-iris-surface` | `#fafafa` |
-| `--wicket-iris-surface-elevated` | `#ffffff` |
-| `--wicket-iris-surface-border` | `rgba(229,229,229,.6)` |
-| `--wicket-iris-surface-border-width` | `1px` |
-| `--wicket-iris-text` | `#1d1d1f` |
-| `--wicket-iris-accent` | `#1d1d1f` |
-| `--wicket-iris-sheet-max-width` | `480px` |
-| `--wicket-iris-shared-size` | matches `--wicket-iris-trigger-size` |
-| `--wicket-iris-sheet-radius` | `48px` |
-| `--wicket-iris-trigger-radius` | `9999px` |
-| `--wicket-iris-sheet-padding` | `24px` |
-| `--wicket-iris-shadow` | `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` |
-| `--wicket-iris-sheet-shadow` | `0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)` |
-| `--wicket-iris-sheet-shadow-fade-start` | `0` |
-| `--wicket-iris-sheet-shadow-fade-end` | `0.25` |
-| `--wicket-iris-z` | `100` |
-| `--wicket-iris-trigger-hover-lift` | `1px` |
-| `--wicket-iris-trigger-press-scale` | `0.97` |
-| `--wicket-iris-trigger-highlight-color` | 7% of `--wicket-iris-text` |
-| `--wicket-iris-trigger-highlight-size` | `96px` |
-| `--wicket-iris-trigger-highlight-strength` | `0.75` |
-| `--wicket-iris-trigger-press-tint` | `rgba(0,0,0,.06)` |
+| `--orrery-iris-surface` | `#fafafa` |
+| `--orrery-iris-surface-elevated` | `#ffffff` |
+| `--orrery-iris-surface-border` | `rgba(229,229,229,.6)` |
+| `--orrery-iris-surface-border-width` | `1px` |
+| `--orrery-iris-text` | `#1d1d1f` |
+| `--orrery-iris-accent` | `#1d1d1f` |
+| `--orrery-iris-sheet-max-width` | `480px` |
+| `--orrery-iris-shared-size` | matches `--orrery-iris-trigger-size` |
+| `--orrery-iris-sheet-radius` | `48px` |
+| `--orrery-iris-trigger-radius` | `9999px` |
+| `--orrery-iris-sheet-padding` | `24px` |
+| `--orrery-iris-shadow` | `0 2px 16px -4px rgba(0,0,0,.03), 0 6px 20px -4px rgba(0,0,0,.08)` |
+| `--orrery-iris-sheet-shadow` | `0 12px 16px -12px rgba(0,0,0,.12), 0 8px 22px -4px rgba(0,0,0,.12)` |
+| `--orrery-iris-sheet-shadow-fade-start` | `0` |
+| `--orrery-iris-sheet-shadow-fade-end` | `0.25` |
+| `--orrery-iris-z` | `100` |
+| `--orrery-iris-trigger-hover-lift` | `1px` |
+| `--orrery-iris-trigger-press-scale` | `0.97` |
+| `--orrery-iris-trigger-highlight-color` | 7% of `--orrery-iris-text` |
+| `--orrery-iris-trigger-highlight-size` | `96px` |
+| `--orrery-iris-trigger-highlight-strength` | `0.75` |
+| `--orrery-iris-trigger-press-tint` | `rgba(0,0,0,.06)` |
 
-`--wicket-iris-sheet-shadow-fade-start`/`-fade-end` are unitless
+`--orrery-iris-sheet-shadow-fade-start`/`-fade-end` are unitless
 `collapseProgress` fractions (0 = open at rest, 1 = closed at rest) marking
-where `<Iris.Shadow>` crossfades from the heavy `--wicket-iris-sheet-shadow`
-look to the thin `--wicket-iris-shadow` look — see "Two shadows, one painter"
+where `<Iris.Shadow>` crossfades from the heavy `--orrery-iris-sheet-shadow`
+look to the thin `--orrery-iris-shadow` look — see "Two shadows, one painter"
 below.
 
-`--wicket-iris-surface-border-width` is the width of the trigger surface's
-`--wicket-iris-surface-border` ring. `<Iris.Shared>` sits inset by the
+`--orrery-iris-surface-border-width` is the width of the trigger surface's
+`--orrery-iris-surface-border` ring. `<Iris.Shared>` sits inset by the
 same width, so its clip stays concentric with the ring at any width. The
 sheet's own border stays 1px.
 
-`--wicket-iris-trigger-hover-lift` (how far the resting trigger rises on
-mouse hover) and `--wicket-iris-trigger-press-scale` (its scale while
+`--orrery-iris-trigger-hover-lift` (how far the resting trigger rises on
+mouse hover) and `--orrery-iris-trigger-press-scale` (its scale while
 pressed, by pointer or Space) drive the disc and button triggers' hover and
 pressed states. The trigger and its `<Iris.Shadow>` move together, over
 150ms. Set `0px` / `1` to turn either off. Neither applies under reduced
@@ -480,12 +483,12 @@ rectangle `s`/`m` button, or a disc under 48px) without changing its visual
 size or layout.
 
 The trigger surface also shows a soft radial highlight that follows the mouse
-on hover (`--wicket-iris-trigger-highlight-color`, `-size`). On press the
-highlight tightens and the surface darkens by `--wicket-iris-trigger-press-tint`.
+on hover (`--orrery-iris-trigger-highlight-color`, `-size`). On press the
+highlight tightens and the surface darkens by `--orrery-iris-trigger-press-tint`.
 For touch, keyboard and reduced motion the highlight is centred and only fades.
-The default colour is 7% of `--wicket-iris-text`, so a light palette gets a
+The default colour is 7% of `--orrery-iris-text`, so a light palette gets a
 faint tint and a dark palette a faint glow. Set
-`--wicket-iris-trigger-highlight-strength: 0` to turn the highlight and the
+`--orrery-iris-trigger-highlight-strength: 0` to turn the highlight and the
 press tint off. Both layers sit inside the trigger surface: they never paint
 on the sheet and are gone before any open.
 
@@ -493,23 +496,23 @@ A dark shadow barely reads on a dark ground, so the example pages' dark
 palette uses a faint white glow instead:
 
 ```css
---wicket-iris-shadow: 0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15);
---wicket-iris-sheet-shadow: 0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15);
---wicket-iris-surface-border: rgba(255,255,255,.1);
---wicket-iris-accent: #f5f5f7; /* focus ring; matches the canvas page's dark accent (--cv-accent). The default #1d1d1f is invisible on dark */
---wicket-iris-trigger-highlight-color: rgba(255,255,255,.1);
---wicket-iris-trigger-highlight-strength: 1;
---wicket-iris-trigger-press-tint: rgba(255,255,255,.15);
+--orrery-iris-shadow: 0 2px 4px -2px rgba(255,255,255,.14), 0 8px 12px rgba(255,255,255,.15);
+--orrery-iris-sheet-shadow: 0 4px 20px rgba(255,255,255,.1), 0 16px 28px -8px rgba(255,255,255,.15);
+--orrery-iris-surface-border: rgba(255,255,255,.1);
+--orrery-iris-accent: #f5f5f7; /* focus ring; matches the canvas page's dark accent (--cv-accent). The default #1d1d1f is invisible on dark */
+--orrery-iris-trigger-highlight-color: rgba(255,255,255,.1);
+--orrery-iris-trigger-highlight-strength: 1;
+--orrery-iris-trigger-press-tint: rgba(255,255,255,.15);
 ```
 
 Hover lift (`1px`), press scale (`0.97`), highlight size (`96px`) and ring
 width (`1px`) are the same as the light defaults.
 
-The package writes `--wicket-iris-trigger-size`, `--wicket-iris-button-width`,
-`--wicket-iris-trigger-highlight-x/-y`,
-`--wicket-iris-sheet-left`, `--wicket-iris-collapse`,
-`--wicket-iris-shadow-radius`, and
-`--wicket-iris-shadow-opacity`/`--wicket-iris-sheet-shadow-opacity` (the live
+The package writes `--orrery-iris-trigger-size`, `--orrery-iris-button-width`,
+`--orrery-iris-trigger-highlight-x/-y`,
+`--orrery-iris-sheet-left`, `--orrery-iris-collapse`,
+`--orrery-iris-shadow-radius`, and
+`--orrery-iris-shadow-opacity`/`--orrery-iris-sheet-shadow-opacity` (the live
 crossfade values, in [0, 1]); read these, don't set them.
 
 ### Two shadows, one painter
@@ -518,18 +521,18 @@ crossfade values, in [0, 1]); read these, don't set them.
 crossfaded by opacity as `collapseProgress` moves — nothing else in the
 package paints a shadow. If you don't render `<Iris.Shadow>`, there is
 no shadow at all. An `asChild` swap receives
-`--wicket-iris-shadow-opacity`/`--wicket-iris-sheet-shadow-opacity` as custom
+`--orrery-iris-shadow-opacity`/`--orrery-iris-sheet-shadow-opacity` as custom
 properties on the cloned element so a replacement layer (e.g. a
 `@seansmithworks/surface-fx` dither) can reproduce the same crossfade. A ref
 already on the child is preserved (composed with Shadow's own), never dropped.
 
 `npm run audit:vars` checks this table against `src/styles.module.css` and
-`src/`: any `--wicket-iris-*` variable the CSS reads must be either written by
+`src/`: any `--orrery-iris-*` variable the CSS reads must be either written by
 the package or documented here, or the audit fails.
 
-### `data-wicket-iris-part` DOM contract
+### `data-orrery-iris-part` DOM contract
 
-Every element the package renders carries `data-wicket-iris-part`, and this is
+Every element the package renders carries `data-orrery-iris-part`, and this is
 public, stable surface, not an accident of implementation you happen to be
 able to reach. Use it for CSS overrides or, as `example/CloseMask.tsx` does,
 to find the live element from outside the package via `useIris()` + a
@@ -550,23 +553,23 @@ to find the live element from outside the package via `useIris()` + a
 | `shadow` | `<Iris.Shadow>`'s default div (also merged onto an `asChild` child) |
 | `trigger-label` | Wrapper around the trigger's plain children (everything except Shared and Media); fades in as a close lands |
 
-`<Iris.Shared>` additionally carries `data-wicket-iris-slot="trigger"` or
+`<Iris.Shared>` additionally carries `data-orrery-iris-slot="trigger"` or
 `"sheet"`, so consumer CSS (or the package's own
-`.shared[data-wicket-iris-slot=…]` rules) can target either instance without
+`.shared[data-orrery-iris-slot=…]` rules) can target either instance without
 relying on className precedence. `<Iris.Media>` carries it too.
 
-`trigger-root` additionally carries `data-wicket-iris-closing` (empty string),
+`trigger-root` additionally carries `data-orrery-iris-closing` (empty string),
 present only while a close is in flight (removed once the sheet has fully
 closed).
 
 `trigger`, `trigger-surface`, `sheet`, `shared` and `shadow` additionally
-carry `data-wicket-iris-shape` (the Root's `shape`).
+carry `data-orrery-iris-shape` (the Root's `shape`).
 
-`trigger-root` also carries `data-wicket-iris-shape`. `trigger-root` and
-`trigger` additionally carry `data-wicket-iris-button-size` (the Root's
+`trigger-root` also carries `data-orrery-iris-shape`. `trigger-root` and
+`trigger` additionally carry `data-orrery-iris-button-size` (the Root's
 `buttonSize`) when `shape="rectangle"`.
 
-`sheet` additionally carries `data-wicket-iris-settled` (empty string), present
+`sheet` additionally carries `data-orrery-iris-settled` (empty string), present
 only once the open has finished and removed as soon as a close starts. This
 gates `<Iris.Close>`'s reveal, not any shadow — the sheet element paints
 no box-shadow of its own; see "Two shadows, one painter" above.
@@ -633,7 +636,7 @@ trailing shared element spills past the round trigger's border ring.
 ### Presets
 
 ```tsx
-import { Iris, presets } from "@wicket/iris";
+import { Iris, presets } from "@orrery-ui/iris";
 
 <Iris.Root preset={presets.snappy}>
 ```
@@ -735,7 +738,7 @@ An open sheet is a real modal, not just a labelled dialog.
   requested, not when the animation ends, so the trigger is tappable from the
   first close frame and a reopen can interrupt the close.
 - **Focus guards.** Tab is never intercepted. Two `tabindex="0"` guard
-  elements (`data-wicket-iris-focus-guard`) sit just outside the panel and
+  elements (`data-orrery-iris-focus-guard`) sit just outside the panel and
   catch focus leaving either edge: Tab off the last control wraps to the
   first, Shift+Tab off the first wraps to the last. They route by where focus
   came from, so focus entering from outside lands on the near end. Tab order
@@ -803,7 +806,7 @@ one. It must live inside `Root` and outside the sheet, since the page is
 inert while the sheet is open:
 
 ```tsx
-import { Iris, useIris, type AnchorId } from "@wicket/iris";
+import { Iris, useIris, type AnchorId } from "@orrery-ui/iris";
 
 const ANCHORS: AnchorId[] = [
   "top-left", "top-center", "top-right",
@@ -838,7 +841,7 @@ package ships none.
 - **A trigger parked at the bottom covers content (WCAG 2.4.11, Focus Not
   Obscured).** Without room for it, a focused link near the page end can sit
   under the trigger. Reserve the trigger's box at the bottom of the page and
-  tell the browser to scroll focus clear of it. `--wicket-iris-trigger-size`
+  tell the browser to scroll focus clear of it. `--orrery-iris-trigger-size`
   is scoped to Root, so use the fixed size: `160px` is the largest default
   trigger (144px) plus the 16px edge margin.
 
@@ -847,7 +850,7 @@ package ships none.
   body { padding-bottom: 160px; }
   ```
 
-- **Dark palettes need `--wicket-iris-accent`.** It is the focus-ring colour
+- **Dark palettes need `--orrery-iris-accent`.** It is the focus-ring colour
   and defaults to `#1d1d1f`, which is invisible on a dark ground. See the dark
   recipe under Theming.
 - **Reduced motion.** `prefers-reduced-motion: reduce` (or the `reduceMotion`
