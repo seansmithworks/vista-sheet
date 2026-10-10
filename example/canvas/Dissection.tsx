@@ -436,7 +436,7 @@ function Anatomy({ frames }: { frames: FramesManifest | Error | null }) {
         <h2>Anatomy</h2>
         <p>
           Every recipe is one foundation plus the parts it adds. Every box is a
-          measured <code>data-wicket-iris-part</code> element.
+          measured <code>data-orrery-iris-part</code> element.
         </p>
       </header>
       {recipes.length === 0 ? (
@@ -793,23 +793,23 @@ function Springs() {
 // ---------- Tokens ----------
 
 const TOKEN_CONTROLS: Record<string, string> = {
-  "--wicket-iris-surface": "Trigger fill",
-  "--wicket-iris-surface-elevated": "Sheet fill",
-  "--wicket-iris-surface-border": "Hairline on trigger and sheet",
-  "--wicket-iris-text": "Sheet text and Close glyph",
-  "--wicket-iris-accent": "Focus rings",
-  "--wicket-iris-sheet-max-width": "Sheet width cap",
-  "--wicket-iris-shared-size": "Shared element size in the sheet",
-  "--wicket-iris-sheet-radius": "Sheet corner radius at rest",
-  "--wicket-iris-trigger-radius": "Trigger corner radius",
-  "--wicket-iris-sheet-padding": "Sheet inner padding",
-  "--wicket-iris-shadow": "Thin shadow look (trigger)",
-  "--wicket-iris-sheet-shadow": "Heavy shadow look (open sheet)",
-  "--wicket-iris-sheet-shadow-fade-start":
+  "--orrery-iris-surface": "Trigger fill",
+  "--orrery-iris-surface-elevated": "Sheet fill",
+  "--orrery-iris-surface-border": "Hairline on trigger and sheet",
+  "--orrery-iris-text": "Sheet text and Close glyph",
+  "--orrery-iris-accent": "Focus rings",
+  "--orrery-iris-sheet-max-width": "Sheet width cap",
+  "--orrery-iris-shared-size": "Shared element size in the sheet",
+  "--orrery-iris-sheet-radius": "Sheet corner radius at rest",
+  "--orrery-iris-trigger-radius": "Trigger corner radius",
+  "--orrery-iris-sheet-padding": "Sheet inner padding",
+  "--orrery-iris-shadow": "Thin shadow look (trigger)",
+  "--orrery-iris-sheet-shadow": "Heavy shadow look (open sheet)",
+  "--orrery-iris-sheet-shadow-fade-start":
     "Crossfade window start (collapseProgress)",
-  "--wicket-iris-sheet-shadow-fade-end":
+  "--orrery-iris-sheet-shadow-fade-end":
     "Crossfade window end (collapseProgress)",
-  "--wicket-iris-z": "Base z-index of the layer stack",
+  "--orrery-iris-z": "Base z-index of the layer stack",
 };
 
 type PaletteKey =
@@ -823,13 +823,13 @@ type PaletteKey =
 
 /** Which play palette field sets each token (play/codegen writes them). */
 const PALETTE_FIELD: Record<string, PaletteKey> = {
-  "--wicket-iris-surface": "surface",
-  "--wicket-iris-surface-elevated": "surfaceElevated",
-  "--wicket-iris-surface-border": "border",
-  "--wicket-iris-text": "text",
-  "--wicket-iris-accent": "accent",
-  "--wicket-iris-shadow": "triggerShadow",
-  "--wicket-iris-sheet-shadow": "sheetShadow",
+  "--orrery-iris-surface": "surface",
+  "--orrery-iris-surface-elevated": "surfaceElevated",
+  "--orrery-iris-surface-border": "border",
+  "--orrery-iris-text": "text",
+  "--orrery-iris-accent": "accent",
+  "--orrery-iris-shadow": "triggerShadow",
+  "--orrery-iris-sheet-shadow": "sheetShadow",
 };
 
 const PALETTE_ORDER: PaletteId[] = [
@@ -878,7 +878,7 @@ function Tokens() {
       <header>
         <h2>Tokens</h2>
         <p>
-          The public <code>--wicket-iris-*</code> set, read from the README
+          The public <code>--orrery-iris-*</code> set, read from the README
           theming table, with what each of the four play palettes sets it to.
         </p>
       </header>

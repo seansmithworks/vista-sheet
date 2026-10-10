@@ -42,7 +42,7 @@ export function resolveTriggerSize(
  * This live JS value now feeds ONLY position math (anchors.ts) and the
  * imperative drag-constraint numbers in Trigger.tsx — never a FLIP-tracked
  * element's painted box. That box is sized by CSS alone, reading
- * --wicket-iris-trigger-size, which Root.tsx sets via a server-rendered
+ * --orrery-iris-trigger-size, which Root.tsx sets via a server-rendered
  * @media-query <style> block (derived from resolveTriggerSize above) rather
  * than an inline write of this hook's return value. That is the D3 fix:
  * the promotion window this hook still has (base value until the effect

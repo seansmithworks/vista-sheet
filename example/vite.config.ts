@@ -28,10 +28,10 @@ export default defineConfig({
   resolve: {
     alias: {
       // tuner/page.tsx imports the package by its published specifier (so a
-      // consumer who copies the file out via `npx wicket-iris add tuner`
+      // consumer who copies the file out via `npx orrery-iris add tuner`
       // needs zero edits). This alias is what lets that same, unmodified
       // file also run here against live local source.
-      "@wicket/iris": resolve(__dirname, "../src/index.ts"),
+      "@orrery-ui/iris": resolve(__dirname, "../src/index.ts"),
     },
   },
   server: {

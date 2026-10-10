@@ -9,11 +9,11 @@ import { restingLeft, restingTop, type AnchorId } from "../src/anchors";
  * with the Shadow on it. Fixture: example/fixtures/anchor-open.tsx.
  */
 
-const ROOT = '[data-wicket-iris-root="ao"] ';
-const WRAPPER = `${ROOT}[data-wicket-iris-part="trigger-root"]`;
-const SURFACE = `${ROOT}[data-wicket-iris-part="trigger-surface"]`;
-const SHADOW = `${ROOT}[data-wicket-iris-part="shadow"]`;
-const SHEET = `${ROOT}[data-wicket-iris-part="sheet"]`;
+const ROOT = '[data-orrery-iris-root="ao"] ';
+const WRAPPER = `${ROOT}[data-orrery-iris-part="trigger-root"]`;
+const SURFACE = `${ROOT}[data-orrery-iris-part="trigger-surface"]`;
+const SHADOW = `${ROOT}[data-orrery-iris-part="shadow"]`;
+const SHEET = `${ROOT}[data-orrery-iris-part="sheet"]`;
 
 type Point = { x: number; y: number };
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -49,7 +49,7 @@ test("setAnchor while open: seats without a spring, sheet holds, close lands on 
   await page.waitForTimeout(400);
 
   await page.getByRole("button", { name: "Open fixture sheet" }).click();
-  await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
+  await page.waitForSelector(`${SHEET}[data-orrery-iris-settled]`);
   await page.waitForTimeout(300);
   const sheetBefore = (await page.locator(SHEET).boundingBox())!;
   const from = await seatCentre(page, "bottom-center");

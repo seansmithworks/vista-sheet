@@ -20,15 +20,15 @@ const TUNER_DIR = new URL("../tuner/", import.meta.url);
 const TUNER_FILES = ["page.tsx", "tune.module.css"];
 
 function usage() {
-  console.log(`Wicket Iris — a draggable trigger that morphs into a modal sheet
+  console.log(`Orrery Iris — a draggable trigger that morphs into a modal sheet
 
 Usage:
-  npx @wicket/iris add [targetDir] [--force]
+  npx @orrery-ui/iris add [targetDir] [--force]
 
   Copies the component source into your project (default target:
-  ./src/wicket-iris) so you own and can edit the files directly.
+  ./src/orrery-iris) so you own and can edit the files directly.
 
-  npx @wicket/iris add tuner [targetDir] [--force]
+  npx @orrery-ui/iris add tuner [targetDir] [--force]
 
   Copies the live-tuning panel instead (default target: ./tuner). It is a
   development tool, not part of the component — see its own instructions
@@ -68,7 +68,7 @@ function copyFiles(sourceDir, files, targetDir, force) {
     }
     if (conflicts.length > 0) {
       console.error(
-        `wicket-iris: refusing to overwrite existing files (use --force to overwrite):`
+        `orrery-iris: refusing to overwrite existing files (use --force to overwrite):`
       );
       for (const c of conflicts) console.error(`  ${c}`);
       process.exit(1);
@@ -94,7 +94,7 @@ function cmdAdd(args) {
     return;
   }
 
-  const targetDir = path.resolve(process.cwd(), positional[0] || "./src/wicket-iris");
+  const targetDir = path.resolve(process.cwd(), positional[0] || "./src/orrery-iris");
 
   const files = readSrcFiles();
 
@@ -106,10 +106,10 @@ function cmdAdd(args) {
   const copied = copyFiles(SRC_DIR, files, targetDir, force);
   const relTarget = path.relative(process.cwd(), targetDir) || ".";
 
-  console.log(`wicket-iris: copied ${copied} files to ${relTarget}`);
+  console.log(`orrery-iris: copied ${copied} files to ${relTarget}`);
   if (skipCssShim) {
     console.log(
-      `wicket-iris: detected next-env.d.ts, skipping css-modules.d.ts (Next already declares *.module.css)`
+      `orrery-iris: detected next-env.d.ts, skipping css-modules.d.ts (Next already declares *.module.css)`
     );
   }
   console.log(`\nInstall peer dependencies:`);
@@ -124,7 +124,7 @@ function cmdAddTuner(positional, force) {
   const copied = copyFiles(TUNER_DIR, TUNER_FILES, targetDir, force);
   const relTarget = path.relative(process.cwd(), targetDir) || ".";
 
-  console.log(`wicket-iris: copied ${copied} tuner files to ${relTarget}`);
+  console.log(`orrery-iris: copied ${copied} tuner files to ${relTarget}`);
   console.log(`\nThe tuner needs dialkit itself, as a devDependency only:`);
   console.log(`  npm install -D dialkit`);
   console.log(
@@ -148,7 +148,7 @@ function main() {
     return;
   }
 
-  console.error(`wicket-iris: unknown command "${command}"\n`);
+  console.error(`orrery-iris: unknown command "${command}"\n`);
   usage();
   process.exit(1);
 }

@@ -18,7 +18,7 @@ async function gotoPlay(page: Page) {
   const frame = page.frameLocator("iframe[data-play-stage]");
   await expect(
     frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     ),
   ).toBeVisible();
   return frame;
@@ -33,9 +33,9 @@ async function gotoPlay(page: Page) {
 async function tagStageIdentity(frame: Frame) {
   await frame.evaluate(() => {
     (window as unknown as { __vsIdentityTag?: boolean }).__vsIdentityTag = true;
-    const root = document.querySelector('[data-wicket-iris-root="specimen"]');
+    const root = document.querySelector('[data-orrery-iris-root="specimen"]');
     const surface = document.querySelector(
-      '[data-wicket-iris-part="trigger-surface"]',
+      '[data-orrery-iris-part="trigger-surface"]',
     );
     if (root)
       (root as unknown as { __vsIdentityTag?: boolean }).__vsIdentityTag = true;
@@ -48,9 +48,9 @@ async function tagStageIdentity(frame: Frame) {
 async function stageIdentitySurvives(frame: Frame): Promise<boolean> {
   return frame.evaluate(() => {
     const w = window as unknown as { __vsIdentityTag?: boolean };
-    const root = document.querySelector('[data-wicket-iris-root="specimen"]');
+    const root = document.querySelector('[data-orrery-iris-root="specimen"]');
     const surface = document.querySelector(
-      '[data-wicket-iris-part="trigger-surface"]',
+      '[data-orrery-iris-part="trigger-surface"]',
     );
     return !!(
       w.__vsIdentityTag &&
@@ -79,7 +79,7 @@ function sampleTriggerSurfaceBoxes(frame: Frame, ms: number) {
       const start = performance.now();
       function step() {
         const el = document.querySelector(
-          '[data-wicket-iris-part="trigger-surface"]',
+          '[data-orrery-iris-part="trigger-surface"]',
         );
         if (el) {
           const r = el.getBoundingClientRect();
@@ -109,10 +109,10 @@ function expectBoxesStill(
   }
 }
 
-/** Records every `wicket-iris-play:anchor` REPORT the shell's top window
+/** Records every `orrery-iris-play:anchor` REPORT the shell's top window
  * receives, via addInitScript so the listener attaches before the page's
  * own handler does. Proves a drag settles in exactly one report and a
- * dropdown command (`wicket-iris-play:set-anchor`) never produces one at
+ * dropdown command (`orrery-iris-play:set-anchor`) never produces one at
  * all — the two feeding back into each other on this channel is what
  * looped forever. */
 async function installAnchorMessageRecorder(page: Page) {
@@ -120,7 +120,7 @@ async function installAnchorMessageRecorder(page: Page) {
     (window as unknown as { __anchorMessages: string[] }).__anchorMessages = [];
     window.addEventListener("message", (e) => {
       const data = e.data as { type?: string; anchor?: string } | undefined;
-      if (data?.type === "wicket-iris-play:anchor" && data.anchor) {
+      if (data?.type === "orrery-iris-play:anchor" && data.anchor) {
         (
           window as unknown as { __anchorMessages: string[] }
         ).__anchorMessages.push(data.anchor);
@@ -188,7 +188,7 @@ test.describe("1440x900", () => {
         .poll(async () => {
           const trig = await frame
             .locator(
-              '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+              '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
             )
             .boundingBox();
           if (!trig) return false;
@@ -214,12 +214,12 @@ test.describe("1440x900", () => {
         .toBe(true);
 
       const trigger = frame.locator(
-        '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+        '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
       );
       await trigger.click();
 
       const sheet = frame.locator(
-        '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+        '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
       );
       await expect(sheet).toBeVisible();
 
@@ -274,13 +274,13 @@ test.describe("1440x900", () => {
     await expect(jsxPane).not.toContainText("shape=");
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
-    await expect(trigger).toHaveAttribute("data-wicket-iris-shape", "circle");
+    await expect(trigger).toHaveAttribute("data-orrery-iris-shape", "circle");
 
     await page.getByRole("radio", { name: "Square", exact: true }).check();
 
-    await expect(trigger).toHaveAttribute("data-wicket-iris-shape", "square");
+    await expect(trigger).toHaveAttribute("data-orrery-iris-shape", "square");
     await expect(jsxPane).toContainText('shape="square"');
   });
 
@@ -297,13 +297,13 @@ test.describe("1440x900", () => {
     const samplerPromise = sampleTriggerSurfaceBoxes(stageFrame, 900);
 
     const trigger = stageFrame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
     await page
       .getByRole("radio", { name: "Rounded square", exact: true })
       .check();
     await expect(trigger).toHaveAttribute(
-      "data-wicket-iris-shape",
+      "data-orrery-iris-shape",
       "rounded-square",
     );
 
@@ -324,7 +324,7 @@ test.describe("1440x900", () => {
     await tagStageIdentity(stageFrame);
 
     const trigger = stageFrame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
 
     // Trigger size — legitimately glides, so no box-stillness assertion.
@@ -341,7 +341,7 @@ test.describe("1440x900", () => {
     await page.getByLabel("Shadow", { exact: true }).uncheck();
     await expect(
       stageFrame.locator(
-        '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="shadow"]',
+        '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="shadow"]',
       ),
     ).toHaveCount(0);
     expect(await stageIdentitySurvives(stageFrame)).toBe(true);
@@ -349,7 +349,7 @@ test.describe("1440x900", () => {
     await page.getByLabel("Shadow", { exact: true }).check();
     await expect(
       stageFrame.locator(
-        '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="shadow"]',
+        '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="shadow"]',
       ),
     ).toHaveCount(1);
     expect(await stageIdentitySurvives(stageFrame)).toBe(true);
@@ -381,13 +381,13 @@ test.describe("1440x900", () => {
     await expect
       .poll(async () =>
         frame
-          .locator('[data-wicket-iris-part="trigger-surface"]')
+          .locator('[data-orrery-iris-part="trigger-surface"]')
           .evaluate((el) => getComputedStyle(el).backgroundColor),
       )
       .toBe("rgb(255, 0, 0)");
 
     const cssPane = page.locator('pre[data-play-output="css"]');
-    await expect(cssPane).toContainText("--wicket-iris-surface: #ff0000;");
+    await expect(cssPane).toContainText("--orrery-iris-surface: #ff0000;");
 
     const cssPaneText = await cssPane.textContent();
     const styleText = await frame.locator("style[data-play-css]").textContent();
@@ -401,12 +401,12 @@ test.describe("1440x900", () => {
       .click();
 
     const sheet = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
     await expect(trigger).toHaveAttribute("aria-expanded", "true");
 
@@ -458,7 +458,7 @@ test.describe("1440x900", () => {
       .click();
 
     const sheet = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
     await expect(frame.locator("#vs-sheet-title")).toHaveText("Sheet title");
@@ -480,7 +480,7 @@ test.describe("1440x900", () => {
     // here.
     const rootIdentitySurvives = await stageFrame.evaluate(() => {
       const w = window as unknown as { __vsIdentityTag?: boolean };
-      const root = document.querySelector('[data-wicket-iris-root="specimen"]');
+      const root = document.querySelector('[data-orrery-iris-root="specimen"]');
       return !!(
         w.__vsIdentityTag &&
         root &&
@@ -493,10 +493,10 @@ test.describe("1440x900", () => {
     await expect(sheet).toHaveCount(0, { timeout: 5000 });
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
     await expect(trigger).toHaveAttribute(
-      "data-wicket-iris-shape",
+      "data-orrery-iris-shape",
       "rectangle",
     );
     const reopenTrigger = frame.getByRole("button", {
@@ -527,7 +527,7 @@ test.describe("1440x900", () => {
     if (!iframeBox) return;
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
     const trigBox = await trigger.boundingBox();
     expect(trigBox).not.toBeNull();
@@ -576,7 +576,7 @@ test.describe("1440x900", () => {
     const frame = await gotoPlay(page);
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
 
     // Closed: the command applies immediately and never posts an :anchor
@@ -596,7 +596,7 @@ test.describe("1440x900", () => {
       .getByRole("button", { name: "Open sheet", exact: true })
       .click();
     const sheet = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
 
@@ -683,14 +683,14 @@ test.describe("1440x900", () => {
     await expect(triggerButton).toBeVisible();
 
     const triggerVideo = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger-surface"] [data-wicket-iris-part="media"] video',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger-surface"] [data-orrery-iris-part="media"] video',
     );
     await expect(triggerVideo).toBeAttached();
 
     await triggerButton.click();
 
     const sheet = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
 
@@ -710,12 +710,12 @@ test.describe("1440x900", () => {
     }
 
     await expect(
-      sheet.locator('[data-wicket-iris-part="media"] video'),
+      sheet.locator('[data-orrery-iris-part="media"] video'),
     ).toBeAttached();
 
     await expect(
       frame.locator(
-        '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="shared"]',
+        '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="shared"]',
       ),
     ).toHaveCount(0);
 
@@ -731,10 +731,10 @@ test.describe("1440x900", () => {
     await page.getByLabel("Recipe", { exact: true }).selectOption("search");
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
     await expect(trigger).toHaveAttribute(
-      "data-wicket-iris-shape",
+      "data-orrery-iris-shape",
       "rectangle",
     );
 
@@ -764,7 +764,7 @@ test.describe("1440x900", () => {
     await frame.getByRole("button", { name: "Open chat", exact: true }).click();
 
     const sheet = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
 
@@ -785,7 +785,7 @@ test.describe("1440x900", () => {
     await page.getByLabel("Recipe", { exact: true }).selectOption("search");
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
 
     await page.getByLabel("Button size", { exact: true }).selectOption("l");
@@ -884,9 +884,9 @@ test.describe("390x844", () => {
       .click();
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
-    await expect(trigger).toHaveAttribute("data-wicket-iris-shape", "square");
+    await expect(trigger).toHaveAttribute("data-orrery-iris-shape", "square");
   });
 
   test("play-ui: phone specimen opens and closes", async ({ page }) => {
@@ -896,12 +896,12 @@ test.describe("390x844", () => {
       .click();
 
     const sheet = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toBeVisible();
 
     const trigger = frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     );
     await expect(trigger).toHaveAttribute("aria-expanded", "true");
 
@@ -931,10 +931,10 @@ test.describe("390x844", () => {
     await expect
       .poll(async () => {
         const controlsTrigger = page.locator(
-          '[data-wicket-iris-root="play-controls"] [data-wicket-iris-part="trigger"]',
+          '[data-orrery-iris-root="play-controls"] [data-orrery-iris-part="trigger"]',
         );
         const specimenTrigger = frame.locator(
-          '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+          '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
         );
         const controlsBox = await controlsTrigger.boundingBox();
         const specimenBox = await specimenTrigger.boundingBox();

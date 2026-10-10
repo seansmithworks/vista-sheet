@@ -70,19 +70,19 @@ function Stage() {
   const labRef = useRef<Lab | null>(null);
 
   useEffect(() => {
-    window.parent.postMessage({ type: "wicket-iris-play:ready" }, "*");
+    window.parent.postMessage({ type: "orrery-iris-play:ready" }, "*");
 
     function onMessage(e: MessageEvent) {
       if (e.source !== window.parent || e.origin !== location.origin) return;
       if (!isPlayMessage(e.data)) return;
-      if (e.data.type === "wicket-iris-play:state") {
+      if (e.data.type === "orrery-iris-play:state") {
         setState(e.data.state);
         setOverrides(e.data.overrides ?? {});
-      } else if (e.data.type === "wicket-iris-play:set-anchor") {
+      } else if (e.data.type === "orrery-iris-play:set-anchor") {
         setPendingAnchor(e.data.anchor);
-      } else if (e.data.type === "wicket-iris-play:reset") {
+      } else if (e.data.type === "orrery-iris-play:reset") {
         setSpecimen((n) => n + 1);
-      } else if (e.data.type === "wicket-iris-play:clock") {
+      } else if (e.data.type === "orrery-iris-play:clock") {
         labRef.current?.command(e.data.command);
       }
     }
@@ -101,7 +101,7 @@ function Stage() {
       },
       (s) =>
         window.parent.postMessage(
-          { type: "wicket-iris-play:clock-state", state: s },
+          { type: "orrery-iris-play:clock-state", state: s },
           location.origin,
         ),
     );
@@ -124,7 +124,7 @@ function Stage() {
       return;
     }
     window.parent.postMessage(
-      { type: "wicket-iris-play:anchor", anchor },
+      { type: "orrery-iris-play:anchor", anchor },
       location.origin,
     );
   }
@@ -141,7 +141,7 @@ function Stage() {
           id: "specimen",
           // Strawman (v0.2), renderer-only, never emitted by the printer: keeps
           // the playground's specimen out of the geometry page's own
-          // 'wicket-iris-anchor' localStorage key.
+          // 'orrery-iris-anchor' localStorage key.
           persistKey: false,
           onAnchorChange,
           // Embedder-only (the canvas page); play's shell never sends these.

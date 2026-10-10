@@ -14,10 +14,10 @@ import { test, expect } from "@playwright/test";
  * Instrumentation is entirely test-side (page.addInitScript), never a
  * production hook: `Element.prototype.getBoundingClientRect` and
  * `window.getComputedStyle` are wrapped to count calls against the surface
- * element (`[data-wicket-iris-part="sheet"]` /
- * `[data-wicket-iris-part="trigger-surface"]`), and a MutationObserver
+ * element (`[data-orrery-iris-part="sheet"]` /
+ * `[data-orrery-iris-part="trigger-surface"]`), and a MutationObserver
  * counts style-attribute writes to the shadow element
- * (`[data-wicket-iris-part="shadow"]`) — both tallied into per-rAF-frame
+ * (`[data-orrery-iris-part="shadow"]`) — both tallied into per-rAF-frame
  * buckets so "runs twice for one frame" is visible directly, without
  * relying on wall-clock sampling.
  *
@@ -48,14 +48,14 @@ async function installFrameCounters(page: import("@playwright/test").Page) {
     let styleReadsThisFrame = 0;
     let shadowWritesThisFrame = 0;
 
-    // Scoped to the demo's primary sheet (`[data-wicket-iris-root="main"]`,
+    // Scoped to the demo's primary sheet (`[data-orrery-iris-root="main"]`,
     // per geometry.spec.ts's own convention) — the page also renders a
     // second, independent Iris.Root (the "Design" settings sheet)
     // whose own Shadow instance would otherwise add unrelated noise to a
     // global selector.
     const SURFACE_SELECTOR =
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"], ' +
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger-surface"]';
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"], ' +
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="trigger-surface"]';
 
     function tick() {
       w.__surfaceRectReadsPerFrame.push(rectReadsThisFrame);
@@ -121,8 +121,8 @@ async function installFrameCounters(page: import("@playwright/test").Page) {
         return (
           m.type === "attributes" &&
           m.attributeName === "style" &&
-          target.getAttribute?.("data-wicket-iris-part") === "shadow" &&
-          target.closest('[data-wicket-iris-root="main"]')
+          target.getAttribute?.("data-orrery-iris-part") === "shadow" &&
+          target.closest('[data-orrery-iris-root="main"]')
         );
       });
       if (relevant) shadowWritesThisFrame++;
@@ -160,7 +160,7 @@ test("(pf) Shadow: surface reads and shadow writes each run at most once per ani
   await installFrameCounters(page);
   await page.goto("/");
   await page.waitForSelector(
-    '[data-wicket-iris-root="main"] [data-wicket-iris-part="trigger"]',
+    '[data-orrery-iris-root="main"] [data-orrery-iris-part="trigger"]',
   );
 
   const trigger = page.getByRole("button", { name: TRIGGER_LABEL });

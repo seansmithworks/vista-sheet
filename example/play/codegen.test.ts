@@ -15,10 +15,10 @@ import {
  * Class-of-bug regression coverage for two verified playground defects
  * (2026-09-13):
  *
- * Bug A — `buildCss` used to omit a `--wicket-iris-*` declaration whenever
+ * Bug A — `buildCss` used to omit a `--orrery-iris-*` declaration whenever
  * the current value equalled PACKAGE_DEFAULTS, so the default Warm palette
  * never declared the vars its own recipes read via `var(...)` with no
- * fallback (e.g. the chat bubble's `background: var(--wicket-iris-accent)`
+ * fallback (e.g. the chat bubble's `background: var(--orrery-iris-accent)`
  * resolved to nothing).
  *
  * Bug B — `.vs-button-icon` / `.vs-button-text` lived only in
@@ -28,7 +28,7 @@ import {
  *
  * Both are structural: (a) proves every className the specimen tree can
  * produce has a matching selector in the CSS the same state generates; (b)
- * proves every `var(--wicket-iris-*)` read without a CSS fallback is
+ * proves every `var(--orrery-iris-*)` read without a CSS fallback is
  * declared by that same state's CSS. Neither test is specific to accent or
  * to vs-button-icon — either bug class, in any recipe or palette, fails one
  * of these two.
@@ -122,7 +122,7 @@ describe("codegen: every specimen className has a matching CSS selector", () => 
 });
 
 function readVarsWithoutFallback(css: string): Set<string> {
-  const re = /var\(\s*(--wicket-iris-[a-zA-Z0-9-]+)\s*\)/g;
+  const re = /var\(\s*(--orrery-iris-[a-zA-Z0-9-]+)\s*\)/g;
   const vars = new Set<string>();
   let m: RegExpExecArray | null;
   while ((m = re.exec(css))) vars.add(m[1]);
@@ -130,14 +130,14 @@ function readVarsWithoutFallback(css: string): Set<string> {
 }
 
 function declaredVars(css: string): Set<string> {
-  const re = /(--wicket-iris-[a-zA-Z0-9-]+)\s*:/g;
+  const re = /(--orrery-iris-[a-zA-Z0-9-]+)\s*:/g;
   const vars = new Set<string>();
   let m: RegExpExecArray | null;
   while ((m = re.exec(css))) vars.add(m[1]);
   return vars;
 }
 
-describe("codegen: every fallback-less var(--wicket-iris-*) read is declared", () => {
+describe("codegen: every fallback-less var(--orrery-iris-*) read is declared", () => {
   for (const { label, state } of allStates()) {
     it(label, () => {
       const css = buildCss(state);

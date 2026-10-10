@@ -50,7 +50,7 @@ describe("usePersistedAnchor default key", () => {
 
   it("prefers the new key when both exist", async () => {
     localStorage.setItem("vista-sheet-anchor", "top-left");
-    localStorage.setItem("wicket-iris-anchor", "top-right");
+    localStorage.setItem("orrery-iris-anchor", "top-right");
     await mount();
     expect(seen).toBe("top-right");
   });

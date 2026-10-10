@@ -1,5 +1,5 @@
 {
-  "name": "@wicket/iris",
+  "name": "@orrery-ui/iris",
   "version": "0.1.1",
   "type": "module",
   "description": "Draggable trigger that morphs into a modal sheet. Generic React primitive, compound-component API.",
@@ -39,7 +39,7 @@
   },
   "types": "./dist/index.d.ts",
   "bin": {
-    "wicket-iris": "./bin/wicket-iris.mjs"
+    "orrery-iris": "./bin/orrery-iris.mjs"
   },
   "files": [
     "dist",

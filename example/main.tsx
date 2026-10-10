@@ -73,7 +73,7 @@ const DEFAULT_SETTINGS: DemoSettings = {
   glowStrength: "Bold",
   spinSpeed: "Moderate",
 };
-const SETTINGS_KEY = "wicket-iris-example:settings";
+const SETTINGS_KEY = "orrery-iris-example:settings";
 // Pre-rename key, read as a fallback so saved demo settings survive.
 const LEGACY_SETTINGS_KEY = "vista-sheet-example:settings";
 function readRawSettings(): Record<string, unknown> | null {
@@ -103,7 +103,7 @@ function readSettings(): DemoSettings {
 // mount-time localStorage restore inside usePersistedAnchor sets React
 // state directly and never calls it) so the settings sheet's initial anchor
 // already accounts for a persisted top-right main sheet on first paint.
-const MAIN_ANCHOR_STORAGE_KEY = "wicket-iris-anchor";
+const MAIN_ANCHOR_STORAGE_KEY = "orrery-iris-anchor";
 function readMainAnchor(): AnchorId {
   try {
     const raw = localStorage.getItem(MAIN_ANCHOR_STORAGE_KEY);
@@ -415,11 +415,11 @@ const IRI_DIALS = {
 };
 
 // The Shadow crossfade window (Shadow.tsx reads these two vars via
-// readVarPx: --wicket-iris-sheet-shadow-fade-start/-fade-end). Seeded so the
-// heavy sheet shadow (`--wicket-iris-sheet-shadow`) is fully in at
+// readVarPx: --orrery-iris-sheet-shadow-fade-start/-fade-end). Seeded so the
+// heavy sheet shadow (`--orrery-iris-sheet-shadow`) is fully in at
 // collapseProgress p=0 (open, at rest) and fully gone by p=0.25 — roughly
 // where the silhouette has shrunk enough that the thin disc shadow
-// (`--wicket-iris-shadow`) alone reads right, rather than a heavy blur on a
+// (`--orrery-iris-shadow`) alone reads right, rather than a heavy blur on a
 // small shape. Persisted under dialkit:morph-sheet-shadow-crossfade. That key
 // predates the package renames — changing it orphans Sean's saved dial
 // history, so the id below stays as-is.
@@ -445,7 +445,7 @@ function App() {
   // Dark mode toggles body-level background/text, not just `.page` (the
   // page div has no explicit height, so a short page would leave the
   // original light body visible below the fold) — and, via example.css's
-  // `body[data-dark-mode="true"]` block, the --wicket-iris-* consumer
+  // `body[data-dark-mode="true"]` block, the --orrery-iris-* consumer
   // tokens both sheets read, so they switch to dark chrome too.
   useEffect(() => {
     document.body.dataset.darkMode = settings.darkMode ? "true" : "false";
@@ -639,10 +639,10 @@ function App() {
   // ancestor of <Iris.Shadow> — CSS custom properties inherit down the
   // DOM tree, and .shadow (or an asChild swap) isn't portalled, so Shadow.tsx's
   // readVarPx(el, ...) picks these up via getComputedStyle the same way it
-  // already reads --wicket-iris-sheet-radius from wherever a consumer set it.
+  // already reads --orrery-iris-sheet-radius from wherever a consumer set it.
   const shadowCrossfadeStyle = {
-    "--wicket-iris-sheet-shadow-fade-start": shadowCrossfade.fadeStart,
-    "--wicket-iris-sheet-shadow-fade-end": shadowCrossfade.fadeEnd,
+    "--orrery-iris-sheet-shadow-fade-start": shadowCrossfade.fadeStart,
+    "--orrery-iris-sheet-shadow-fade-end": shadowCrossfade.fadeEnd,
   } as CSSProperties;
   const pageStyle = shadowCrossfadeStyle;
 
@@ -659,7 +659,7 @@ function App() {
       {settings.showDials && (
         <DialRoot position="bottom-right" productionEnabled />
       )}
-      <h1>Wicket Iris</h1>
+      <h1>Orrery Iris</h1>
       <p className="sub">
         A bare trigger, morphing into a sheet. Tap the trigger (bottom-center by
         default) — drag it to any of the seven anchors first if you like.
@@ -734,7 +734,7 @@ function App() {
             trailing-paper close mask from OUTSIDE the package using only
             useIris().collapseProgress (+ its built-in getVelocity()) and
             triggerRect/sheetRect. It renders no DOM of its own — it finds the
-            live sheet element by its documented data-wicket-iris-part="sheet"
+            live sheet element by its documented data-orrery-iris-part="sheet"
             attribute and writes a mask-image directly onto it. See
             CloseMask.tsx. */}
         <CloseMask />

@@ -1,6 +1,6 @@
 /*
  * media-card.css — the "why would I want this" example. Tokens are the 13
- * documented --wicket-iris-* custom properties from the README theming
+ * documented --orrery-iris-* custom properties from the README theming
  * table, set to a cool App-Store-like palette distinct from the flagship's
  * warm one. Nothing here duplicates a token's color as a hardcoded value
  * outside the .media-theme block.
@@ -26,17 +26,17 @@
 }
 
 .media-theme {
-  --wicket-iris-surface: #f5f6fa;
-  --wicket-iris-surface-elevated: #ffffff;
-  --wicket-iris-surface-border: #e3e6ee;
-  --wicket-iris-text: #14161c;
-  --wicket-iris-accent: #3568e6;
-  --wicket-iris-sheet-max-width: 420px;
-  --wicket-iris-sheet-radius: 48px;
-  --wicket-iris-sheet-padding: 24px;
-  --wicket-iris-shadow:
+  --orrery-iris-surface: #f5f6fa;
+  --orrery-iris-surface-elevated: #ffffff;
+  --orrery-iris-surface-border: #e3e6ee;
+  --orrery-iris-text: #14161c;
+  --orrery-iris-accent: #3568e6;
+  --orrery-iris-sheet-max-width: 420px;
+  --orrery-iris-sheet-radius: 48px;
+  --orrery-iris-sheet-padding: 24px;
+  --orrery-iris-shadow:
     0 1px 3px rgba(20, 22, 28, 0.12), 0 8px 24px rgba(20, 22, 28, 0.14);
-  --wicket-iris-sheet-shadow:
+  --orrery-iris-sheet-shadow:
     0 12px 48px rgba(20, 22, 28, 0.22), 0 2px 8px rgba(20, 22, 28, 0.1);
 }
 
@@ -59,7 +59,7 @@
   fill: #ffffff;
 }
 
-[data-wicket-iris-part="close"] {
+[data-orrery-iris-part="close"] {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -77,13 +77,13 @@
   margin: 0 0 4px;
   font-size: 20px;
   font-weight: 700;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
 }
 
 .media-subtitle {
   margin: 0;
   font-size: 14px;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
   opacity: 0.6;
 }
 
@@ -96,7 +96,7 @@
   min-height: 32px;
   padding: 0 16px;
   border-radius: 9999px;
-  background: var(--wicket-iris-accent);
+  background: var(--orrery-iris-accent);
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
@@ -105,7 +105,7 @@
 }
 
 .media-get:focus-visible {
-  outline: 2px solid var(--wicket-iris-accent);
+  outline: 2px solid var(--orrery-iris-accent);
   outline-offset: 2px;
 }
 
@@ -113,14 +113,14 @@
   display: flex;
   margin: 20px 0 0;
   padding: 16px 0;
-  border-top: 1px solid var(--wicket-iris-surface-border);
-  border-bottom: 1px solid var(--wicket-iris-surface-border);
+  border-top: 1px solid var(--orrery-iris-surface-border);
+  border-bottom: 1px solid var(--orrery-iris-surface-border);
 }
 
 .media-meta-stat {
   flex: 1;
   text-align: center;
-  border-right: 1px solid var(--wicket-iris-surface-border);
+  border-right: 1px solid var(--orrery-iris-surface-border);
 }
 
 .media-meta-stat:last-child {
@@ -131,7 +131,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
   opacity: 0.7;
   margin: 0 0 4px;
 }
@@ -140,13 +140,13 @@
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
 }
 
 .media-description {
   margin: 16px 0 0;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
   opacity: 0.8;
 }

@@ -17,7 +17,7 @@ import styles from "./styles.module.css";
  * landmine. Nesting it would make its projection inherit the surface's
  * close-morph FLIP and freeze it at the surface's transient mid-collapse box.
  *
- * `data-wicket-iris-slot="trigger" | "sheet"` (from SlotContext, provided by
+ * `data-orrery-iris-slot="trigger" | "sheet"` (from SlotContext, provided by
  * <Trigger> and <Sheet>) is the mechanism behind two review findings at
  * once: it gives the trigger-side instance its inset circular clip (M7) and
  * gives the sheet-side instance an in-flow, non-clipping layout instead of
@@ -31,9 +31,9 @@ export function Shared({ children, className }: SharedProps) {
       layoutId={ctx.reduceMotion ? undefined : `${ctx.idBase}-shared`}
       className={`${styles.shared} ${className ?? ""}`}
       transition={ctx.transition.shared}
-      data-wicket-iris-part="shared"
-      data-wicket-iris-slot={slot}
-      data-wicket-iris-shape={ctx.shape}
+      data-orrery-iris-part="shared"
+      data-orrery-iris-slot={slot}
+      data-orrery-iris-shape={ctx.shape}
     >
       {children}
     </motion.div>

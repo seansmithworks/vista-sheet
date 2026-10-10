@@ -165,7 +165,7 @@ export function Root({
   // Scoped by idBase so several Roots can't collide; deterministic from
   // props, so server and client render byte-identical CSS.
   const sizeRule = (vpW: number) =>
-    `[data-wicket-iris-root="${idBase}"]{--wicket-iris-trigger-size:${resolveTriggerSize(triggerSizeProp, vpW)}px}`;
+    `[data-orrery-iris-root="${idBase}"]{--orrery-iris-trigger-size:${resolveTriggerSize(triggerSizeProp, vpW)}px}`;
   const triggerSizeCss = `${sizeRule(0)}@media (min-width:${MD_BREAKPOINT}px){${sizeRule(MD_BREAKPOINT)}}@media (min-width:${XL_BREAKPOINT}px){${sizeRule(XL_BREAKPOINT)}}`;
 
   const [isDragging, setIsDragging] = useState(false);
@@ -432,11 +432,11 @@ export function Root({
                 <div
                   ref={setLayerEl}
                   className={`${styles.previewLayer} ${className ?? ""}`}
-                  data-wicket-iris-root={idBase}
+                  data-orrery-iris-root={idBase}
                   style={{
-                    ["--wicket-iris-z" as string]: String(zIndex),
-                    ["--wicket-iris-sheet-max-width" as string]: `${sheetMaxWidth}px`,
-                    ["--wicket-iris-preview-radius" as string]: `${PREVIEW_TRIGGER_RADIUS_PX}px`,
+                    ["--orrery-iris-z" as string]: String(zIndex),
+                    ["--orrery-iris-sheet-max-width" as string]: `${sheetMaxWidth}px`,
+                    ["--orrery-iris-preview-radius" as string]: `${PREVIEW_TRIGGER_RADIUS_PX}px`,
                   }}
                 />,
                 document.body,
@@ -453,15 +453,15 @@ export function Root({
         <style>{triggerSizeCss}</style>
         <div
           className={className}
-          data-wicket-iris-root={idBase}
+          data-orrery-iris-root={idBase}
           style={{
             // The one ancestor of both <Trigger> and <Sheet>, so both inherit
-            // these. --wicket-iris-trigger-size is deliberately absent: an
+            // these. --orrery-iris-trigger-size is deliberately absent: an
             // inline write would beat the scoped <style> block's @media rules.
-            ["--wicket-iris-z" as string]: String(zIndex),
-            ["--wicket-iris-sheet-max-width" as string]: `${sheetMaxWidth}px`,
+            ["--orrery-iris-z" as string]: String(zIndex),
+            ["--orrery-iris-sheet-max-width" as string]: `${sheetMaxWidth}px`,
             ...(buttonWidth !== undefined
-              ? { ["--wicket-iris-button-width" as string]: `${buttonWidth}px` }
+              ? { ["--orrery-iris-button-width" as string]: `${buttonWidth}px` }
               : {}),
           }}
         >

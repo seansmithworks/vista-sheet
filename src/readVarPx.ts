@@ -1,7 +1,7 @@
 /**
  * readVarPx — read a CSS custom property off an element and parse it as a
- * px length. Used to pull the shape tokens (--wicket-iris-sheet-radius,
- * --wicket-iris-trigger-radius) once when the sheet opens, so a designer's CSS
+ * px length. Used to pull the shape tokens (--orrery-iris-sheet-radius,
+ * --orrery-iris-trigger-radius) once when the sheet opens, so a designer's CSS
  * override is honored without becoming a JS prop.
  *
  * Returns `fallback` if the element is unavailable, the property is unset,

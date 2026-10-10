@@ -401,7 +401,7 @@ export function Tuner() {
           <div>
             <h1>Surface &amp; shadow</h1>
             <p>
-              Live specimens. Every dial writes a <code>--wicket-iris-*</code>{" "}
+              Live specimens. Every dial writes a <code>--orrery-iris-*</code>{" "}
               var; <code>&lt;Iris.Shadow&gt;</code> paints both looks.
             </p>
           </div>

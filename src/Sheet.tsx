@@ -114,7 +114,7 @@ export function Sheet({
     if (open) sheetDragY.jump(0);
   }, [open, sheetDragY]);
 
-  // data-wicket-iris-settled no longer gates any style of ours — the sheet
+  // data-orrery-iris-settled no longer gates any style of ours — the sheet
   // paints no box-shadow of its own (Shadow.tsx is the single painter, see
   // .sheet in styles.module.css), and <Close> tracks its own reveal off
   // collapseProgress directly rather than this attribute. It's kept as a DOM
@@ -126,12 +126,12 @@ export function Sheet({
     // Seeded from the DOM, not false: this effect re-runs when `open` flips,
     // and a fresh false would match the closing state and skip the removal.
     let settled =
-      sheetRef.current?.hasAttribute("data-wicket-iris-settled") ?? false;
+      sheetRef.current?.hasAttribute("data-orrery-iris-settled") ?? false;
     const apply = (v: number) => {
       const next = open && v <= CLOSE_REVEAL_PROGRESS;
       if (next === settled) return;
       settled = next;
-      sheetRef.current?.toggleAttribute("data-wicket-iris-settled", next);
+      sheetRef.current?.toggleAttribute("data-orrery-iris-settled", next);
     };
     apply(collapseProgress.get());
     return collapseProgress.on("change", apply);
@@ -146,7 +146,7 @@ export function Sheet({
     ) {
       // eslint-disable-next-line no-console
       console.warn(
-        "[wicket-iris] <Iris.Sheet> opened with no <Iris.Close> registered. " +
+        "[orrery-iris] <Iris.Sheet> opened with no <Iris.Close> registered. " +
           "Escape and backdrop dismissal are not a substitute for a visible close control.",
       );
     }
@@ -285,7 +285,7 @@ export function Sheet({
   // closes and reopens without one must see the SHEET_DEFAULT_* strings
   // written back explicitly rather than relying on the value disappearing.
   const placementStyle: Record<string, string> = {
-    ["--wicket-iris-sheet-left" as string]: `${placement.anchorX}px`,
+    ["--orrery-iris-sheet-left" as string]: `${placement.anchorX}px`,
     top: placement.topPx !== undefined ? `${placement.topPx}px` : "auto",
     bottom:
       placement.bottomPx !== undefined ? `${placement.bottomPx}px` : "auto",
@@ -323,7 +323,7 @@ export function Sheet({
         ref={ref}
         tabIndex={0}
         aria-hidden="true"
-        data-wicket-iris-focus-guard=""
+        data-orrery-iris-focus-guard=""
         style={{ position: "fixed", width: 1, height: 1, overflow: "hidden" }}
         onFocus={onFocus}
       />
@@ -339,7 +339,7 @@ export function Sheet({
         <div
           ref={backdropRef}
           aria-hidden="true"
-          data-wicket-iris-part="backdrop"
+          data-orrery-iris-part="backdrop"
           style={{ position: "fixed", inset: 0, zIndex: zIndex + 101 }}
           onClick={() => setOpen(false)}
         />
@@ -376,8 +376,8 @@ export function Sheet({
             ref={attachSheetRef}
             id={sheetId}
             className={`${styles.sheet} ${className ?? ""}`}
-            data-wicket-iris-part="sheet"
-            data-wicket-iris-shape={shape}
+            data-orrery-iris-part="sheet"
+            data-orrery-iris-shape={shape}
             {...(modal
               ? { role: "dialog", "aria-modal": "true", tabIndex: -1 }
               : { "aria-hidden": true })}

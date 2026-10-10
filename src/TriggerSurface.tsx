@@ -9,7 +9,7 @@ type TriggerSurfaceProps = {
   /** The trigger's own resting corner radius. */
   restRadius: MotionValue<number>;
   className: string;
-  "data-wicket-iris-shape"?: string;
+  "data-orrery-iris-shape"?: string;
   "aria-hidden"?: "true";
 } & (
   | { as: "div"; ref: Ref<HTMLDivElement> }
@@ -37,8 +37,8 @@ export function TriggerSurface(props: TriggerSurfaceProps) {
     className: props.className,
     transition: transition.close,
     onLayoutAnimationStart: () => startMorphClock("trigger"),
-    "data-wicket-iris-part": "trigger-surface",
-    "data-wicket-iris-shape": props["data-wicket-iris-shape"],
+    "data-orrery-iris-part": "trigger-surface",
+    "data-orrery-iris-shape": props["data-orrery-iris-shape"],
     "aria-hidden": props["aria-hidden"],
     // Bound as a MotionValue: Motion's radius correction ignores CSS rules
     // and var() strings, and React would clobber an imperative write on

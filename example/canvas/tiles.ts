@@ -413,7 +413,7 @@ const GEOMETRY_TILES: CanvasTile[] = [
     id: "geometry-radius-16",
     section: "geometry",
     label: "Radius 16",
-    caption: "--wicket-iris-sheet-radius: 16px",
+    caption: "--orrery-iris-sheet-radius: 16px",
     state: spec("basic", "neutral", { sheetRadius: 16 }),
     overrides: { defaultOpen: true },
   }),
@@ -424,7 +424,7 @@ const GEOMETRY_TILES: CanvasTile[] = [
     // sheetPadding pads Content (its sides and bottom) only. The Shared
     // circle keeps its own 24px margin, so it doesn't move.
     caption:
-      "--wicket-iris-sheet-padding: 48px · text moves in; the circle keeps its 24px margin",
+      "--orrery-iris-sheet-padding: 48px · text moves in; the circle keeps its 24px margin",
     state: spec("basic", "neutral", { sheetPadding: 48 }),
     overrides: { defaultOpen: true },
   }),

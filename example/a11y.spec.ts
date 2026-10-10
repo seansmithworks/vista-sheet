@@ -25,7 +25,7 @@ test.describe("§6 accessibility contract", () => {
 
     await trigger.click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
 
     expect(await trigger.getAttribute("aria-expanded")).toBe("true");
@@ -33,7 +33,7 @@ test.describe("§6 accessibility contract", () => {
     expect(controls).not.toBeNull();
 
     const sheetId = await page
-      .locator('[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]')
+      .locator('[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]')
       .getAttribute("id");
     expect(controls).toBe(sheetId);
   });
@@ -45,7 +45,7 @@ test.describe("§6 accessibility contract", () => {
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
 
     const sheet = page.locator(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await expect(sheet).toHaveAttribute("role", "dialog");
     await expect(sheet).toHaveAttribute("aria-modal", "true");
@@ -62,7 +62,7 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     const sheet = page.locator(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await sheet.waitFor();
     // useDialogBehavior focuses the panel ~50ms after open.
@@ -78,14 +78,14 @@ test.describe("§6 accessibility contract", () => {
     const trigger = page.getByRole("button", { name: TRIGGER_LABEL });
     await trigger.click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await page.waitForTimeout(150);
 
     await page.keyboard.press("Escape");
     // Wait for AnimatePresence's exit + onExitComplete.
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
       {
         state: "detached",
         timeout: 5000,
@@ -103,11 +103,11 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await page.keyboard.press("Escape");
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
       {
         state: "detached",
         timeout: 5000,
@@ -119,7 +119,7 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     const sheet = page.locator(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await sheet.waitFor();
     await page.waitForTimeout(150);
@@ -163,7 +163,7 @@ test.describe("§6 accessibility contract", () => {
 
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     const openOverflow = await page.evaluate(
       () => document.body.style.overflow,
@@ -172,7 +172,7 @@ test.describe("§6 accessibility contract", () => {
 
     await page.keyboard.press("Escape");
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
       {
         state: "detached",
         timeout: 5000,
@@ -190,7 +190,7 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     const sheet = page.locator(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     const hasLabel = await sheet.getAttribute("aria-label");
     const hasLabelledBy = await sheet.getAttribute("aria-labelledby");
@@ -204,7 +204,7 @@ test.describe("§6 accessibility contract", () => {
     await expect(close).toBeVisible();
     await close.click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
       {
         state: "detached",
         timeout: 5000,
@@ -218,7 +218,7 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     const close = page.locator(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="close"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="close"]',
     );
     await close.waitFor({ state: "attached" });
     expect(await close.evaluate((el) => getComputedStyle(el).opacity)).toBe(
@@ -238,7 +238,7 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await page.waitForTimeout(300);
 
@@ -256,12 +256,12 @@ test.describe("§6 accessibility contract", () => {
     await page.goto("/");
     await page.getByRole("button", { name: TRIGGER_LABEL }).click();
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
     );
     await page.waitForTimeout(300);
     await page.keyboard.press("Escape");
     await page.waitForSelector(
-      '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
       {
         state: "detached",
         timeout: 5000,
@@ -287,7 +287,7 @@ test.describe("Design settings sheet accessibility", () => {
     await trigger.click();
 
     const sheet = page.locator(
-      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="settings"] [data-orrery-iris-part="sheet"]',
     );
     await sheet.waitFor();
     await expect(sheet).toHaveAttribute("role", "dialog");
@@ -304,7 +304,7 @@ test.describe("Design settings sheet accessibility", () => {
     await page.goto("/");
     await page.getByRole("button", { name: SETTINGS_LABEL }).click();
     const sheet = page.locator(
-      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="settings"] [data-orrery-iris-part="sheet"]',
     );
     await sheet.waitFor();
     await page.waitForTimeout(150);
@@ -320,7 +320,7 @@ test.describe("Design settings sheet accessibility", () => {
     const trigger = page.getByRole("button", { name: SETTINGS_LABEL });
     await trigger.click();
     const sheet = page.locator(
-      '[data-wicket-iris-root="settings"] [data-wicket-iris-part="sheet"]',
+      '[data-orrery-iris-root="settings"] [data-orrery-iris-part="sheet"]',
     );
     await sheet.waitFor();
     await page.waitForTimeout(150);

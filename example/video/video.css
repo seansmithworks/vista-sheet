@@ -1,4 +1,4 @@
-.video-theme [data-wicket-iris-part="close"] {
+.video-theme [data-orrery-iris-part="close"] {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -9,5 +9,5 @@
 .video-fixture-fill {
   position: absolute;
   inset: 0;
-  background: var(--wicket-iris-accent);
+  background: var(--orrery-iris-accent);
 }

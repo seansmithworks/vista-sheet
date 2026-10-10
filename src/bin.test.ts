@@ -5,14 +5,14 @@ import path from "node:path";
 import process from "node:process";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-// Drives bin/wicket-iris.mjs (the npx copy-in CLI) as a real child process
+// Drives bin/orrery-iris.mjs (the npx copy-in CLI) as a real child process
 // against a temp directory — review finding #3: the conflict guard, the
 // --force override, and the next-env.d.ts shim-skip all shipped with zero
 // automated coverage. Also exercises #7 (test files/css-modules.d.ts
 // excluded from the copy) in passing, since it's the same file list this
 // suite already has to assert against.
 
-const BIN_PATH = new URL("../bin/wicket-iris.mjs", import.meta.url).pathname;
+const BIN_PATH = new URL("../bin/orrery-iris.mjs", import.meta.url).pathname;
 const SRC_DIR = new URL("../src/", import.meta.url).pathname;
 const TUNER_DIR = new URL("../tuner/", import.meta.url).pathname;
 
@@ -37,11 +37,11 @@ function expectedSrcFileCount(skipCssShim: boolean) {
   return skipCssShim ? count : count + 1;
 }
 
-describe("bin/wicket-iris.mjs add", () => {
+describe("bin/orrery-iris.mjs add", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "wicket-iris-bin-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "orrery-iris-bin-"));
   });
 
   afterEach(() => {
@@ -52,7 +52,7 @@ describe("bin/wicket-iris.mjs add", () => {
     const result = runBin(["add"], tmpDir);
     expect(result.status).toBe(0);
 
-    const targetDir = path.join(tmpDir, "src", "wicket-iris");
+    const targetDir = path.join(tmpDir, "src", "orrery-iris");
     const copied = fs.readdirSync(targetDir);
 
     expect(copied).not.toContain("anchors.test.ts");
@@ -67,7 +67,7 @@ describe("bin/wicket-iris.mjs add", () => {
     const result = runBin(["add"], tmpDir);
     expect(result.status).toBe(0);
 
-    const targetDir = path.join(tmpDir, "src", "wicket-iris");
+    const targetDir = path.join(tmpDir, "src", "orrery-iris");
     const copied = fs.readdirSync(targetDir);
     expect(copied).not.toContain("css-modules.d.ts");
     expect(copied.length).toBe(expectedSrcFileCount(true));
@@ -77,7 +77,7 @@ describe("bin/wicket-iris.mjs add", () => {
     const first = runBin(["add"], tmpDir);
     expect(first.status).toBe(0);
 
-    const targetDir = path.join(tmpDir, "src", "wicket-iris");
+    const targetDir = path.join(tmpDir, "src", "orrery-iris");
     const sentinelFile = path.join(targetDir, "anchors.ts");
     fs.writeFileSync(sentinelFile, "// sentinel, must survive\n");
 
@@ -96,7 +96,7 @@ describe("bin/wicket-iris.mjs add", () => {
     const first = runBin(["add"], tmpDir);
     expect(first.status).toBe(0);
 
-    const targetDir = path.join(tmpDir, "src", "wicket-iris");
+    const targetDir = path.join(tmpDir, "src", "orrery-iris");
     const sentinelFile = path.join(targetDir, "anchors.ts");
     fs.writeFileSync(sentinelFile, "// sentinel, must be overwritten\n");
 
@@ -114,11 +114,11 @@ describe("bin/wicket-iris.mjs add", () => {
   });
 });
 
-describe("bin/wicket-iris.mjs add tuner", () => {
+describe("bin/orrery-iris.mjs add tuner", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "wicket-iris-bin-tuner-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "orrery-iris-bin-tuner-"));
   });
 
   afterEach(() => {
@@ -164,7 +164,7 @@ describe("bin/wicket-iris.mjs add tuner", () => {
   it("does not disturb a bare `add`'s file set", () => {
     const result = runBin(["add"], tmpDir);
     expect(result.status).toBe(0);
-    const targetDir = path.join(tmpDir, "src", "wicket-iris");
+    const targetDir = path.join(tmpDir, "src", "orrery-iris");
     expect(fs.readdirSync(targetDir)).toEqual(
       expect.arrayContaining(["index.ts"]),
     );

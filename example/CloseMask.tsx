@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 // Relative import: the example lives inside the package repo itself (no
 // publish step yet), so it reaches the package the same way main.tsx does.
-// A real consumer would import from "@wicket/iris".
+// A real consumer would import from "@orrery-ui/iris".
 import { useIris } from "../src/index";
 
 /**
@@ -11,14 +11,14 @@ import { useIris } from "../src/index";
  * artifact specific to a tall sheet whose shared element leads the close:
  * mid-collapse, the vacated paper above the avatar sits as a solid opaque
  * block for a few frames. This is the package's own escape-hatch validation
- * test — it is cut from `wicket-iris` because it does not belong in a generic
+ * test — it is cut from `orrery-iris` because it does not belong in a generic
  * primitive (a sheet with no leading shared element has no such artifact),
  * but re-derived here for the flagship-style example so the demo isn't
  * visibly worse without it.
  *
  * THE FINDING: this component is buildable using ONLY the documented v0.1
  * API — useIris().collapseProgress and .open — and one documented DOM
- * contract: the sheet element carries `data-wicket-iris-part="sheet"`. No
+ * contract: the sheet element carries `data-orrery-iris-part="sheet"`. No
  * widening of useIris() was needed.
  *
  * Why `open`, not getVelocity(): a prior version inferred "closing" from the
@@ -42,13 +42,13 @@ export function CloseMask() {
 
   useEffect(() => {
     const apply = () => {
-      // Scoped to the main Root's wrapper (`data-wicket-iris-root="main"`,
+      // Scoped to the main Root's wrapper (`data-orrery-iris-root="main"`,
       // set in main.tsx): a second, unrelated Iris.Root (the "Design"
-      // settings sheet) also renders `[data-wicket-iris-part="sheet"]` when
+      // settings sheet) also renders `[data-orrery-iris-part="sheet"]` when
       // open, and an unscoped query would grab whichever one is open at the
       // time — usually not this one.
       const sheetEl = document.querySelector<HTMLElement>(
-        '[data-wicket-iris-root="main"] [data-wicket-iris-part="sheet"]',
+        '[data-orrery-iris-root="main"] [data-orrery-iris-part="sheet"]',
       );
       if (!sheetEl) return;
 

@@ -74,7 +74,7 @@ export function MotionLab({ request }: { request: LabRequest | null }) {
 
   const send = (command: ClockCommand) =>
     iframeRef.current?.contentWindow?.postMessage(
-      { type: "wicket-iris-play:clock", command },
+      { type: "orrery-iris-play:clock", command },
       location.origin,
     );
 
@@ -93,11 +93,11 @@ export function MotionLab({ request }: { request: LabRequest | null }) {
       const frame = iframeRef.current;
       if (!frame || e.source !== frame.contentWindow) return;
       if (e.origin !== location.origin || !isPlayMessage(e.data)) return;
-      if (e.data.type === "wicket-iris-play:clock-state") {
+      if (e.data.type === "orrery-iris-play:clock-state") {
         setLab(e.data.state);
         return;
       }
-      if (e.data.type !== "wicket-iris-play:ready") return;
+      if (e.data.type !== "orrery-iris-play:ready") return;
       const win = frame.contentWindow!;
       // Every re-arm opens a modal sheet, which focuses its panel and
       // pulls the canvas's focus onto the iframe. Hand it straight back to
@@ -122,7 +122,7 @@ export function MotionLab({ request }: { request: LabRequest | null }) {
       );
       win.postMessage(
         {
-          type: "wicket-iris-play:state",
+          type: "orrery-iris-play:state",
           state: tile.state,
           overrides: tile.overrides,
         },

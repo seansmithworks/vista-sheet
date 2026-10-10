@@ -23,7 +23,7 @@ let previousProgram: ts.Program | undefined;
 
 /**
  * Typechecks each named virtual `.tsx` file against `src/` through the real
- * TypeScript compiler API, resolving `@wicket/iris` to
+ * TypeScript compiler API, resolving `@orrery-ui/iris` to
  * `src/index.ts` via a `paths` override — the same resolution a consumer
  * gets from the package's own d.ts, minus the publish step. Virtual files
  * are never written to disk: the host is asked for a fixed set of
@@ -33,7 +33,7 @@ let previousProgram: ts.Program | undefined;
 function typecheck(
   files: Record<string, string>,
   pathsOverride: Record<string, string[]> = {
-    "@wicket/iris": ["src/index.ts"],
+    "@orrery-ui/iris": ["src/index.ts"],
   },
 ): Map<string, string[]> {
   const configPath = path.join(ROOT, "tsconfig.json");
@@ -57,14 +57,14 @@ function typecheck(
 
   // Strawman (v0.2): a plain `paths` compiler-option override is not
   // enough — this package's own package.json declares
-  // name: "@wicket/iris" with an `exports` map, so once
+  // name: "@orrery-ui/iris" with an `exports` map, so once
   // `paths` resolution fails (e.g. a broken target during the guard-fire
   // proof), TypeScript's self-referencing-package fallback silently
   // re-resolves the bare specifier to the built `dist/index.d.ts` next to
   // it — masking a broken path with stale compiled output instead of
   // failing. `resolveModuleNameLiterals` intercepts the specifier before
   // any of that machinery runs, so the target in `pathsOverride` is the
-  // only place `@wicket/iris` can resolve to.
+  // only place `@orrery-ui/iris` can resolve to.
   host.resolveModuleNameLiterals = (
     moduleLiterals,
     containingFile,
@@ -178,7 +178,7 @@ function getReadmeUsageSnippet(): string {
 
 function getReadmeVars(): Set<string> {
   const readme = fs.readFileSync(path.join(ROOT, "README.md"), "utf8");
-  const re = /^\|\s*`(--wicket-iris-[a-zA-Z0-9-]+)`\s*\|/gm;
+  const re = /^\|\s*`(--orrery-iris-[a-zA-Z0-9-]+)`\s*\|/gm;
   const vars = new Set<string>();
   let m: RegExpExecArray | null;
   while ((m = re.exec(readme))) vars.add(m[1]);
@@ -191,7 +191,7 @@ async function gotoPlay(page: Page) {
   const frame = page.frameLocator("iframe[data-play-stage]");
   await expect(
     frame.locator(
-      '[data-wicket-iris-root="specimen"] [data-wicket-iris-part="trigger"]',
+      '[data-orrery-iris-root="specimen"] [data-orrery-iris-part="trigger"]',
     ),
   ).toBeVisible();
   return frame;
@@ -208,7 +208,7 @@ function assertNoMotionLeak(jsx: string) {
 }
 
 function assertCssOnlyReadmeVars(css: string, readmeVars: Set<string>) {
-  const used = css.match(/--wicket-iris-[a-zA-Z0-9-]+/g) ?? [];
+  const used = css.match(/--orrery-iris-[a-zA-Z0-9-]+/g) ?? [];
   for (const token of used) {
     expect(readmeVars.has(token)).toBe(true);
   }
@@ -260,7 +260,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -289,7 +289,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -301,7 +301,7 @@ test.describe("play-copy", () => {
     expect(jsx).toContain('defaultAnchor="top-right"');
     expect(jsx).toContain("triggerSize={72}");
     expect(jsx).toContain("draggable={false}");
-    expect(css).toContain("--wicket-iris-accent: #ff0000;");
+    expect(css).toContain("--orrery-iris-accent: #ff0000;");
   });
 
   test("play-copy: list recipe, rounded square, 360 wide, no swipe, no shadow typecheck", async ({
@@ -324,7 +324,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -354,7 +354,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -364,7 +364,7 @@ test.describe("play-copy", () => {
 
     expect(jsx).toContain("dismissOnBackdrop={false}");
     expect(jsx).toContain('defaultAnchor="center"');
-    expect(css).toContain("--wicket-iris-surface: #1f1b17;");
+    expect(css).toContain("--orrery-iris-surface: #1f1b17;");
   });
 
   test("play-copy: nav recipe, 128px, neutral typecheck", async ({ page }) => {
@@ -379,7 +379,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -388,7 +388,7 @@ test.describe("play-copy", () => {
     assertNoShadowOrFilter(css);
 
     expect(jsx).toContain("triggerSize={128}");
-    expect(css).toContain("--wicket-iris-surface: #fafafa;");
+    expect(css).toContain("--orrery-iris-surface: #fafafa;");
   });
 
   test("play-copy: media recipe, top-left, squircle typecheck", async ({
@@ -405,7 +405,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -427,7 +427,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -437,8 +437,8 @@ test.describe("play-copy", () => {
 
     expect(jsx.split("<Iris.Media").length - 1).toBe(2);
     expect(jsx).toContain("aspectRatio={0.5625}");
-    expect(jsx).toContain('src="/media/wicket-iris-portrait.mp4"');
-    expect(jsx).toContain('poster="/media/wicket-iris-portrait.jpg"');
+    expect(jsx).toContain('src="/media/orrery-iris-portrait.mp4"');
+    expect(jsx).toContain('poster="/media/orrery-iris-portrait.jpg"');
     expect(jsx).toContain('aria-label="Portrait video"');
 
     expect(jsx).not.toContain("Iris.Shared");
@@ -463,7 +463,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];
@@ -488,7 +488,7 @@ test.describe("play-copy", () => {
     const readmeVars = getReadmeVars();
 
     expect(jsx).toContain(
-      'import { Iris } from "@wicket/iris";',
+      'import { Iris } from "@orrery-ui/iris";',
     );
     assertNoMotionLeak(jsx);
     const diags = typecheck({ case: jsx }).get("case") ?? [];

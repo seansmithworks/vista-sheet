@@ -23,10 +23,10 @@ import { test, expect, type Page } from "@playwright/test";
  * buttons.spec.ts.
  */
 
-const ROOT = '[data-wicket-iris-root="main"] ';
-const TRIGGER = `${ROOT}[data-wicket-iris-part="trigger"]`;
-const SHEET = `${ROOT}[data-wicket-iris-part="sheet"]`;
-const ANCHOR_STORAGE_KEY = "wicket-iris-anchor";
+const ROOT = '[data-orrery-iris-root="main"] ';
+const TRIGGER = `${ROOT}[data-orrery-iris-part="trigger"]`;
+const SHEET = `${ROOT}[data-orrery-iris-part="sheet"]`;
+const ANCHOR_STORAGE_KEY = "orrery-iris-anchor";
 
 type Box = { x: number; y: number; width: number; height: number };
 

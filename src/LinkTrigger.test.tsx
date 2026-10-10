@@ -55,14 +55,14 @@ describe("preview Root in prose", () => {
       );
     });
     expect(container.querySelector("p > span > a")).not.toBeNull();
-    expect(document.querySelector("[data-wicket-iris-root]")).toBeNull();
+    expect(document.querySelector("[data-orrery-iris-root]")).toBeNull();
     expect(errors).not.toHaveBeenCalled();
     container.remove();
   });
 });
 
 describe("preview Root lifecycle", () => {
-  const layer = () => document.querySelector("[data-wicket-iris-root]");
+  const layer = () => document.querySelector("[data-orrery-iris-root]");
   let container: HTMLDivElement;
   let root: ReturnType<typeof createRoot>;
   let errors: ReturnType<typeof vi.spyOn>;
@@ -116,7 +116,7 @@ describe("preview Root lifecycle", () => {
     await mount();
     await hover();
     await act(async () => void vi.advanceTimersByTime(200));
-    expect(document.querySelector('[data-wicket-iris-part="sheet"]')).not.toBeNull();
+    expect(document.querySelector('[data-orrery-iris-part="sheet"]')).not.toBeNull();
     await act(async () => root.unmount());
     expect(layer()).toBeNull();
     expect(vi.getTimerCount()).toBe(0);

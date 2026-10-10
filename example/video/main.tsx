@@ -3,8 +3,8 @@ import { Iris, type TriggerShape } from "../../src/index";
 import { ALL_ANCHORS, DEFAULT_ANCHOR, type AnchorId } from "../../src/anchors";
 import "./video.css";
 
-const CLIP = "/media/wicket-iris-portrait.mp4";
-const POSTER = "/media/wicket-iris-portrait.jpg";
+const CLIP = "/media/orrery-iris-portrait.mp4";
+const POSTER = "/media/orrery-iris-portrait.jpg";
 
 // Strawman (v0.2): tall/wide/narrow = 9:16, 16:9, 1:2 — test vocabulary for
 // media.spec.ts, not part of the public API.

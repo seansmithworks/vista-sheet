@@ -18,7 +18,7 @@ const css = readFileSync(
 describe("CSS shape fractions match src/shape.ts", () => {
   it("every trigger-size-relative shape fraction in the CSS equals a constant in src/shape.ts", () => {
     const matches = [
-      ...css.matchAll(/var\(--wicket-iris-trigger-size, 96px\) \* ([0-9.]+)/g),
+      ...css.matchAll(/var\(--orrery-iris-trigger-size, 96px\) \* ([0-9.]+)/g),
     ];
     expect(
       matches.length,

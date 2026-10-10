@@ -1,6 +1,6 @@
 /*
  * contact.css — the form/origin-story example. Tokens are the documented
- * --wicket-iris-* custom properties, a soft violet palette distinct from
+ * --orrery-iris-* custom properties, a soft violet palette distinct from
  * the other two examples.
  */
 
@@ -13,12 +13,12 @@
 }
 
 .contact-theme {
-  --wicket-iris-surface: #f7f5fb;
-  --wicket-iris-surface-elevated: #ffffff;
-  --wicket-iris-surface-border: #e2dcf0;
-  --wicket-iris-text: #1a1726;
-  --wicket-iris-accent: #6d4aff;
-  --wicket-iris-sheet-max-width: 360px;
+  --orrery-iris-surface: #f7f5fb;
+  --orrery-iris-surface-elevated: #ffffff;
+  --orrery-iris-surface-border: #e2dcf0;
+  --orrery-iris-text: #1a1726;
+  --orrery-iris-accent: #6d4aff;
+  --orrery-iris-sheet-max-width: 360px;
 }
 
 .contact-icon {
@@ -30,8 +30,8 @@
   justify-content: center;
   background: color-mix(
     in srgb,
-    var(--wicket-iris-accent) 14%,
-    var(--wicket-iris-surface-elevated)
+    var(--orrery-iris-accent) 14%,
+    var(--orrery-iris-surface-elevated)
   );
 }
 
@@ -39,13 +39,13 @@
   width: 42%;
   height: 42%;
   fill: none;
-  stroke: var(--wicket-iris-accent);
+  stroke: var(--orrery-iris-accent);
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-[data-wicket-iris-part="close"] {
+[data-orrery-iris-part="close"] {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -55,7 +55,7 @@
   margin: 12px 0 16px;
   font-size: 18px;
   font-weight: 600;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
 }
 
 .contact-form {
@@ -73,7 +73,7 @@
 .contact-field label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--wicket-iris-text);
+  color: var(--orrery-iris-text);
   opacity: 0.7;
 }
 
@@ -81,9 +81,9 @@
 .contact-field textarea {
   font: inherit;
   font-size: 14px;
-  color: var(--wicket-iris-text);
-  background: var(--wicket-iris-surface);
-  border: 1px solid var(--wicket-iris-surface-border);
+  color: var(--orrery-iris-text);
+  background: var(--orrery-iris-surface);
+  border: 1px solid var(--orrery-iris-surface-border);
   border-radius: 10px;
   padding: 10px 12px;
   resize: vertical;
@@ -91,7 +91,7 @@
 
 .contact-field input:focus-visible,
 .contact-field textarea:focus-visible {
-  outline: 2px solid var(--wicket-iris-accent);
+  outline: 2px solid var(--orrery-iris-accent);
   outline-offset: 1px;
 }
 
@@ -101,7 +101,7 @@
   padding: 0 20px;
   border: none;
   border-radius: 9999px;
-  background: var(--wicket-iris-accent);
+  background: var(--orrery-iris-accent);
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -109,13 +109,13 @@
 }
 
 .contact-submit:focus-visible {
-  outline: 2px solid var(--wicket-iris-accent);
+  outline: 2px solid var(--orrery-iris-accent);
   outline-offset: 2px;
 }
 
 .contact-status {
   margin: 0;
   font-size: 13px;
-  color: var(--wicket-iris-accent);
+  color: var(--orrery-iris-accent);
   min-height: 1em;
 }

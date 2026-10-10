@@ -17,7 +17,7 @@
  * clock drives Motion's JS animations, every WAAPI animation is paused and
  * stepped by hand in 4ms ticks, and a frame is taken the first tick the
  * package's own collapseProgress (read off <Iris.Shadow>'s
- * --wicket-iris-collapse) crosses each target.
+ * --orrery-iris-collapse) crosses each target.
  *
  * Writes example/public/canvas/{posters/<tileId>.png, frames/<seq>/NN-*.png,
  * anatomy/<recipe>.png, frames.json}. PNGs are palette-quantised through ffmpeg when it's on PATH.
@@ -76,10 +76,10 @@ const POSTER_DSF: Record<CanvasViewport, number> = {
 const MARGIN = 40;
 
 const SEL = {
-  trigger: '[data-wicket-iris-part="trigger"]',
-  sheet: '[data-wicket-iris-part="sheet"]',
-  close: '[data-wicket-iris-part="sheet"] [data-wicket-iris-part="close"]',
-  shadow: '[data-wicket-iris-part="shadow"]',
+  trigger: '[data-orrery-iris-part="trigger"]',
+  sheet: '[data-orrery-iris-part="sheet"]',
+  close: '[data-orrery-iris-part="sheet"] [data-orrery-iris-part="close"]',
+  shadow: '[data-orrery-iris-part="shadow"]',
 };
 
 const HAS_FFMPEG = (() => {
@@ -147,7 +147,7 @@ async function newCtx(
   // requests keeps every frame on the same skeleton, and the run offline.
   await ctx.addInitScript(() => {
     window.addEventListener("message", (e) => {
-      if (e.data?.type === "wicket-iris-play:ready")
+      if (e.data?.type === "orrery-iris-play:ready")
         (window as { __stageReady?: boolean }).__stageReady = true;
     });
   });
@@ -173,7 +173,7 @@ async function loadTile(page: Page, tile: CanvasTile) {
     await page.evaluate(
       ([state, overrides]) =>
         window.postMessage(
-          { type: "wicket-iris-play:state", state, overrides },
+          { type: "orrery-iris-play:state", state, overrides },
           location.origin,
         ),
       [tile.state, tile.overrides ?? null] as const,
@@ -233,7 +233,7 @@ function union(
 const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
 async function waitSettled(page: Page, extra = 1200) {
-  await page.waitForSelector(`${SEL.sheet}[data-wicket-iris-settled]`, {
+  await page.waitForSelector(`${SEL.sheet}[data-orrery-iris-settled]`, {
     timeout: 15000,
   });
   await page.waitForTimeout(extra);
@@ -241,8 +241,8 @@ async function waitSettled(page: Page, extra = 1200) {
 async function waitClosed(page: Page) {
   await page.waitForFunction(
     () =>
-      !document.querySelector('[data-wicket-iris-part="sheet"]') &&
-      !document.querySelector("[data-wicket-iris-closing]"),
+      !document.querySelector('[data-orrery-iris-part="sheet"]') &&
+      !document.querySelector("[data-orrery-iris-closing]"),
     null,
     { timeout: 15000 },
   );
@@ -254,21 +254,21 @@ const readClock = (page: Page) =>
   page.evaluate(() => {
     const els = [
       ...document.querySelectorAll<HTMLElement>(
-        '[data-wicket-iris-part="shadow"]',
+        '[data-orrery-iris-part="shadow"]',
       ),
     ];
     let best: { c: number; s: number; ss: number } | null = null;
     for (const e of els) {
-      const c = parseFloat(e.style.getPropertyValue("--wicket-iris-collapse"));
+      const c = parseFloat(e.style.getPropertyValue("--orrery-iris-collapse"));
       if (Number.isNaN(c)) continue;
       const cs = getComputedStyle(e);
       const s = parseFloat(
-        e.style.getPropertyValue("--wicket-iris-shadow-opacity") ||
-          cs.getPropertyValue("--wicket-iris-shadow-opacity"),
+        e.style.getPropertyValue("--orrery-iris-shadow-opacity") ||
+          cs.getPropertyValue("--orrery-iris-shadow-opacity"),
       );
       const ss = parseFloat(
-        e.style.getPropertyValue("--wicket-iris-sheet-shadow-opacity") ||
-          cs.getPropertyValue("--wicket-iris-sheet-shadow-opacity"),
+        e.style.getPropertyValue("--orrery-iris-sheet-shadow-opacity") ||
+          cs.getPropertyValue("--orrery-iris-sheet-shadow-opacity"),
       );
       if (!best || c < best.c) best = { c, s, ss };
     }
@@ -491,7 +491,7 @@ async function morph(
     if (opts.isolateShadow) {
       await page.addStyleTag({
         content:
-          '[data-wicket-iris-part]:not([data-wicket-iris-part="shadow"]){opacity:0!important}',
+          '[data-orrery-iris-part]:not([data-orrery-iris-part="shadow"]){opacity:0!important}',
       });
     }
     await page.waitForTimeout(700);
@@ -918,7 +918,7 @@ interface AnatomyBox {
   w: number;
   h: number;
 }
-/** One recipe's measured part set: every [data-wicket-iris-part] at rest
+/** One recipe's measured part set: every [data-orrery-iris-part] at rest
  * and opened, plus the opened frame and its boxes for the variant card. */
 interface AnatomyRecipe {
   recipe: string;
@@ -933,12 +933,12 @@ interface AnatomyRecipe {
 
 const measureParts = (page: Page): Promise<AnatomyBox[]> =>
   page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>("[data-wicket-iris-part]")].map(
+    [...document.querySelectorAll<HTMLElement>("[data-orrery-iris-part]")].map(
       (el) => {
         const r = el.getBoundingClientRect();
         return {
-          part: el.dataset.wicketIrisPart!,
-          slot: el.dataset.wicketIrisSlot ?? null,
+          part: el.dataset.orreryIrisPart!,
+          slot: el.dataset.orreryIrisSlot ?? null,
           x: r.left,
           y: r.top,
           w: r.width,
@@ -1017,7 +1017,7 @@ async function posters(browser: Browser) {
     )) {
       await loadTile(page, tile);
       await page.mouse.move(0, 0);
-      // A defaultOpen mount never sets data-wicket-iris-settled (its
+      // A defaultOpen mount never sets data-orrery-iris-settled (its
       // collapseProgress stays at 1), so wait on the sheet itself.
       if (tile.kind === "play" && tile.overrides?.defaultOpen) {
         await page.waitForSelector(SEL.sheet, { state: "visible" });

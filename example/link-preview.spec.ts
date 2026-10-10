@@ -24,7 +24,7 @@ test.beforeEach(async ({ page }) => {
     }),
   );
 });
-const SHEET = '[data-wicket-iris-part="sheet"]';
+const SHEET = '[data-orrery-iris-part="sheet"]';
 const HOVER_INTENT_MS = 150;
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -99,7 +99,7 @@ async function startRecording(page: Page) {
         sheet: rect(sheet),
         opacity: sheet ? Number(getComputedStyle(sheet).opacity) : null,
         shadow: rect(
-          document.querySelector('[data-wicket-iris-part="shadow"]'),
+          document.querySelector('[data-orrery-iris-part="shadow"]'),
         ),
       });
       if (!rec.stop) requestAnimationFrame(tick);
@@ -143,7 +143,7 @@ async function gotoPreview(page: Page) {
 async function openCard(page: Page, loc: Locator, i = 0) {
   const at = await hoverLine(page, loc, i);
   await expect(page.locator(SHEET)).toBeVisible();
-  await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
+  await page.waitForSelector(`${SHEET}[data-orrery-iris-settled]`);
   return at;
 }
 
@@ -210,7 +210,7 @@ test.describe("link preview (desktop)", () => {
     await page.mouse.move(900, 600);
     await page.waitForTimeout(400);
     await expect(page.locator(SHEET)).toHaveCount(0);
-    await expect(page.locator("[data-wicket-iris-root]")).toHaveCount(0);
+    await expect(page.locator("[data-orrery-iris-root]")).toHaveCount(0);
   });
 
   test("(a) hover intent opens between 130ms and 400ms after the pointer enters", async ({
@@ -281,7 +281,7 @@ test.describe("link preview (desktop)", () => {
     await scrollPageTo(page, 1800 + PROSE_Y - 650, 1800);
     const up = await hoverLine(page, loc);
     await expect(page.locator(SHEET)).toBeVisible();
-    await page.waitForSelector(`${SHEET}[data-wicket-iris-settled]`);
+    await page.waitForSelector(`${SHEET}[data-orrery-iris-settled]`);
     s = (await page.locator(SHEET).boundingBox())!;
     expect(up.line.top).toBeGreaterThan(544);
     expect(
@@ -361,13 +361,13 @@ test.describe("link preview (desktop)", () => {
     const state = await page.evaluate(() => ({
       hidden: [...document.querySelectorAll("[aria-hidden]")].filter(
         (e) =>
-          !e.closest("[data-wicket-iris-root]") &&
+          !e.closest("[data-orrery-iris-root]") &&
           // The other links' own transparent morph surfaces.
-          e.getAttribute("data-wicket-iris-part") !== "trigger-surface",
+          e.getAttribute("data-orrery-iris-part") !== "trigger-surface",
       ).length,
       overflow: document.body.style.overflow,
       paddingRight: document.body.style.paddingRight,
-      backdrops: document.querySelectorAll('[data-wicket-iris-part="backdrop"]')
+      backdrops: document.querySelectorAll('[data-orrery-iris-part="backdrop"]')
         .length,
       dialogs: document.querySelectorAll('[role="dialog"], [aria-modal]')
         .length,
@@ -404,7 +404,7 @@ test.describe("link preview (desktop)", () => {
     await expect(page.locator(SHEET)).toHaveCount(0, { timeout: 3000 });
     await page.waitForTimeout(700);
     await expect(page.locator(SHEET)).toHaveCount(0);
-    await expect(page.locator("[data-wicket-iris-root]")).toHaveCount(0);
+    await expect(page.locator("[data-orrery-iris-root]")).toHaveCount(0);
   });
 
   test("(e) a press outside closes, without waiting for the hover grace", async ({
@@ -595,7 +595,7 @@ test.describe("link preview (touch)", () => {
     await page.waitForTimeout(600);
     await finger.end();
     await expect(page.locator(SHEET)).toHaveCount(0);
-    await expect(page.locator("[data-wicket-iris-root]")).toHaveCount(0);
+    await expect(page.locator("[data-orrery-iris-root]")).toHaveCount(0);
   });
 
   test("(g) zero console errors or warnings from our page across hover, switch, long-press, Escape", async ({
