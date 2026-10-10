@@ -4,8 +4,9 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Straggler guard for two renames: morph-sheet -> VistaSheet, then
- * vista-sheet -> Wicket Iris. Scans every git-tracked file for either old
+ * Straggler guard for three renames: morph-sheet -> VistaSheet,
+ * vista-sheet -> Wicket Iris, then Wicket -> Orrery (@orrery-ui/iris). Also
+ * fails on the wrong npm scope `@orrery/`. Scans every git-tracked file for either old
  * product name and fails with file:line for any hit outside the explicit
  * allowlist below. An allowlist entry is one of:
  *   - a frozen id that has to keep its old spelling (dialkit panel/preset ids,
@@ -93,7 +94,30 @@ const VISTA_SHEET: Rule = {
   },
 };
 
-const RULES = [MORPH_SHEET, VISTA_SHEET];
+const WICKET: Rule = {
+  label: "wicket",
+  re: /wicket/i,
+  allow: {
+    // History: files that record what was true then, not rewritten.
+    "BACKLOG.md": null,
+    "BACKLOG-archive.md": null,
+    "ANNOTIE.md": null,
+    // This guard file itself.
+    "src/naming.test.ts": null,
+  },
+};
+
+// `@orrery` (no `-ui`) is someone else's npm scope. Ours is `@orrery-ui`.
+const ORRERY_SCOPE: Rule = {
+  label: "@orrery/ (wrong npm scope)",
+  re: /@orrery\//,
+  allow: {
+    // This guard file itself.
+    "src/naming.test.ts": null,
+  },
+};
+
+const RULES = [MORPH_SHEET, VISTA_SHEET, WICKET, ORRERY_SCOPE];
 
 const strip = (line: string, tokens: string[]) =>
   tokens.reduce((l, t) => l.split(t).join(""), line);

@@ -22,11 +22,14 @@ Browser and platform limits: [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
 ## Install
 
 ```bash
-npm install @orrery-ui/iris
+npm install @orrery-ui/iris   # the Iris component
+npm install orrery-ui         # the full Orrery system
 npm install react react-dom motion@14
 ```
 
-The second line installs the [peer dependencies](#peer-dependencies); skip
+`@orrery-ui/iris` is the component on its own; `orrery-ui` re-exports every Orrery component (today that is Iris), so import from whichever you installed.
+
+The last line installs the [peer dependencies](#peer-dependencies); skip
 any your app already has.
 
 `dist/` ships compiled ESM + `.d.ts` declarations, so the default import
